@@ -1,8 +1,6 @@
-import Home from "./modules/Home/Home";
+import Home from "@/modules/home/page";
 export default function App() {
   return (
-    <div>
-      <Home />
-    </div>
+        <Home />  
   );
 }
