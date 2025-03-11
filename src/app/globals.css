@@ -15,7 +15,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #252525;
-    --background2: #C5C5BD;
+    --background2: #0C4325;
     --foreground: #EBEFE1;
     --foreground2: #323226;
   }
@@ -30,6 +30,9 @@ body {
   font-size: 116px;
 }
 
+.custom-bg2 {
+  background: var(--background2);
+}
 
 /* 
 
