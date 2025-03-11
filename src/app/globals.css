@@ -2,20 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: #EBEFE1;
+    --background2: #A5B99C;
+    --foreground: #0C4325;
+    --foreground2: #2E613D;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #252525;
+    --background2: #0C4325;
+    --foreground: #EBEFE1;
+    --foreground2: #323226;
   }
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  /* font-family: 'Lora', serif; */
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 116px;
 }
+
+.custom-bg2 {
+  background: var(--background2);
+}
+
+/* 
+
+Light
+Background: #EBEFE1
+background2: #A5B99C
+Foreground: #0C4325
+Foreground2: #2E613D
+
+Dark
+Background: #252525
+Background2: #C5C5BD
+Foreground: #EBEFE1
+Foreground2: #323226 
+
+*/
