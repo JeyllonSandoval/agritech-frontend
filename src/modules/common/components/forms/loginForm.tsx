@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
+    const router = useRouter();
     const [Email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
@@ -23,15 +25,14 @@ const Login = () => {
                 const data = await response.json();
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
-                setMessage(`¡Bienvenido ${data.user.FirstName}!, ${data.token}`);
-
+                router.push("/");
             } else {
                 const errorData = await response.json();
-                setMessage(errorData.message || "Credenciales incorrectas");
+                setMessage(errorData.message || "Invalid credentials");
             }
         } catch (error) {
-            console.error("Error al conectar con el servidor:", error);
-            setMessage("Error al conectar con el servidor");
+            console.error("Error connecting to the server:", error);
+            setMessage("Error connecting to the server");
         }
     };
 
@@ -63,7 +64,6 @@ const Login = () => {
                             Login
                         </button>
                     </div>
-                    {message && <p className="text-red-500 text-xl text-center m-0 p-0 w-1/3">{message}</p>}
                 </div>
             </form>
         </section>
