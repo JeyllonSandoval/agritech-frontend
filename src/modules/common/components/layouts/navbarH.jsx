@@ -19,7 +19,7 @@ const AuthSection = () => {
     }, [pathname]);
 
     return isAuthenticated ? (
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center justify-center">
             <Link href="/profile"><ButtonProfile /></Link>
             <Link href="/"><ButtonLogout /></Link>
         </div>
@@ -49,7 +49,7 @@ const NavbarH = () => {
                                     About
                                 </Link>
                             </li>
-                            <li className="flex items-center w-[120px] justify-center">
+                            <li className="flex items-center w-auto justify-center">
                                 <AuthSection />
                             </li>
                         </ul>
