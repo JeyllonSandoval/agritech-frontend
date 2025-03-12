@@ -25,6 +25,10 @@ const Login = () => {
                 const data = await response.json();
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
+                
+                // Disparar evento personalizado
+                window.dispatchEvent(new Event('loginStateChange'));
+                
                 router.push("/");
             } else {
                 const errorData = await response.json();
@@ -58,7 +62,7 @@ const Login = () => {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                         <button
-                            className="w-1/2 h-1/2 rounded-lg text-center text-white custom-bg2 text-2xl p-3"
+                            className="w-1/2 h-1/2 rounded-lg text-center text-white custom-bg2 text-2xl p-3 hover:scale-105 transition-all duration-300 ease-in-out"
                             type="submit"
                         >
                             Login

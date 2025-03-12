@@ -14,15 +14,16 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --font-color: #eeeeee;
     --background: #252525;
     --background2: #0C4325;
-    --foreground: #EBEFE1;
+    --foreground: #ace29f;
     --foreground2: #323226;
   }
 }
 
 body {
-  color: var(--foreground);
+  color: var(--font-color);
   background: var(--background);
   /* font-family: 'Lora', serif; */
   font-family: 'Poppins', sans-serif;
@@ -31,7 +32,13 @@ body {
 }
 
 .custom-bg2 {
+  background: var(--foreground);
+  color: var(--background2);
+}
+
+.custom-bg2:hover {
   background: var(--background2);
+  color: var(--foreground);
 }
 
 /* 
