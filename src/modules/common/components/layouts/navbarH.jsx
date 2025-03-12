@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import Link from "next/link";
 import ButtonSign from "@/modules/common/components/UI/ButtonSign";
 import ButtonProfile from "@/modules/common/components/UI/ButtonProfile";
+import ButtonLogout from "@/modules/common/components/UI/buttonLogout";
 
 // Componente para la parte de autenticación
 const AuthSection = () => {
@@ -18,7 +19,10 @@ const AuthSection = () => {
     }, [pathname]);
 
     return isAuthenticated ? (
-        <Link href="/profile"><ButtonProfile /></Link>
+        <div className="flex gap-4">
+            <Link href="/profile"><ButtonProfile /></Link>
+            <Link href="/"><ButtonLogout /></Link>
+        </div>
     ) : (
         <Link href="/signin"><ButtonSign /></Link>
     );
