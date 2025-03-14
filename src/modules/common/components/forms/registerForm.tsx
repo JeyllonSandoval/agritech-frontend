@@ -13,7 +13,7 @@ interface UserData {
     Email: string;
     password: string;
     CountryID: string;
-    imageUser?: string;
+    image?: string;
 }
 
 export default function RegisterForm() {
@@ -25,7 +25,7 @@ export default function RegisterForm() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [CountryID, setCountryID] = useState("");
-    const [imageUser, setImageUser] = useState<File | null>(null);
+    const [image, setImage] = useState<File | null>(null);
     const [message, setMessage] = useState("");
     const router = useRouter();
 
@@ -68,8 +68,8 @@ export default function RegisterForm() {
             formData.append("password", password);
             formData.append("CountryID", CountryID);
             
-            if (imageUser) {
-                formData.append("imageUser", imageUser);
+            if (image) {
+                formData.append("image", image);
             }
 
             const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/register`, {
@@ -95,7 +95,7 @@ export default function RegisterForm() {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setImageUser(e.target.files[0]);
+            setImage(e.target.files[0]);
         }
     };
 
