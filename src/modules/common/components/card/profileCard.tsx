@@ -78,6 +78,9 @@ export default function ProfileCard() {
                     <p className="text-gray-600 dark:text-gray-300">
                         Email: {userData.Email}
                     </p>
+                    <p className="text-gray-600 dark:text-gray-300">
+                        Fecha de creación: {userData.createdAt}
+                    </p>
                     <p className={`text-sm font-semibold px-3 py-1 rounded-full ${userData.status === "active" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}>
                         {userData.status === "active" ? "Activo" : "Inactivo"}
                     </p>
