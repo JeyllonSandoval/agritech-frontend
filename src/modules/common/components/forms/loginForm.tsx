@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
+    const router = useRouter();
     const [Email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
@@ -23,15 +25,18 @@ const Login = () => {
                 const data = await response.json();
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
-                setMessage(`¡Bienvenido ${data.user.FirstName}!, ${data.token}`);
-
+                
+                // Disparar evento personalizado
+                window.dispatchEvent(new Event('loginStateChange'));
+                
+                router.push("/");
             } else {
                 const errorData = await response.json();
-                setMessage(errorData.message || "Credenciales incorrectas");
+                setMessage(errorData.message || "Invalid credentials");
             }
         } catch (error) {
-            console.error("Error al conectar con el servidor:", error);
-            setMessage("Error al conectar con el servidor");
+            console.error("Error connecting to the server:", error);
+            setMessage("Error connecting to the server");
         }
     };
 
@@ -57,13 +62,12 @@ const Login = () => {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                         <button
-                            className="w-1/2 h-1/2 rounded-lg text-center text-white custom-bg2 text-2xl p-3"
+                            className="w-1/2 h-1/2 rounded-lg text-center text-white custom-bg2 text-2xl p-3 hover:scale-105 transition-all duration-300 ease-in-out"
                             type="submit"
                         >
                             Login
                         </button>
                     </div>
-                    {message && <p className="text-red-500 text-xl text-center m-0 p-0 w-1/3">{message}</p>}
                 </div>
             </form>
         </section>
