@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getChats } from "@/modules/common/services/getChats";
+import type { GetChatsProps } from "@/modules/common/services/getChats";
 
 interface NavbarLateralProps {
     isSidebarOpen: boolean;
@@ -6,6 +8,17 @@ interface NavbarLateralProps {
 }
 
 export default function NavbarLateral({ isSidebarOpen, setIsSidebarOpen }: NavbarLateralProps) {
+    const [chats, setChats] = useState<GetChatsProps[]>([]);
+
+    useEffect(() => {
+        const loadChats = async () => {
+            const userChats = await getChats();
+            setChats(userChats);
+        };
+
+        loadChats();
+    }, []);
+
     return (
         <section>
             <div
@@ -28,6 +41,18 @@ export default function NavbarLateral({ isSidebarOpen, setIsSidebarOpen }: Navba
                 </button>
                 <div className="flex flex-col gap-2 mt-4 justify-center items-center">
                     <h2 className="text-lg">View Chats</h2>
+                    {chats.length > 0 ? (
+                        chats.map((chat) => (
+                            <button 
+                                key={chat.ChatID}
+                                className="w-full p-2 bg-gray-700 text-white rounded-md hover:bg-gray-600"
+                            >
+                                {chat.chatname}
+                            </button>
+                        ))
+                    ) : (
+                        <p className="text-gray-400 text-sm">Empty chats</p>
+                    )}
                 </div>
             </div>
             {!isSidebarOpen && (
