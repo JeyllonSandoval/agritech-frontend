@@ -1,12 +1,15 @@
 import { useState } from "react";
 
-export default function NavbarLateral() {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+interface NavbarLateralProps {
+    isSidebarOpen: boolean;
+    setIsSidebarOpen: (isOpen: boolean) => void;
+}
 
+export default function NavbarLateral({ isSidebarOpen, setIsSidebarOpen }: NavbarLateralProps) {
     return (
-        <>
+        <section>
             <div
-                className={`fixed left-0 top-24 h-full py-15 bg-gray-800 text-white p-4 flex flex-col gap-4 text-2xl transition-transform duration-300 ${
+                className={`fixed left-0 top-24 h-full py-15 bg-gray-800 text-white p-4 flex flex-col gap-4 text-2xl transition-all duration-300 ${
                     isSidebarOpen ? "translate-x-0" : "-translate-x-full"
                 }`}
                 style={{ width: "300px" }}
@@ -35,6 +38,6 @@ export default function NavbarLateral() {
                     Show Menu
                 </button>
             )}
-        </>
+        </section>
     );
 }

@@ -1,22 +1,19 @@
 "use client";
-
+import { useState } from "react";
 import NavbarLateral from "./navbarLateral";
+import PlaygroundPanel from "./PlaygroundPanel";
 
 export default function PlaygroundLayout() {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     return (
         <div className="w-full h-full flex">
             <div className="w-full h-full flex bg-gray-100 relative overflow-hidden">
-                <NavbarLateral />
-
-                {/* Main Content */}
-                <div
-                    className={`flex-grow bg-white transition-all duration-300`}
-                >
-                    <div className="flex items-center justify-center h-full bg-gray-500">
-                        <h2 className="text-4xl">Welcome</h2>
-                    </div>
-                </div>
+                <NavbarLateral 
+                    isSidebarOpen={isSidebarOpen} 
+                    setIsSidebarOpen={setIsSidebarOpen} 
+                />
+                <PlaygroundPanel isSidebarOpen={isSidebarOpen} />
             </div>
         </div>
     );
