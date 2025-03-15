@@ -17,7 +17,7 @@ export default function RootLayout({
         <header className="w-full mb-20">
           <NavbarH />
         </header>
-        <main className="w-full aspect-screen">
+        <main className="w-full aspect-screen py-4">
           {children}
         </main>
       </body>
