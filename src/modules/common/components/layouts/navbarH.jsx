@@ -30,7 +30,7 @@ const AuthSection = () => {
 
 const NavbarH = () => {
     return (
-        <section className="w-full fixed top-0 z-[10000] bg-transparent backdrop-blur-xl">
+        <section className="w-full fixed top-0 z-[10] bg-transparent backdrop-blur-xl">
                     <nav className="w-full flex justify-around items-center text-white gap-[250px] py-5">
                         <h1 className="text-4xl m-0 p-0 w-[150px]">AgriTech</h1>
                         <ul className="flex list-none m-0 p-0 gap-8">
