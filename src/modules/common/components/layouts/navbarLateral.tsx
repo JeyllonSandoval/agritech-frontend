@@ -5,9 +5,10 @@ import type { GetChatsProps } from "@/modules/common/services/getChats";
 interface NavbarLateralProps {
     isSidebarOpen: boolean;
     setIsSidebarOpen: (isOpen: boolean) => void;
+    setActivePanel: (panel: 'welcome' | 'files' | 'chat') => void;
 }
 
-export default function NavbarLateral({ isSidebarOpen, setIsSidebarOpen }: NavbarLateralProps) {
+export default function NavbarLateral({ isSidebarOpen, setIsSidebarOpen, setActivePanel }: NavbarLateralProps) {
     const [chats, setChats] = useState<GetChatsProps[]>([]);
 
     useEffect(() => {
@@ -33,10 +34,16 @@ export default function NavbarLateral({ isSidebarOpen, setIsSidebarOpen }: Navba
                 >
                     Hide Menu
                 </button>
-                <button className="w-full mb-2 bg-blue-500 text-white rounded-md p-2">
+                <button 
+                    onClick={() => setActivePanel('files')}
+                    className="w-full mb-2 bg-blue-500 text-white rounded-md p-2"
+                >
                     File PDF
                 </button>
-                <button className="w-full mb-2 bg-green-500 text-white rounded-md p-2">
+                <button 
+                    onClick={() => setActivePanel('chat')}
+                    className="w-full mb-2 bg-green-500 text-white rounded-md p-2"
+                >
                     Create Chat
                 </button>
                 <div className="flex flex-col gap-2 mt-4 justify-center items-center">
