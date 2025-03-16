@@ -29,7 +29,7 @@ export const getFiles = async (): Promise<FileProps[]> => {
         });
 
         if (!response.ok) {
-            throw new Error('Failed to fetch files');
+            return []
         }
 
         const data = await response.json();
