@@ -8,8 +8,8 @@ interface PlaygroundPanelProps {
 
 export default function PlaygroundPanel({ isSidebarOpen, activePanel }: PlaygroundPanelProps) {
     return (
-        <div className={`flex-grow transition-all duration-300 ${
-            isSidebarOpen ? 'ml-[300px]' : 'ml-0'
+        <div className={`fixed top-[80px] right-0 bottom-0 transition-all duration-300 ${
+            isSidebarOpen ? 'left-[300px]' : 'left-0'
         }`}>
             {activePanel === 'welcome' && (
                 <div className="flex items-center justify-center h-full bg-gray-500">
