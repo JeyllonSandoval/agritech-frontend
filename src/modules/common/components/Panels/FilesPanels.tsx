@@ -1,26 +1,14 @@
-import { useEffect, useState } from 'react';
-import { getFiles, FileProps } from '@/modules/common/services/getFiles';
+import { useEffect } from 'react';
 import BarFiles from '@/modules/common/components/UI/barFiles';
 import ButtonCreated from '@/modules/common/components/UI/buttonCreated';
+import { useFileStore } from '@/modules/common/stores/fileStore';
+
 export default function FilesPanels() {
-    const [files, setFiles] = useState<FileProps[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { files, loading, error, fetchFiles } = useFileStore();
 
     useEffect(() => {
-        const loadFiles = async () => {
-            try {
-                const userFiles = await getFiles();
-                setFiles(userFiles);
-            } catch (error) {
-                setError('Error loading files');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadFiles();
-    }, []);
+        fetchFiles();
+    }, [fetchFiles]);
 
     if (loading) return <div className="flex justify-center items-center h-full">Loading...</div>;
     if (error) return <div className="flex justify-center items-center h-full text-red-500">{error}</div>;

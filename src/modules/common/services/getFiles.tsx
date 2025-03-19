@@ -7,7 +7,7 @@ interface TokenData {
 export interface FileProps {
     FileID: string;
     UserID: string;
-    filename: string;
+    FileName: string;
     createdAt: string;
 }
 
