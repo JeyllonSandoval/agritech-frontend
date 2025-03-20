@@ -86,7 +86,7 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
         <form onSubmit={handleSubmit} className="flex flex-col min-w-full items-center justify-center gap-4">
             <div className="flex flex-col w-1/2">
                 <div>
-                    <label htmlFor="fileInput" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="fileInput" className="block text-sm font-medium text-gray-400">
                         Select File
                     </label>
                     <input

@@ -18,7 +18,7 @@ export default function ModalCreated({ isOpen, onClose }: ModalCreatedProps) {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex flex-row justify-between items-center w-full">
-                    <h1 className="text-4xl font-bold text-gray-700">Create New File</h1>
+                    <h1 className="text-4xl font-bold text-gray-500">Create New File</h1>
                     <button
                         onClick={onClose}
                         className="text-4xl text-gray-500 hover:text-red-600"

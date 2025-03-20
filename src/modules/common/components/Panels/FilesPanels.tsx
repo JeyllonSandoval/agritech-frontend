@@ -43,7 +43,7 @@ export default function FilesPanels() {
             <div className="flex-1 w-1/2 h-1/2 mb-10 relative border-2 border-gray-600 rounded-lg overflow-hidden">
                 {/* Degradado superior */}
                 {showTopGradient && (
-                    <div className="absolute -top-10 -left-10 -right-10 h-32 bg-gradient-to-b from-gray-900 to-transparent z-10 transition-opacity duration-200 pointer-events-none"></div>
+                    <div className="absolute -top-10 -left-10 -right-10 h-32 bg-gradient-to-b from-black to-transparent z-10 transition-opacity duration-200 pointer-events-none"></div>
                 )}
                 
                 {/* Contenedor de archivos con scroll */}
@@ -66,7 +66,7 @@ export default function FilesPanels() {
 
                 {/* Degradado inferior */}
                 {showBottomGradient && (
-                    <div className="absolute -bottom-10 -left-10 -right-10 h-32 bg-gradient-to-t from-gray-900 to-transparent z-10 transition-opacity duration-200 pointer-events-none"></div>
+                    <div className="absolute -bottom-10 -left-10 -right-10 h-32 bg-gradient-to-t from-black to-transparent z-10 transition-opacity duration-200 pointer-events-none"></div>
                 )}
             </div>
         </div>

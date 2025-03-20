@@ -67,7 +67,7 @@ export default function NavbarLateral({ isSidebarOpen, setIsSidebarOpen, setActi
                     onClick={() => setIsSidebarOpen(true)}
                     className="p-2 bg-gray-700 text-white m-2 rounded-md text-lg fixed top-4 left-4 z-[20]"
                 >
-                    Show Menu
+                    Menu
                 </button>
             )}
         </section>
