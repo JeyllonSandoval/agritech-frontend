@@ -1,4 +1,10 @@
 import { useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
+
+interface TokenPayload {
+    UserID: string;
+    // ... otros campos del token si existen
+}
 
 interface ChatCreatedFormProps {
     onClose: () => void;
@@ -15,13 +21,22 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
         setError('');
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/chats`, {
+            const token = localStorage.getItem('token');
+            if (!token) throw new Error('No token found');
+
+            const decoded = jwtDecode<TokenPayload>(token);
+            const UserID = decoded.UserID;
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ name: chatName })
+                body: JSON.stringify({
+                    UserID: UserID,
+                    chatname: chatName
+                })
             });
 
             if (!response.ok) {
