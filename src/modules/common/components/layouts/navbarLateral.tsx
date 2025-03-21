@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getChats } from "@/modules/common/services/getChats";
 import type { GetChatsProps } from "@/modules/common/services/getChats";
+import { useChatStore } from '@/modules/common/stores/chatStore';
 
 interface NavbarLateralProps {
     isOpen: boolean;
@@ -11,23 +12,44 @@ interface NavbarLateralProps {
 }
 
 export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLateralProps) {
-    const [chats, setChats] = useState<GetChatsProps[]>([]);
+    const chats = useChatStore(state => state.chats);
+    const setChats = useChatStore(state => state.setChats);
+
+    const loadChats = useCallback(async () => {
+        const userChats = await getChats();
+        setChats(userChats);
+    }, [setChats]);
 
     useEffect(() => {
-        const loadChats = async () => {
-            const userChats = await getChats();
-            setChats(userChats);
-        };
-
         loadChats();
-    }, []);
+    }, [loadChats]);
+
+    const handlePanelChange = useCallback((panel: 'welcome' | 'files' | 'chat') => {
+        props.onPanelChange(panel);
+    }, [props.onPanelChange]);
+
+    const renderChats = useCallback(() => {
+        console.log('Rendering chats:', chats);
+        if (chats.length === 0) {
+            return <p key="empty-chats" className="text-gray-400 text-sm">Empty chats</p>;
+        }
+
+        return chats.map((chat) => (
+            <button 
+                key={chat.ChatID}
+                className="w-full p-2 bg-gray-700 text-white rounded-md hover:bg-gray-600"
+            >
+                {chat.chatname || 'Unnamed Chat'}
+            </button>
+        ));
+    }, [chats]);
 
     return (
         <>
             {/* Botón independiente para mostrar el menú */}
             <button
                 onClick={onToggle}
-                className={`fixed left-0 top-[90px] z-50 text-4xl text-gray-400 hover:text-white transition-colors bg-gray-800 p-2 rounded-r-md ${
+                className={`fixed left-0 top-[140px] z-50 text-4xl text-gray-400 hover:text-white hover:bg-gray-700 transition-colors bg-gray-800 p-2 rounded-r-md h-4/6 ${
                     isOpen ? 'hidden' : 'block'
                 }`}
             >
@@ -52,31 +74,22 @@ export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLate
 
                 <div className="flex flex-col gap-4 p-4">
                     <button 
-                        onClick={() => props.onPanelChange('files')}
+                        key="files-button"
+                        onClick={() => handlePanelChange('files')}
                         className="w-full mb-2 bg-blue-500 text-white rounded-md p-2"
                     >
                         File PDF
                     </button>
                     <button 
+                        key="create-chat-button"
                         onClick={props.onCreateChat}
                         className="w-full mb-2 bg-green-500 text-white rounded-md p-2"
                     >
                         Create Chat
                     </button>
-                    <div className="flex flex-col gap-2 mt-4 justify-center items-center">
+                    <div key="chats-section" className="flex flex-col gap-2 mt-4 justify-center items-center">
                         <h2 className="text-lg">View Chats</h2>
-                        {chats.length > 0 ? (
-                            chats.map((chat) => (
-                                <button 
-                                    key={chat.ChatID}
-                                    className="w-full p-2 bg-gray-700 text-white rounded-md hover:bg-gray-600"
-                                >
-                                    {chat.chatname}
-                                </button>
-                            ))
-                        ) : (
-                            <p className="text-gray-400 text-sm">Empty chats</p>
-                        )}
+                        {renderChats()}
                     </div>
                 </div>
             </nav>
