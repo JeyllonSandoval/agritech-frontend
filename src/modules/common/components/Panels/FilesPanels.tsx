@@ -36,7 +36,7 @@ export default function FilesPanels() {
             {/* Header fijo */}
             <div className="flex flex-col items-center p-4">
                 <h1 className="text-5xl font-bold text-gray-100 mb-4">Your Files</h1>
-                <ButtonCreated />
+                <ButtonCreated type="file" />
             </div>
 
             {/* Contenedor con scroll y efectos de degradado */}

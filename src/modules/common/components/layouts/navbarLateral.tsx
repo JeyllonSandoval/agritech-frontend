@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getChats } from "@/modules/common/services/getChats";
 import type { GetChatsProps } from "@/modules/common/services/getChats";
+import ModalCreated from "../modals/modalCreated";
 
 interface NavbarLateralProps {
     isSidebarOpen: boolean;
@@ -10,6 +11,7 @@ interface NavbarLateralProps {
 
 export default function NavbarLateral({ isSidebarOpen, setIsSidebarOpen, setActivePanel }: NavbarLateralProps) {
     const [chats, setChats] = useState<GetChatsProps[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const loadChats = async () => {
@@ -40,12 +42,15 @@ export default function NavbarLateral({ isSidebarOpen, setIsSidebarOpen, setActi
                 >
                     File PDF
                 </button>
-                <button 
-                    onClick={() => setActivePanel('chat')}
-                    className="w-full mb-2 bg-green-500 text-white rounded-md p-2"
-                >
-                    Create Chat
-                </button>
+                <>
+                    <button 
+                        onClick={() => setIsModalOpen(true)}
+                        className="w-full mb-2 bg-green-500 text-white rounded-md p-2"
+                    >
+                        Create Chat
+                    </button>
+                    <ModalCreated isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} type="chat" />
+                </>
                 <div className="flex flex-col gap-2 mt-4 justify-center items-center">
                     <h2 className="text-lg">View Chats</h2>
                     {chats.length > 0 ? (

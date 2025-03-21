@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ModalCreated from '../modals/modalCreated';
 
-export default function ButtonCreated() {
+export default function ButtonCreated({ type }: { type: 'file' | 'chat' }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
@@ -15,7 +15,8 @@ export default function ButtonCreated() {
             <ModalCreated 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
-            />
+                type={type}
+            />  
         </>
     );
 }

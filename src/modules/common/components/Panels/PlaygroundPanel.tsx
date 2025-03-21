@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import FilesPanels from '../Panels/FilesPanels';
+import ModalCreated from '../modals/modalCreated';
 
 interface PlaygroundPanelProps {
     isSidebarOpen: boolean;
