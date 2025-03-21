@@ -34,8 +34,8 @@ export default function FilesPanels() {
     return (
         <div className="h-full w-full flex flex-col items-center">
             {/* Header fijo */}
-            <div className="flex flex-col items-center p-4">
-                <h1 className="text-5xl font-bold text-gray-100 mb-4">Your Files</h1>
+            <div className="flex items-center justify-between w-1/2 p-4">
+                <h1 className="text-5xl font-bold text-gray-100">Your Files</h1>
                 <ButtonCreated type="file" />
             </div>
 
