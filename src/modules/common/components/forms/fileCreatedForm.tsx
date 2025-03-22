@@ -83,10 +83,10 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col min-w-full items-center justify-center gap-4">
-            <div className="flex flex-col w-1/2">
+        <form onSubmit={handleSubmit} className="flex flex-col w-full items-center justify-center gap-6">
+            <div className="flex flex-col w-full gap-4">
                 <div>
-                    <label htmlFor="fileInput" className="block text-sm font-medium text-gray-400">
+                    <label htmlFor="fileInput" className="block text-sm text-white/70 mb-2">
                         Select File
                     </label>
                     <input
@@ -102,7 +102,13 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="w-full h-full text-2xl border-2 border-dashed border-gray-300 rounded-md text-gray-600 hover:border-blue-500 hover:text-blue-500 transition-colors duration-300 flex items-center justify-center px-4 overflow-hidden"
+                            className="w-full h-full text-sm border-2 
+                                border-dashed border-white/20 rounded-xl 
+                                text-white/70 
+                                hover:border-emerald-400/50 hover:text-emerald-400/70
+                                transition-all duration-300 
+                                flex items-center justify-center px-4 
+                                bg-white/5 backdrop-blur-sm"
                         >
                             {selectedFile ? truncateFileName(selectedFile.name) : 'Click to select a file'}
                         </button>
@@ -111,19 +117,30 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
             </div>
 
             {error && (
-                <div className="text-red-500 text-center w-1/2 text-2xl">
+                <div className="text-red-400 text-sm bg-red-400/10 px-4 py-2 rounded-xl border border-red-400/20">
                     {error}
                 </div>
             )}
 
-            <div className="flex justify-center items-center w-1/3">
+            <div className="flex justify-end gap-3 w-full">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-6 py-2.5 text-sm rounded-xl
+                        border border-white/20 text-white/70
+                        hover:bg-white/10 hover:text-white
+                        transition-all duration-300"
+                >
+                    Cancel
+                </button>
                 <button
                     type="submit"
                     disabled={loading || !selectedFile}
-                    className={`text-2xl text-white w-full h-auto p-1 rounded-md transition-colors duration-300 
-                        ${!selectedFile 
-                            ? 'bg-gray-400 cursor-not-allowed' 
-                            : 'bg-blue-600 hover:bg-blue-700'
+                    className={`px-6 py-2.5 text-sm rounded-xl
+                        transition-all duration-300
+                        ${!selectedFile || loading
+                            ? 'bg-white/10 text-white/40 cursor-not-allowed'
+                            : 'bg-emerald-400/90 text-black hover:bg-emerald-400'
                         }`}
                 >
                     {loading ? 'Uploading...' : (!selectedFile ? 'Select a file first' : 'Upload')}

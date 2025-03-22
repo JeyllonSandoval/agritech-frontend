@@ -63,23 +63,25 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="w-1/2 h-full ">
+        <form onSubmit={handleSubmit} className="w-full space-y-6">
             <div className="relative">
                 <input
                     type="text"
                     value={chatName}
                     onChange={(e) => setChatName(e.target.value)}
                     placeholder="Enter chat name"
-                    className="w-full px-4 py-3 text-lg bg-gray-800/50 text-white border-2 border-gray-700 rounded-lg
-                    focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none
-                    transition-all duration-300 backdrop-blur-sm"
+                    className="w-full px-4 py-3 text-sm
+                        bg-white/10 backdrop-blur-sm rounded-xl
+                        border border-white/20 text-white
+                        focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/20
+                        focus:outline-none placeholder-white/40
+                        transition-all duration-300"
                     required
                 />
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-emerald-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
             </div>
             
             {error && (
-                <p className="text-red-400 text-sm font-medium px-2 py-1 bg-red-500/10 rounded-lg border border-red-500/20">
+                <p className="text-red-400 text-sm bg-red-400/10 px-4 py-2 rounded-xl border border-red-400/20">
                     {error}
                 </p>
             )}
@@ -88,19 +90,22 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                 <button
                     type="button"
                     onClick={onClose}
-                    className="px-6 py-2.5 text-sm font-medium rounded-lg border-2 border-gray-600 text-gray-300
-                    hover:bg-gray-700/50 hover:border-gray-500 hover:text-white
-                    transition-all duration-300 backdrop-blur-sm"
+                    className="px-6 py-2.5 text-sm rounded-xl
+                        border border-white/20 text-white/70
+                        hover:bg-white/10 hover:text-white
+                        transition-all duration-300"
                 >
                     Cancel
                 </button>
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-6 py-2.5 text-sm font-medium rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-500
-                    text-white hover:from-emerald-500 hover:to-emerald-400
-                    disabled:from-gray-700 disabled:to-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed
-                    transition-all duration-300 shadow-lg shadow-emerald-500/20"
+                    className={`px-6 py-2.5 text-sm rounded-xl
+                        transition-all duration-300
+                        ${isLoading 
+                            ? 'bg-white/10 text-white/40 cursor-not-allowed'
+                            : 'bg-emerald-400/90 text-black hover:bg-emerald-400'
+                        }`}
                 >
                     {isLoading ? (
                         <span className="flex items-center gap-2">
