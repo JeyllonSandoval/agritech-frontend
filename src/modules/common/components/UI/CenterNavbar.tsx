@@ -19,12 +19,13 @@ const handleLinkClick = (path: string) => {
 
 // Verificar si estamos en la ruta /signin
 const isSignInRoute = pathname === '/signin';
+const isProfileRoute = pathname === '/profile';
 
 return (
     <div className="flex-1 flex justify-center items-center bg-white/10 backdrop-blur-sm py-[2px] rounded-full">
         <div className="flex gap-8 text-lg relative justify-center items-center">
             {/* Solo mostrar el fondo verde si no estamos en /signin */}
-            {!isSignInRoute && (
+            {!isSignInRoute && !isProfileRoute && (
                 <div
                     className="absolute h-[34px] bg-emerald-400/90 backdrop-blur-md rounded-full transition-all duration-300 ease-in-out -translate-x-1
                         shadow-xl shadow-emerald-300/90"
