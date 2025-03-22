@@ -28,7 +28,7 @@ return (
             {!isSignInRoute && !isProfileRoute && (
                 <div
                     className="absolute h-[34px] bg-emerald-400/90 backdrop-blur-md rounded-full transition-all duration-300 ease-in-out -translate-x-1
-                        shadow-xl shadow-emerald-300/90"
+                        shadow-md shadow-emerald-300/90"
                     style={{
                         width: linkStyles[activeLink as keyof typeof linkStyles]?.width,
                         left: linkStyles[activeLink as keyof typeof linkStyles]?.left,
