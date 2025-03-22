@@ -21,7 +21,7 @@ const handleLinkClick = (path: string) => {
 const isSignInRoute = pathname === '/signin';
 
 return (
-    <div className="flex-1 flex justify-center items-center bg-white/40 backdrop-blur-sm py-[2px] rounded-full">
+    <div className="flex-1 flex justify-center items-center bg-white/10 backdrop-blur-sm py-[2px] rounded-full">
         <div className="flex gap-8 text-lg relative justify-center items-center">
             {/* Solo mostrar el fondo verde si no estamos en /signin */}
             {!isSignInRoute && (
@@ -39,7 +39,7 @@ return (
                 href="/"
                 onClick={() => handleLinkClick('/')}
                 className={`px-5 py-1.5 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 relative z-10 
-                    ${pathname === '/' && !isSignInRoute ? 'text-black font-medium scale-105' : 'text-black'}`}
+                    ${pathname === '/' && !isSignInRoute ? 'text-white font-medium scale-105' : 'text-gray-400'}`}
             >
                 Home
             </Link>
@@ -47,7 +47,7 @@ return (
                 href="/playground"
                 onClick={() => handleLinkClick('/playground')}
                 className={`px-5 py-1.5 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 relative z-10
-                    ${pathname === '/playground' && !isSignInRoute ? 'text-black font-medium scale-105' : 'text-black'}`}
+                    ${pathname === '/playground' && !isSignInRoute ? 'text-white font-medium scale-105' : 'text-gray-400'}`}
             >
                 Playground
             </Link>
@@ -55,7 +55,7 @@ return (
                 href="/about"
                 onClick={() => handleLinkClick('/about')}
                 className={`px-5 py-1.5 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 relative z-10
-                    ${pathname === '/about' && !isSignInRoute ? 'text-black font-medium scale-105' : 'text-black'}`}
+                    ${pathname === '/about' && !isSignInRoute ? 'text-white font-medium scale-105' : 'text-gray-400'}`}
             >
                 About
             </Link>
