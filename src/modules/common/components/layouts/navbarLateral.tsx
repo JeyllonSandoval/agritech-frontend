@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { getChats } from "@/modules/common/services/getChats";
 import type { GetChatsProps } from "@/modules/common/services/getChats";
 import { useChatStore } from '@/modules/common/stores/chatStore';
@@ -12,6 +12,8 @@ interface NavbarLateralProps {
 }
 
 export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLateralProps) {
+    const navRef = useRef<HTMLElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
     const chats = useChatStore(state => state.chats);
     const setChats = useChatStore(state => state.setChats);
 
@@ -23,6 +25,31 @@ export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLate
     useEffect(() => {
         loadChats();
     }, [loadChats]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            // Si el navbar está cerrado, no hacemos nada
+            if (!isOpen) return;
+
+            // Verificamos si el clic fue fuera del navbar y del botón de toggle
+            if (
+                navRef.current && 
+                !navRef.current.contains(event.target as Node) &&
+                buttonRef.current && 
+                !buttonRef.current.contains(event.target as Node)
+            ) {
+                onToggle();
+            }
+        };
+
+        // Añadir el event listener
+        document.addEventListener('mousedown', handleClickOutside);
+
+        // Limpiar el event listener
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isOpen, onToggle]);
 
     const handlePanelChange = useCallback((panel: 'welcome' | 'files' | 'chat') => {
         props.onPanelChange(panel);
@@ -64,6 +91,7 @@ export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLate
         <>
             {/* Toggle Menu Button */}
             <button
+                ref={buttonRef}
                 onClick={onToggle}
                 className={`fixed left-4 top-1/4 z-50 h-1/2
                     bg-gray-500/20 hover:bg-gray-500/30 backdrop-blur-md
@@ -79,11 +107,13 @@ export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLate
             </button>
 
             {/* Sidebar Navigation */}
-            <nav className={`fixed left-4 top-[100px] bottom-4 w-[300px] 
-                bg-gray-500/10 backdrop-blur-xl
-                border border-white/10 rounded-2xl shadow-lg shadow-black/10
-                transition-all duration-500 ease-in-out
-                ${isOpen ? 'translate-x-0' : '-translate-x-[calc(100%+20px)]'}`}
+            <nav
+                ref={navRef}
+                className={`fixed left-4 top-[100px] bottom-4 w-[300px] 
+                    bg-gray-500/10 backdrop-blur-xl
+                    border border-white/10 rounded-2xl shadow-lg shadow-black/10
+                    transition-all duration-500 ease-in-out
+                    ${isOpen ? 'translate-x-0' : '-translate-x-[calc(100%+20px)]'}`}
             >
                 <div className="p-4 border-b border-white/10 flex justify-between items-center">
                     <h1 className="text-xl font-medium text-white/90">Quick Access</h1>
@@ -135,6 +165,6 @@ export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLate
                     </div>
                 </div>
             </nav>
-            </>
+        </>
     );
 }
