@@ -13,7 +13,7 @@ export default function PlaygroundPanel({ isSidebarOpen, activePanel }: Playgrou
             isSidebarOpen ? 'left-[300px]' : 'left-0'
         }`}>
             {activePanel === 'welcome' && (
-                <div className="flex items-center justify-center h-full bg-gray-500">
+                <div className="flex items-center justify-center h-full">
                     <h2 className="text-4xl">Welcome</h2>
                 </div>
             )}
