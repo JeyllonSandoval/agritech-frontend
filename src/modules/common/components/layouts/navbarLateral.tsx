@@ -31,15 +31,31 @@ export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLate
     const renderChats = useCallback(() => {
         console.log('Rendering chats:', chats);
         if (chats.length === 0) {
-            return <p key="empty-chats" className="text-gray-400 text-sm">Empty chats</p>;
+            return <p key="empty-chats" className="text-gray-400/70 text-sm">Empty chats</p>;
         }
 
         return chats.map((chat) => (
             <button 
                 key={chat.ChatID}
-                className="w-full p-2 bg-gray-700 text-white rounded-md hover:bg-gray-600"
+                className="w-full px-4 py-3 backdrop-blur-sm text-white/90 rounded-lg 
+                    shadow-lg shadow-black/20 transition-all duration-300
+                    flex items-center justify-center gap-2 text-sm font-medium
+                    relative overflow-hidden group aria-selected:bg-green-500/20"
+                role="tab"
+                aria-selected="false"
+                onClick={(e) => {
+                    e.currentTarget.parentElement?.querySelectorAll('button').forEach(btn => {
+                        btn.setAttribute('aria-selected', 'false');
+                    });
+
+                    e.currentTarget.setAttribute('aria-selected', 'true');
+                }}
             >
-                {chat.chatname || 'Unnamed Chat'}
+                <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-green-800/60 to-transparent
+                    transform translate-y-full transition-transform duration-500 ease-in-out
+                    group-hover:translate-y-0 group-aria-selected:translate-y-[70%]">
+                </div>
+                <span className="relative z-10 text-white">{chat.chatname || 'Unnamed Chat'}</span>
             </button>
         ));
     }, [chats]);
@@ -50,7 +66,7 @@ export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLate
             <button
                 onClick={onToggle}
                 className={`fixed left-4 top-1/4 z-50 h-1/2
-                    bg-gray-800/40 hover:bg-gray-700/60 backdrop-blur-md
+                    bg-gray-500/20 hover:bg-gray-500/30 backdrop-blur-md
                     border border-white/10 rounded-xl shadow-lg shadow-black/10
                     transition-all duration-300 p-3
                     flex items-center justify-center
@@ -64,7 +80,7 @@ export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLate
 
             {/* Sidebar Navigation */}
             <nav className={`fixed left-4 top-[100px] bottom-4 w-[300px] 
-                bg-gray-900/40 backdrop-blur-xl
+                bg-gray-500/10 backdrop-blur-xl
                 border border-white/10 rounded-2xl shadow-lg shadow-black/10
                 transition-all duration-500 ease-in-out
                 ${isOpen ? 'translate-x-0' : '-translate-x-[calc(100%+20px)]'}`}
