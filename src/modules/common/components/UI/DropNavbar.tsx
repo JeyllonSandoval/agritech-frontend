@@ -53,7 +53,7 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
         >
             <div className="absolute right-8 top-14 w-48 py-2 mt-6 
                 bg-white/10 backdrop-blur-xl rounded-2xl 
-                border border-white/20 shadow-lg"
+                border border-white/20 shadow-lg overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="px-4 py-2 border-b border-white/20">
