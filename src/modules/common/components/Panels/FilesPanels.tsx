@@ -28,45 +28,74 @@ export default function FilesPanels() {
     // No renderizar nada hasta que el componente esté montado
     if (!mounted) return null;
 
-    if (loading) return <div className="flex justify-center items-center h-full">Loading...</div>;
-    if (error) return <div className="flex justify-center items-center h-full text-red-500">{error}</div>;
+    if (loading) return (
+        <div className="w-full h-full flex justify-center items-center">
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg p-8">
+                <div className="text-white/70 text-2xl">Loading...</div>
+            </div>
+        </div>
+    );
+
+    if (error) return (
+        <div className="w-full h-full flex justify-center items-center">
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg p-8">
+                <div className="text-red-400 text-2xl">{error}</div>
+            </div>
+        </div>
+    );
 
     return (
         <div className="h-full w-full flex flex-col items-center">
-            {/* Header fijo */}
-            <div className="flex items-center justify-between w-1/2 p-4">
-                <h1 className="text-5xl font-bold text-gray-100">Your Files</h1>
+            {/* Header con estilo actualizado */}
+            <div className="flex items-center justify-between w-1/2 p-2">
+                <h1 className="text-4xl font-semibold text-white">Your Files</h1>
                 <ButtonCreated type="file" />
             </div>
 
-            {/* Contenedor con scroll y efectos de degradado */}
-            <div className="flex-1 w-1/2 h-1/2 mb-10 relative border-2 border-gray-600 rounded-lg overflow-hidden">
-                {/* Degradado superior */}
+            {/* Contenedor principal */}
+            <div className="flex-1 w-1/2 h-1/2 mb-10 relative 
+                bg-white/10 backdrop-blur-xl rounded-2xl 
+                border border-white/20 shadow-lg 
+                overflow-hidden">
+                
+                {/* Sombra superior */}
                 {showTopGradient && (
-                    <div className="absolute -top-10 -left-10 -right-10 h-32 bg-gradient-to-b from-black to-transparent z-10 transition-opacity duration-200 pointer-events-none"></div>
+                    <div className="absolute top-0 left-0 right-0 h-32 
+                        bg-gradient-to-b from-black/40 via-black/20 to-transparent
+                        z-10 transition-opacity duration-300 
+                        pointer-events-none">
+                    </div>
                 )}
                 
-                {/* Contenedor de archivos con scroll */}
+                {/* Contenedor de archivos */}
                 <div 
                     ref={scrollContainerRef}
                     onScroll={handleScroll}
                     className="h-full overflow-y-auto px-4 py-4
-                        scrollbar-thin scrollbar-track-gray-800 
-                        scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500 
-                        scrollbar-thumb-rounded-full"
+                        scrollbar scrollbar-w-1.5 
+                        scrollbar-track-white/5
+                        scrollbar-thumb-emerald-400/50
+                        hover:scrollbar-thumb-emerald-400/70
+                        scrollbar-track-rounded-full
+                        scrollbar-thumb-rounded-full
+                        relative z-0"
                 >
                     {files.length === 0 ? (
                         <div className="flex justify-center items-center h-full">
-                            <p className="text-gray-500 text-2xl">No files found</p>
+                            <p className="text-white/70 text-sm">No files found</p>
                         </div>
                     ) : (
                         <BarFiles files={files} />
                     )}
                 </div>
 
-                {/* Degradado inferior */}
+                {/* Sombra inferior */}
                 {showBottomGradient && (
-                    <div className="absolute -bottom-10 -left-10 -right-10 h-32 bg-gradient-to-t from-black to-transparent z-10 transition-opacity duration-200 pointer-events-none"></div>
+                    <div className="absolute bottom-0 left-0 right-0 h-32 
+                        bg-gradient-to-t from-black/40 via-black/20 to-transparent
+                        z-10 transition-opacity duration-300 
+                        pointer-events-none">
+                    </div>
                 )}
             </div>
         </div>
