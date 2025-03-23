@@ -64,7 +64,7 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
 
     return (
         <form onSubmit={handleSubmit} className="w-full space-y-6">
-            <div className="relative">
+            <div className="relative flex flex-col">
                 <input
                     type="text"
                     value={chatName}

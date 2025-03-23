@@ -12,19 +12,19 @@ export default function ModalCreated({ isOpen, onClose, type }: ModalCreatedProp
 
     return (
         <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
             onClick={() => onClose(type)}
         >
             <div 
                 className="bg-gray-100/10 backdrop-blur-sm rounded-2xl 
                     border border-white/20 shadow-lg
-                    p-8 relative w-1/2 h-1/2 
-                    flex flex-col items-center justify-center gap-6"
+                    p-8 relative w-full max-w-2xl
+                    flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="flex flex-row justify-between items-center w-full">
+                <div className="flex flex-row justify-between items-center mb-6">
                     <h1 className="text-2xl font-semibold text-white">
-                        Create New {type === 'file' ? 'File' : 'Chat'}
+                        {type === 'file' ? 'Your Files' : 'Create New Chat'}
                     </h1>
                     <button
                         onClick={() => onClose(type)}
@@ -34,7 +34,7 @@ export default function ModalCreated({ isOpen, onClose, type }: ModalCreatedProp
                         &times;
                     </button>
                 </div>
-                <div className="flex flex-col items-center justify-center w-full h-full">
+                <div className="w-full">
                     {type === 'file' && <FileCreatedForm onClose={() => onClose(type)} />}
                     {type === 'chat' && <ChatCreatedForm onClose={() => onClose(type)} />}
                 </div>
