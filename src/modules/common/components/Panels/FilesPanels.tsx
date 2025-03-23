@@ -82,7 +82,7 @@ export default function FilesPanels() {
                 >
                     {files.length === 0 ? (
                         <div className="flex justify-center items-center h-full">
-                            <p className="text-white/70 text-sm">No files found</p>
+                            <p className="text-white/70 text-4xl">No files found</p>
                         </div>
                     ) : (
                         <BarFiles files={files} />

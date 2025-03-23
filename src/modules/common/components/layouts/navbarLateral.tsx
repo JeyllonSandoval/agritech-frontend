@@ -3,6 +3,7 @@ import { getChats } from "@/modules/common/services/getChats";
 import { useChatStore } from '@/modules/common/stores/chatStore';
 import ButtonFile from '../UI/buttons/buttonFile';
 import ButtonCreatedChat from '../UI/buttons/buttonCreatedChat';
+import ItemsChats from '../items/itemsChats';
 
 interface NavbarLateralProps {
     isOpen: boolean;
@@ -15,7 +16,6 @@ interface NavbarLateralProps {
 export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props }: NavbarLateralProps) {
     const navRef = useRef<HTMLElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
-    const chats = useChatStore(state => state.chats);
     const setChats = useChatStore(state => state.setChats);
     const setCurrentChat = useChatStore(state => state.setCurrentChat);
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
@@ -61,33 +61,10 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
         props.onPanelChange(panel);
     }, [props.onPanelChange]);
 
-    const renderChats = useCallback(() => {
-        console.log('Rendering chats:', chats);
-        if (chats.length === 0) {
-            return <p key="empty-chats" className="text-gray-400/70 text-sm">Empty chats</p>;
-        }
-
-        return chats.map((chat) => (
-            <button 
-                key={chat.ChatID}
-                className={`w-full px-4 py-3 backdrop-blur-sm text-white/90 rounded-lg 
-                    shadow-lg shadow-black/20 transition-all duration-300
-                    flex items-center justify-center gap-2 text-sm font-medium
-                    relative overflow-hidden group ${selectedChatId === chat.ChatID ? 'bg-green-500/20' : ''}`}
-                onClick={() => {
-                    setSelectedChatId(chat.ChatID);
-                    setCurrentChat(chat);
-                    handlePanelChange('chat');
-                }}
-            >
-                <div className={`absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-green-800/60 to-transparent
-                    transform transition-transform duration-500 ease-in-out
-                    ${selectedChatId === chat.ChatID ? 'translate-y-[70%]' : 'translate-y-full group-hover:translate-y-0'}`}>
-                </div>
-                <span className="relative z-10 text-white">{chat.chatname || 'Unnamed Chat'}</span>
-            </button>
-        ));
-    }, [chats, handlePanelChange, setCurrentChat, selectedChatId]);
+    const handleChatSelect = useCallback((chatId: string, chat: any) => {
+        setSelectedChatId(chatId);
+        setCurrentChat(chat);
+    }, [setCurrentChat]);
 
     return (
         <>
@@ -130,13 +107,25 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
                     </button>
                 </div>
 
-                <div className="flex flex-col gap-4 p-4">
-                    <ButtonFile onClick={() => handlePanelChange('files')} />
-                    <ButtonCreatedChat onClick={props.onCreateChat} />
-                    <div key="chats-section" className="flex flex-col gap-3 mt-2">
-                        <h2 className="text-sm font-medium text-gray-400 px-2">Recent Chats</h2>
-                        <div className="space-y-2 flex flex-col gap-2 text-2xl">
-                            {renderChats()}
+                <div className="flex flex-col h-[calc(100%-4rem)] p-4">
+                    <div className="flex flex-col gap-4">
+                        <ButtonFile onClick={() => handlePanelChange('files')} />
+                        <ButtonCreatedChat onClick={props.onCreateChat} />
+                    </div>
+                    <div className="flex flex-col gap-3 mt-4 flex-1 min-h-0">
+                        <h2 className="text-lg font-medium text-gray-400 px-2">Recent Chats</h2>
+                        <div className="flex-1 overflow-y-auto pr-2
+                            scrollbar scrollbar-w-1.5 
+                            scrollbar-track-white/5
+                            scrollbar-thumb-emerald-400/50 
+                            hover:scrollbar-thumb-emerald-400/70
+                            scrollbar-track-rounded-full
+                            scrollbar-thumb-rounded-full">
+                            <ItemsChats 
+                                onPanelChange={handlePanelChange}
+                                selectedChatId={selectedChatId}
+                                onChatSelect={handleChatSelect}
+                            />
                         </div>
                     </div>
                 </div>

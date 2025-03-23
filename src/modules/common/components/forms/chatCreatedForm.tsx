@@ -47,7 +47,22 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                 throw new Error('Error creating chat');
             }
 
-            const newChat = await response.json();
+            const responseData = await response.json();
+            console.log('Server response:', responseData);
+            
+            // Verificar que newChat existe y tiene elementos
+            if (!responseData.newChat || !Array.isArray(responseData.newChat) || responseData.newChat.length === 0) {
+                throw new Error('Invalid chat response: missing chat data');
+            }
+
+            const newChat = responseData.newChat[0];
+            
+            // Verificar que el chat tenga un ChatID válido
+            if (!newChat.ChatID) {
+                console.log('Chat object structure:', Object.keys(newChat));
+                throw new Error('Invalid chat response: missing ChatID');
+            }
+
             const chatToAdd = {
                 ChatID: newChat.ChatID,
                 chatname: chatName
@@ -56,7 +71,8 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
             addChat(chatToAdd);
             onClose();
         } catch (err) {
-            setError('Failed to create chat');
+            console.error('Error creating chat:', err);
+            setError(err instanceof Error ? err.message : 'Failed to create chat');
         } finally {
             setIsLoading(false);
         }
