@@ -1,22 +1,19 @@
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import ImgProfileNavbar from "./ImgProfileNavbar";
 import DropNavbar from "./SigninNavbar";
+import { useAuth } from '../../hooks/useAuth';
+import { useRouter } from "next/navigation";
 
 export default function RightNavbar() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const pathname = usePathname();
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('token');
-            setIsAuthenticated(!!token);
-        }
-    }, [pathname]);
+    const { isAuthenticated } = useAuth();
+    const router = useRouter();
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        setIsAuthenticated(false);
+        localStorage.removeItem('user');
+        window.dispatchEvent(new Event('loginStateChange'));
+        router.push('/');
     };
 
     return (

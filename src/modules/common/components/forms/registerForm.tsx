@@ -1,6 +1,8 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from '../../hooks/useAuth';
 
 interface Country {
     CountryID: string;
@@ -17,7 +19,8 @@ interface UserData {
 }
 
 export default function RegisterForm() {
-
+    const router = useRouter();
+    const { redirectToLogin } = useAuth();
     const [countries, setCountries] = useState<Country[]>([]);
     const [FirstName, setFirstName] = useState("");
     const [LastName, setLastName] = useState("");
@@ -28,12 +31,11 @@ export default function RegisterForm() {
     const [CountryID, setCountryID] = useState("");
     const [image, setImage] = useState<File | null>(null);
     const [message, setMessage] = useState("");
-    const router = useRouter();
 
     const fetchCountry = async () => {
         try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/countries`);
-        const data = await response.json();
+            const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/countries`);
+            const data = await response.json();
             if (data && Array.isArray(data)) {
                 setCountries(data);
             } else {
@@ -83,7 +85,10 @@ export default function RegisterForm() {
             if (response.ok) {
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
+                
+                // Disparar evento personalizado
                 window.dispatchEvent(new Event('loginStateChange'));
+                
                 router.push("/");
             } else {
                 setMessage(data.message || data.error || "Error en el registro");
@@ -170,93 +175,97 @@ export default function RegisterForm() {
                                 />
                             </div>
 
-                            <div className="relative flex items-center">
-                                <input
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3 text-sm
-                                        bg-white/10 backdrop-blur-sm rounded-xl
-                                        border border-white/20 text-white
-                                        group-hover:border-emerald-400/30
-                                        focus:border-emerald-400/50 focus:ring-2 
-                                        focus:ring-emerald-400/20 focus:outline-none 
-                                        placeholder-white/40
-                                        transition-all duration-300
-                                        pr-12"
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="Password"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 
-                                        p-1.5 rounded-lg
-                                        text-white/40
-                                        hover:text-emerald-400/70
-                                        hover:bg-emerald-400/10
-                                        active:bg-emerald-400/20
-                                        transition-all duration-300
-                                        focus:outline-none"
-                                >
-                                    {showPassword ? (
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                    ) : (
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                        </svg>
-                                    )}
-                                </button>
+                            <div className="relative group">
+                                <div className="relative flex items-center">
+                                    <input
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full px-4 py-3 text-sm
+                                            bg-white/10 backdrop-blur-sm rounded-xl
+                                            border border-white/20 text-white
+                                            group-hover:border-emerald-400/30
+                                            focus:border-emerald-400/50 focus:ring-2 
+                                            focus:ring-emerald-400/20 focus:outline-none 
+                                            placeholder-white/40
+                                            transition-all duration-300
+                                            pr-12"
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="Password"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 
+                                            p-1.5 rounded-lg
+                                            text-white/40
+                                            hover:text-emerald-400/70
+                                            hover:bg-emerald-400/10
+                                            active:bg-emerald-400/20
+                                            transition-all duration-300
+                                            focus:outline-none"
+                                    >
+                                        {showPassword ? (
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        ) : (
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                            </svg>
+                                        )}
+                                    </button>
+                                </div>
                             </div>
 
-                            <div className="relative flex items-center">
-                                <input
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="w-full px-4 py-3 text-sm
-                                        bg-white/10 backdrop-blur-sm rounded-xl
-                                        border border-white/20 text-white
-                                        group-hover:border-emerald-400/30
-                                        focus:border-emerald-400/50 focus:ring-2 
-                                        focus:ring-emerald-400/20 focus:outline-none 
-                                        placeholder-white/40
-                                        transition-all duration-300
-                                        pr-12"
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="Confirm password"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 
-                                        p-1.5 rounded-lg
-                                        text-white/40
-                                        hover:text-emerald-400/70
-                                        hover:bg-emerald-400/10
-                                        active:bg-emerald-400/20
-                                        transition-all duration-300
-                                        focus:outline-none"
-                                >
-                                    {showPassword ? (
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                    ) : (
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                        </svg>
-                                    )}
-                                </button>
+                            <div className="relative group">
+                                <div className="relative flex items-center">
+                                    <input
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="w-full px-4 py-3 text-sm
+                                            bg-white/10 backdrop-blur-sm rounded-xl
+                                            border border-white/20 text-white
+                                            group-hover:border-emerald-400/30
+                                            focus:border-emerald-400/50 focus:ring-2 
+                                            focus:ring-emerald-400/20 focus:outline-none 
+                                            placeholder-white/40
+                                            transition-all duration-300
+                                            pr-12"
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="Confirm password"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 
+                                            p-1.5 rounded-lg
+                                            text-white/40
+                                            hover:text-emerald-400/70
+                                            hover:bg-emerald-400/10
+                                            active:bg-emerald-400/20
+                                            transition-all duration-300
+                                            focus:outline-none"
+                                    >
+                                        {showPassword ? (
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        ) : (
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                            </svg>
+                                        )}
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="relative flex items-center group md:col-span-2">
                                 <select
                                     value={CountryID}
                                     onChange={(e) => setCountryID(e.target.value)}
-                                    className="w-full px-4 py-3 text-sm
+                                    className="w-full px-4 py-3 text-sm cursor-pointer
                                         bg-white/10 backdrop-blur-sm rounded-xl
                                         border border-white/20 text-white
                                         group-hover:border-emerald-400/30
@@ -266,7 +275,7 @@ export default function RegisterForm() {
                                         transition-all duration-300"
                                 >
                                     <option value="" className="bg-gray-900 text-white">Select your country</option>
-                    {countries.map((country) => (
+                                    {countries.map((country) => (
                                         <option 
                                             key={country.CountryID} 
                                             value={country.CountryID}
@@ -274,8 +283,8 @@ export default function RegisterForm() {
                                         >
                                             {country.countryname}
                                         </option>
-                    ))}
-                </select>
+                                    ))}
+                                </select>
                             </div>
 
                             <div className="relative flex flex-col items-start group md:col-span-2">
@@ -286,7 +295,7 @@ export default function RegisterForm() {
                                     type="file"
                                     onChange={handleFileChange}
                                     accept="image/*"
-                                    className="w-full px-4 py-3 text-sm
+                                    className="w-full px-4 py-3 text-sm cursor-pointer
                                         bg-white/10 backdrop-blur-sm rounded-xl
                                         border border-white/20 text-white/70
                                         group-hover:border-emerald-400/30

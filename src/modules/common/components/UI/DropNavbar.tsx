@@ -2,6 +2,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
+import { useAuth } from '../../hooks/useAuth';
 
 interface DropNavbarProps {
     onLogout: () => void;
@@ -17,6 +18,8 @@ interface TokenPayload {
 export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
     const [userInfo, setUserInfo] = useState<{ Email: string; FirstName?: string }>({ Email: '' });
     const router = useRouter();
+    const { isAuthenticated } = useAuth();
+
     useEffect(() => {
         try {
             const token = localStorage.getItem('token');
@@ -81,7 +84,7 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
                         </button>
                     </li>
                     <li>
-                        <button 
+                        <button
                             onClick={handleSettingsClick}
                             className="w-full px-4 py-2 text-left text-white
                                 hover:bg-emerald-400/90 hover:text-black 
@@ -94,11 +97,8 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
                         </button>
                     </li>
                     <li className="border-t border-white/20 mt-1">
-                        <button 
-                            onClick={() => {
-                                handleLogout();
-                                router.push('/');
-                            }}
+                        <button
+                            onClick={handleLogout}
                             className="w-full px-4 py-2 text-left text-red-500 
                                 hover:bg-red-400/90 hover:text-white 
                                 transition-all duration-300 flex items-center gap-2"

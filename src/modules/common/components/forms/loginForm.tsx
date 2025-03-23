@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from '../../hooks/useAuth';
 
 const Login = () => {
     const router = useRouter();
+    const { redirectToLogin } = useAuth();
     const [Email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +25,7 @@ const Login = () => {
             });
 
             if (response.ok) {
-            const data = await response.json();
+                const data = await response.json();
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
                 
@@ -119,58 +121,57 @@ const Login = () => {
                                     </button>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="flex justify-end">
-                            <button
-                                type="button"
-                                onClick={() => {/* Implementar lógica de forgot password */}}
-                                className="text-sm text-white/50 
-                                    hover:text-emerald-400/70
-                                    focus:text-emerald-400
-                                    transition-colors duration-300"
-                            >
-                                Forgot Password?
-                            </button>
-                        </div>
-
-                        <button
-                            type="submit"
-                            className="w-full px-4 py-3 text-sm
-                                bg-emerald-400/90 text-black font-medium
-                                rounded-xl
-                                hover:bg-emerald-400 
-                                active:bg-emerald-500
-                                focus:ring-2 focus:ring-emerald-400/20
-                                transition-all duration-300
-                                flex items-center justify-center gap-2
-                                shadow-lg shadow-emerald-400/20"
-                        >
-                            <span>Sign In</span>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-</button>
-
-                        {message && (
-                            <div className="text-red-400 text-sm 
-                                bg-red-400/10 px-4 py-3 rounded-xl 
-                                border border-red-400/20
-                                flex items-center gap-2"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span>{message}</span>
+                            <div className="flex justify-end">
+                                <button
+                                    type="button"
+                                    onClick={() => {/* Implementar lógica de forgot password */}}
+                                    className="text-sm text-white/50 
+                                        hover:text-emerald-400/70
+                                        focus:text-emerald-400
+                                        transition-colors duration-300"
+                                >
+                                    Forgot Password?
+                                </button>
                             </div>
-                        )}
+
+                            <button
+                                type="submit"
+                                className="w-full px-4 py-3 text-sm
+                                    bg-emerald-400/90 text-black font-medium
+                                    rounded-xl
+                                    hover:bg-emerald-400 
+                                    active:bg-emerald-500
+                                    focus:ring-2 focus:ring-emerald-400/20
+                                    transition-all duration-300
+                                    flex items-center justify-center gap-2
+                                    shadow-lg shadow-emerald-400/20"
+                            >
+                                <span>Sign In</span>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
+
+                            {message && (
+                                <div className="text-red-400 text-sm 
+                                    bg-red-400/10 px-4 py-3 rounded-xl 
+                                    border border-red-400/20
+                                    flex items-center gap-2"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>{message}</span>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </form>
         </section>
     );
 };
-
 
 export default Login;
 
