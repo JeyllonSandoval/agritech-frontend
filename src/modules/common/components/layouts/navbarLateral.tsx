@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { getChats } from "@/modules/common/services/getChats";
+import { getChats } from "@/modules/common/hooks/getChats";
 import { useChatStore } from '@/modules/common/stores/chatStore';
 import ButtonFile from '../UI/buttons/buttonFile';
 import ButtonCreatedChat from '../UI/buttons/buttonCreatedChat';

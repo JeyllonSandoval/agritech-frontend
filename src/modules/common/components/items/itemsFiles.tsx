@@ -1,4 +1,4 @@
-import { FileProps } from '@/modules/common/services/getFiles';
+import { FileProps } from '@/modules/common/hooks/getFiles';
 
 interface BarFilesProps {
     files: FileProps[];

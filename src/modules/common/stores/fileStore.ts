@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { FileProps } from '@/modules/common/services/getFiles';
-import { getFiles } from '@/modules/common/services/getFiles';
+import { FileProps } from '@/modules/common/hooks/getFiles';
+import { getFiles } from '@/modules/common/hooks/getFiles';
 
 interface FileStore {
 files: FileProps[];

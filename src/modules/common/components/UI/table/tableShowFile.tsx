@@ -15,7 +15,7 @@ export default function TableShowFile({ onSelect }: TableShowFileProps) {
 
     return (
         <div className="flex flex-col w-full h-[50vh]">
-            <div className="flex-1 relative bg-white/10 backdrop-blur-xl rounded-2xl 
+            <div className="flex-1 relative bg-white/5 backdrop-blur-xl rounded-2xl 
                 border border-white/20 shadow-lg overflow-hidden">
                 <div className="h-full overflow-y-auto px-4 py-4
                     scrollbar scrollbar-w-1.5 
