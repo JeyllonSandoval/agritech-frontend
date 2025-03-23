@@ -11,11 +11,21 @@ interface NavbarLateralProps {
     onCreateChat: () => void;
 }
 
-export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLateralProps) {
+export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props }: NavbarLateralProps) {
     const navRef = useRef<HTMLElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const chats = useChatStore(state => state.chats);
     const setChats = useChatStore(state => state.setChats);
+    const setCurrentChat = useChatStore(state => state.setCurrentChat);
+    const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+
+    // Reset selected chat when panel changes
+    useEffect(() => {
+        if (activePanel !== 'chat') {
+            setSelectedChatId(null);
+            setCurrentChat(null);
+        }
+    }, [activePanel, setCurrentChat]);
 
     const loadChats = useCallback(async () => {
         const userChats = await getChats();
@@ -28,10 +38,8 @@ export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLate
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            // Si el navbar está cerrado, no hacemos nada
             if (!isOpen) return;
 
-            // Verificamos si el clic fue fuera del navbar y del botón de toggle
             if (
                 navRef.current && 
                 !navRef.current.contains(event.target as Node) &&
@@ -42,10 +50,7 @@ export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLate
             }
         };
 
-        // Añadir el event listener
         document.addEventListener('mousedown', handleClickOutside);
-
-        // Limpiar el event listener
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
@@ -64,28 +69,24 @@ export default function NavbarLateral({ isOpen, onToggle, ...props }: NavbarLate
         return chats.map((chat) => (
             <button 
                 key={chat.ChatID}
-                className="w-full px-4 py-3 backdrop-blur-sm text-white/90 rounded-lg 
+                className={`w-full px-4 py-3 backdrop-blur-sm text-white/90 rounded-lg 
                     shadow-lg shadow-black/20 transition-all duration-300
                     flex items-center justify-center gap-2 text-sm font-medium
-                    relative overflow-hidden group aria-selected:bg-green-500/20"
-                role="tab"
-                aria-selected="false"
-                onClick={(e) => {
-                    e.currentTarget.parentElement?.querySelectorAll('button').forEach(btn => {
-                        btn.setAttribute('aria-selected', 'false');
-                    });
-
-                    e.currentTarget.setAttribute('aria-selected', 'true');
+                    relative overflow-hidden group ${selectedChatId === chat.ChatID ? 'bg-green-500/20' : ''}`}
+                onClick={() => {
+                    setSelectedChatId(chat.ChatID);
+                    setCurrentChat(chat);
+                    handlePanelChange('chat');
                 }}
             >
-                <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-green-800/60 to-transparent
-                    transform translate-y-full transition-transform duration-500 ease-in-out
-                    group-hover:translate-y-0 group-aria-selected:translate-y-[70%]">
+                <div className={`absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-green-800/60 to-transparent
+                    transform transition-transform duration-500 ease-in-out
+                    ${selectedChatId === chat.ChatID ? 'translate-y-[70%]' : 'translate-y-full group-hover:translate-y-0'}`}>
                 </div>
                 <span className="relative z-10 text-white">{chat.chatname || 'Unnamed Chat'}</span>
             </button>
         ));
-    }, [chats]);
+    }, [chats, handlePanelChange, setCurrentChat, selectedChatId]);
 
     return (
         <>
