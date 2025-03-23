@@ -22,6 +22,11 @@ export default function PlaygroundLayout() {
             <PlaygroundPanel 
                 isSidebarOpen={isSidebarOpen}
                 activePanel={activePanel}
+                onPanelChange={(panel) => {
+                    // Add your panel change handling logic here
+                    // For example:
+                    setActivePanel(panel);
+                }}
             />
 
             <ModalCreated 
