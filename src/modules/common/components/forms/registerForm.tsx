@@ -32,8 +32,8 @@ export default function RegisterForm() {
 
     const fetchCountry = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/countries`);
-            const data = await response.json();
+        const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/countries`);
+        const data = await response.json();
             if (data && Array.isArray(data)) {
                 setCountries(data);
             } else {
@@ -266,7 +266,7 @@ export default function RegisterForm() {
                                         transition-all duration-300"
                                 >
                                     <option value="" className="bg-gray-900 text-white">Select your country</option>
-                                    {countries.map((country) => (
+                    {countries.map((country) => (
                                         <option 
                                             key={country.CountryID} 
                                             value={country.CountryID}
@@ -274,8 +274,8 @@ export default function RegisterForm() {
                                         >
                                             {country.countryname}
                                         </option>
-                                    ))}
-                                </select>
+                    ))}
+                </select>
                             </div>
 
                             <div className="relative flex flex-col items-start group md:col-span-2">

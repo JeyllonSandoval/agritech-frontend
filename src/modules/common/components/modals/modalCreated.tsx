@@ -1,3 +1,4 @@
+import TableShowFile from "@/modules/common/components/UI/table/tableShowFile";
 import FileCreatedForm from "@/modules/common/components/forms/fileCreatedForm";
 import ChatCreatedForm from "@/modules/common/components/forms/chatCreatedForm";
 
@@ -5,9 +6,10 @@ interface ModalCreatedProps {
     isOpen: boolean;
     onClose: (type: 'file' | 'chat') => void;
     type: 'file' | 'chat';
+    mode?: 'upload' | 'select';
 }
 
-export default function ModalCreated({ isOpen, onClose, type }: ModalCreatedProps) {
+export default function ModalCreated({ isOpen, onClose, type, mode = 'upload' }: ModalCreatedProps) {
     if (!isOpen) return null;
 
     return (
@@ -24,7 +26,7 @@ export default function ModalCreated({ isOpen, onClose, type }: ModalCreatedProp
             >
                 <div className="flex flex-row justify-between items-center mb-6">
                     <h1 className="text-2xl font-semibold text-white">
-                        {type === 'file' ? 'Your Files' : 'Create New Chat'}
+                        {type === 'file' ? (mode === 'upload' ? 'Upload File' : 'Your Files') : 'Create New Chat'}
                     </h1>
                     <button
                         onClick={() => onClose(type)}
@@ -35,7 +37,8 @@ export default function ModalCreated({ isOpen, onClose, type }: ModalCreatedProp
                     </button>
                 </div>
                 <div className="w-full">
-                    {type === 'file' && <FileCreatedForm onClose={() => onClose(type)} />}
+                    {type === 'file' && mode === 'select' && <TableShowFile onSelect={() => onClose(type)} />}
+                    {type === 'file' && mode === 'upload' && <FileCreatedForm onClose={() => onClose(type)} />}
                     {type === 'chat' && <ChatCreatedForm onClose={() => onClose(type)} />}
                 </div>
             </div>
