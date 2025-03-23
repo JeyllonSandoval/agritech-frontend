@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { getChats } from "@/modules/common/services/getChats";
-import type { GetChatsProps } from "@/modules/common/services/getChats";
 import { useChatStore } from '@/modules/common/stores/chatStore';
+import ButtonFile from '../UI/buttons/buttonFile';
+import ButtonCreatedChat from '../UI/buttons/buttonCreatedChat';
 
 interface NavbarLateralProps {
     isOpen: boolean;
@@ -130,34 +131,8 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
                 </div>
 
                 <div className="flex flex-col gap-4 p-4">
-                    <button 
-                        key="files-button"
-                        onClick={() => handlePanelChange('files')}
-                        className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-500
-                            hover:from-blue-500 hover:to-blue-400 text-white rounded-lg
-                            shadow-lg shadow-blue-500/20 transition-all duration-300
-                            flex items-center justify-center gap-2 text-sm font-medium"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        File PDF
-                    </button>
-                    <button 
-                        key="create-chat-button"
-                        onClick={props.onCreateChat}
-                        className="w-full px-4 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500
-                            hover:from-emerald-500 hover:to-emerald-400 text-white rounded-lg
-                            shadow-lg shadow-emerald-500/20 transition-all duration-300
-                            flex items-center justify-center gap-2 text-sm font-medium"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                        Create Chat
-                    </button>
+                    <ButtonFile onClick={() => handlePanelChange('files')} />
+                    <ButtonCreatedChat onClick={props.onCreateChat} />
                     <div key="chats-section" className="flex flex-col gap-3 mt-2">
                         <h2 className="text-sm font-medium text-gray-400 px-2">Recent Chats</h2>
                         <div className="space-y-2 flex flex-col gap-2 text-2xl">

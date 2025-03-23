@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import BarFiles from '@/modules/common/components/UI/barFiles';
-import ButtonCreated from '@/modules/common/components/UI/buttonCreated';
+import BarFiles from '@/modules/common/components/items/itemsFiles';
+import ButtonCreated from '@/modules/common/components/UI/buttons/buttonCreatedFile';
 import { useFileStore } from '@/modules/common/stores/fileStore';
 
 export default function FilesPanels() {

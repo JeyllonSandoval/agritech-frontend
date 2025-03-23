@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import ModalCreated from '../modals/modalCreated';
+import ModalCreated from '../../modals/modalCreated';
 
 export default function ButtonCreated({ type }: { type: 'file' | 'chat' }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
