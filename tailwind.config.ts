@@ -13,5 +13,14 @@ export default {
       },
     },
   },
+  animation: {
+    'border-flow': 'border-flow 3s linear infinite'
+  },
+  keyframes: {
+    'border-flow': {
+      '0%, 100%': { backgroundPosition: '0% 50%' },
+      '50%': { backgroundPosition: '100% 50%' }
+    }
+  },
   plugins: [],
 } satisfies Config;

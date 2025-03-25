@@ -1,0 +1,11 @@
+{
+    "pregunta1": {
+        "ask": "¿Cuáles son las mejores prácticas para el desarrollo de software?"
+    },
+    "pregunta2": {
+        "ask": "¿Cómo puedo optimizar el rendimiento de una aplicación web?"
+    },
+    "pregunta3": {
+        "ask": "¿Cuáles son los principios SOLID en programación?"
+    }
+}

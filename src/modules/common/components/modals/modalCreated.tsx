@@ -7,9 +7,10 @@ interface ModalCreatedProps {
     onClose: (type: 'file' | 'chat') => void;
     type: 'file' | 'chat';
     mode?: 'upload' | 'select';
+    onFileSelect?: (fileName: string) => void;
 }
 
-export default function ModalCreated({ isOpen, onClose, type, mode = 'upload' }: ModalCreatedProps) {
+export default function ModalCreated({ isOpen, onClose, type, mode = 'upload', onFileSelect }: ModalCreatedProps) {
     if (!isOpen) return null;
 
     return (
@@ -37,7 +38,14 @@ export default function ModalCreated({ isOpen, onClose, type, mode = 'upload' }:
                     </button>
                 </div>
                 <div className="w-full">
-                    {type === 'file' && mode === 'select' && <TableShowFile onSelect={() => onClose(type)} />}
+                    {type === 'file' && mode === 'select' && (
+                        <TableShowFile 
+                            onSelect={(file) => {
+                                onFileSelect?.(file.FileName);
+                                onClose(type);
+                            }} 
+                        />
+                    )}
                     {type === 'file' && mode === 'upload' && <FileCreatedForm onClose={() => onClose(type)} />}
                     {type === 'chat' && <ChatCreatedForm onClose={() => onClose(type)} />}
                 </div>
