@@ -1,13 +1,14 @@
 import TableShowFile from "@/modules/common/components/UI/table/tableShowFile";
 import FileCreatedForm from "@/modules/common/components/forms/fileCreatedForm";
 import ChatCreatedForm from "@/modules/common/components/forms/chatCreatedForm";
+import { FileProps } from '@/modules/common/hooks/getFiles';
 
 interface ModalCreatedProps {
     isOpen: boolean;
     onClose: (type: 'file' | 'chat') => void;
     type: 'file' | 'chat';
     mode?: 'upload' | 'select';
-    onFileSelect?: (fileName: string) => void;
+    onFileSelect?: (file: FileProps) => void;
 }
 
 export default function ModalCreated({ isOpen, onClose, type, mode = 'upload', onFileSelect }: ModalCreatedProps) {
@@ -41,7 +42,7 @@ export default function ModalCreated({ isOpen, onClose, type, mode = 'upload', o
                     {type === 'file' && mode === 'select' && (
                         <TableShowFile 
                             onSelect={(file) => {
-                                onFileSelect?.(file.FileName);
+                                onFileSelect?.(file);
                                 onClose(type);
                             }} 
                         />

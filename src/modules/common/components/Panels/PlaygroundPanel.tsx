@@ -1,7 +1,5 @@
-import { useState } from 'react';
-import FilesPanels from '../Panels/FilesPanels';
-import ChatPanel from '../Panels/ChatPanel';
-import ModalCreated from '../modals/modalCreated';
+import FilesPanels from '@/modules/common/components/Panels/FilesPanels';
+import ChatPanel from '@/modules/common/components/Panels/ChatPanel';
 
 interface PlaygroundPanelProps {
     isSidebarOpen: boolean;

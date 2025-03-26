@@ -13,7 +13,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
                 <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg p-8">
                     <div className="flex items-center gap-3">
                         <div className="w-6 h-6 border-2 border-emerald-400/90 border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-white/70">Loading...</span>
+                        <span className="text-white/70 text-2xl">Loading...</span>
                     </div>
                 </div>
             </div>
