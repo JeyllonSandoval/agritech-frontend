@@ -89,13 +89,13 @@ export default function ProfileCard() {
                         </div>
 
                         <div className="w-full border-t border-white/20">
-                            <div className={`inline-flex items-center px-4 py-2 rounded-xl text-sm
+                            <div className={`flex w-24 items-center px-4 mt-4 py-2 rounded-xl text-sm
                                 transition-all duration-300
                                 ${userData.status === "active" 
                                     ? "bg-emerald-400/90 text-black" 
                                     : "bg-red-400/90 text-white"}`}>
                                 <span className={`w-2 h-2 mr-2 rounded-full bg-white/80`}></span>
-                                {userData.status === "active" ? "Activo" : "Inactivo"}
+                                {userData.status === "active" ? "Active" : "Inactive"}
                             </div>
                         </div>
                     </section>
