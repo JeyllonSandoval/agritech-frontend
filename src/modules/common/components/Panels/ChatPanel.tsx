@@ -3,7 +3,7 @@ import { useChatStore } from '@/modules/common/stores/chatStore';
 import ModalCreated from '../modals/modalCreated';
 import ButtonSelectFile from '../UI/buttons/buttonSelectFile';
 import { analyzeDocument } from '@/modules/common/services/chatService';
-import { ChatMessage } from '@/modules/common/types/chat';
+import { AnalysisRequest, ChatMessage } from '@/modules/common/types/chat';
 import { FileProps } from '@/modules/common/hooks/getFiles';
 import TableShowMessage from '../UI/table/tableShowMessage';
 import BarWrited from '../UI/bars/barWrited';
@@ -99,29 +99,42 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
     };
 
     const handleSendMessage = async (content: string) => {
-        if (!currentChat || !selectedFile) return;
+        if (!currentChat) return;
 
+        // Crear el mensaje del usuario
         const newMessage: ChatMessage = {
             MessageID: Date.now().toString(),
             ChatID: currentChat.ChatID,
-            FileID: selectedFile.FileID,
-            content: `ASK USER: ${content}`,
+            FileID: selectedFile?.FileID || null,
+            content: content,
             sendertype: 'user',
             createdAt: new Date().toISOString(),
             status: 'active'
         };
 
+        // Mostrar inmediatamente el mensaje del usuario
         setMessages(prev => [...prev, newMessage]);
         setIsAnalyzing(true);
 
         try {
-            const response = await analyzeDocument({
-                ChatID: currentChat.ChatID,
-                FileID: selectedFile.FileID,
-                content: `ASK USER: ${content}`,
-                sendertype: 'user'
-            });
+            // Preparar el request según si hay FileID o no
+            const requestData = selectedFile 
+                ? {
+                    ChatID: currentChat.ChatID,
+                    FileID: selectedFile.FileID,
+                    content: content,
+                    sendertype: 'user'
+                } 
+                : {
+                    ChatID: currentChat.ChatID,
+                    content: content,
+                    sendertype: 'user'
+                };
 
+            // Enviar al backend
+            const response = await analyzeDocument(requestData as AnalysisRequest);
+
+            // Mostrar la respuesta del backend
             setMessages(prev => [...prev, response]);
         } catch (err) {
             console.error('Analysis error:', err);
@@ -209,7 +222,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
 
     return (
         <div className="w-full h-full flex flex-col items-center justify-center">
-            <div className="w-1/2 h-full flex flex-col">
+            <div className="w-3/5 h-full flex flex-col">
                 {messages.length > 0 ? (
                     // Si hay mensajes, mostrarlos junto con la barra de escritura
                     <>
@@ -221,6 +234,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                             onSendMessage={handleSendMessage}
                             isLoading={isAnalyzing}
                             onFileSelect={handleFileSelect}
+                            selectedFile={selectedFile}
                         />
                     </>
                 ) : (

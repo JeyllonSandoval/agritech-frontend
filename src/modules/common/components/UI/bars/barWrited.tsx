@@ -8,9 +8,15 @@ interface BarWritedProps {
     onSendMessage: (content: string) => void;
     isLoading?: boolean;
     onFileSelect?: (file: FileProps) => void;
+    selectedFile?: FileProps | null;
 }
 
-export default function BarWrited({ onSendMessage, isLoading = false, onFileSelect }: BarWritedProps) {
+export default function BarWrited({ 
+    onSendMessage, 
+    isLoading = false, 
+    onFileSelect,
+    selectedFile 
+}: BarWritedProps) {
     const [message, setMessage] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -32,6 +38,16 @@ export default function BarWrited({ onSendMessage, isLoading = false, onFileSele
     return (
         <>
             <form onSubmit={handleSubmit} className="w-full p-4 border-t border-white/10">
+                {selectedFile && (
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs text-white/50">
+                            Archivo seleccionado: 
+                        </span>
+                        <span className="text-xs text-emerald-400 font-medium">
+                            {selectedFile.FileName}
+                        </span>
+                    </div>
+                )}
                 <div className="relative flex items-center">
                     <input
                         type="text"
