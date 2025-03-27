@@ -92,7 +92,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
             MessageID: Date.now().toString(),
             ChatID: currentChat.ChatID,
             FileID: selectedFile.FileID,
-            content: content,
+            content: `ASK USER: ${content}`,
             sendertype: 'user',
             createdAt: new Date().toISOString(),
             status: 'active'
@@ -105,7 +105,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
             const response = await analyzeDocument({
                 ChatID: currentChat.ChatID,
                 FileID: selectedFile.FileID,
-                content: content,
+                content: `ASK USER: ${content}`,
                 sendertype: 'user'
             });
 
