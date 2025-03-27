@@ -31,6 +31,7 @@ export default function BarWrited({
     const handleFileSelect = (file: FileProps) => {
         if (onFileSelect) {
             onFileSelect(file);
+            onSendMessage("¿Cuál es el contenido del PDF?");
         }
         setIsModalOpen(false);
     };

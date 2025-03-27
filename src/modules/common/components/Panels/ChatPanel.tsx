@@ -43,16 +43,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                 if (!response.ok) throw new Error('Failed to load chat history');
                 
                 const allMessages = await response.json();
-                
-                // Si hay un archivo seleccionado, filtrar por ese archivo
-                if (selectedFile) {
-                    const filteredMessages = allMessages.filter(
-                        (message: ChatMessage) => message.FileID === selectedFile.FileID
-                    );
-                    setMessages(filteredMessages);
-                } else {
-                    setMessages(allMessages);
-                }
+                setMessages(allMessages); // Ya no filtramos por FileID
             } catch (err) {
                 console.error('Error loading chat history:', err);
                 setError('Failed to load chat history');
@@ -60,7 +51,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         };
 
         loadChatHistory();
-    }, [currentChat?.ChatID, selectedFile]);
+    }, [currentChat?.ChatID]); // Solo depende del ChatID, no del selectedFile
 
     const handleAnalysis = async () => {
         if (!currentChat || !selectedFile) return;
@@ -72,7 +63,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
             MessageID: Date.now().toString(),
             ChatID: currentChat.ChatID,
             FileID: selectedFile.FileID,
-            content: "Primera pregunta: ¿Cuál es el contenido del PDF?",
+            content: "¿Cuál es el contenido del PDF?",
             sendertype: 'user',
             createdAt: new Date().toISOString(),
             status: 'active'
@@ -89,7 +80,6 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
             });
 
             setMessages(prev => [...prev, response]);
-            onPanelChange('chat');
         } catch (err) {
             console.error('Analysis error:', err);
             setError(err instanceof Error ? err.message : 'Error analyzing document');
