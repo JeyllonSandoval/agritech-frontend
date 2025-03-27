@@ -20,15 +20,19 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Efecto para limpiar estados cuando cambia el chat
     useEffect(() => {
-        setMessages([]);
         setSelectedFile(null);
+        setMessages([]);
         setError(null);
         setIsAnalyzing(false);
+    }, [currentChat]);
 
+    // Efecto para cargar mensajes
+    useEffect(() => {
         const loadChatHistory = async () => {
-            if (!currentChat) return;
-            
+            if (!currentChat?.ChatID) return;
+
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/messages/${currentChat.ChatID}`, {
                     headers: {
@@ -38,8 +42,17 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                 
                 if (!response.ok) throw new Error('Failed to load chat history');
                 
-                const messages = await response.json();
-                setMessages(messages);
+                const allMessages = await response.json();
+                
+                // Si hay un archivo seleccionado, filtrar por ese archivo
+                if (selectedFile) {
+                    const filteredMessages = allMessages.filter(
+                        (message: ChatMessage) => message.FileID === selectedFile.FileID
+                    );
+                    setMessages(filteredMessages);
+                } else {
+                    setMessages(allMessages);
+                }
             } catch (err) {
                 console.error('Error loading chat history:', err);
                 setError('Failed to load chat history');
@@ -47,7 +60,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         };
 
         loadChatHistory();
-    }, [currentChat?.ChatID]);
+    }, [currentChat?.ChatID, selectedFile]);
 
     const handleAnalysis = async () => {
         if (!currentChat || !selectedFile) return;
@@ -194,6 +207,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         <div className="w-full h-full flex flex-col items-center justify-center">
             <div className="w-1/2 h-full flex flex-col">
                 {messages.length > 0 ? (
+                    // Si hay mensajes, mostrarlos junto con la barra de escritura
                     <>
                         <TableShowMessage 
                             messages={messages}
@@ -205,6 +219,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                         />
                     </>
                 ) : (
+                    // Si no hay mensajes, mostrar la pantalla de bienvenida o selección de archivo
                     <div className="w-full h-full flex flex-col items-center justify-center p-8">
                         {welcomeContent}
                     </div>
