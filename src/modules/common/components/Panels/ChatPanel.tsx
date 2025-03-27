@@ -21,14 +21,13 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        setMessages([]);
-        setSelectedFile(null);
-        setError(null);
-        setIsAnalyzing(false);
+        // Solo cargar el historial si tenemos tanto el chat como el archivo seleccionado
+        if (!currentChat?.ChatID || !selectedFile?.FileID) {
+            setMessages([]);
+            return;
+        }
 
         const loadChatHistory = async () => {
-            if (!currentChat) return;
-            
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/messages/${currentChat.ChatID}`, {
                     headers: {
@@ -39,7 +38,11 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                 if (!response.ok) throw new Error('Failed to load chat history');
                 
                 const messages = await response.json();
-                setMessages(messages);
+                // Filtrar mensajes por el archivo seleccionado
+                const filteredMessages = messages.filter(
+                    (message: ChatMessage) => message.FileID === selectedFile.FileID
+                );
+                setMessages(filteredMessages);
             } catch (err) {
                 console.error('Error loading chat history:', err);
                 setError('Failed to load chat history');
@@ -47,6 +50,14 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         };
 
         loadChatHistory();
+    }, [currentChat?.ChatID, selectedFile?.FileID]);
+
+    // Limpiar selección de archivo al cambiar de chat
+    useEffect(() => {
+        setSelectedFile(null);
+        setMessages([]);
+        setError(null);
+        setIsAnalyzing(false);
     }, [currentChat?.ChatID]);
 
     const handleAnalysis = async () => {

@@ -1,11 +1,14 @@
 import { FileProps } from '@/modules/common/hooks/getFiles';
+import ButtonDownload from '@/modules/common/components/UI/CompleButtons/ButtonDownload';
+import ButtonShow from '@/modules/common/components/UI/CompleButtons/ButtonShow';
 
 interface BarFilesProps {
     files: FileProps[];
     onSelect?: (file: FileProps) => void;
+    showActions?: boolean;
 }
 
-export default function BarFiles({ files, onSelect }: BarFilesProps) {
+export default function BarFiles({ files, onSelect, showActions = true }: BarFilesProps) {
     return (
         <div className="space-y-2">
             {files.map((file) => (
@@ -43,50 +46,12 @@ export default function BarFiles({ files, onSelect }: BarFilesProps) {
                             group-hover:text-white/90 transition-colors duration-300">
                             {new Date(file.createdAt).toLocaleDateString()}
                         </span>
-                        <button 
-                            className="p-2 rounded-lg hover:bg-emerald-400/20 
-                                text-white/90 hover:text-emerald-400
-                                transition-all duration-300"
-                        >
-                            <svg 
-                                className="w-4 h-6" 
-                                fill="none" 
-                                stroke="currentColor" 
-                                viewBox="0 0 24 24"
-                            >
-                                <path 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round" 
-                                    strokeWidth="2" 
-                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                                />
-                            </svg>
-                        </button>
-                        <button
-                            className="p-2 rounded-lg hover:bg-emerald-400/20 
-                                text-white/90 hover:text-emerald-400
-                                transition-all duration-300"
-                        >
-                            <svg 
-                                className="w-4 h-4" 
-                                fill="none" 
-                                stroke="currentColor" 
-                                viewBox="0 0 24 24"
-                            >
-                                <path 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round" 
-                                    strokeWidth="2" 
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
-                                <path 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round" 
-                                    strokeWidth="2" 
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                />
-                            </svg>
-                        </button>
+                        {showActions && (
+                            <>
+                                <ButtonDownload />
+                                <ButtonShow />
+                            </>
+                        )}
                     </div>
                 </div>
             ))}
