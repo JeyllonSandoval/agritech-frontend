@@ -131,6 +131,10 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         }
     };
 
+    const handleFileSelect = (file: FileProps) => {
+        setSelectedFile(file);
+    };
+
     if (!currentChat) {
         return (
             <div className="w-full h-full flex flex-col items-center justify-center p-8">
@@ -216,6 +220,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                         <BarWrited 
                             onSendMessage={handleSendMessage}
                             isLoading={isAnalyzing}
+                            onFileSelect={handleFileSelect}
                         />
                     </>
                 ) : (
