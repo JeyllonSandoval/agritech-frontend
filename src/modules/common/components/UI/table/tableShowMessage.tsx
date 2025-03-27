@@ -1,19 +1,27 @@
 import { useEffect, useRef } from 'react';
 import { ChatMessage } from '@/modules/common/types/chat';
 import ItemMessage from '@/modules/common/components/items/itemMessages';
+import { FileProps } from '@/modules/common/hooks/getFiles';
 
 interface TableShowMessageProps {
     messages: ChatMessage[];
     isLoading?: boolean;
+    files?: FileProps[];
 }
 
-export default function TableShowMessage({ messages, isLoading }: TableShowMessageProps) {
+export default function TableShowMessage({ messages, isLoading, files }: TableShowMessageProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const prevMessagesLength = useRef(messages.length);
 
     useEffect(() => {
         prevMessagesLength.current = messages.length;
     }, [messages]);
+
+    const getFileName = (fileId: string | null) => {
+        if (!fileId || !files) return null;
+        const file = files.find(f => f.FileID === fileId);
+        return file?.FileName;
+    };
 
     return (
         <div 
@@ -27,6 +35,9 @@ export default function TableShowMessage({ messages, isLoading }: TableShowMessa
                     sendertype={message.sendertype}
                     createdAt={message.createdAt}
                     isNew={index === messages.length - 1}
+                    fileInfo={message.FileID ? { 
+                        FileName: getFileName(message.FileID) || 'Archivo no encontrado'
+                    } : undefined}
                 />
             ))}
             

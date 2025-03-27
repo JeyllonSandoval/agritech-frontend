@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useChatStore } from '@/modules/common/stores/chatStore';
+import { useFileStore } from '@/modules/common/stores/fileStore';
 import ModalCreated from '../modals/modalCreated';
 import ButtonSelectFile from '../UI/buttons/buttonSelectFile';
 import { analyzeDocument } from '@/modules/common/services/chatService';
@@ -14,13 +15,13 @@ interface ChatPanelProps {
 
 export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
     const currentChat = useChatStore(state => state.currentChat);
+    const { files, fetchFiles } = useFileStore();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<FileProps | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Efecto para limpiar estados cuando cambia el chat
     useEffect(() => {
         setSelectedFile(null);
         setMessages([]);
@@ -28,7 +29,6 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         setIsAnalyzing(false);
     }, [currentChat]);
 
-    // Efecto para cargar mensajes
     useEffect(() => {
         const loadChatHistory = async () => {
             if (!currentChat?.ChatID) return;
@@ -51,7 +51,11 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         };
 
         loadChatHistory();
-    }, [currentChat?.ChatID]); // Solo depende del ChatID, no del selectedFile
+    }, [currentChat?.ChatID]);
+
+    useEffect(() => {
+        fetchFiles();
+    }, [fetchFiles]);
 
     const handleAnalysis = async () => {
         if (!currentChat || !selectedFile) return;
@@ -88,10 +92,47 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         }
     };
 
+    const handleFileSelect = async (file: FileProps) => {
+        setSelectedFile(file);
+        
+        const newMessage: ChatMessage = {
+            MessageID: Date.now().toString(),
+            ChatID: currentChat!.ChatID,
+            FileID: file.FileID,
+            content: "¿Cuál es el contenido del PDF?",
+            sendertype: 'user',
+            createdAt: new Date().toISOString(),
+            status: 'active'
+        };
+
+        setMessages(prev => [...prev, newMessage]);
+        setIsAnalyzing(true);
+
+        try {
+            
+            const requestData = {
+                ChatID: currentChat!.ChatID,
+                FileID: file.FileID,
+                content: "¿Cuál es el contenido del PDF?",
+                sendertype: 'user' as const
+            };
+
+            console.log('Enviando solicitud con nuevo archivo:', requestData);
+
+            const response = await analyzeDocument(requestData);
+            
+            setMessages(prev => [...prev, response]);
+        } catch (err) {
+            console.error('Analysis error:', err);
+            setError(err instanceof Error ? err.message : 'Error analyzing document');
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
     const handleSendMessage = async (content: string) => {
         if (!currentChat) return;
 
-        // Crear el mensaje del usuario
         const newMessage: ChatMessage = {
             MessageID: Date.now().toString(),
             ChatID: currentChat.ChatID,
@@ -102,29 +143,26 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
             status: 'active'
         };
 
-        // Mostrar inmediatamente el mensaje del usuario
         setMessages(prev => [...prev, newMessage]);
         setIsAnalyzing(true);
 
         try {
-            // Preparar el request según si hay FileID o no
             const requestData = selectedFile 
                 ? {
                     ChatID: currentChat.ChatID,
                     FileID: selectedFile.FileID,
                     content: content,
-                    sendertype: 'user'
+                    sendertype: 'user' as const
                 } 
                 : {
                     ChatID: currentChat.ChatID,
                     content: content,
-                    sendertype: 'user'
+                    sendertype: 'user' as const
                 };
 
-            // Enviar al backend
-            const response = await analyzeDocument(requestData as AnalysisRequest);
+            console.log('Enviando mensaje normal:', requestData);
 
-            // Mostrar la respuesta del backend
+            const response = await analyzeDocument(requestData as AnalysisRequest);
             setMessages(prev => [...prev, response]);
         } catch (err) {
             console.error('Analysis error:', err);
@@ -132,10 +170,6 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         } finally {
             setIsAnalyzing(false);
         }
-    };
-
-    const handleFileSelect = (file: FileProps) => {
-        setSelectedFile(file);
     };
 
     if (!currentChat) {
@@ -214,11 +248,11 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         <div className="w-full h-full flex flex-col items-center justify-center">
             <div className="w-3/5 h-full flex flex-col">
                 {messages.length > 0 ? (
-                    // Si hay mensajes, mostrarlos junto con la barra de escritura
                     <>
                         <TableShowMessage 
                             messages={messages}
                             isLoading={isAnalyzing}
+                            files={files}
                         />
                         <BarWrited 
                             onSendMessage={handleSendMessage}
@@ -228,7 +262,6 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                         />
                     </>
                 ) : (
-                    // Si no hay mensajes, mostrar la pantalla de bienvenida o selección de archivo
                     <div className="w-full h-full flex flex-col items-center justify-center p-8">
                         {welcomeContent}
                     </div>

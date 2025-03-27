@@ -31,7 +31,6 @@ export default function BarWrited({
     const handleFileSelect = (file: FileProps) => {
         if (onFileSelect) {
             onFileSelect(file);
-            onSendMessage("¿Cuál es el contenido del PDF?");
         }
         setIsModalOpen(false);
     };
@@ -42,7 +41,7 @@ export default function BarWrited({
                 {selectedFile && (
                     <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs text-white/50">
-                            Archivo seleccionado: 
+                            File selected: 
                         </span>
                         <span className="text-xs text-emerald-400 font-medium">
                             {selectedFile.FileName}
@@ -54,7 +53,7 @@ export default function BarWrited({
                         type="text"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Escribe tu pregunta..."
+                        placeholder="Write your question..."
                         disabled={isLoading}
                         className="w-full text-sm px-4 pr-28 py-3 
                             bg-white/5 rounded-xl
