@@ -6,6 +6,7 @@ import { analyzeDocument } from '@/modules/common/services/chatService';
 import { ChatMessage } from '@/modules/common/types/chat';
 import { FileProps } from '@/modules/common/hooks/getFiles';
 import TableShowMessage from '../UI/table/tableShowMessage';
+import BarWrited from '../UI/bars/barWrited';
 
 interface ChatPanelProps {
     onPanelChange: (panel: 'welcome' | 'files' | 'chat') => void;
@@ -20,6 +21,11 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        setMessages([]);
+        setSelectedFile(null);
+        setError(null);
+        setIsAnalyzing(false);
+
         const loadChatHistory = async () => {
             if (!currentChat) return;
             
@@ -36,11 +42,12 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                 setMessages(messages);
             } catch (err) {
                 console.error('Error loading chat history:', err);
+                setError('Failed to load chat history');
             }
         };
 
         loadChatHistory();
-    }, [currentChat]);
+    }, [currentChat?.ChatID]);
 
     const handleAnalysis = async () => {
         if (!currentChat || !selectedFile) return;
@@ -70,6 +77,39 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
 
             setMessages(prev => [...prev, response]);
             onPanelChange('chat');
+        } catch (err) {
+            console.error('Analysis error:', err);
+            setError(err instanceof Error ? err.message : 'Error analyzing document');
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
+    const handleSendMessage = async (content: string) => {
+        if (!currentChat || !selectedFile) return;
+
+        const newMessage: ChatMessage = {
+            MessageID: Date.now().toString(),
+            ChatID: currentChat.ChatID,
+            FileID: selectedFile.FileID,
+            content: content,
+            sendertype: 'user',
+            createdAt: new Date().toISOString(),
+            status: 'active'
+        };
+
+        setMessages(prev => [...prev, newMessage]);
+        setIsAnalyzing(true);
+
+        try {
+            const response = await analyzeDocument({
+                ChatID: currentChat.ChatID,
+                FileID: selectedFile.FileID,
+                content: content,
+                sendertype: 'user'
+            });
+
+            setMessages(prev => [...prev, response]);
         } catch (err) {
             console.error('Analysis error:', err);
             setError(err instanceof Error ? err.message : 'Error analyzing document');
@@ -154,24 +194,30 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         <div className="w-full h-full flex flex-col items-center justify-center">
             <div className="w-1/2 h-full flex flex-col">
                 {messages.length > 0 ? (
-                    <TableShowMessage 
-                        messages={messages}
-                        isLoading={isAnalyzing}
-                    />
+                    <>
+                        <TableShowMessage 
+                            messages={messages}
+                            isLoading={isAnalyzing}
+                        />
+                        <BarWrited 
+                            onSendMessage={handleSendMessage}
+                            isLoading={isAnalyzing}
+                        />
+                    </>
                 ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center p-8">
                         {welcomeContent}
                     </div>
                 )}
-            </div>
 
-            <ModalCreated 
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                type="file"
-                mode="select"
-                onFileSelect={(file: FileProps) => setSelectedFile(file)}
-            />
+                <ModalCreated 
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    type="file"
+                    mode="select"
+                    onFileSelect={(file: FileProps) => setSelectedFile(file)}
+                />
+            </div>
         </div>
     );
 }
