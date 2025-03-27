@@ -1,7 +1,7 @@
 "use client";
-import LeftNavbar from '@/modules/common/components/UI/LeftNavbar';
-import CenterNavbar from '@/modules/common/components/UI/CenterNavbar';
-import RightNavbar from '@/modules/common/components/UI/RightNavbar';
+import LeftNavbar from '@/modules/common/components/UI/navbars/LeftNavbar';
+import CenterNavbar from '@/modules/common/components/UI/navbars/CenterNavbar';
+import RightNavbar from '@/modules/common/components/UI/navbars/RightNavbar';
 
 export default function NavbarH() {
 

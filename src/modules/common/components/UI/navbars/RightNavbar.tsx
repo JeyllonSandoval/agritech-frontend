@@ -1,7 +1,7 @@
 import { usePathname } from "next/navigation";
 import ImgProfileNavbar from "./ImgProfileNavbar";
 import DropNavbar from "./SigninNavbar";
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../../hooks/useAuth';
 import { useRouter } from "next/navigation";
 
 export default function RightNavbar() {

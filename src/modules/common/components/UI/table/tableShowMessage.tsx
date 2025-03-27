@@ -8,7 +8,7 @@ interface TableShowMessageProps {
 
 export default function TableShowMessage({ messages, isLoading }: TableShowMessageProps) {
     return (
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-4 scrollbar">
             {messages.map((message, index) => (
                 <ItemMessage
                     key={message.MessageID || index}
