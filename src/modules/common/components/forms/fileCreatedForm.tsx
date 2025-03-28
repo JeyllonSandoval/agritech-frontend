@@ -17,18 +17,39 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
     const [token, setToken] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { fetchFiles } = useFileStore();
+    const [validations, setValidations] = useState({
+        fileSelected: false,
+        validType: false,
+        validSize: false
+    });
 
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         setToken(storedToken);
     }, []);
 
+    const validateFile = (file: File | null) => {
+        if (!file) {
+            setValidations({
+                fileSelected: false,
+                validType: false,
+                validSize: false
+            });
+            return;
+        }
+
+        setValidations({
+            fileSelected: true,
+            validType: file.type === 'application/pdf',
+            validSize: file.size <= 10 * 1024 * 1024 // 10MB máximo
+        });
+    };
+
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setSelectedFile(file);
-            setError(null);
-        }
+        setSelectedFile(file || null);
+        validateFile(file || null);
+        setError(null);
     };
 
     const truncateFileName = (name: string, maxLength: number = 30) => {
@@ -112,6 +133,46 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
                         >
                             {selectedFile ? truncateFileName(selectedFile.name) : 'Click to select a file'}
                         </button>
+                    </div>
+                </div>
+
+                {/* Validadores dinámicos */}
+                <div className="text-xs space-y-1 px-2">
+                    <div className={`flex items-center gap-2 ${
+                        validations.fileSelected ? 'text-emerald-400' : 'text-white/50'
+                    }`}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            {validations.fileSelected ? (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            ) : (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            )}
+                        </svg>
+                        <span>File selected</span>
+                    </div>
+                    <div className={`flex items-center gap-2 ${
+                        validations.validType ? 'text-emerald-400' : 'text-white/50'
+                    }`}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            {validations.validType ? (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            ) : (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            )}
+                        </svg>
+                        <span>Valid PDF format</span>
+                    </div>
+                    <div className={`flex items-center gap-2 ${
+                        validations.validSize ? 'text-emerald-400' : 'text-white/50'
+                    }`}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            {validations.validSize ? (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            ) : (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            )}
+                        </svg>
+                        <span>Size less than 10MB</span>
                     </div>
                 </div>
             </div>

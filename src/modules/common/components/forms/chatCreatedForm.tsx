@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useChatStore } from '@/modules/common/stores/chatStore';
 
 interface TokenPayload {
     UserID: string;
-    // ... otros campos del token si existen
 }
 
 interface ChatCreatedFormProps {
@@ -15,7 +14,21 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
     const [chatName, setChatName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [validations, setValidations] = useState({
+        length: false,
+        noSpecialChars: false
+    });
     const addChat = useChatStore(state => state.addChat);
+
+    
+    const isFormValid = validations.length && validations.noSpecialChars;
+
+    useEffect(() => {
+        setValidations({
+            length: chatName.length >= 3 && chatName.length <= 50,
+            noSpecialChars: /^[a-zA-Z0-9\s-_]+$/.test(chatName)
+        });
+    }, [chatName]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -50,14 +63,14 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
             const responseData = await response.json();
             console.log('Server response:', responseData);
             
-            // Verificar que newChat existe y tiene elementos
+            
             if (!responseData.newChat || !Array.isArray(responseData.newChat) || responseData.newChat.length === 0) {
                 throw new Error('Invalid chat response: missing chat data');
             }
 
             const newChat = responseData.newChat[0];
             
-            // Verificar que el chat tenga un ChatID válido
+            
             if (!newChat.ChatID) {
                 console.log('Chat object structure:', Object.keys(newChat));
                 throw new Error('Invalid chat response: missing ChatID');
@@ -80,7 +93,7 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
 
     return (
         <form onSubmit={handleSubmit} className="w-full space-y-6">
-            <div className="relative flex flex-col">
+            <div className="relative flex flex-col gap-2">
                 <input
                     type="text"
                     value={chatName}
@@ -94,6 +107,34 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                         transition-all duration-300"
                     required
                 />
+                
+                {/* Validadores dinámicos */}
+                <div className="text-xs space-y-1 px-2">
+                    <div className={`flex items-center gap-2 ${
+                        validations.length ? 'text-emerald-400' : 'text-white/50'
+                    }`}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            {validations.length ? (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            ) : (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            )}
+                        </svg>
+                        <span>Between 3 and 50 characters</span>
+                    </div>
+                    <div className={`flex items-center gap-2 ${
+                        validations.noSpecialChars ? 'text-emerald-400' : 'text-white/50'
+                    }`}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            {validations.noSpecialChars ? (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            ) : (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            )}
+                        </svg>
+                        <span>Only letters, numbers, spaces, hyphens and underscores</span>
+                    </div>
+                </div>
             </div>
             
             {error && (
@@ -115,10 +156,10 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                 </button>
                 <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isLoading || !isFormValid}
                     className={`px-6 py-2.5 text-sm rounded-xl
                         transition-all duration-300
-                        ${isLoading 
+                        ${isLoading || !isFormValid
                             ? 'bg-white/10 text-white/40 cursor-not-allowed'
                             : 'bg-emerald-400/90 text-black hover:bg-emerald-400'
                         }`}
