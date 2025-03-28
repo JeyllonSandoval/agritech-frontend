@@ -8,9 +8,19 @@ import { AnalysisRequest, ChatMessage } from '@/modules/common/types/chat';
 import { FileProps } from '@/modules/common/hooks/getFiles';
 import TableShowMessage from '../UI/table/tableShowMessage';
 import BarWrited from '../UI/bars/barWrited';
+import FileAnalysisResult from '../items/FileAnalysisResult';
+import predefinedQuestions from '@/modules/common/data/predefinedQuestions.json';
 
 interface ChatPanelProps {
     onPanelChange: (panel: 'welcome' | 'files' | 'chat') => void;
+}
+
+interface AnalysisResult {
+    questionId: string;
+    question: string;
+    description: string;
+    answer: string;
+    isLoading: boolean;
 }
 
 export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
@@ -21,12 +31,14 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
     const [selectedFile, setSelectedFile] = useState<FileProps | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [analysisResults, setAnalysisResults] = useState<AnalysisResult[]>([]);
 
     useEffect(() => {
         setSelectedFile(null);
         setMessages([]);
         setError(null);
         setIsAnalyzing(false);
+        setAnalysisResults([]);
     }, [currentChat]);
 
     useEffect(() => {
@@ -63,71 +75,79 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         setIsAnalyzing(true);
         setError(null);
 
-        const initialMessage: ChatMessage = {
-            MessageID: Date.now().toString(),
-            ChatID: currentChat.ChatID,
-            FileID: selectedFile.FileID,
-            content: "¿Cuál es el contenido del PDF?",
-            sendertype: 'user',
-            createdAt: new Date().toISOString(),
-            status: 'active'
-        };
+        // Inicializar los resultados con las preguntas predefinidas
+        const initialResults = predefinedQuestions.questions.map(q => ({
+            questionId: q.id,
+            question: q.question,
+            description: q.description,
+            answer: '',
+            isLoading: true
+        }));
+        setAnalysisResults(initialResults);
 
-        setMessages(prev => [...prev, initialMessage]);
+        // Procesar cada pregunta
+        for (const question of predefinedQuestions.questions) {
+            try {
+                const response = await analyzeDocument({
+                    ChatID: currentChat.ChatID,
+                    FileID: selectedFile.FileID,
+                    content: question.question,
+                    sendertype: 'user'
+                });
 
-        try {
-            const response = await analyzeDocument({
-                ChatID: currentChat.ChatID,
-                FileID: selectedFile.FileID,
-                content: initialMessage.content,
-                sendertype: 'user'
-            });
-
-            setMessages(prev => [...prev, response]);
-        } catch (err) {
-            console.error('Analysis error:', err);
-            setError(err instanceof Error ? err.message : 'Error analyzing document');
-        } finally {
-            setIsAnalyzing(false);
+                // Actualizar el resultado correspondiente
+                setAnalysisResults(prev => prev.map(result => 
+                    result.questionId === question.id
+                        ? { ...result, answer: response.content, isLoading: false }
+                        : result
+                ));
+            } catch (err) {
+                console.error(`Error analyzing question ${question.id}:`, err);
+                setError(err instanceof Error ? err.message : 'Error analyzing document');
+            }
         }
+
+        setIsAnalyzing(false);
     };
 
     const handleFileSelect = async (file: FileProps) => {
         setSelectedFile(file);
-        
-        const newMessage: ChatMessage = {
-            MessageID: Date.now().toString(),
-            ChatID: currentChat!.ChatID,
-            FileID: file.FileID,
-            content: "¿Cuál es el contenido del PDF?",
-            sendertype: 'user',
-            createdAt: new Date().toISOString(),
-            status: 'active'
-        };
-
-        setMessages(prev => [...prev, newMessage]);
         setIsAnalyzing(true);
+        setError(null);
 
-        try {
-            
-            const requestData = {
-                ChatID: currentChat!.ChatID,
-                FileID: file.FileID,
-                content: "¿Cuál es el contenido del PDF?",
-                sendertype: 'user' as const
-            };
+        // Inicializar los resultados con las preguntas predefinidas
+        const initialResults = predefinedQuestions.questions.map(q => ({
+            questionId: q.id,
+            question: q.question,
+            description: q.description,
+            answer: '',
+            isLoading: true
+        }));
+        setAnalysisResults(initialResults);
 
-            console.log('Enviando solicitud con nuevo archivo:', requestData);
+        // Procesar cada pregunta
+        for (const question of predefinedQuestions.questions) {
+            try {
+                const response = await analyzeDocument({
+                    ChatID: currentChat!.ChatID,
+                    FileID: file.FileID,
+                    content: question.question,
+                    sendertype: 'user'
+                });
 
-            const response = await analyzeDocument(requestData);
-            
-            setMessages(prev => [...prev, response]);
-        } catch (err) {
-            console.error('Analysis error:', err);
-            setError(err instanceof Error ? err.message : 'Error analyzing document');
-        } finally {
-            setIsAnalyzing(false);
+                // Actualizar el resultado correspondiente
+                setAnalysisResults(prev => prev.map(result => 
+                    result.questionId === question.id
+                        ? { ...result, answer: response.content, isLoading: false }
+                        : result
+                ));
+            } catch (err) {
+                console.error(`Error analyzing question ${question.id}:`, err);
+                setError(err instanceof Error ? err.message : 'Error analyzing document');
+            }
         }
+
+        setIsAnalyzing(false);
     };
 
     const handleSendMessage = async (content: string) => {
@@ -136,7 +156,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         const newMessage: ChatMessage = {
             MessageID: Date.now().toString(),
             ChatID: currentChat.ChatID,
-            FileID: null,
+            FileID: selectedFile?.FileID || null,
             content: content,
             sendertype: 'user',
             createdAt: new Date().toISOString(),
@@ -147,13 +167,20 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         setIsAnalyzing(true);
 
         try {
-            const requestData = {
-                ChatID: currentChat.ChatID,
-                content: content,
-                sendertype: 'user' as const
-            };
+            const requestData = selectedFile 
+                ? {
+                    ChatID: currentChat.ChatID,
+                    FileID: selectedFile.FileID,
+                    content: content,
+                    sendertype: 'user' as const
+                } 
+                : {
+                    ChatID: currentChat.ChatID,
+                    content: content,
+                    sendertype: 'user' as const
+                };
 
-            console.log('Enviando mensaje normal:', requestData);
+            console.log('Enviando mensaje:', requestData);
 
             const response = await analyzeDocument(requestData as AnalysisRequest);
             setMessages(prev => [...prev, response]);
@@ -246,6 +273,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                             messages={messages}
                             isLoading={isAnalyzing}
                             files={files}
+                            analysisResults={analysisResults}
                         />
                         <BarWrited 
                             onSendMessage={handleSendMessage}
