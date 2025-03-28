@@ -136,7 +136,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         const newMessage: ChatMessage = {
             MessageID: Date.now().toString(),
             ChatID: currentChat.ChatID,
-            FileID: selectedFile?.FileID || null,
+            FileID: null,
             content: content,
             sendertype: 'user',
             createdAt: new Date().toISOString(),
@@ -147,18 +147,11 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         setIsAnalyzing(true);
 
         try {
-            const requestData = selectedFile 
-                ? {
-                    ChatID: currentChat.ChatID,
-                    FileID: selectedFile.FileID,
-                    content: content,
-                    sendertype: 'user' as const
-                } 
-                : {
-                    ChatID: currentChat.ChatID,
-                    content: content,
-                    sendertype: 'user' as const
-                };
+            const requestData = {
+                ChatID: currentChat.ChatID,
+                content: content,
+                sendertype: 'user' as const
+            };
 
             console.log('Enviando mensaje normal:', requestData);
 
