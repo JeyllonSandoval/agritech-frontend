@@ -15,14 +15,6 @@ interface ChatPanelProps {
     onPanelChange: (panel: 'welcome' | 'files' | 'chat') => void;
 }
 
-interface AnalysisResult {
-    questionId: string;
-    question: string;
-    description: string;
-    answer: string;
-    isLoading: boolean;
-}
-
 export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
     const currentChat = useChatStore(state => state.currentChat);
     const { files, fetchFiles } = useFileStore();
@@ -31,14 +23,12 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
     const [selectedFile, setSelectedFile] = useState<FileProps | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [analysisResults, setAnalysisResults] = useState<AnalysisResult[]>([]);
 
     useEffect(() => {
         setSelectedFile(null);
         setMessages([]);
         setError(null);
         setIsAnalyzing(false);
-        setAnalysisResults([]);
     }, [currentChat]);
 
     useEffect(() => {
@@ -75,15 +65,31 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         setIsAnalyzing(true);
         setError(null);
 
-        // Inicializar los resultados con las preguntas predefinidas
-        const initialResults = predefinedQuestions.questions.map(q => ({
-            questionId: q.id,
-            question: q.question,
-            description: q.description,
-            answer: '',
-            isLoading: true
-        }));
-        setAnalysisResults(initialResults);
+        // Agregar mensaje de archivo seleccionado
+        const fileMessage: ChatMessage = {
+            MessageID: `file-${Date.now()}`,
+            ChatID: currentChat.ChatID,
+            FileID: selectedFile.FileID,
+            content: 'ASK USER',
+            sendertype: 'user',
+            createdAt: new Date().toISOString(),
+            status: 'active'
+        };
+
+        setMessages(prev => [...prev, fileMessage]);
+
+        // Agregar mensaje inicial de análisis
+        const analysisStartMessage: ChatMessage = {
+            MessageID: `analysis-start-${Date.now()}`,
+            ChatID: currentChat.ChatID,
+            FileID: selectedFile.FileID,
+            content: `Starting analysis of ${selectedFile.FileName}`,
+            sendertype: 'ai',
+            createdAt: new Date().toISOString(),
+            status: 'active'
+        };
+
+        setMessages(prev => [...prev, analysisStartMessage]);
 
         // Procesar cada pregunta
         for (const question of predefinedQuestions.questions) {
@@ -95,12 +101,20 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                     sendertype: 'user'
                 });
 
-                // Actualizar el resultado correspondiente
-                setAnalysisResults(prev => prev.map(result => 
-                    result.questionId === question.id
-                        ? { ...result, answer: response.content, isLoading: false }
-                        : result
-                ));
+                // Agregar cada resultado como un mensaje
+                const analysisMessage: ChatMessage = {
+                    MessageID: `analysis-${question.id}-${Date.now()}`,
+                    ChatID: currentChat.ChatID,
+                    FileID: selectedFile.FileID,
+                    content: response.content,
+                    sendertype: 'ai',
+                    createdAt: new Date().toISOString(),
+                    status: 'active',
+                    question: question.question,
+                    description: question.description
+                };
+
+                setMessages(prev => [...prev, analysisMessage]);
             } catch (err) {
                 console.error(`Error analyzing question ${question.id}:`, err);
                 setError(err instanceof Error ? err.message : 'Error analyzing document');
@@ -115,15 +129,31 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         setIsAnalyzing(true);
         setError(null);
 
-        // Inicializar los resultados con las preguntas predefinidas
-        const initialResults = predefinedQuestions.questions.map(q => ({
-            questionId: q.id,
-            question: q.question,
-            description: q.description,
-            answer: '',
-            isLoading: true
-        }));
-        setAnalysisResults(initialResults);
+        // Agregar mensaje de archivo seleccionado
+        const fileMessage: ChatMessage = {
+            MessageID: `file-${Date.now()}`,
+            ChatID: currentChat!.ChatID,
+            FileID: file.FileID,
+            content: 'ASK USER',
+            sendertype: 'user',
+            createdAt: new Date().toISOString(),
+            status: 'active'
+        };
+
+        setMessages(prev => [...prev, fileMessage]);
+
+        // Agregar mensaje inicial de análisis
+        const analysisStartMessage: ChatMessage = {
+            MessageID: `analysis-start-${Date.now()}`,
+            ChatID: currentChat!.ChatID,
+            FileID: file.FileID,
+            content: `Starting analysis of ${file.FileName}`,
+            sendertype: 'ai',
+            createdAt: new Date().toISOString(),
+            status: 'active'
+        };
+
+        setMessages(prev => [...prev, analysisStartMessage]);
 
         // Procesar cada pregunta
         for (const question of predefinedQuestions.questions) {
@@ -135,12 +165,20 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                     sendertype: 'user'
                 });
 
-                // Actualizar el resultado correspondiente
-                setAnalysisResults(prev => prev.map(result => 
-                    result.questionId === question.id
-                        ? { ...result, answer: response.content, isLoading: false }
-                        : result
-                ));
+                // Agregar cada resultado como un mensaje
+                const analysisMessage: ChatMessage = {
+                    MessageID: `analysis-${question.id}-${Date.now()}`,
+                    ChatID: currentChat!.ChatID,
+                    FileID: file.FileID,
+                    content: response.content,
+                    sendertype: 'ai',
+                    createdAt: new Date().toISOString(),
+                    status: 'active',
+                    question: question.question,
+                    description: question.description
+                };
+
+                setMessages(prev => [...prev, analysisMessage]);
             } catch (err) {
                 console.error(`Error analyzing question ${question.id}:`, err);
                 setError(err instanceof Error ? err.message : 'Error analyzing document');
@@ -156,7 +194,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         const newMessage: ChatMessage = {
             MessageID: Date.now().toString(),
             ChatID: currentChat.ChatID,
-            FileID: selectedFile?.FileID || null,
+            FileID: null,
             content: content,
             sendertype: 'user',
             createdAt: new Date().toISOString(),
@@ -167,18 +205,11 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         setIsAnalyzing(true);
 
         try {
-            const requestData = selectedFile 
-                ? {
-                    ChatID: currentChat.ChatID,
-                    FileID: selectedFile.FileID,
-                    content: content,
-                    sendertype: 'user' as const
-                } 
-                : {
-                    ChatID: currentChat.ChatID,
-                    content: content,
-                    sendertype: 'user' as const
-                };
+            const requestData = {
+                ChatID: currentChat.ChatID,
+                content: content,
+                sendertype: 'user' as const
+            };
 
             console.log('Enviando mensaje:', requestData);
 
@@ -273,7 +304,6 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                             messages={messages}
                             isLoading={isAnalyzing}
                             files={files}
-                            analysisResults={analysisResults}
                         />
                         <BarWrited 
                             onSendMessage={handleSendMessage}

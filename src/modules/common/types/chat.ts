@@ -6,6 +6,9 @@ export interface ChatMessage {
     content: string;
     createdAt: string;
     status: 'active' | 'inactive';
+    question?: string;
+    description?: string;
+    isLoading?: boolean;
 }
 
 export interface AnalysisRequest {
