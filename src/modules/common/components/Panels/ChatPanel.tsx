@@ -45,7 +45,46 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                 if (!response.ok) throw new Error('Failed to load chat history');
                 
                 const allMessages = await response.json();
-                setMessages(allMessages); // Ya no filtramos por FileID
+                
+                // Procesar los mensajes para mantener la estructura de análisis
+                const processedMessages = allMessages.reduce((acc: ChatMessage[], message: ChatMessage, index: number) => {
+                    // Si es un mensaje de archivo, solo lo agregamos si no hay otro mensaje de archivo reciente
+                    if (message.FileID && message.sendertype === 'user') {
+                        const lastFileMessage = acc.findLast(m => m.FileID && m.sendertype === 'user');
+                        if (!lastFileMessage || lastFileMessage.FileID !== message.FileID) {
+                            acc.push(message);
+                        }
+                    }
+                    // Si es una respuesta de la IA, la procesamos
+                    else if (message.sendertype === 'ai') {
+                        const previousMessage = allMessages[index - 1];
+                        if (previousMessage) {
+                            const matchingQuestion = predefinedQuestions.questions.find(q => 
+                                previousMessage.content.includes(q.question) || 
+                                previousMessage.content.includes(q.description)
+                            );
+
+                            if (matchingQuestion) {
+                                acc.push({
+                                    ...message,
+                                    question: matchingQuestion.question,
+                                    description: matchingQuestion.description
+                                });
+                            } else {
+                                acc.push(message);
+                            }
+                        } else {
+                            acc.push(message);
+                        }
+                    }
+                    // Para otros tipos de mensajes, los agregamos directamente
+                    else {
+                        acc.push(message);
+                    }
+                    return acc;
+                }, []);
+
+                setMessages(processedMessages);
             } catch (err) {
                 console.error('Error loading chat history:', err);
                 setError('Failed to load chat history');
@@ -77,19 +116,6 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         };
 
         setMessages(prev => [...prev, fileMessage]);
-
-        // Agregar mensaje inicial de análisis
-        const analysisStartMessage: ChatMessage = {
-            MessageID: `analysis-start-${Date.now()}`,
-            ChatID: currentChat.ChatID,
-            FileID: selectedFile.FileID,
-            content: `Starting analysis of ${selectedFile.FileName}`,
-            sendertype: 'ai',
-            createdAt: new Date().toISOString(),
-            status: 'active'
-        };
-
-        setMessages(prev => [...prev, analysisStartMessage]);
 
         // Procesar cada pregunta
         for (const question of predefinedQuestions.questions) {
@@ -141,19 +167,6 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         };
 
         setMessages(prev => [...prev, fileMessage]);
-
-        // Agregar mensaje inicial de análisis
-        const analysisStartMessage: ChatMessage = {
-            MessageID: `analysis-start-${Date.now()}`,
-            ChatID: currentChat!.ChatID,
-            FileID: file.FileID,
-            content: `Starting analysis of ${file.FileName}`,
-            sendertype: 'ai',
-            createdAt: new Date().toISOString(),
-            status: 'active'
-        };
-
-        setMessages(prev => [...prev, analysisStartMessage]);
 
         // Procesar cada pregunta
         for (const question of predefinedQuestions.questions) {

@@ -44,7 +44,7 @@ export default function ItemMessage({ content, sendertype, createdAt, isNew, fil
                         </div>
                     </div>
                 )}
-                {!fileInfo && (
+                {!fileInfo && content !== 'ASK USER' && (
                     <>
                         <p className="whitespace-pre-wrap text-sm break-words">
                             {content}

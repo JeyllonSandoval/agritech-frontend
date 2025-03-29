@@ -6,17 +6,20 @@ import { FileProps } from '@/modules/common/hooks/getFiles';
 
 interface TableShowMessageProps {
     messages: ChatMessage[];
-    isLoading?: boolean;
-    files?: FileProps[];
+    isLoading: boolean;
+    files: FileProps[];
 }
 
 export default function TableShowMessage({ messages, isLoading, files }: TableShowMessageProps) {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const prevMessagesLength = useRef(messages.length);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
 
     useEffect(() => {
-        prevMessagesLength.current = messages.length;
-    }, [messages]);
+        scrollToBottom();
+    }, [messages, isLoading]);
 
     const getFileName = (fileId: string | null) => {
         if (!fileId || !files) return null;
@@ -25,33 +28,30 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
     };
 
     return (
-        <div 
-            ref={containerRef}
-            className="flex-1 overflow-y-auto p-4 scrollbar"
-        >
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar">
             {messages.map((message, index) => (
-                message.question ? (
-                    <div key={message.MessageID} className="mb-4">
+                <div key={message.MessageID}>
+                    {message.question && message.description ? (
                         <FileAnalysisResult
                             question={message.question}
-                            description={message.description || ''}
+                            description={message.description}
                             answer={message.content}
-                            isLoading={false}
+                            isLoading={isLoading}
                         />
-                    </div>
-                ) : (
-                    <ItemMessage
-                        key={message.MessageID || index}
-                        content={message.content}
-                        sendertype={message.sendertype}
-                        createdAt={message.createdAt}
-                        isNew={index === messages.length - 1}
-                        fileInfo={message.FileID ? { 
-                            FileName: getFileName(message.FileID) || 'Archivo no encontrado'
-                        } : undefined}
-                    />
-                )
+                    ) : (
+                        <ItemMessage
+                            content={message.content}
+                            sendertype={message.sendertype}
+                            createdAt={message.createdAt}
+                            isNew={index === messages.length - 1}
+                            fileInfo={message.FileID ? { 
+                                FileName: getFileName(message.FileID) || 'File not found'
+                            } : undefined}
+                        />
+                    )}
+                </div>
             ))}
+            <div ref={messagesEndRef} />
             
             {isLoading && (
                 <div className="flex justify-start mb-4 animate-fadeIn">
