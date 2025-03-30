@@ -1,4 +1,5 @@
 import TableShowFile from "@/modules/common/components/UI/table/tableShowFile";
+import TablePdfView from "@/modules/common/components/UI/table/tablePdfView";
 import FileCreatedForm from "@/modules/common/components/forms/fileCreatedForm";
 import ChatCreatedForm from "@/modules/common/components/forms/chatCreatedForm";
 import { FileProps } from '@/modules/common/hooks/getFiles';
@@ -7,11 +8,19 @@ interface ModalCreatedProps {
     isOpen: boolean;
     onClose: (type: 'file' | 'chat') => void;
     type: 'file' | 'chat';
-    mode?: 'upload' | 'select';
+    mode?: 'upload' | 'select' | 'preview';
+    selectedFile?: FileProps;
     onFileSelect?: (file: FileProps) => void;
 }
 
-export default function ModalCreated({ isOpen, onClose, type, mode = 'upload', onFileSelect }: ModalCreatedProps) {
+export default function ModalCreated({ 
+    isOpen, 
+    onClose, 
+    type, 
+    mode = 'upload', 
+    selectedFile,
+    onFileSelect 
+}: ModalCreatedProps) {
     if (!isOpen) return null;
 
     return (
@@ -22,13 +31,19 @@ export default function ModalCreated({ isOpen, onClose, type, mode = 'upload', o
             <div 
                 className="bg-gray-100/10 backdrop-blur-sm rounded-2xl 
                     border border-white/20 shadow-lg
-                    p-8 relative w-full max-w-2xl
+                    p-8 relative w-full max-w-4xl
                     flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="flex flex-row justify-between items-center mb-6">
-                    <h1 className="text-2xl font-semibold text-white">
-                        {type === 'file' ? (mode === 'upload' ? 'Upload File' : 'Your Files') : 'Create New Chat'}
+                <div className="flex flex-row justify-between items-center mb-6 sticky">
+                    <h1 className="text-2xl font-semibold text-white truncate max-w-[80%]">
+                        {type === 'file' ? (
+                            mode === 'upload' 
+                                ? 'Upload File' 
+                                : mode === 'preview'
+                                    ? selectedFile?.FileName || 'PREVIEW FILE'
+                                    : 'Your Files'
+                        ) : 'Create New Chat'}
                     </h1>
                     <button
                         onClick={() => onClose(type)}
@@ -46,6 +61,9 @@ export default function ModalCreated({ isOpen, onClose, type, mode = 'upload', o
                                 onClose(type);
                             }} 
                         />
+                    )}
+                    {type === 'file' && mode === 'preview' && selectedFile && (
+                        <TablePdfView file={selectedFile} />
                     )}
                     {type === 'file' && mode === 'upload' && <FileCreatedForm onClose={() => onClose(type)} />}
                     {type === 'chat' && <ChatCreatedForm onClose={() => onClose(type)} />}

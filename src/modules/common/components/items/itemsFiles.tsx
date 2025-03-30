@@ -1,14 +1,26 @@
 import { FileProps } from '@/modules/common/hooks/getFiles';
-import ButtonDownload from '@/modules/common/components/UI/CompleButtons/ButtonDownload';
 import ButtonShow from '@/modules/common/components/UI/CompleButtons/ButtonShow';
 
 interface BarFilesProps {
     files: FileProps[];
     onSelect?: (file: FileProps) => void;
     showActions?: boolean;
+    onShowPdf?: (file: FileProps) => void;
+    isInTableShowFile?: boolean;
 }
 
-export default function BarFiles({ files, onSelect, showActions = true }: BarFilesProps) {
+export default function BarFiles({ 
+    files, 
+    onSelect, 
+    showActions = true, 
+    onShowPdf,
+    isInTableShowFile = false
+}: BarFilesProps) {
+    const handleShow = (e: React.MouseEvent, file: FileProps) => {
+        e.stopPropagation();
+        onShowPdf?.(file);
+    };
+
     return (
         <div className="space-y-2">
             {files.map((file) => (
@@ -21,7 +33,7 @@ export default function BarFiles({ files, onSelect, showActions = true }: BarFil
                         transition-all duration-300 hover:bg-white/20
                         cursor-pointer"
                 >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                         <svg 
                             className="w-5 h-5 text-white/90 group-hover:text-emerald-400/70
                                 transition-colors duration-300" 
@@ -46,11 +58,8 @@ export default function BarFiles({ files, onSelect, showActions = true }: BarFil
                             group-hover:text-white/90 transition-colors duration-300">
                             {new Date(file.createdAt).toLocaleDateString()}
                         </span>
-                        {showActions && (
-                            <>
-                                <ButtonDownload />
-                                <ButtonShow />
-                            </>
+                        {showActions && !isInTableShowFile && (
+                            <ButtonShow onClick={(e) => handleShow(e, file)} />
                         )}
                     </div>
                 </div>

@@ -74,6 +74,29 @@ body {
   background-color: rgba(16, 185, 129, 0.7); /* hover:scrollbar-thumb-emerald-400/70 */
 }
 
+/* Estilos para el iframe del PDF */
+iframe {
+    scrollbar-width: var(--scrollbar-width);
+    scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
+}
+
+iframe::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+}
+
+iframe::-webkit-scrollbar-track {
+    background-color: var(--scrollbar-track-color);
+    border-radius: 9999px;
+}
+
+iframe::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-color);
+    border-radius: 9999px;
+}
+
+iframe::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover-color);
+}
 
 /* 
 

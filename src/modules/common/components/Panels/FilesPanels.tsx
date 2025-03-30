@@ -2,8 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import BarFiles from '@/modules/common/components/items/itemsFiles';
 import ButtonCreated from '@/modules/common/components/UI/buttons/buttonCreatedFile';
 import { useFileStore } from '@/modules/common/stores/fileStore';
+import { FileProps } from '@/modules/common/hooks/getFiles';
 
-export default function FilesPanels() {
+interface FilesPanelsProps {
+    onShowPdf?: (file: FileProps) => void;
+}
+
+export default function FilesPanels({ onShowPdf }: FilesPanelsProps) {
     const { files, loading, error, fetchFiles } = useFileStore();
     const [showTopGradient, setShowTopGradient] = useState(false);
     const [showBottomGradient, setShowBottomGradient] = useState(false);
@@ -85,7 +90,7 @@ export default function FilesPanels() {
                             <p className="text-white/70 text-4xl">No files found</p>
                         </div>
                     ) : (
-                        <BarFiles files={files} />
+                        <BarFiles files={files} onShowPdf={onShowPdf} />
                     )}
                 </div>
 

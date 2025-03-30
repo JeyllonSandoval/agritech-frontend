@@ -37,6 +37,7 @@ export default function TableShowFile({ onSelect }: TableShowFileProps) {
                             <BarFiles 
                                 files={files} 
                                 onSelect={onSelect}
+                                isInTableShowFile={true}
                             />
                         </div>
                     )}
