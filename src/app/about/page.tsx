@@ -1,6 +1,8 @@
 import About from "@/modules/about/page";
 export default function AboutPage() {
     return (
-        <About />
+        <div className="flex justify-center items-center">
+            <About />
+        </div>
     );
 }

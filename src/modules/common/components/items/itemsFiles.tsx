@@ -30,8 +30,7 @@ export default function BarFiles({
                     className="flex items-center justify-between p-3
                         bg-white/5 backdrop-blur-sm rounded-xl
                         border border-white/10 hover:border-emerald-400/30
-                        transition-all duration-300 hover:bg-white/20
-                        cursor-pointer"
+                        transition-all duration-300 hover:bg-white/20"
                 >
                     <div className="flex items-center gap-2">
                         <svg 
