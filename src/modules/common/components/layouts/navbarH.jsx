@@ -7,7 +7,7 @@ export default function NavbarH() {
 
     return (
         <section className="w-[98%] fixed top-0 z-[10] flex justify-center items-center">
-            <nav className="w-5/6 flex justify-between items-center  text-white/90 rounded-2xl ">
+            <nav className="w-[90%] flex justify-between items-center  text-white/90 rounded-2xl ">
                 {/* Left section - Company name */}
                 <LeftNavbar />
 

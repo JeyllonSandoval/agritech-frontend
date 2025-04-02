@@ -1,5 +1,6 @@
 {
     "hero": {
+        "image": "/icon/AgriTech-Logo-_transparent_.webp",
         "title": "AgriTech",
         "subtitle": "Your intelligent assistant for modern agriculture",
         "description": "An innovative platform that combines artificial intelligence with agricultural knowledge to enhance your field development"
@@ -54,8 +55,26 @@
         "description": "Have questions or suggestions? We're here to help",
         "email": "agriJJtech@hotmail.com",
         "social": {
-        "linkedin": "agriJJtech",
-        "github": "agriJJtech"
+        "linkedin": {
+            "profileOne": {
+                "title": "Juan Flores",
+                "urlPlayerOne": "https://www.linkedin.com"
+            },
+            "profileTwo": {
+                "title": "Jeyllon Sandoval",
+                "urlPlayerTwo": "https://www.linkedin.com/in/jeyllon-slon-sandoval-rosario-bb2292320/"
+            }
+        },
+            "github": {
+                "optionOne": {
+                    "title": "Frontend",
+                    "urlFrontEnd": "https://github.com/JeyllonSandoval/agritech-frontend"
+                },
+                "optionTwo": {
+                    "title": "Backend",
+                    "urlBackEnd": "https://github.com/JeyllonSandoval/agritech-backend"
+                }
+            }
         }
     }
 }
