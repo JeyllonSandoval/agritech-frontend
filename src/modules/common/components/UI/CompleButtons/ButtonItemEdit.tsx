@@ -23,7 +23,7 @@ export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
     itemId
 }) => {
     const buttonRef = useRef<HTMLDivElement>(null);
-    const { openModal } = useModal();
+    const { openModal, openConfirmModal } = useModal();
     const { openMenu, closeMenu } = useMenu();
 
     const handleClick = (e: React.MouseEvent) => {
@@ -61,13 +61,21 @@ export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
                         itemId,
                         hasOnRemove: !!onRemove
                     });
-                    if (onRemove) {
-                        onRemove(e);
-                    } else {
-                        console.error('ButtonItemEdit - onRemove is undefined');
-                    }
+                    handleRemove(e);
                 }
             );
+        }
+    };
+
+    const handleRemove = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeMenu();
+        if (onRemove) {
+            const message = type === 'updateFile' 
+                ? 'Are you sure you want to delete this file? All related messages will be deleted.'
+                : 'Are you sure you want to delete this chat? All related messages will be deleted.';
+            openConfirmModal(message, () => onRemove(e));
         }
     };
 

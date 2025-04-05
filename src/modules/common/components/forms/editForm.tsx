@@ -5,7 +5,7 @@ interface EditFormProps {
     onSubmit: (value: string) => void;
     onCancel: () => void;
     type: 'updateFile' | 'updateChat';
-    itemId: string;
+    itemId?: string;
 }
 
 export const EditForm: React.FC<EditFormProps> = ({
