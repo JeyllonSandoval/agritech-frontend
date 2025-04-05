@@ -14,7 +14,7 @@ export default function TableShowFile({ onSelect }: TableShowFileProps) {
     }, [fetchFiles]);
 
     return (
-        <div className="flex flex-col w-full h-[50vh]">
+        <div className="flex flex-col w-full h-[70vh]">
             <div className="flex-1 relative bg-white/5 backdrop-blur-xl rounded-2xl 
                 border border-white/20 shadow-lg overflow-hidden">
                 <div className="h-full overflow-y-auto px-4 py-4

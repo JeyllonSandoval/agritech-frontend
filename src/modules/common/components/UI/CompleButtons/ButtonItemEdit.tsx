@@ -11,6 +11,7 @@ interface ButtonItemEditProps {
     className?: string;
     initialValue?: string;
     type?: 'updateFile' | 'updateChat';
+    itemId: string;
 }
 
 export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
@@ -18,7 +19,8 @@ export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
     onRemove,
     className = '',
     initialValue = '',
-    type = 'updateChat'
+    type = 'updateChat',
+    itemId
 }) => {
     const buttonRef = useRef<HTMLDivElement>(null);
     const { openModal } = useModal();
@@ -27,6 +29,13 @@ export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        
+        console.log('ButtonItemEdit - Click:', {
+            type,
+            itemId,
+            initialValue
+        });
+
         if (buttonRef.current) {
             const rect = buttonRef.current.getBoundingClientRect();
             openMenu(
@@ -35,7 +44,12 @@ export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
                     e.preventDefault();
                     e.stopPropagation();
                     closeMenu();
-                    openModal(type, 'edit', initialValue, onEdit);
+                    console.log('ButtonItemEdit - Edit Option Selected:', {
+                        type,
+                        itemId,
+                        initialValue
+                    });
+                    openModal(type, 'edit', initialValue, onEdit, itemId);
                 },
                 () => {
                     closeMenu();

@@ -10,13 +10,16 @@ type ModalType = 'createdChat' | 'createdFile' | 'updateChat' | 'updateFile';
 type ModalMode = 'create' | 'select' | 'preview' | 'edit';
 
 export default function ModalCreated() {
-    const { isOpen, type, mode, initialValue, onEdit, onFileSelect, selectedFile, closeModal } = useModal();
+    const { isOpen, type, mode, initialValue, onEdit, onFileSelect, selectedFile, closeModal, itemId } = useModal();
 
     if (!isOpen) return null;
 
     const getTitle = () => {
         if (mode === 'edit') {
             return type === 'updateFile' ? 'Edit File Name' : 'Edit Chat Name';
+        }
+        if (type === 'createdFile' && mode === 'preview' && selectedFile) {
+            return selectedFile.FileName;
         }
         switch (type) {
             case 'createdChat':
@@ -66,7 +69,13 @@ export default function ModalCreated() {
                         />
                     )}
                     {type === 'createdFile' && mode === 'preview' && selectedFile && (
-                        <TablePdfView file={selectedFile} />
+                        <div className="w-full h-[70vh] bg-white/5 rounded-lg overflow-hidden">
+                            <iframe
+                                src={selectedFile.contentURL}
+                                className="w-full h-full [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-white/5 [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-white/30"
+                                title={selectedFile.FileName}
+                            />
+                        </div>
                     )}
                     {type === 'createdFile' && mode === 'create' && <FileCreatedForm onClose={() => closeModal()} />}
                     {type === 'createdChat' && mode === 'create' && <ChatCreatedForm onClose={() => closeModal()} />}
@@ -74,10 +83,17 @@ export default function ModalCreated() {
                         <EditForm
                             initialValue={initialValue}
                             onSubmit={(value) => {
+                                console.log('ModalCreated - Edit submission:', {
+                                    type,
+                                    itemId,
+                                    value
+                                });
                                 onEdit?.(value);
                                 closeModal();
                             }}
                             onCancel={() => closeModal()}
+                            type={type === 'updateFile' ? 'updateFile' : 'updateChat'}
+                            itemId={itemId}
                         />
                     )}
                 </div>

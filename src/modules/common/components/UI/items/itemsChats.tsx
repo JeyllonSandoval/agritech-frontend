@@ -100,6 +100,7 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
                                 onEdit={(newName) => handleEditChat(chat.ChatID, newName)}
                                 onRemove={() => handleRemoveChat(chat.ChatID)}
                                 type="updateChat"
+                                itemId={chat.ChatID}
                             />
                         </div>
                     </div>

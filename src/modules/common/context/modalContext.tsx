@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { FileProps } from '@/modules/common/hooks/getFiles';
 
 type ModalType = 'createdChat' | 'createdFile' | 'updateChat' | 'updateFile';
@@ -11,54 +11,66 @@ interface ModalContextType {
     type: ModalType;
     mode: ModalMode;
     initialValue: string;
-    selectedFile?: FileProps;
+    itemId: string;
     onEdit?: (value: string) => void;
     onFileSelect?: (file: FileProps) => void;
-    openModal: (type: ModalType, mode: ModalMode, initialValue: string, onEdit?: (value: string) => void) => void;
+    selectedFile?: FileProps;
+    openModal: (type: ModalType, mode: ModalMode, initialValue?: string, onEdit?: (value: string) => void, itemId?: string) => void;
     closeModal: () => void;
+    setSelectedFile: (file: FileProps | undefined) => void;
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
 
-export function ModalProvider({ children }: { children: ReactNode }) {
+export function ModalProvider({ children }: { children: React.ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
     const [type, setType] = useState<ModalType>('createdChat');
     const [mode, setMode] = useState<ModalMode>('create');
     const [initialValue, setInitialValue] = useState('');
-    const [selectedFile, setSelectedFile] = useState<FileProps | undefined>(undefined);
-    const [onEdit, setOnEdit] = useState<((value: string) => void) | undefined>(undefined);
-    const [onFileSelect, setOnFileSelect] = useState<((file: FileProps) => void) | undefined>(undefined);
+    const [itemId, setItemId] = useState('');
+    const [onEdit, setOnEdit] = useState<((value: string) => void) | undefined>();
+    const [onFileSelect, setOnFileSelect] = useState<((file: FileProps) => void) | undefined>();
+    const [selectedFile, setSelectedFile] = useState<FileProps | undefined>();
 
-    const openModal = (type: ModalType, mode: ModalMode, initialValue: string, onEdit?: (value: string) => void) => {
-        setType(type);
-        setMode(mode);
-        setInitialValue(initialValue);
-        setOnEdit(() => onEdit);
+    const openModal = (
+        newType: ModalType,
+        newMode: ModalMode,
+        newInitialValue: string = '',
+        newOnEdit?: (value: string) => void,
+        newItemId: string = ''
+    ) => {
+        setType(newType);
+        setMode(newMode);
+        setInitialValue(newInitialValue);
+        setOnEdit(() => newOnEdit);
+        setItemId(newItemId);
         setIsOpen(true);
     };
 
     const closeModal = () => {
         setIsOpen(false);
-        setType('createdChat');
-        setMode('create');
-        setInitialValue('');
-        setSelectedFile(undefined);
         setOnEdit(undefined);
         setOnFileSelect(undefined);
+        setSelectedFile(undefined);
+        setItemId('');
     };
 
     return (
-        <ModalContext.Provider value={{ 
-            isOpen, 
-            type, 
-            mode, 
-            initialValue, 
-            selectedFile,
-            onEdit,
-            onFileSelect,
-            openModal, 
-            closeModal 
-        }}>
+        <ModalContext.Provider
+            value={{
+                isOpen,
+                type,
+                mode,
+                initialValue,
+                itemId,
+                onEdit,
+                onFileSelect,
+                selectedFile,
+                openModal,
+                closeModal,
+                setSelectedFile
+            }}
+        >
             {children}
         </ModalContext.Provider>
     );
