@@ -1,3 +1,5 @@
+'use client';
+
 import TableShowFile from "@/modules/common/components/UI/table/tableShowFile";
 import TablePdfView from "@/modules/common/components/UI/table/tablePdfView";
 import FileCreatedForm from "@/modules/common/components/forms/fileCreatedForm";
@@ -6,8 +8,9 @@ import { EditForm } from "@/modules/common/components/forms/editForm";
 import ConfirmModal from "@/modules/common/components/modals/confirmModal";
 import { FileProps } from '@/modules/common/hooks/getFiles';
 import { useModal } from '@/modules/common/context/modalContext';
+import SettingPanel from '@/modules/common/components/Panels/SettingPanel';
 
-type ModalType = 'createdChat' | 'createdFile' | 'updateChat' | 'updateFile';
+type ModalType = 'createdChat' | 'createdFile' | 'updateChat' | 'updateFile' | 'settings';
 type ModalMode = 'create' | 'select' | 'preview' | 'edit';
 
 export default function ModalCreated() {
@@ -46,6 +49,8 @@ export default function ModalCreated() {
                 return 'Update Chat Name';
             case 'updateFile':
                 return 'Update File Name';
+            case 'settings':
+                return 'Settings';
             default:
                 return '';
         }
@@ -85,6 +90,7 @@ export default function ModalCreated() {
                             </button>
                         </div>
                         <div className="w-full">
+                            {type === 'settings' && <SettingPanel />}
                             {type === 'createdFile' && mode === 'select' && (
                                 <TableShowFile 
                                     onSelect={handleFileSelect}

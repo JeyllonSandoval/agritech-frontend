@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect } from 'react';
 import { useFileStore } from '@/modules/common/stores/fileStore';
 import BarFiles from '@/modules/common/components/UI/items/itemsFiles';

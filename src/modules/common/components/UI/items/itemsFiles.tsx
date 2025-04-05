@@ -1,3 +1,5 @@
+'use client';
+
 import { FileProps } from '@/modules/common/hooks/getFiles';
 import ButtonShow from '@/modules/common/components/UI/CompleButtons/ButtonShow';
 import { ButtonItemEdit } from '@/modules/common/components/UI/CompleButtons/ButtonItemEdit';

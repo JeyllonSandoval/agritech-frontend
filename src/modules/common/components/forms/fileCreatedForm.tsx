@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useFileStore } from '@/modules/common/stores/fileStore';

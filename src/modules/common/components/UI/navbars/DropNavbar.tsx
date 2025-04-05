@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
 import { useAuth } from '../../../hooks/useAuth';
+import { useModal } from '@/modules/common/context/modalContext';
+import SettingPanel from '@/modules/common/components/Panels/SettingPanel';
 
 interface DropNavbarProps {
     onLogout: () => void;
@@ -19,6 +21,7 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
     const [userInfo, setUserInfo] = useState<{ Email: string; FirstName?: string }>({ Email: '' });
     const router = useRouter();
     const { isAuthenticated } = useAuth();
+    const { openModal } = useModal();
 
     useEffect(() => {
         try {
@@ -46,6 +49,7 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
     };
 
     const handleSettingsClick = () => {
+        openModal('settings', 'create', '', undefined, undefined, undefined, undefined);
         onClose();
     };
 

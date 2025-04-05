@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { FileProps } from '@/modules/common/hooks/getFiles';
 
-type ModalType = 'createdChat' | 'createdFile' | 'updateChat' | 'updateFile';
+type ModalType = 'createdChat' | 'createdFile' | 'updateChat' | 'updateFile' | 'settings';
 type ModalMode = 'create' | 'select' | 'preview' | 'edit';
 
 interface ModalContextType {
