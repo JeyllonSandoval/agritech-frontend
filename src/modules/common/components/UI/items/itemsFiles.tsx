@@ -1,5 +1,6 @@
 import { FileProps } from '@/modules/common/hooks/getFiles';
 import ButtonShow from '@/modules/common/components/UI/CompleButtons/ButtonShow';
+import { ButtonItemEdit } from '@/modules/common/components/UI/CompleButtons/ButtonItemEdit';
 
 interface BarFilesProps {
     files: FileProps[];
@@ -7,6 +8,8 @@ interface BarFilesProps {
     showActions?: boolean;
     onShowPdf?: (file: FileProps) => void;
     isInTableShowFile?: boolean;
+    onEditFile?: (file: FileProps) => void;
+    onRemoveFile?: (file: FileProps) => void;
 }
 
 export default function BarFiles({ 
@@ -14,7 +17,9 @@ export default function BarFiles({
     onSelect, 
     showActions = true, 
     onShowPdf,
-    isInTableShowFile = false
+    isInTableShowFile = false,
+    onEditFile,
+    onRemoveFile
 }: BarFilesProps) {
     const handleShow = (e: React.MouseEvent, file: FileProps) => {
         e.stopPropagation();
@@ -30,7 +35,8 @@ export default function BarFiles({
                     className="flex items-center justify-between p-3
                         bg-white/5 backdrop-blur-sm rounded-xl
                         border border-white/10 hover:border-emerald-400/30
-                        transition-all duration-300 hover:bg-white/20"
+                        transition-all duration-300 hover:bg-white/20
+                        group"
                 >
                     <div className="flex items-center gap-2">
                         <svg 
@@ -52,13 +58,19 @@ export default function BarFiles({
                             {file.FileName}
                         </h3>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                         <span className="text-xs text-white/70 px-2 py-1
                             group-hover:text-white/90 transition-colors duration-300">
                             {new Date(file.createdAt).toLocaleDateString()}
                         </span>
                         {showActions && !isInTableShowFile && (
                             <ButtonShow onClick={(e) => handleShow(e, file)} />
+                        )}
+                        {showActions && !isInTableShowFile && (
+                            <ButtonItemEdit 
+                                onEdit={() => onEditFile?.(file)}
+                                onRemove={() => onRemoveFile?.(file)}
+                            />
                         )}
                     </div>
                 </div>

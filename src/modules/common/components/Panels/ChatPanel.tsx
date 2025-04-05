@@ -8,7 +8,7 @@ import { AnalysisRequest, ChatMessage } from '@/modules/common/types/chat';
 import { FileProps } from '@/modules/common/hooks/getFiles';
 import TableShowMessage from '../UI/table/tableShowMessage';
 import BarWrited from '../UI/bars/barWrited';
-import FileAnalysisResult from '../items/FileAnalysisResult';
+import FileAnalysisResult from '../UI/items/FileAnalysisResult';
 import predefinedQuestions from '@/modules/common/data/predefinedQuestions.json';
 
 interface ChatPanelProps {

@@ -3,7 +3,7 @@ import { getChats } from "@/modules/common/hooks/getChats";
 import { useChatStore } from '@/modules/common/stores/chatStore';
 import ButtonFile from '../UI/buttons/buttonFile';
 import ButtonCreatedChat from '../UI/buttons/buttonCreatedChat';
-import ItemsChats from '../items/itemsChats';
+import ItemsChats from '../UI/items/itemsChats';
 
 interface NavbarLateralProps {
     isOpen: boolean;
