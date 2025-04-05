@@ -2,6 +2,7 @@ import NavbarH from "@/modules/common/components/layouts/navbarH";
 import "@/app/globals.css";
 import { Providers } from './providers';
 import ModalCreated from "@/modules/common/components/modals/modalCreated";
+import MobileRestriccion from "@/modules/common/components/layouts/MobileRestriccion";
 
 export default function RootLayout({
   children,
@@ -18,6 +19,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-gradient-to-br from-green-950/90 via-black to-green-950/90 scrollbar">
         <Providers>
+          <MobileRestriccion />
           <header className="w-full flex justify-center items-center">
             <NavbarH />
           </header>
