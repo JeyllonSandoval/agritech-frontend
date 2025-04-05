@@ -54,7 +54,7 @@ export default function FilesPanels({ onShowPdf }: FilesPanelsProps) {
             {/* Header con estilo actualizado */}
             <div className="flex items-center justify-between w-1/2 p-2">
                 <h1 className="text-4xl font-semibold text-white">Your Files</h1>
-                <ButtonCreated type="file" />
+                <ButtonCreated type="createdFile" />
             </div>
 
             {/* Contenedor principal */}

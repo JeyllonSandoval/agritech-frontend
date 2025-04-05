@@ -1,6 +1,7 @@
 import { FileProps } from '@/modules/common/hooks/getFiles';
 import ButtonShow from '@/modules/common/components/UI/CompleButtons/ButtonShow';
 import { ButtonItemEdit } from '@/modules/common/components/UI/CompleButtons/ButtonItemEdit';
+import { useModal } from '@/modules/common/context/modalContext';
 
 interface BarFilesProps {
     files: FileProps[];
@@ -21,9 +22,17 @@ export default function BarFiles({
     onEditFile,
     onRemoveFile
 }: BarFilesProps) {
+    const { openModal } = useModal();
+
     const handleShow = (e: React.MouseEvent, file: FileProps) => {
         e.stopPropagation();
         onShowPdf?.(file);
+    };
+
+    const handleEditFile = async (file: FileProps, newName: string) => {
+        if (onEditFile) {
+            onEditFile({ ...file, FileName: newName });
+        }
     };
 
     return (
@@ -68,8 +77,10 @@ export default function BarFiles({
                         )}
                         {showActions && !isInTableShowFile && (
                             <ButtonItemEdit 
-                                onEdit={() => onEditFile?.(file)}
+                                initialValue={file.FileName}
+                                onEdit={(newName) => handleEditFile(file, newName)}
                                 onRemove={() => onRemoveFile?.(file)}
+                                type="updateFile"
                             />
                         )}
                     </div>

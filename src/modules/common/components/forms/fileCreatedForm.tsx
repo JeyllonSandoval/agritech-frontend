@@ -70,7 +70,7 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
             const decodedToken = jwtDecode(token) as TokenData;
             const formData = new FormData();
             formData.append('UserID', decodedToken.UserID);
-            formData.append('file', selectedFile);
+            formData.append('createdFile', selectedFile);
 
             console.log('Sending:', {
                 UserID: decodedToken.UserID,

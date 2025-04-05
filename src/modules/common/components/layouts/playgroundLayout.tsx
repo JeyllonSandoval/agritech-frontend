@@ -40,7 +40,7 @@ export default function PlaygroundLayout() {
                     setIsModalOpen(false);
                     setSelectedFile(undefined);
                 }}
-                type={selectedFile ? 'file' : 'chat'}
+                type={selectedFile ? 'createdFile' : 'createdChat'}
                 mode={selectedFile ? 'preview' : undefined}
                 selectedFile={selectedFile}
             />

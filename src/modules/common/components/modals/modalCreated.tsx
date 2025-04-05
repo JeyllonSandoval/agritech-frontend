@@ -2,31 +2,40 @@ import TableShowFile from "@/modules/common/components/UI/table/tableShowFile";
 import TablePdfView from "@/modules/common/components/UI/table/tablePdfView";
 import FileCreatedForm from "@/modules/common/components/forms/fileCreatedForm";
 import ChatCreatedForm from "@/modules/common/components/forms/chatCreatedForm";
+import { EditForm } from "@/modules/common/components/forms/editForm";
 import { FileProps } from '@/modules/common/hooks/getFiles';
+import { useModal } from '@/modules/common/context/modalContext';
 
-interface ModalCreatedProps {
-    isOpen: boolean;
-    onClose: (type: 'file' | 'chat') => void;
-    type: 'file' | 'chat';
-    mode?: 'upload' | 'select' | 'preview';
-    selectedFile?: FileProps;
-    onFileSelect?: (file: FileProps) => void;
-}
+type ModalType = 'createdChat' | 'createdFile' | 'updateChat' | 'updateFile';
+type ModalMode = 'create' | 'select' | 'preview' | 'edit';
 
-export default function ModalCreated({ 
-    isOpen, 
-    onClose, 
-    type, 
-    mode = 'upload', 
-    selectedFile,
-    onFileSelect 
-}: ModalCreatedProps) {
+export default function ModalCreated() {
+    const { isOpen, type, mode, initialValue, onEdit, onFileSelect, selectedFile, closeModal } = useModal();
+
     if (!isOpen) return null;
+
+    const getTitle = () => {
+        if (mode === 'edit') {
+            return type === 'updateFile' ? 'Edit File Name' : 'Edit Chat Name';
+        }
+        switch (type) {
+            case 'createdChat':
+                return 'Create New Chat';
+            case 'createdFile':
+                return 'Upload New File';
+            case 'updateChat':
+                return 'Update Chat Name';
+            case 'updateFile':
+                return 'Update File Name';
+            default:
+                return '';
+        }
+    };
 
     return (
         <div 
             className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
-            onClick={() => onClose(type)}
+            onClick={() => closeModal()}
         >
             <div 
                 className="bg-gray-100/10 backdrop-blur-sm rounded-2xl 
@@ -37,16 +46,10 @@ export default function ModalCreated({
             >
                 <div className="flex flex-row justify-between items-center mb-6 sticky">
                     <h1 className="text-2xl font-semibold text-white truncate max-w-[80%]">
-                        {type === 'file' ? (
-                            mode === 'upload' 
-                                ? 'Upload File' 
-                                : mode === 'preview'
-                                    ? selectedFile?.FileName || 'PREVIEW FILE'
-                                    : 'Your Files'
-                        ) : 'Create New Chat'}
+                        {getTitle()}
                     </h1>
                     <button
-                        onClick={() => onClose(type)}
+                        onClick={() => closeModal()}
                         className="text-white/70 text-4xl hover:text-red-400 
                             transition-colors duration-300"
                     >
@@ -54,19 +57,30 @@ export default function ModalCreated({
                     </button>
                 </div>
                 <div className="w-full">
-                    {type === 'file' && mode === 'select' && (
+                    {type === 'createdFile' && mode === 'select' && (
                         <TableShowFile 
                             onSelect={(file) => {
                                 onFileSelect?.(file);
-                                onClose(type);
+                                closeModal();
                             }} 
                         />
                     )}
-                    {type === 'file' && mode === 'preview' && selectedFile && (
+                    {type === 'createdFile' && mode === 'preview' && selectedFile && (
                         <TablePdfView file={selectedFile} />
                     )}
-                    {type === 'file' && mode === 'upload' && <FileCreatedForm onClose={() => onClose(type)} />}
-                    {type === 'chat' && <ChatCreatedForm onClose={() => onClose(type)} />}
+                    {type === 'createdFile' && mode === 'create' && <FileCreatedForm onClose={() => closeModal()} />}
+                    {type === 'createdChat' && mode === 'create' && <ChatCreatedForm onClose={() => closeModal()} />}
+                    {mode === 'edit' && (
+                        <EditForm
+                            initialValue={initialValue}
+                            onSubmit={(value) => {
+                                onEdit?.(value);
+                                closeModal();
+                            }}
+                            onCancel={() => closeModal()}
+                            title={getTitle()}
+                        />
+                    )}
                 </div>
             </div>
         </div>

@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useChatStore } from '@/modules/common/stores/chatStore';
 import { ButtonItemEdit } from '@/modules/common/components/UI/CompleButtons/ButtonItemEdit';
+import { useModal } from '@/modules/common/context/modalContext';
 
 interface ItemsChatsProps {
     onPanelChange: (panel: 'welcome' | 'files' | 'chat') => void;
@@ -10,6 +11,56 @@ interface ItemsChatsProps {
 
 export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect }: ItemsChatsProps) {
     const chats = useChatStore(state => state.chats);
+    const setChats = useChatStore(state => state.setChats);
+    const { openModal } = useModal();
+
+    const handleEditChat = async (chatId: string, newName: string) => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) throw new Error('No token found');
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/chat/${chatId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ chatname: newName })
+            });
+
+            if (!response.ok) throw new Error('Error updating chat');
+
+            // Actualizar el chat en el store
+            setChats(chats.map(chat => 
+                chat.ChatID === chatId 
+                    ? { ...chat, chatname: newName }
+                    : chat
+            ));
+        } catch (error) {
+            console.error('Error updating chat:', error);
+        }
+    };
+
+    const handleRemoveChat = async (chatId: string) => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) throw new Error('No token found');
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/chat/${chatId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Error deleting chat');
+
+            // Remover el chat del store
+            setChats(chats.filter(chat => chat.ChatID !== chatId));
+        } catch (error) {
+            console.error('Error deleting chat:', error);
+        }
+    };
 
     const renderChats = useCallback(() => {
         if (chats.length === 0) {
@@ -45,21 +96,21 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
                         </button>
                         <div className="absolute right-2 top-1/2 -translate-y-1/2">
                             <ButtonItemEdit 
-                                onEdit={() => {
-                                    // Add your edit chat logic here
-                                    console.log('Edit chat:', chat.ChatID);
-                                }}
-                                onRemove={() => {
-                                    // Add your remove chat logic here
-                                    console.log('Remove chat:', chat.ChatID);
-                                }}
+                                initialValue={chat.chatname}
+                                onEdit={(newName) => handleEditChat(chat.ChatID, newName)}
+                                onRemove={() => handleRemoveChat(chat.ChatID)}
+                                type="updateChat"
                             />
                         </div>
                     </div>
                 ))}
             </div>
         );
-    }, [chats, onPanelChange, selectedChatId, onChatSelect]);
+    }, [chats, onPanelChange, selectedChatId, onChatSelect, setChats]);
 
-    return renderChats();
+    return (
+        <>
+            {renderChats()}
+        </>
+    );
 }
