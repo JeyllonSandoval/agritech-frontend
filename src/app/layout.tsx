@@ -1,6 +1,6 @@
 import NavbarH from "@/modules/common/components/layouts/navbarH";
 import "@/app/globals.css";
-import { ModalProvider } from '@/modules/common/context/modalContext';
+import { Providers } from './providers';
 
 export default function RootLayout({
   children,
@@ -20,9 +20,9 @@ export default function RootLayout({
           <NavbarH />
         </header>
         <main className="w-full aspect-screen">
-          <ModalProvider>
+          <Providers>
             {children}
-          </ModalProvider>
+          </Providers>
         </main>
       </body>
     </html>

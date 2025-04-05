@@ -78,7 +78,6 @@ export default function ModalCreated() {
                                 closeModal();
                             }}
                             onCancel={() => closeModal()}
-                            title={getTitle()}
                         />
                     )}
                 </div>

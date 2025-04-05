@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { IoMdMore } from 'react-icons/io';
-import { MdEdit, MdDelete } from 'react-icons/md';
-import { useModal } from '@/modules/common/context/modalContext';
+'use client';
 
-type ModalType = 'createdChat' | 'createdFile' | 'updateChat' | 'updateFile';
+import React, { useRef } from 'react';
+import { IoMdMore } from 'react-icons/io';
+import { useModal } from '@/modules/common/context/modalContext';
+import { useMenu } from './GlobalMenu';
 
 interface ButtonItemEditProps {
     onEdit?: (newName: string) => void;
@@ -20,42 +20,29 @@ export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
     initialValue = '',
     type = 'updateChat'
 }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
     const buttonRef = useRef<HTMLDivElement>(null);
     const { openModal } = useModal();
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+    const { openMenu, closeMenu } = useMenu();
 
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         if (buttonRef.current) {
             const rect = buttonRef.current.getBoundingClientRect();
-            setMenuPosition({
-                top: rect.top,
-                left: rect.right + 10
-            });
+            openMenu(
+                { top: rect.top, left: rect.right + 10 },
+                (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeMenu();
+                    openModal(type, 'edit', initialValue, onEdit);
+                },
+                () => {
+                    closeMenu();
+                    onRemove?.();
+                }
+            );
         }
-        setIsOpen(!isOpen);
-    };
-
-    const handleEditClick = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsOpen(false);
-        openModal(type, 'edit', initialValue, onEdit);
     };
 
     return (
@@ -67,52 +54,6 @@ export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
             >
                 <IoMdMore className="w-5 h-5 text-white/90 hover:text-emerald-400/70 transition-colors" />
             </div>
-            {isOpen && (
-                <>
-                    <div 
-                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setIsOpen(false);
-                        }}
-                    />
-                    <div 
-                        className="fixed w-48 bg-white/5 backdrop-blur-sm
-                            border border-white/10 shadow-lg shadow-black/20 rounded-lg z-40"
-                        style={{
-                            top: menuPosition.top,
-                            left: menuPosition.left
-                        }}
-                    >
-                        <div className="space-y-1 flex flex-col gap-1 m-1">
-                            {onEdit && (
-                                <button
-                                    onClick={handleEditClick}
-                                    className="flex items-center w-full px-4 py-2 text-sm text-white/90 
-                                        hover:text-emerald-400/70 hover:bg-white/10 transition-colors rounded-lg"
-                                >
-                                    <MdEdit className="w-4 h-4 mr-2" />
-                                    Edit
-                                </button>
-                            )}
-                            {onRemove && (
-                                <button
-                                    onClick={() => {
-                                        onRemove();
-                                        setIsOpen(false);
-                                    }}
-                                    className="flex items-center w-full px-4 py-2 text-sm text-red-400/90 
-                                        hover:text-red-400 hover:bg-white/10 transition-colors rounded-lg"
-                                >
-                                    <MdDelete className="w-4 h-4 mr-2" />
-                                    Remove
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </>
-            )}
         </div>
     );
 };

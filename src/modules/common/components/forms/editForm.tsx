@@ -4,14 +4,12 @@ interface EditFormProps {
     initialValue: string;
     onSubmit: (value: string) => void;
     onCancel: () => void;
-    title: string;
 }
 
 export const EditForm: React.FC<EditFormProps> = ({
     initialValue,
     onSubmit,
     onCancel,
-    title
 }) => {
     const [value, setValue] = useState(initialValue);
     const [validations, setValidations] = useState({
@@ -37,7 +35,6 @@ export const EditForm: React.FC<EditFormProps> = ({
 
     return (
         <form onSubmit={handleSubmit} className="w-full space-y-6 text-xl">
-            <h2 className="text-xl font-medium text-white/90">{title}</h2>
             <div className="relative flex flex-col gap-2">
                 <input
                     type="text"
