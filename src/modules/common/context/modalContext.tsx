@@ -15,7 +15,14 @@ interface ModalContextType {
     onEdit?: (value: string) => void;
     onFileSelect?: (file: FileProps) => void;
     selectedFile?: FileProps;
-    openModal: (type: ModalType, mode: ModalMode, initialValue?: string, onEdit?: (value: string) => void, itemId?: string) => void;
+    openModal: (
+        type: ModalType, 
+        mode: ModalMode, 
+        initialValue?: string, 
+        onEdit?: (value: string) => void, 
+        itemId?: string,
+        onFileSelect?: (file: FileProps) => void
+    ) => void;
     closeModal: () => void;
     setSelectedFile: (file: FileProps | undefined) => void;
 }
@@ -37,13 +44,15 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         newMode: ModalMode,
         newInitialValue: string = '',
         newOnEdit?: (value: string) => void,
-        newItemId: string = ''
+        newItemId: string = '',
+        newOnFileSelect?: (file: FileProps) => void
     ) => {
         setType(newType);
         setMode(newMode);
         setInitialValue(newInitialValue);
         setOnEdit(() => newOnEdit);
         setItemId(newItemId);
+        setOnFileSelect(() => newOnFileSelect);
         setIsOpen(true);
     };
 

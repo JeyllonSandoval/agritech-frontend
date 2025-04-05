@@ -34,6 +34,10 @@ export default function BarWrited({
         }
     };
 
+    const handleOpenFileSelect = () => {
+        openModal('createdFile', 'select', '', undefined, undefined, handleFileSelect);
+    };
+
     return (
         <form onSubmit={handleSubmit} className="w-full p-4 border-t border-white/10">
             {selectedFile && (
@@ -61,7 +65,7 @@ export default function BarWrited({
                         disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <div className="absolute right-2 flex items-center gap-2">
-                    <ButtonAdjunt onClick={() => openModal('createdFile', 'select', '')} />
+                    <ButtonAdjunt onClick={handleOpenFileSelect} />
                     <ButtonSend 
                         isLoading={isLoading}
                         disabled={!message.trim() || isLoading}

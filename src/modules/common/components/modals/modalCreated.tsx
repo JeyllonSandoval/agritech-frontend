@@ -63,8 +63,10 @@ export default function ModalCreated() {
                     {type === 'createdFile' && mode === 'select' && (
                         <TableShowFile 
                             onSelect={(file) => {
-                                onFileSelect?.(file);
-                                closeModal();
+                                if (onFileSelect) {
+                                    onFileSelect(file);
+                                    closeModal();
+                                }
                             }} 
                         />
                     )}
