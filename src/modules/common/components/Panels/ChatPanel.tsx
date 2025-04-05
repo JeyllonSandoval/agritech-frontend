@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useChatStore } from '@/modules/common/stores/chatStore';
 import { useFileStore } from '@/modules/common/stores/fileStore';
 import ModalCreated from '../modals/modalCreated';
@@ -35,73 +35,122 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
     useEffect(() => {
         const loadChatHistory = async () => {
             if (!currentChat?.ChatID) return;
-            // Load chat history logic here
+
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/messages/${currentChat.ChatID}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to load chat history');
+                
+                const allMessages = await response.json();
+                
+                // Procesar los mensajes para mantener la estructura de análisis
+                const processedMessages = allMessages.reduce((acc: ChatMessage[], message: ChatMessage, index: number) => {
+                    // Si es un mensaje de archivo, solo lo agregamos si no hay otro mensaje de archivo reciente
+                    if (message.FileID && message.sendertype === 'user') {
+                        const lastFileMessage = acc.findLast(m => m.FileID && m.sendertype === 'user');
+                        if (!lastFileMessage || lastFileMessage.FileID !== message.FileID) {
+                            acc.push(message);
+                        }
+                    }
+                    // Si es una respuesta de la IA, la procesamos
+                    else if (message.sendertype === 'ai') {
+                        const previousMessage = allMessages[index - 1];
+                        if (previousMessage) {
+                            const matchingQuestion = predefinedQuestions.questions.find(q => 
+                                previousMessage.content.includes(q.question) || 
+                                previousMessage.content.includes(q.description)
+                            );
+
+                            if (matchingQuestion) {
+                                acc.push({
+                                    ...message,
+                                    question: matchingQuestion.question,
+                                    description: matchingQuestion.description
+                                });
+                            } else {
+                                acc.push(message);
+                            }
+                        } else {
+                            acc.push(message);
+                        }
+                    }
+                    // Para otros tipos de mensajes, los agregamos directamente
+                    else {
+                        acc.push(message);
+                    }
+                    return acc;
+                }, []);
+
+                setMessages(processedMessages);
+            } catch (err) {
+                console.error('Error loading chat history:', err);
+                setError('Failed to load chat history');
+            }
         };
+
         loadChatHistory();
-    }, [currentChat]);
+    }, [currentChat?.ChatID]);
 
-    const handleFileSelect = useCallback(async (file: FileProps) => {
-        if (!currentChat) {
-            console.error('No chat selected');
-            return;
-        }
+    useEffect(() => {
+        fetchFiles();
+    }, [fetchFiles]);
 
+    const handleFileSelect = async (file: FileProps) => {
         setSelectedFile(file);
         setIsAnalyzing(true);
         setError(null);
 
-        try {
-            // Agregar mensaje de archivo seleccionado
-            const fileMessage: ChatMessage = {
-                MessageID: `file-${Date.now()}`,
-                ChatID: currentChat.ChatID,
-                FileID: file.FileID,
-                content: 'ASK USER',
-                sendertype: 'user',
-                createdAt: new Date().toISOString(),
-                status: 'active'
-            };
+        // Agregar mensaje de archivo seleccionado
+        const fileMessage: ChatMessage = {
+            MessageID: `file-${Date.now()}`,
+            ChatID: currentChat!.ChatID,
+            FileID: file.FileID,
+            content: 'ASK USER',
+            sendertype: 'user',
+            createdAt: new Date().toISOString(),
+            status: 'active'
+        };
 
-            setMessages(prev => [...prev, fileMessage]);
+        setMessages(prev => [...prev, fileMessage]);
 
-            // Procesar cada pregunta
-            for (const question of predefinedQuestions.questions) {
-                try {
-                    const response = await analyzeDocument({
-                        ChatID: currentChat.ChatID,
-                        FileID: file.FileID,
-                        content: question.question,
-                        sendertype: 'user'
-                    });
+        // Procesar cada pregunta
+        for (const question of predefinedQuestions.questions) {
+            try {
+                const response = await analyzeDocument({
+                    ChatID: currentChat!.ChatID,
+                    FileID: file.FileID,
+                    content: question.question,
+                    sendertype: 'user'
+                });
 
-                    // Agregar cada resultado como un mensaje
-                    const analysisMessage: ChatMessage = {
-                        MessageID: `analysis-${question.id}-${Date.now()}`,
-                        ChatID: currentChat.ChatID,
-                        FileID: file.FileID,
-                        content: response.content,
-                        sendertype: 'ai',
-                        createdAt: new Date().toISOString(),
-                        status: 'active',
-                        question: question.question,
-                        description: question.description
-                    };
+                // Agregar cada resultado como un mensaje
+                const analysisMessage: ChatMessage = {
+                    MessageID: `analysis-${question.id}-${Date.now()}`,
+                    ChatID: currentChat!.ChatID,
+                    FileID: file.FileID,
+                    content: response.content,
+                    sendertype: 'ai',
+                    createdAt: new Date().toISOString(),
+                    status: 'active',
+                    question: question.question,
+                    description: question.description
+                };
 
-                    setMessages(prev => [...prev, analysisMessage]);
-                } catch (err) {
-                    console.error(`Error analyzing question ${question.id}:`, err);
-                    setError(err instanceof Error ? err.message : 'Error analyzing document');
-                }
+                setMessages(prev => [...prev, analysisMessage]);
+            } catch (err) {
+                console.error(`Error analyzing question ${question.id}:`, err);
+                setError(err instanceof Error ? err.message : 'Error analyzing document');
             }
-        } catch (err) {
-            console.error('Error in handleFileSelect:', err);
-            setError(err instanceof Error ? err.message : 'Error processing file');
-        } finally {
-            setIsAnalyzing(false);
         }
-    }, [currentChat]);
 
-    const handleSendMessage = useCallback(async (content: string) => {
+        setIsAnalyzing(false);
+    };
+
+    const handleSendMessage = async (content: string) => {
         if (!currentChat) return;
 
         const newMessage: ChatMessage = {
@@ -134,9 +183,9 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         } finally {
             setIsAnalyzing(false);
         }
-    }, [currentChat]);
+    };
 
-    const handleOpenFileSelect = useCallback(() => {
+    const handleOpenFileSelect = () => {
         if (!currentChat) {
             console.error('No chat selected');
             return;
@@ -144,7 +193,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         openModal('createdFile', 'select', '', undefined, undefined, (file) => {
             handleFileSelect(file);
         });
-    }, [currentChat, openModal, handleFileSelect]);
+    };
 
     if (!currentChat) {
         return (
