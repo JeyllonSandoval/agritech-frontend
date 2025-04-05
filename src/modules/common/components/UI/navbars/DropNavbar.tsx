@@ -23,7 +23,7 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
     const { isAuthenticated } = useAuth();
     const { openModal } = useModal();
 
-    useEffect(() => {
+    const updateUserInfo = () => {
         try {
             const token = localStorage.getItem('token');
             if (token) {
@@ -36,6 +36,19 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
         } catch (error) {
             console.error('Error decoding token:', error);
         }
+    };
+
+    useEffect(() => {
+        updateUserInfo();
+
+        // Listen for both profile and token updates
+        window.addEventListener('profile-updated', updateUserInfo);
+        window.addEventListener('token-updated', updateUserInfo);
+
+        return () => {
+            window.removeEventListener('profile-updated', updateUserInfo);
+            window.removeEventListener('token-updated', updateUserInfo);
+        };
     }, []);
 
     const handleLogout = () => {

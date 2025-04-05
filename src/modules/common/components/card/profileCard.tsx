@@ -1,10 +1,42 @@
 "use client";
 import { useProfile } from "@/modules/common/hooks/useProfile";
+import ButtonEditProfile from "../UI/buttons/buttonEditProfile";
+import { useEffect, useState } from "react";
 
 export default function ProfileCard() {
-    const { userData, countryName, isLoading, error } = useProfile();
+    const { userData, countryName, isLoading, error, refreshProfile } = useProfile();
+    const [isUpdating, setIsUpdating] = useState(false);
 
-    if (isLoading) {
+    // Add refresh mechanism
+    useEffect(() => {
+        const handleProfileUpdate = async (event: Event) => {
+            const customEvent = event as CustomEvent;
+            setIsUpdating(true);
+            // If we have the updated user data in the event, use it directly
+            if (customEvent.detail) {
+                // Update the local state with the new data
+                // This will trigger a re-render with the new data
+                // The useProfile hook will eventually catch up with the refresh
+                await refreshProfile();
+            } else {
+                // If no data in the event, just refresh
+                await refreshProfile();
+            }
+            // Add a small delay to show the update animation
+            setTimeout(() => {
+                setIsUpdating(false);
+            }, 300);
+        };
+
+        // Listen for profile updates
+        window.addEventListener('profile-updated', handleProfileUpdate);
+
+        return () => {
+            window.removeEventListener('profile-updated', handleProfileUpdate);
+        };
+    }, []);
+
+    if (isLoading && !userData) {
         return (
             <div className="w-full h-full flex justify-center items-center">
                 <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg p-8">
@@ -25,12 +57,12 @@ export default function ProfileCard() {
     }
 
     return (
-        <div className="w-full h-full flex justify-center items-center px-4">
+        <div className={`w-full h-full flex justify-center items-center px-4 transition-opacity duration-300 ${isUpdating ? 'opacity-50' : 'opacity-100'}`}>
             <div className="w-full max-w-md p-8 
                 bg-white/10 backdrop-blur-xl rounded-2xl 
                 border border-white/20 shadow-lg">
                 {userData && (
-                    <section className="flex flex-col items-center space-y-6 ">
+                    <section className="flex flex-col items-center space-y-6">
                         <div className="relative">
                             <div className="bg-white/40 backdrop-blur-sm rounded-full p-[2px]">
                                 <div className="w-24 h-24 rounded-full overflow-hidden 
@@ -88,8 +120,8 @@ export default function ProfileCard() {
                             </div>
                         </div>
 
-                        <div className="w-full border-t border-white/20">
-                            <div className={`flex w-24 items-center px-4 mt-4 py-2 rounded-xl text-sm
+                        <div className="w-full border-t border-white/20 pt-4 flex justify-between items-center">
+                            <div className={`flex w-24 items-center px-4 py-2 rounded-xl text-sm
                                 transition-all duration-300
                                 ${userData.status === "active" 
                                     ? "bg-emerald-400/90 text-black" 
@@ -97,6 +129,7 @@ export default function ProfileCard() {
                                 <span className={`w-2 h-2 mr-2 rounded-full bg-white/80`}></span>
                                 {userData.status === "active" ? "Active" : "Inactive"}
                             </div>
+                            <ButtonEditProfile />
                         </div>
                     </section>
                 )}

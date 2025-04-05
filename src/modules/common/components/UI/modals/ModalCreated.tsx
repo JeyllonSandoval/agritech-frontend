@@ -1,59 +1,56 @@
 'use client';
 import { useModal } from '@/modules/common/context/modalContext';
 import SettingPanel from '@/modules/common/components/Panels/SettingPanel';
+import EditProfileForm from '../../forms/editProfileForm';
 
-export default function ModalCreated() {
-    const { isOpen, type, mode, initialValue, onEdit, itemId, onFileSelect, contentURL, closeModal } = useModal();
+type ModalType = 'settings' | 'edit-profile';
+
+interface ModalCreatedProps {
+    type: ModalType;
+    title?: string;
+    content?: string;
+}
+
+export default function ModalCreated({ type, title, content }: ModalCreatedProps) {
+    const { isOpen, closeModal } = useModal();
+
+    if (!isOpen) return null;
 
     const getTitle = () => {
         switch (type) {
-            case 'createdChat':
-                return mode === 'preview' ? initialValue : 'Create New Chat';
-            case 'createdFile':
-                return mode === 'preview' ? initialValue : 'Create New File';
-            case 'updateChat':
-                return 'Edit Chat Name';
-            case 'updateFile':
-                return 'Edit File Name';
             case 'settings':
                 return 'Settings';
+            case 'edit-profile':
+                return 'Edit Profile';
             default:
-                return '';
+                return title || '';
         }
     };
 
     return (
-        <>
-            {isOpen && (
-                <div 
-                    className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
-                    onClick={() => closeModal()}
-                >
-                    <div 
-                        className="bg-gray-100/10 backdrop-blur-sm rounded-2xl 
-                            border border-white/20 shadow-lg
-                            p-8 relative w-full max-w-4xl
-                            flex flex-col"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="flex flex-row justify-between items-center mb-6 sticky">
-                            <h1 className="text-2xl font-semibold text-white truncate max-w-[80%]">
-                                {getTitle()}
-                            </h1>
-                            <button
-                                onClick={() => closeModal()}
-                                className="text-white/70 text-4xl hover:text-red-400 
-                                    transition-colors duration-300"
-                            >
-                                &times;
-                            </button>
-                        </div>
-                        <div className="w-full">
-                            {type === 'settings' && <SettingPanel />}
-                        </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal}></div>
+            
+            <div className="relative w-full max-w-2xl mx-4 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg">
+                <div className="p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-semibold text-white">{getTitle()}</h2>
+                        <button
+                            onClick={closeModal}
+                            className="p-2 rounded-xl hover:bg-white/10 transition-colors duration-200"
+                        >
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div className="text-white/70">
+                        {type === 'settings' && <SettingPanel />}
+                        {type === 'edit-profile' && <EditProfileForm />}
                     </div>
                 </div>
-            )}
-        </>
+            </div>
+        </div>
     );
 } 

@@ -9,8 +9,9 @@ import ConfirmModal from "@/modules/common/components/modals/confirmModal";
 import { FileProps } from '@/modules/common/hooks/getFiles';
 import { useModal } from '@/modules/common/context/modalContext';
 import SettingPanel from '@/modules/common/components/Panels/SettingPanel';
+import EditProfileForm from '@/modules/common/components/forms/editProfileForm';
 
-type ModalType = 'createdChat' | 'createdFile' | 'updateChat' | 'updateFile' | 'settings';
+type ModalType = 'createdChat' | 'createdFile' | 'updateChat' | 'updateFile' | 'settings' | 'edit-profile';
 type ModalMode = 'create' | 'select' | 'preview' | 'edit';
 
 export default function ModalCreated() {
@@ -35,6 +36,7 @@ export default function ModalCreated() {
 
     const getTitle = () => {
         if (mode === 'edit') {
+            if (type === 'edit-profile') return 'Edit Profile';
             return type === 'updateFile' ? 'Edit File Name' : 'Edit Chat Name';
         }
         if (type === 'createdFile' && mode === 'preview' && itemId) {
@@ -51,6 +53,8 @@ export default function ModalCreated() {
                 return 'Update File Name';
             case 'settings':
                 return 'Settings';
+            case 'edit-profile':
+                return 'Edit Profile';
             default:
                 return '';
         }
@@ -89,8 +93,10 @@ export default function ModalCreated() {
                                 &times;
                             </button>
                         </div>
+                        
                         <div className="w-full">
                             {type === 'settings' && <SettingPanel />}
+                            {type === 'edit-profile' && <EditProfileForm />}
                             {type === 'createdFile' && mode === 'select' && (
                                 <TableShowFile 
                                     onSelect={handleFileSelect}
@@ -109,7 +115,7 @@ export default function ModalCreated() {
                             )}
                             {type === 'createdFile' && mode === 'create' && <FileCreatedForm onClose={() => closeModal()} />}
                             {type === 'createdChat' && mode === 'create' && <ChatCreatedForm onClose={() => closeModal()} />}
-                            {mode === 'edit' && (
+                            {(type === 'updateChat' || type === 'updateFile') && mode === 'edit' && (
                                 <EditForm
                                     initialValue={initialValue}
                                     onSubmit={(value) => {
