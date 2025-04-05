@@ -46,6 +46,11 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
             const token = localStorage.getItem('token');
             if (!token) throw new Error('No token found');
 
+            console.log('handleRemoveChat - Chat data:', {
+                ChatID: chatId,
+                token: token.substring(0, 10) + '...' // Solo mostramos parte del token por seguridad
+            });
+
             const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/chat/${chatId}`, {
                 method: 'DELETE',
                 headers: {
@@ -53,12 +58,35 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
                 }
             });
 
-            if (!response.ok) throw new Error('Error deleting chat');
+            console.log('handleRemoveChat - Response:', {
+                status: response.status,
+                statusText: response.statusText,
+                ok: response.ok
+            });
 
-            // Remover el chat del store
+            if (!response.ok) {
+                let errorMessage = 'Error deleting chat';
+                try {
+                    const errorData = await response.json();
+                    console.error('handleRemoveChat - Error details:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        errorData
+                    });
+                    errorMessage = errorData.message || errorMessage;
+                } catch (e) {
+                    console.error('handleRemoveChat - Error parsing response:', e);
+                }
+                throw new Error(`${errorMessage}: ${response.status} ${response.statusText}`);
+            }
+
+            // Actualizar el chat localmente
             setChats(chats.filter(chat => chat.ChatID !== chatId));
+            console.log('handleRemoveChat - Successfully deleted chat:', chatId);
         } catch (error) {
-            console.error('Error deleting chat:', error);
+            console.error('handleRemoveChat - Error:', error);
+            // Aquí podríamos mostrar una notificación al usuario
+            alert('Error al eliminar el chat. Por favor, intente nuevamente.');
         }
     };
 

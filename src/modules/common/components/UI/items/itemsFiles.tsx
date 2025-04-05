@@ -80,6 +80,38 @@ export default function BarFiles({
         }
     };
 
+    const handleRemoveFile = async (file: FileProps) => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) throw new Error('No token found');
+
+            console.log('handleRemoveFile - File data:', {
+                FileID: file.FileID,
+                FileName: file.FileName
+            });
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/file/${file.FileID}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Error deleting file');
+
+            // Actualizar el archivo localmente
+            const updatedFiles = files.filter(f => f.FileID !== file.FileID);
+            setFiles(updatedFiles);
+
+            // Notificar al componente padre si existe
+            if (onRemoveFile) {
+                onRemoveFile(file);
+            }
+        } catch (error) {
+            console.error('Error deleting file:', error);
+        }
+    };
+
     return (
         <div className="space-y-2">
             {files.map((file) => {
@@ -137,7 +169,7 @@ export default function BarFiles({
                                         });
                                         handleEditFile(file, newName);
                                     }}
-                                    onRemove={() => onRemoveFile?.(file)}
+                                    onRemove={() => handleRemoveFile(file)}
                                     type="updateFile"
                                     itemId={file.FileID}
                                 />

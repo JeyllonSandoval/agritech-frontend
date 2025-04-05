@@ -7,7 +7,7 @@ import { useMenu } from './GlobalMenu';
 
 interface ButtonItemEditProps {
     onEdit?: (newName: string) => void;
-    onRemove?: () => void;
+    onRemove?: (e: React.MouseEvent) => void;
     className?: string;
     initialValue?: string;
     type?: 'updateFile' | 'updateChat';
@@ -33,14 +33,15 @@ export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
         console.log('ButtonItemEdit - Click:', {
             type,
             itemId,
-            initialValue
+            initialValue,
+            hasOnRemove: !!onRemove
         });
 
         if (buttonRef.current) {
             const rect = buttonRef.current.getBoundingClientRect();
             openMenu(
                 { top: rect.top, left: rect.right + 10 },
-                (e) => {
+                (e: React.MouseEvent) => {
                     e.preventDefault();
                     e.stopPropagation();
                     closeMenu();
@@ -51,9 +52,20 @@ export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
                     });
                     openModal(type, 'edit', initialValue, onEdit, itemId);
                 },
-                () => {
+                (e: React.MouseEvent) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     closeMenu();
-                    onRemove?.();
+                    console.log('ButtonItemEdit - Remove Option Selected:', {
+                        type,
+                        itemId,
+                        hasOnRemove: !!onRemove
+                    });
+                    if (onRemove) {
+                        onRemove(e);
+                    } else {
+                        console.error('ButtonItemEdit - onRemove is undefined');
+                    }
                 }
             );
         }

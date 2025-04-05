@@ -8,7 +8,7 @@ interface MenuOptionsProps {
     position: { top: number; left: number };
     onClose: () => void;
     onEdit?: (e: React.MouseEvent) => void;
-    onRemove?: () => void;
+    onRemove?: (e: React.MouseEvent) => void;
 }
 
 export default function MenuOptions({ 
