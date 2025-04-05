@@ -15,14 +15,16 @@ interface ModalContextType {
     onFileSelect?: (file: FileProps) => void;
     selectedFile: FileProps | null;
     itemId: string | undefined;
+    contentURL: string | undefined;
     closeModal: () => void;
-    openModal: (type: ModalType, mode: ModalMode, initialValue?: string, onEdit?: (value: string) => void, itemId?: string, onFileSelect?: (file: FileProps) => void) => void;
+    openModal: (type: ModalType, mode: ModalMode, initialValue?: string, onEdit?: (value: string) => void, itemId?: string, onFileSelect?: (file: FileProps) => void, contentURL?: string) => void;
     setOnFileSelect: (callback: (file: FileProps) => void) => void;
     isConfirmOpen: boolean;
     confirmMessage: string;
     onConfirm?: () => void;
     openConfirmModal: (message: string, onConfirm: () => void) => void;
     closeConfirmModal: () => void;
+    setSelectedFile: (file: FileProps | null) => void;
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
@@ -34,8 +36,9 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     const [initialValue, setInitialValue] = useState('');
     const [onEdit, setOnEdit] = useState<((value: string) => void) | undefined>(undefined);
     const [onFileSelect, setOnFileSelect] = useState<((file: FileProps) => void) | undefined>(undefined);
-    const [selectedFile, setSelectedFile] = useState<FileProps | null>(null);
+    const [selectedFileState, setSelectedFileState] = useState<FileProps | null>(null);
     const [itemId, setItemId] = useState<string | undefined>(undefined);
+    const [contentURL, setContentURL] = useState<string | undefined>(undefined);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [confirmMessage, setConfirmMessage] = useState('');
     const [onConfirm, setOnConfirm] = useState<(() => void) | undefined>(undefined);
@@ -47,8 +50,9 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         setInitialValue('');
         setOnEdit(undefined);
         setOnFileSelect(undefined);
-        setSelectedFile(null);
+        setSelectedFileState(null);
         setItemId(undefined);
+        setContentURL(undefined);
     }, []);
 
     const openModal = useCallback((
@@ -57,7 +61,8 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         initialValue = '',
         onEdit?: (value: string) => void,
         itemId?: string,
-        onFileSelect?: (file: FileProps) => void
+        onFileSelect?: (file: FileProps) => void,
+        contentURL?: string
     ) => {
         setType(type);
         setMode(mode);
@@ -65,6 +70,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         setOnEdit(() => onEdit);
         setOnFileSelect(() => onFileSelect);
         setItemId(itemId);
+        setContentURL(contentURL);
         setIsOpen(true);
     }, []);
 
@@ -80,6 +86,10 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         setOnConfirm(undefined);
     }, []);
 
+    const setSelectedFile = useCallback((file: FileProps | null) => {
+        setSelectedFileState(file);
+    }, []);
+
     const value = {
         isOpen,
         type,
@@ -87,8 +97,9 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         initialValue,
         onEdit,
         onFileSelect,
-        selectedFile,
+        selectedFile: selectedFileState,
         itemId,
+        contentURL,
         closeModal,
         openModal,
         setOnFileSelect,
@@ -96,7 +107,8 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         confirmMessage,
         onConfirm,
         openConfirmModal,
-        closeConfirmModal
+        closeConfirmModal,
+        setSelectedFile
     };
 
     return (

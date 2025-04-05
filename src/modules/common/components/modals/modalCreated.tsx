@@ -24,7 +24,8 @@ export default function ModalCreated() {
         isConfirmOpen,
         confirmMessage,
         onConfirm,
-        closeConfirmModal
+        closeConfirmModal,
+        contentURL
     } = useModal();
 
     if (!isOpen && !isConfirmOpen) return null;
@@ -33,20 +34,27 @@ export default function ModalCreated() {
         if (mode === 'edit') {
             return type === 'updateFile' ? 'Edit File Name' : 'Edit Chat Name';
         }
-        if (type === 'createdFile' && mode === 'preview' && selectedFile) {
-            return selectedFile.FileName;
+        if (type === 'createdFile' && mode === 'preview' && itemId) {
+            return initialValue;
         }
         switch (type) {
             case 'createdChat':
                 return 'Create New Chat';
             case 'createdFile':
-                return 'Upload New File';
+                return mode === 'preview' ? initialValue : 'Upload New File';
             case 'updateChat':
                 return 'Update Chat Name';
             case 'updateFile':
                 return 'Update File Name';
             default:
                 return '';
+        }
+    };
+
+    const handleFileSelect = (file: FileProps) => {
+        if (onFileSelect) {
+            onFileSelect(file);
+            closeModal();
         }
     };
 
@@ -79,21 +87,18 @@ export default function ModalCreated() {
                         <div className="w-full">
                             {type === 'createdFile' && mode === 'select' && (
                                 <TableShowFile 
-                                    onSelect={(file) => {
-                                        if (onFileSelect) {
-                                            onFileSelect(file);
-                                            closeModal();
-                                        }
-                                    }} 
+                                    onSelect={handleFileSelect}
                                 />
                             )}
-                            {type === 'createdFile' && mode === 'preview' && selectedFile && (
-                                <div className="w-full h-[70vh] bg-white/5 rounded-lg overflow-hidden">
-                                    <iframe
-                                        src={selectedFile.contentURL}
-                                        className="w-full h-full [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-white/5 [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-white/30"
-                                        title={selectedFile.FileName}
-                                    />
+                            {type === 'createdFile' && mode === 'preview' && itemId && (
+                                <div className="w-full h-[70vh] flex flex-col gap-4">
+                                    <div className="flex-1 bg-white/5 rounded-lg overflow-hidden">
+                                        <iframe
+                                            src={contentURL}
+                                            className="w-full h-full [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-white/5 [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-white/30"
+                                            title={initialValue}
+                                        />
+                                    </div>
                                 </div>
                             )}
                             {type === 'createdFile' && mode === 'create' && <FileCreatedForm onClose={() => closeModal()} />}

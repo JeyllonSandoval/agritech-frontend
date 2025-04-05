@@ -32,13 +32,12 @@ export default function BarFiles({
         
         console.log('Opening preview for file:', {
             FileID: file.FileID,
-            FileName: file.FileName
+            FileName: file.FileName,
+            contentURL: file.contentURL
         });
 
-        // Establecemos el archivo seleccionado
-        setSelectedFile(file);
         // Abrimos el modal en modo preview
-        openModal('createdFile', 'preview', file.FileName, undefined, file.FileID);
+        openModal('createdFile', 'preview', file.FileName, undefined, file.FileID, undefined, file.contentURL);
     };
 
     const handleEditFile = async (file: FileProps, newName: string) => {

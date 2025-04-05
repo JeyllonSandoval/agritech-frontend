@@ -69,12 +69,17 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
         try {
             const decodedToken = jwtDecode(token) as TokenData;
             const formData = new FormData();
+            
+            // Agregar UserID como string
             formData.append('UserID', decodedToken.UserID);
-            formData.append('createdFile', selectedFile);
+            
+            // Agregar el archivo con el nombre correcto
+            formData.append('file', selectedFile, selectedFile.name);
 
-            console.log('Sending:', {
+            console.log('Sending file upload request:', {
                 UserID: decodedToken.UserID,
-                file: selectedFile
+                fileName: selectedFile.name,
+                fileSize: selectedFile.size
             });
 
             const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/file`, {
@@ -85,18 +90,16 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
                 body: formData
             });
 
-            console.log('Response status:', response.status);
-            const responseData = await response.json().catch(() => null);
-            console.log('Response data:', responseData);
-
             if (!response.ok) {
-                throw new Error(responseData?.message || `Error: ${response.status} - ${response.statusText}`);
+                const errorData = await response.json().catch(() => null);
+                throw new Error(errorData?.message || `Error: ${response.status} - ${response.statusText}`);
             }
 
+            // Actualizar la lista de archivos
             await fetchFiles();
             onClose();
         } catch (error) {
-            console.error('Error details:', error);
+            console.error('Error uploading file:', error);
             setError(error instanceof Error ? error.message : 'An unexpected error occurred while uploading the file');
         } finally {
             setLoading(false);
