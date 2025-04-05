@@ -51,7 +51,7 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
 
     return (
         <div 
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
             onClick={onClose}
         >
             <div className="absolute right-8 top-14 w-48 py-2 mt-6 

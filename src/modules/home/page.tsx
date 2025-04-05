@@ -77,11 +77,11 @@ export default function Home() {
     };
 
     return (
-        <div className="h-screen overflow-y-auto snap-y snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="h-screen overflow-y-auto snap-y snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-0">
             {/* Hero Section */}
             <section className="h-screen snap-start relative flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/20 to-black/40 z-0" />
-                <div className="container mx-auto px-6 text-center relative z-10">
+                <div className="container mx-auto px-6 text-center relative z-1">
                     <div className="flex flex-col items-center justify-center">
                         <Image src={homeData.hero.image} alt="Hero Image" width={100} height={100} />
                     </div>
@@ -99,8 +99,8 @@ export default function Home() {
 
             {/* Features Section */}
             <section className="h-screen snap-start py-20 bg-white/5 backdrop-blur-xl relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/10 via-transparent to-emerald-900/10" />
-                <div className="container mx-auto px-6 relative z-10 h-full flex flex-col justify-center">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/10 via-transparent to-emerald-900/10 z-0" />
+                <div className="container mx-auto px-6 relative z-1 h-full flex flex-col justify-center">
                     <h2 className="text-5xl font-bold text-white text-center mb-16 reveal">
                         {homeData.features.title}
                     </h2>
@@ -129,8 +129,8 @@ export default function Home() {
 
             {/* Audience Section */}
             <section className="h-screen snap-start py-20 bg-black/50 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-900/10 to-transparent" />
-                <div className="container mx-auto px-6 relative z-5 h-full flex flex-col justify-center">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-900/10 to-transparent z-0" />
+                <div className="container mx-auto px-6 relative z-1 h-full flex flex-col justify-center">
                     <h2 className="text-5xl font-bold text-white text-center mb-16 reveal">
                         {homeData.audience.title}
                     </h2>
@@ -158,8 +158,8 @@ export default function Home() {
 
             {/* Contact Section */}
             <section className="h-screen snap-start py-20 bg-white/5 backdrop-blur-xl relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/10 via-transparent to-emerald-900/10" />
-                <div className="container mx-auto px-6 text-center relative z-10 h-full flex flex-col justify-center">
+                <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/10 via-transparent to-emerald-900/10 z-0" />
+                <div className="container mx-auto px-6 text-center relative z-1 h-full flex flex-col justify-center">
                     <h2 className="text-5xl font-bold text-white mb-8 reveal">
                         {homeData.contact.title}
                     </h2>
