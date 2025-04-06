@@ -16,6 +16,7 @@ export default function ResetPasswordForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setMessage("");
         
         if (newPassword !== confirmPassword) {
             setMessage("Passwords do not match");
@@ -42,23 +43,39 @@ export default function ResetPasswordForm() {
                 },
                 body: JSON.stringify({ 
                     token,
-                    newPassword
+                    password: newPassword
                 }),
             });
 
             const data = await response.json();
 
-            if (response.ok) {
-                setMessage("Password has been reset successfully. Redirecting to login...");
-                setTimeout(() => {
-                    router.push("/login");
-                }, 3000);
-            } else {
-                setMessage(data.error || "Error resetting password");
+            if (!response.ok) {
+                const errorMessages = {
+                    "Invalid token": "Invalid or expired reset token. Please request a new password reset.",
+                    "Token expired": "This password reset link has expired. Please request a new one.",
+                    "Invalid password": "New password must be different from your current password",
+                    "Validation error": "Invalid input data. Please check your password format."
+                };
+
+                if (response.status === 400 && data.error in errorMessages) {
+                    throw new Error(errorMessages[data.error as keyof typeof errorMessages]);
+                }
+
+                throw new Error(data.message || "Failed to reset password");
             }
+
+            // Guardar el nuevo token
+            if (data.token) {
+                localStorage.setItem("token", data.token);
+            }
+
+            setMessage(data.message || "Your password has been successfully reset");
+            setTimeout(() => {
+                router.push("/");
+            }, 3000);
         } catch (error) {
-            console.error("Error:", error);
-            setMessage("Error connecting to the server");
+            console.error("Error in password reset:", error);
+            setMessage(error instanceof Error ? error.message : "Error connecting to the server");
         } finally {
             setIsSubmitting(false);
         }

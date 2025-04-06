@@ -19,7 +19,7 @@ export default function SettingPanel() {
 
     return (
         <div className="w-full max-w-2xl mx-auto p-6">
-            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-8 text-center">
+            <div className="bg-emerald-600/20 border border-emerald-500/70 rounded-xl p-8 text-center">
                 <div className="mb-4">
                     <svg className="w-16 h-16 mx-auto text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

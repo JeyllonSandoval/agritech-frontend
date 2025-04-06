@@ -12,6 +12,7 @@ export default function ForgotPasswordForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setMessage("");
 
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/request-password-reset`, {
@@ -24,17 +25,25 @@ export default function ForgotPasswordForm() {
 
             const data = await response.json();
 
-            if (response.ok) {
-                setMessage("We've sent you an email with instructions to reset your password.");
-                setTimeout(() => {
-                    router.push("/signin");
-                }, 3000);
-            } else {
-                setMessage(data.error || "Error sending password reset email");
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error("User not found with this email address");
+                } else if (response.status === 400) {
+                    throw new Error(data.error || "Invalid email format");
+                } else if (response.status === 429) {
+                    throw new Error("Too many requests. Please try again later");
+                } else {
+                    throw new Error(data.error || "Failed to send password reset email");
+                }
             }
+
+            setMessage("We've sent you an email with instructions to reset your password.");
+            setTimeout(() => {
+                router.push("/signin");
+            }, 3000);
         } catch (error) {
-            console.error("Error:", error);
-            setMessage("Error connecting to the server");
+            console.error("Error in password reset request:", error);
+            setMessage(error instanceof Error ? error.message : "Error connecting to the server");
         } finally {
             setIsSubmitting(false);
         }
@@ -113,15 +122,15 @@ export default function ForgotPasswordForm() {
                             <div className={`text-sm px-4 py-3 rounded-xl 
                                 flex items-center gap-2 ${
                                     message.includes("Error") 
-                                        ? "bg-red-400/10 border border-red-400/20 text-red-400"
-                                        : "bg-emerald-400/10 border border-emerald-400/20 text-emerald-400"
+                                        ? "bg-emerald-400/10 border border-emerald-400/20 text-emerald-400"
+                                        : "bg-red-400/10 border border-red-400/20 text-red-400"
                                 }`}
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     {message.includes("Error") ? (
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    ) : (
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                    ) : (
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     )}
                                 </svg>
                                 <span>{message}</span>
