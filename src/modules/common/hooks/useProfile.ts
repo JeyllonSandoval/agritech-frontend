@@ -20,7 +20,7 @@ interface UserData {
     Email: string;
     createdAt: string;
     status: string;
-    emailVerified: boolean;
+    emailVerified: string;
 }
 
 export function useProfile() {

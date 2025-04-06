@@ -68,11 +68,27 @@ export default function ProfileCard() {
                                 <div className="w-24 h-24 rounded-full overflow-hidden 
                                     bg-emerald-400/90 backdrop-blur-md shadow-xl shadow-emerald-300/90
                                     border-2 border-white/20">
-                                    <img
-                                        src={userData.imageUser}
-                                        alt={`${userData.FirstName} ${userData.LastName}`}
-                                        className="w-full h-full object-cover"
-                                    />
+                                    {userData.imageUser ? (
+                                        <img
+                                            src={userData.imageUser}
+                                            alt={`${userData.FirstName} ${userData.LastName}`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <svg 
+                                            className="w-full h-full p-4 text-black" 
+                                            fill="none" 
+                                            stroke="currentColor" 
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path 
+                                                strokeLinecap="round" 
+                                                strokeLinejoin="round" 
+                                                strokeWidth={2} 
+                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
+                                            />
+                                        </svg>
+                                    )}
                                 </div>
                             </div>
                             <span className={`absolute bottom-0 right-0 w-4 h-4 rounded-full 
@@ -110,17 +126,17 @@ export default function ProfileCard() {
                                 <div className="flex items-center justify-between w-full">
                                     <span>{userData.Email}</span>
                                     <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs
-                                        ${userData.emailVerified 
+                                        ${userData.emailVerified === "true" 
                                             ? "bg-emerald-400/20 text-emerald-400" 
                                             : "bg-red-400/20 text-red-400"}`}>
                                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            {userData.emailVerified ? (
+                                            {userData.emailVerified === "true" ? (
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                             ) : (
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             )}
                                         </svg>
-                                        <span>{userData.emailVerified ? "Verified" : "Unverified"}</span>
+                                        <span>{userData.emailVerified === "true" ? "Verified" : "Unverified"}</span>
                                     </div>
                                 </div>
                             </div>

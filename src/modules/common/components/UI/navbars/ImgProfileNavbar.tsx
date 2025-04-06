@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DropNavbar from "./DropNavbar";
 import Image from "next/image";
 import { useProfile } from "@/modules/common/hooks/useProfile";
+
 
 interface ImgProfileNavbarProps {
     onLogout: () => void;
@@ -9,8 +10,19 @@ interface ImgProfileNavbarProps {
 
 export default function ImgProfileNavbar({ onLogout }: ImgProfileNavbarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const { userData, isLoading } = useProfile();
+    const { userData, isLoading, refreshProfile } = useProfile();
     
+    useEffect(() => {
+        const handleProfileUpdate = async () => {
+            await refreshProfile();
+        };
+
+        window.addEventListener('profile-updated', handleProfileUpdate);
+        return () => {
+            window.removeEventListener('profile-updated', handleProfileUpdate);
+        };
+    }, [refreshProfile]);
+
     const handleClose = () => {
         setIsMenuOpen(false);
     };

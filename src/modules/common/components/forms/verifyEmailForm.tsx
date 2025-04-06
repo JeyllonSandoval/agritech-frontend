@@ -26,7 +26,19 @@ export default function VerifyEmailForm() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    setMessage("Email verified successfully! Redirecting to home...");
+                    setMessage(data.message || "Email verified successfully! Redirecting to home...");
+                    // Store the new token in localStorage
+                    if (data.token) {
+                        localStorage.setItem("token", data.token);
+                        // Update user data in localStorage if provided
+                        if (data.tokenData) {
+                            localStorage.setItem("user", JSON.stringify(data.tokenData));
+                        }
+                    }
+                    // Dispatch event to update profile state
+                    window.dispatchEvent(new CustomEvent('profile-updated', { 
+                        detail: { emailVerified: true } 
+                    }));
                     setTimeout(() => {
                         router.push("/");
                     }, 3000);
