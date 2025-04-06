@@ -31,6 +31,7 @@ export default function RegisterForm() {
     const [CountryID, setCountryID] = useState("");
     const [image, setImage] = useState<File | null>(null);
     const [message, setMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const fetchCountry = async () => {
         try {
@@ -62,6 +63,14 @@ export default function RegisterForm() {
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (password !== confirmPassword) {
+            setMessage("Passwords do not match");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setMessage("");
 
         try {
             const formData = new FormData();
@@ -96,6 +105,8 @@ export default function RegisterForm() {
         } catch (error) {
             console.error("Error registering user:", error);
             setMessage("Error de conexión con el servidor");
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
@@ -108,9 +119,11 @@ export default function RegisterForm() {
     return (
         <section className="w-full h-full flex justify-center items-center px-4">
             <form onSubmit={handleRegister} 
-                className="w-full max-w-2xl p-8 
+                className={`w-full max-w-2xl p-8 
                     bg-white/10 backdrop-blur-xl rounded-2xl 
-                    border border-white/20 shadow-lg"
+                    border border-white/20 shadow-lg
+                    transition-opacity duration-300
+                    ${isSubmitting ? 'opacity-75' : 'opacity-100'}`}
             >
                 <div className="flex flex-col items-center gap-8">
                     <div className="text-center space-y-2">
@@ -138,6 +151,7 @@ export default function RegisterForm() {
                                         transition-all duration-300"
                                     type="text"
                                     placeholder="First Name"
+                                    disabled={isSubmitting}
                                 />
                             </div>
 
@@ -155,6 +169,7 @@ export default function RegisterForm() {
                                         transition-all duration-300"
                                     type="text"
                                     placeholder="Last Name"
+                                    disabled={isSubmitting}
                                 />
                             </div>
 
@@ -172,6 +187,7 @@ export default function RegisterForm() {
                                         transition-all duration-300"
                                     type="email"
                                     placeholder="Email address"
+                                    disabled={isSubmitting}
                                 />
                             </div>
 
@@ -191,6 +207,7 @@ export default function RegisterForm() {
                                             pr-12"
                                         type={showPassword ? "text" : "password"}
                                         placeholder="Password"
+                                        disabled={isSubmitting}
                                     />
                                     <button
                                         type="button"
@@ -203,6 +220,7 @@ export default function RegisterForm() {
                                             active:bg-emerald-400/20
                                             transition-all duration-300
                                             focus:outline-none"
+                                        disabled={isSubmitting}
                                     >
                                         {showPassword ? (
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -234,6 +252,7 @@ export default function RegisterForm() {
                                             pr-12"
                                         type={showPassword ? "text" : "password"}
                                         placeholder="Confirm password"
+                                        disabled={isSubmitting}
                                     />
                                     <button
                                         type="button"
@@ -246,6 +265,7 @@ export default function RegisterForm() {
                                             active:bg-emerald-400/20
                                             transition-all duration-300
                                             focus:outline-none"
+                                        disabled={isSubmitting}
                                     >
                                         {showPassword ? (
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,6 +293,7 @@ export default function RegisterForm() {
                                         focus:ring-emerald-400/20 focus:outline-none 
                                         placeholder-white/40
                                         transition-all duration-300"
+                                    disabled={isSubmitting}
                                 >
                                     <option value="" className="bg-gray-900 text-white">Select your country</option>
                                     {countries.map((country) => (
@@ -307,6 +328,7 @@ export default function RegisterForm() {
                                         file:bg-emerald-400/90 file:text-black
                                         hover:file:bg-emerald-400
                                         transition-all duration-300"
+                                    disabled={isSubmitting}
                                 />
                             </div>
                         </div>
@@ -335,13 +357,27 @@ export default function RegisterForm() {
                                 focus:ring-2 focus:ring-emerald-400/20
                                 transition-all duration-300
                                 flex items-center justify-center gap-2
-                                shadow-lg shadow-emerald-400/20"
+                                shadow-lg shadow-emerald-400/20
+                                disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={isSubmitting}
                         >
-                            <span>Create Account</span>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
+                            {isSubmitting ? (
+                                <>
+                                    <svg className="animate-spin h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>Creating Account...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span>Create Account</span>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>
