@@ -1,6 +1,11 @@
-export default function ButtonShow() {
+interface ButtonShowProps {
+    onClick: (e: React.MouseEvent) => void;
+}
+
+export default function ButtonShow({ onClick }: ButtonShowProps) {
     return (
         <button
+            onClick={onClick}
             className="p-2 rounded-lg hover:bg-emerald-400/20 
                 text-white/90 hover:text-emerald-400
                 transition-all duration-300"

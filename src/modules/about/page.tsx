@@ -1,7 +1,6 @@
+'use client';
+import AboutContent from '../common/components/UI/about/AboutContent';
+
 export default function About() {
-    return (
-        <div>
-            <h1>About</h1>
-        </div>
-    );
+  return <AboutContent />;
 }

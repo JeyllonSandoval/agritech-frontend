@@ -1,0 +1,80 @@
+{
+    "hero": {
+        "image": "/icon/AgriTech-Logo-_transparent_.webp",
+        "title": "AgriTech",
+        "subtitle": "Innovating Agriculture for a Sustainable Future",
+        "description": "An innovative platform that combines artificial intelligence with agricultural knowledge to enhance your field development"
+    },
+    "features": {
+        "title": "Features",
+        "items": [
+        {
+            "title": "Document Analysis",
+            "description": "Process and analyze agricultural technical documents to obtain relevant information quickly",
+            "icon": "document"
+        },
+        {
+            "title": "Smart Chat",
+            "description": "Interact with an AI specialized in agriculture that answers your questions and provides recommendations",
+            "icon": "chat"
+        },
+        {
+            "title": "File Management",
+            "description": "Organize and access your technical documents efficiently",
+            "icon": "folder"
+        },
+        {
+            "title": "Continuous Learning",
+            "description": "The platform learns and improves constantly with each interaction",
+            "icon": "learn"
+        }
+        ]
+    },
+    "audience": {
+        "title": "Who is it designed for?",
+        "groups": [
+        {
+            "title": "Small Farmers",
+            "description": "Access technical knowledge in a simple and practical way to improve your crops",
+            "icon": "farmer"
+        },
+        {
+            "title": "Students",
+            "description": "Complement your academic training with practical tools and updated knowledge",
+            "icon": "student"
+        },
+        {
+            "title": "Enthusiasts",
+            "description": "Explore the world of agriculture with a modern and accessible tool",
+            "icon": "sprout"
+        }
+        ]
+    },
+    "contact": {
+        "title": "Contact Us",
+        "description": "Have questions or suggestions? We're here to help",
+        "email": "agriJJtech@hotmail.com",
+        "social": {
+        "linkedin": {
+            "profileOne": {
+                "title": "Juan Flores",
+                "urlPlayerOne": "https://www.linkedin.com"
+            },
+            "profileTwo": {
+                "title": "Jeyllon Sandoval",
+                "urlPlayerTwo": "https://www.linkedin.com/in/jeyllon-slon-sandoval-rosario-bb2292320/"
+            }
+        },
+            "github": {
+                "optionOne": {
+                    "title": "Frontend",
+                    "urlFrontEnd": "https://github.com/JeyllonSandoval/agritech-frontend"
+                },
+                "optionTwo": {
+                    "title": "Backend",
+                    "urlBackEnd": "https://github.com/JeyllonSandoval/agritech-backend"
+                }
+            }
+        }
+    }
+}

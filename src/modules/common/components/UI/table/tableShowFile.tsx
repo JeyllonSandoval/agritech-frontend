@@ -1,9 +1,12 @@
+'use client';
+
 import { useEffect } from 'react';
 import { useFileStore } from '@/modules/common/stores/fileStore';
-import BarFiles from '@/modules/common/components/items/itemsFiles';
+import BarFiles from '@/modules/common/components/UI/items/itemsFiles';
+import { FileProps } from '@/modules/common/hooks/getFiles';
 
 interface TableShowFileProps {
-    onSelect?: (file: any) => void;
+    onSelect?: (file: FileProps) => void;
 }
 
 export default function TableShowFile({ onSelect }: TableShowFileProps) {
@@ -13,8 +16,14 @@ export default function TableShowFile({ onSelect }: TableShowFileProps) {
         fetchFiles();
     }, [fetchFiles]);
 
+    const handleSelect = (file: FileProps) => {
+        if (onSelect) {
+            onSelect(file);
+        }
+    };
+
     return (
-        <div className="flex flex-col w-full h-[50vh]">
+        <div className="flex flex-col w-full h-[70vh]">
             <div className="flex-1 relative bg-white/5 backdrop-blur-xl rounded-2xl 
                 border border-white/20 shadow-lg overflow-hidden">
                 <div className="h-full overflow-y-auto px-4 py-4
@@ -36,7 +45,8 @@ export default function TableShowFile({ onSelect }: TableShowFileProps) {
                         <div className="space-y-2">
                             <BarFiles 
                                 files={files} 
-                                onSelect={onSelect}
+                                onSelect={handleSelect}
+                                isInTableShowFile={true}
                             />
                         </div>
                     )}

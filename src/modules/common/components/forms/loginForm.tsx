@@ -125,7 +125,7 @@ const Login = () => {
                             <div className="flex justify-end">
                                 <button
                                     type="button"
-                                    onClick={() => {/* Implementar lógica de forgot password */}}
+                                    onClick={() => router.push("/forgot-password")}
                                     className="text-sm text-white/50 
                                         hover:text-emerald-400/70
                                         focus:text-emerald-400

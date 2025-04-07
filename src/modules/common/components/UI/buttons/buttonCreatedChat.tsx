@@ -1,11 +1,22 @@
+'use client';
+
+import { useModal } from '@/modules/common/context/modalContext';
+
 interface ButtonCreatedChatProps {
-    onClick: () => void;
+    onClick?: () => void;
 }
 
 export default function ButtonCreatedChat({ onClick }: ButtonCreatedChatProps) {
+    const { openModal } = useModal();
+
+    const handleClick = () => {
+        openModal('createdChat', 'create', '');
+        onClick?.();
+    };
+
     return (
         <button 
-            onClick={onClick}
+            onClick={handleClick}
             className="w-full px-4 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500
                 hover:from-emerald-500 hover:to-emerald-400 text-white rounded-lg
                 shadow-lg shadow-emerald-500/20 transition-all duration-300

@@ -1,0 +1,112 @@
+{
+  "companyInfo": {
+    "name": "AgriTech",
+    "logo": "/icon/AgriTech-Logo-_transparent_.webp",
+    "slogan": "Innovating Agriculture for a Sustainable Future"
+  },
+  "sections": [
+    {
+      "id": "general-objective",
+      "title": "General Objective",
+      "icon": "FaTrophy",
+      "content": {
+        "type": "description",
+        "description": "Develop and implement an artificial intelligence-based platform that optimizes agricultural production through real-time data analysis, enabling improved efficiency and sustainability in the agricultural sector."
+      }
+    },
+    {
+      "id": "specific-objectives",
+      "title": "Specific Objectives",
+      "icon": "FaClipboardList",
+      "content": {
+        "type": "items",
+        "items": [
+          {
+            "title": "Integration of advanced technologies",
+            "icon": "FaTools",
+            "description": "Implement machine learning models and specialized sensors to collect and analyze data on soil, climate, and early pest detection."
+          },
+          {
+            "title": "Optimization of agricultural resources",
+            "icon": "FaBolt",
+            "description": "Reduce excessive use of fertilizers, water, and pesticides through personalized recommendations based on accurate data."
+          },
+          {
+            "title": "Prevention of pest and disease losses",
+            "icon": "FaShieldAlt",
+            "description": "Use artificial intelligence to identify and alert about potential threats to crops before they cause significant damage."
+          },
+          {
+            "title": "Accessibility for different types of producers",
+            "icon": "FaUsers",
+            "description": "Design an intuitive and adaptable system that can be used by both small farmers and medium-sized producers."
+          },
+          {
+            "title": "Promotion of agricultural sustainability",
+            "icon": "FaLeaf",
+            "description": "Foster more responsible farming practices that minimize environmental impact and improve global food security."
+          }
+        ]
+      }
+    },
+    {
+      "id": "mission-vision",
+      "title": "Mission & Vision",
+      "icon": "FaBullseye",
+      "content": {
+        "type": "mission-vision",
+        "mission": {
+          "title": "Mission",
+          "icon": "FaFlag",
+          "items": [
+            "Transform agriculture through the use of artificial intelligence and advanced technology, optimizing agricultural production and promoting efficient use of natural resources. We seek to provide innovative solutions that help farmers improve their productivity, reduce environmental impact, and ensure sustainability in the agri-food sector.",
+            "Create technological solutions that improve agriculture efficiency and sustainability."
+          ]
+        },
+        "vision": {
+          "title": "Vision",
+          "icon": "FaEye",
+          "items": [
+            "Be the leading platform in smart agriculture globally, recognized for its innovation, accessibility, and commitment to sustainable development. We aspire to revolutionize the agricultural sector through digitalization and artificial intelligence, improving farmers' quality of life and contributing to global food security.",
+            "Lead the digital transformation of agriculture to maximize yields and reduce environmental impact."
+          ]
+        }
+      }
+    },
+    {
+      "id": "values",
+      "title": "Values",
+      "icon": "FaHandshake",
+      "content": {
+        "type": "items",
+        "items": [
+          {
+            "title": "Innovation",
+            "icon": "FaLightbulb",
+            "description": "We promote the development of advanced technologies to improve agriculture efficiency and sustainability."
+          },
+          {
+            "title": "Sustainability",
+            "icon": "FaLeaf",
+            "description": "We promote responsible agricultural practices that minimize environmental impact."
+          },
+          {
+            "title": "Commitment",
+            "icon": "FaHandshake",
+            "description": "We work passionately to provide accessible and effective technological solutions."
+          },
+          {
+            "title": "Precision",
+            "icon": "FaBullseye",
+            "description": "We use data and intelligent algorithms to provide reliable and useful information."
+          },
+          {
+            "title": "Integrity",
+            "icon": "FaBalanceScale",
+            "description": "We maintain high ethical standards and transparency in all our operations."
+          }
+        ]
+      }
+    }
+  ]
+}

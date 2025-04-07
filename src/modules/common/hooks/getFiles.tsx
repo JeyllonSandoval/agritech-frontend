@@ -9,6 +9,7 @@ export interface FileProps {
     UserID: string;
     FileName: string;
     createdAt: string;
+    contentURL: string;
 }
 
 export const getFiles = async (): Promise<FileProps[]> => {

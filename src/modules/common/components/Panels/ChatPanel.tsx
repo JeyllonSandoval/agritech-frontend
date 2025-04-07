@@ -8,8 +8,9 @@ import { AnalysisRequest, ChatMessage } from '@/modules/common/types/chat';
 import { FileProps } from '@/modules/common/hooks/getFiles';
 import TableShowMessage from '../UI/table/tableShowMessage';
 import BarWrited from '../UI/bars/barWrited';
-import FileAnalysisResult from '../items/FileAnalysisResult';
+import FileAnalysisResult from '../UI/items/FileAnalysisResult';
 import predefinedQuestions from '@/modules/common/data/predefinedQuestions.json';
+import { useModal } from '@/modules/common/context/modalContext';
 
 interface ChatPanelProps {
     onPanelChange: (panel: 'welcome' | 'files' | 'chat') => void;
@@ -19,10 +20,10 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
     const currentChat = useChatStore(state => state.currentChat);
     const { files, fetchFiles } = useFileStore();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<FileProps | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { openModal } = useModal();
 
     useEffect(() => {
         setSelectedFile(null);
@@ -97,58 +98,6 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
     useEffect(() => {
         fetchFiles();
     }, [fetchFiles]);
-
-    const handleAnalysis = async () => {
-        if (!currentChat || !selectedFile) return;
-
-        setIsAnalyzing(true);
-        setError(null);
-
-        // Agregar mensaje de archivo seleccionado
-        const fileMessage: ChatMessage = {
-            MessageID: `file-${Date.now()}`,
-            ChatID: currentChat.ChatID,
-            FileID: selectedFile.FileID,
-            content: 'ASK USER',
-            sendertype: 'user',
-            createdAt: new Date().toISOString(),
-            status: 'active'
-        };
-
-        setMessages(prev => [...prev, fileMessage]);
-
-        // Procesar cada pregunta
-        for (const question of predefinedQuestions.questions) {
-            try {
-                const response = await analyzeDocument({
-                    ChatID: currentChat.ChatID,
-                    FileID: selectedFile.FileID,
-                    content: question.question,
-                    sendertype: 'user'
-                });
-
-                // Agregar cada resultado como un mensaje
-                const analysisMessage: ChatMessage = {
-                    MessageID: `analysis-${question.id}-${Date.now()}`,
-                    ChatID: currentChat.ChatID,
-                    FileID: selectedFile.FileID,
-                    content: response.content,
-                    sendertype: 'ai',
-                    createdAt: new Date().toISOString(),
-                    status: 'active',
-                    question: question.question,
-                    description: question.description
-                };
-
-                setMessages(prev => [...prev, analysisMessage]);
-            } catch (err) {
-                console.error(`Error analyzing question ${question.id}:`, err);
-                setError(err instanceof Error ? err.message : 'Error analyzing document');
-            }
-        }
-
-        setIsAnalyzing(false);
-    };
 
     const handleFileSelect = async (file: FileProps) => {
         setSelectedFile(file);
@@ -236,6 +185,16 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         }
     };
 
+    const handleOpenFileSelect = () => {
+        if (!currentChat) {
+            console.error('No chat selected');
+            return;
+        }
+        openModal('createdFile', 'select', '', undefined, undefined, (file) => {
+            handleFileSelect(file);
+        });
+    };
+
     if (!currentChat) {
         return (
             <div className="w-full h-full flex flex-col items-center justify-center p-8">
@@ -266,7 +225,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
             </div>
 
             <ButtonSelectFile 
-                setIsModalOpen={setIsModalOpen} 
+                setIsModalOpen={handleOpenFileSelect} 
                 isFileSelected={!!selectedFile}
             />
 
@@ -280,29 +239,6 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                             {error}
                         </p>
                     )}
-                    <button
-                        className="group relative px-6 py-3 bg-emerald-500 text-white rounded-xl
-                            hover:bg-emerald-600 transition-all duration-300
-                            flex items-center gap-2 text-2xl font-medium
-                            shadow-lg shadow-emerald-500/20
-                            overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
-                        onClick={handleAnalysis}
-                        disabled={isAnalyzing}
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent
-                            transform animate-shimmer"
-                            style={{
-                                width: '200%'
-                            }}
-                        />
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {isAnalyzing ? 'Analyzing...' : 'Start Analysis'}
-                    </button>
                 </div>
             )}
         </div>
@@ -313,11 +249,13 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
             <div className="w-3/5 h-full flex flex-col">
                 {messages.length > 0 ? (
                     <>
-                        <TableShowMessage 
-                            messages={messages}
-                            isLoading={isAnalyzing}
-                            files={files}
-                        />
+                        <div className="flex-1 overflow-y-auto">
+                            <TableShowMessage 
+                                messages={messages}
+                                isLoading={isAnalyzing}
+                                files={files}
+                            />
+                        </div>
                         <BarWrited 
                             onSendMessage={handleSendMessage}
                             isLoading={isAnalyzing}
@@ -331,13 +269,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                     </div>
                 )}
 
-                <ModalCreated 
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    type="file"
-                    mode="select"
-                    onFileSelect={(file: FileProps) => setSelectedFile(file)}
-                />
+                <ModalCreated />
             </div>
         </div>
     );

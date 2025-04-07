@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { ChatMessage } from '@/modules/common/types/chat';
-import ItemMessage from '@/modules/common/components/items/itemMessages';
-import FileAnalysisResult from '@/modules/common/components/items/FileAnalysisResult';
+import ItemMessage from '@/modules/common/components/UI/items/itemMessages';
+import FileAnalysisResult from '@/modules/common/components/UI/items/FileAnalysisResult';
 import { FileProps } from '@/modules/common/hooks/getFiles';
 
 interface TableShowMessageProps {

@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
 import { useAuth } from '../../../hooks/useAuth';
+import { useModal } from '@/modules/common/context/modalContext';
+import SettingPanel from '@/modules/common/components/Panels/SettingPanel';
 
 interface DropNavbarProps {
     onLogout: () => void;
@@ -19,8 +21,9 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
     const [userInfo, setUserInfo] = useState<{ Email: string; FirstName?: string }>({ Email: '' });
     const router = useRouter();
     const { isAuthenticated } = useAuth();
+    const { openModal } = useModal();
 
-    useEffect(() => {
+    const updateUserInfo = () => {
         try {
             const token = localStorage.getItem('token');
             if (token) {
@@ -33,6 +36,19 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
         } catch (error) {
             console.error('Error decoding token:', error);
         }
+    };
+
+    useEffect(() => {
+        updateUserInfo();
+
+        // Listen for both profile and token updates
+        window.addEventListener('profile-updated', updateUserInfo);
+        window.addEventListener('token-updated', updateUserInfo);
+
+        return () => {
+            window.removeEventListener('profile-updated', updateUserInfo);
+            window.removeEventListener('token-updated', updateUserInfo);
+        };
     }, []);
 
     const handleLogout = () => {
@@ -46,12 +62,13 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
     };
 
     const handleSettingsClick = () => {
+        openModal('settings', 'create', '', undefined, undefined, undefined, undefined);
         onClose();
     };
 
     return (
         <div 
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
             onClick={onClose}
         >
             <div className="absolute right-8 top-14 w-48 py-2 mt-6 

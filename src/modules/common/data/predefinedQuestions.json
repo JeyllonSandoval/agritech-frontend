@@ -2,18 +2,28 @@
     "questions": [
         {
             "id": "1",
-            "question": "¿Cuál es el contenido principal del documento?",
-            "description": "Resumen general del contenido"
+            "question": "¿Qué tipo de análisis de suelo se realizó en el estudio?",
+            "description": "Identificar si fue un análisis físico, químico, biológico o una combinación"
         },
         {
             "id": "2",
-            "question": "¿Cuáles son los puntos clave mencionados?",
-            "description": "Puntos importantes destacados"
+            "question": "¿Cuáles fueron las principales características del suelo encontradas?",
+            "description": "Textura, pH, niveles de nutrientes, materia orgánica, entre otros"
         },
         {
             "id": "3",
-            "question": "¿Qué conclusiones se pueden extraer?",
-            "description": "Análisis de conclusiones"
+            "question": "¿Qué recomendaciones agrícolas se derivaron del estudio?",
+            "description": "Sugerencias sobre cultivos adecuados, fertilización, riego, etc."
+        },
+        {
+            "id": "4",
+            "question": "¿Qué limitaciones o problemas del suelo se identificaron?",
+            "description": "Presencia de sales, compactación, baja fertilidad, erosión, etc."
+        },
+        {
+            "id": "5",
+            "question": "¿Cómo se relacionan los resultados del estudio con la productividad del terreno?",
+            "description": "Análisis del impacto en el rendimiento agrícola"
         }
     ]
-} 
+}
