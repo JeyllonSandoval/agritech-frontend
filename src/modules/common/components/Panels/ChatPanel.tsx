@@ -214,9 +214,6 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                     <h1 className="text-3xl font-semibold text-white/90">
                         {currentChat.chatname}
                     </h1>
-                    <span className="text-sm text-white/50">
-                        ID: {currentChat.ChatID}
-                    </span>
                 </div>
                 <p className="text-white/70 text-lg leading-relaxed">
                     Start your analysis by selecting a document to analyze. 
