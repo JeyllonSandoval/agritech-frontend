@@ -4,12 +4,12 @@ import NavbarLateral from "@/modules/common/components/layouts/navbarLateral";
 import PlaygroundPanel from "@/modules/common/components/Panels/PlaygroundPanel";
 import ModalCreated from "@/modules/common/components/modals/modalCreated";
 import { FileProps } from '@/modules/common/hooks/getFiles';
+import { useModal } from '@/modules/common/context/modalContext';
 
 export default function PlaygroundLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [activePanel, setActivePanel] = useState<'welcome' | 'files' | 'chat'>('welcome');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedFile, setSelectedFile] = useState<FileProps | undefined>(undefined);
+    const { openModal, closeModal, setSelectedFile } = useModal();
 
     return (
         <div className="flex">
@@ -19,8 +19,8 @@ export default function PlaygroundLayout() {
                 activePanel={activePanel}
                 onPanelChange={setActivePanel}
                 onCreateChat={() => {
-                    setIsModalOpen(true);
-                    setSelectedFile(undefined);
+                    openModal('createdChat', 'create');
+                    setSelectedFile(null);
                 }}
             />
             
@@ -30,20 +30,11 @@ export default function PlaygroundLayout() {
                 onPanelChange={setActivePanel}
                 onShowPdf={(file) => {
                     setSelectedFile(file);
-                    setIsModalOpen(true);
+                    openModal('createdFile', 'preview', file.FileName, undefined, undefined, undefined, file.contentURL);
                 }}
             />
 
-            <ModalCreated 
-                isOpen={isModalOpen}
-                onClose={() => {
-                    setIsModalOpen(false);
-                    setSelectedFile(undefined);
-                }}
-                type={selectedFile ? 'createdFile' : 'createdChat'}
-                mode={selectedFile ? 'preview' : undefined}
-                selectedFile={selectedFile}
-            />
+            <ModalCreated />
         </div>
     );
 }
