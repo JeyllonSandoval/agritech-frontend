@@ -18,6 +18,11 @@ interface UserData {
     image?: string;
 }
 
+// Helper for basic email validation
+const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
 export default function RegisterForm() {
     const router = useRouter();
     const { redirectToLogin } = useAuth();
@@ -31,6 +36,7 @@ export default function RegisterForm() {
     const [CountryID, setCountryID] = useState("");
     const [image, setImage] = useState<File | null>(null);
     const [message, setMessage] = useState("");
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const fetchCountry = async () => {
@@ -53,24 +59,40 @@ export default function RegisterForm() {
         fetchCountry();
     }, []);
 
-    useEffect(() => {
-        if (password && confirmPassword && password !== confirmPassword) {
-            setMessage("Passwords do not match");
-        } else {
-            setMessage("");
+    const validateForm = () => {
+        const newErrors: Record<string, string> = {};
+        if (!FirstName.trim()) newErrors.FirstName = "First name is required.";
+        if (!LastName.trim()) newErrors.LastName = "Last name is required.";
+        if (!Email.trim()) {
+            newErrors.Email = "Email is required.";
+        } else if (!isValidEmail(Email)) {
+            newErrors.Email = "Please enter a valid email address.";
         }
-    }, [password, confirmPassword]);
+        if (!password) {
+            newErrors.password = "Password is required.";
+        } else if (password.length < 6) { // Example: Minimum length check
+            newErrors.password = "Password must be at least 6 characters long.";
+        }
+        if (!confirmPassword) {
+            newErrors.confirmPassword = "Please confirm your password.";
+        } else if (password && password !== confirmPassword) {
+            newErrors.confirmPassword = "Passwords do not match.";
+        }
+        if (!CountryID) newErrors.CountryID = "Please select your country.";
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0; // Return true if no errors
+    };
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
+        setMessage("");
 
-        if (password !== confirmPassword) {
-            setMessage("Passwords do not match");
-            return;
+        if (!validateForm()) {
+            return; // Stop submission if validation fails
         }
 
         setIsSubmitting(true);
-        setMessage("");
 
         try {
             const formData = new FormData();
@@ -93,18 +115,19 @@ export default function RegisterForm() {
 
             if (response.ok) {
                 localStorage.setItem("token", data.token);
-                localStorage.setItem("user", JSON.stringify(data.user));
+                if (data.user) {
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                }
                 
-                // Disparar evento personalizado
                 window.dispatchEvent(new Event('loginStateChange'));
                 
                 router.push("/");
             } else {
-                setMessage(data.message || data.error || "Error en el registro");
+                setMessage(data.message || data.error || "Error during registration.");
             }
         } catch (error) {
             console.error("Error registering user:", error);
-            setMessage("Error de conexión con el servidor");
+            setMessage("Connection error with the server.");
         } finally {
             setIsSubmitting(false);
         }
@@ -113,12 +136,13 @@ export default function RegisterForm() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setImage(e.target.files[0]);
+            setErrors(prev => ({ ...prev, image: '' }));
         }
     };
 
     return (
         <section className="w-full h-full flex justify-center items-center px-4">
-            <form onSubmit={handleRegister} 
+            <form onSubmit={handleRegister} noValidate
                 className={`w-full max-w-2xl p-8 
                     bg-white/10 backdrop-blur-xl rounded-2xl 
                     border border-white/20 shadow-lg
@@ -137,180 +161,210 @@ export default function RegisterForm() {
 
                     <div className="w-full space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="relative flex items-center">
-                                <input
-                                    value={FirstName}
-                                    onChange={(e) => setFirstName(e.target.value)}
-                                    className="w-full px-4 py-3 text-sm
-                                        bg-white/10 backdrop-blur-sm rounded-xl
-                                        border border-white/20 text-white
-                                        group-hover:border-emerald-400/30
-                                        focus:border-emerald-400/50 focus:ring-2 
-                                        focus:ring-emerald-400/20 focus:outline-none 
-                                        placeholder-white/40
-                                        transition-all duration-300"
-                                    type="text"
-                                    placeholder="First Name"
-                                    disabled={isSubmitting}
-                                />
-                            </div>
-
-                            <div className="relative flex items-center">
-                                <input
-                                    value={LastName}
-                                    onChange={(e) => setLastName(e.target.value)}
-                                    className="w-full px-4 py-3 text-sm
-                                        bg-white/10 backdrop-blur-sm rounded-xl
-                                        border border-white/20 text-white
-                                        group-hover:border-emerald-400/30
-                                        focus:border-emerald-400/50 focus:ring-2 
-                                        focus:ring-emerald-400/20 focus:outline-none 
-                                        placeholder-white/40
-                                        transition-all duration-300"
-                                    type="text"
-                                    placeholder="Last Name"
-                                    disabled={isSubmitting}
-                                />
-                            </div>
-
-                            <div className="relative flex items-center md:col-span-2">
-                                <input
-                                    value={Email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full px-4 py-3 text-sm
-                                        bg-white/10 backdrop-blur-sm rounded-xl
-                                        border border-white/20 text-white
-                                        group-hover:border-emerald-400/30
-                                        focus:border-emerald-400/50 focus:ring-2 
-                                        focus:ring-emerald-400/20 focus:outline-none 
-                                        placeholder-white/40
-                                        transition-all duration-300"
-                                    type="email"
-                                    placeholder="Email address"
-                                    disabled={isSubmitting}
-                                />
-                            </div>
-
-                            <div className="relative group">
+                            <div>
                                 <div className="relative flex items-center">
                                     <input
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full px-4 py-3 text-sm
+                                        value={FirstName}
+                                        onChange={(e) => setFirstName(e.target.value)}
+                                        className={`w-full px-4 py-3 text-sm
                                             bg-white/10 backdrop-blur-sm rounded-xl
-                                            border border-white/20 text-white
+                                            border ${errors.FirstName ? 'border-red-400/60' : 'border-white/20'} text-white
                                             group-hover:border-emerald-400/30
                                             focus:border-emerald-400/50 focus:ring-2 
                                             focus:ring-emerald-400/20 focus:outline-none 
                                             placeholder-white/40
-                                            transition-all duration-300
-                                            pr-12"
-                                        type={showPassword ? "text" : "password"}
-                                        placeholder="Password"
+                                            transition-all duration-300`}
+                                        type="text"
+                                        placeholder="First Name *"
+                                        aria-invalid={!!errors.FirstName}
+                                        aria-describedby="firstNameError"
                                         disabled={isSubmitting}
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 
-                                            p-1.5 rounded-lg
-                                            text-white/40
-                                            hover:text-emerald-400/70
-                                            hover:bg-emerald-400/10
-                                            active:bg-emerald-400/20
-                                            transition-all duration-300
-                                            focus:outline-none"
-                                        disabled={isSubmitting}
-                                    >
-                                        {showPassword ? (
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                        ) : (
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                            </svg>
-                                        )}
-                                    </button>
                                 </div>
+                                {errors.FirstName && <p id="firstNameError" className="text-red-400 text-xs mt-1 ml-1">{errors.FirstName}</p>}
                             </div>
 
-                            <div className="relative group">
+                            <div>
                                 <div className="relative flex items-center">
                                     <input
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className="w-full px-4 py-3 text-sm
+                                        value={LastName}
+                                        onChange={(e) => setLastName(e.target.value)}
+                                        className={`w-full px-4 py-3 text-sm
                                             bg-white/10 backdrop-blur-sm rounded-xl
-                                            border border-white/20 text-white
+                                            border ${errors.LastName ? 'border-red-400/60' : 'border-white/20'} text-white
                                             group-hover:border-emerald-400/30
                                             focus:border-emerald-400/50 focus:ring-2 
                                             focus:ring-emerald-400/20 focus:outline-none 
                                             placeholder-white/40
-                                            transition-all duration-300
-                                            pr-12"
-                                        type={showPassword ? "text" : "password"}
-                                        placeholder="Confirm password"
+                                            transition-all duration-300`}
+                                        type="text"
+                                        placeholder="Last Name *"
+                                        aria-invalid={!!errors.LastName}
+                                        aria-describedby="lastNameError"
                                         disabled={isSubmitting}
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 
-                                            p-1.5 rounded-lg
-                                            text-white/40
-                                            hover:text-emerald-400/70
-                                            hover:bg-emerald-400/10
-                                            active:bg-emerald-400/20
-                                            transition-all duration-300
-                                            focus:outline-none"
-                                        disabled={isSubmitting}
-                                    >
-                                        {showPassword ? (
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                        ) : (
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                            </svg>
-                                        )}
-                                    </button>
                                 </div>
+                                {errors.LastName && <p id="lastNameError" className="text-red-400 text-xs mt-1 ml-1">{errors.LastName}</p>}
                             </div>
 
-                            <div className="relative flex items-center group md:col-span-2">
-                                <select
-                                    value={CountryID}
-                                    onChange={(e) => setCountryID(e.target.value)}
-                                    className="w-full px-4 py-3 text-sm cursor-pointer
-                                        bg-white/10 backdrop-blur-sm rounded-xl
-                                        border border-white/20 text-white
-                                        group-hover:border-emerald-400/30
-                                        focus:border-emerald-400/50 focus:ring-2 
-                                        focus:ring-emerald-400/20 focus:outline-none 
-                                        placeholder-white/40
-                                        transition-all duration-300"
-                                    disabled={isSubmitting}
-                                >
-                                    <option value="" className="bg-gray-900 text-white">Select your country</option>
-                                    {countries.map((country) => (
-                                        <option 
-                                            key={country.CountryID} 
-                                            value={country.CountryID}
-                                            className="bg-gray-900 text-white"
+                            <div className="md:col-span-2">
+                                <div className="relative flex items-center">
+                                    <input
+                                        value={Email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className={`w-full px-4 py-3 text-sm
+                                            bg-white/10 backdrop-blur-sm rounded-xl
+                                            border ${errors.Email ? 'border-red-400/60' : 'border-white/20'} text-white
+                                            group-hover:border-emerald-400/30
+                                            focus:border-emerald-400/50 focus:ring-2 
+                                            focus:ring-emerald-400/20 focus:outline-none 
+                                            placeholder-white/40
+                                            transition-all duration-300`}
+                                        type="email"
+                                        placeholder="Email address *"
+                                        aria-invalid={!!errors.Email}
+                                        aria-describedby="emailError"
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
+                                {errors.Email && <p id="emailError" className="text-red-400 text-xs mt-1 ml-1">{errors.Email}</p>}
+                            </div>
+
+                            <div>
+                                <div className="relative group">
+                                    <div className="relative flex items-center">
+                                        <input
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            className={`w-full px-4 py-3 text-sm
+                                                bg-white/10 backdrop-blur-sm rounded-xl
+                                                border ${errors.password ? 'border-red-400/60' : 'border-white/20'} text-white
+                                                group-hover:border-emerald-400/30
+                                                focus:border-emerald-400/50 focus:ring-2 
+                                                focus:ring-emerald-400/20 focus:outline-none 
+                                                placeholder-white/40
+                                                transition-all duration-300
+                                                pr-12`}
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="Password *"
+                                            aria-invalid={!!errors.password}
+                                            aria-describedby="passwordError"
+                                            disabled={isSubmitting}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 
+                                                p-1.5 rounded-lg
+                                                text-white/40
+                                                hover:text-emerald-400/70
+                                                hover:bg-emerald-400/10
+                                                active:bg-emerald-400/20
+                                                transition-all duration-300
+                                                focus:outline-none"
+                                            disabled={isSubmitting}
                                         >
-                                            {country.countryname}
-                                        </option>
-                                    ))}
-                                </select>
+                                            {showPassword ? (
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            ) : (
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                                </svg>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                                {errors.password && <p id="passwordError" className="text-red-400 text-xs mt-1 ml-1">{errors.password}</p>}
+                            </div>
+
+                            <div>
+                                <div className="relative group">
+                                    <div className="relative flex items-center">
+                                        <input
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            className={`w-full px-4 py-3 text-sm
+                                                bg-white/10 backdrop-blur-sm rounded-xl
+                                                border ${errors.confirmPassword ? 'border-red-400/60' : 'border-white/20'} text-white
+                                                group-hover:border-emerald-400/30
+                                                focus:border-emerald-400/50 focus:ring-2 
+                                                focus:ring-emerald-400/20 focus:outline-none 
+                                                placeholder-white/40
+                                                transition-all duration-300
+                                                pr-12`}
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="Confirm password *"
+                                            aria-invalid={!!errors.confirmPassword}
+                                            aria-describedby="confirmPasswordError"
+                                            disabled={isSubmitting}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 
+                                                p-1.5 rounded-lg
+                                                text-white/40
+                                                hover:text-emerald-400/70
+                                                hover:bg-emerald-400/10
+                                                active:bg-emerald-400/20
+                                                transition-all duration-300
+                                                focus:outline-none"
+                                            disabled={isSubmitting}
+                                        >
+                                            {showPassword ? (
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            ) : (
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                                </svg>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                                {errors.confirmPassword && <p id="confirmPasswordError" className="text-red-400 text-xs mt-1 ml-1">{errors.confirmPassword}</p>}
+                            </div>
+
+                            <div className="md:col-span-2">
+                                <div className="relative flex items-center group">
+                                    <select
+                                        value={CountryID}
+                                        onChange={(e) => setCountryID(e.target.value)}
+                                        className={`w-full px-4 py-3 text-sm cursor-pointer
+                                            bg-white/10 backdrop-blur-sm rounded-xl
+                                            border ${errors.CountryID ? 'border-red-400/60' : 'border-white/20'} text-white
+                                            group-hover:border-emerald-400/30
+                                            focus:border-emerald-400/50 focus:ring-2 
+                                            focus:ring-emerald-400/20 focus:outline-none 
+                                            placeholder-white/40
+                                            transition-all duration-300 ${CountryID ? 'text-white' : 'text-white/40'}`}
+                                        aria-invalid={!!errors.CountryID}
+                                        aria-describedby="countryError"
+                                        disabled={isSubmitting}
+                                    >
+                                        <option value="" className="bg-gray-900 text-white/40">Select your country *</option>
+                                        {countries.map((country) => (
+                                            <option 
+                                                key={country.CountryID} 
+                                                value={country.CountryID}
+                                                className="bg-gray-900 text-white"
+                                            >
+                                                {country.countryname}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                {errors.CountryID && <p id="countryError" className="text-red-400 text-xs mt-1 ml-1">{errors.CountryID}</p>}
                             </div>
 
                             <div className="relative flex flex-col items-start group md:col-span-2">
                                 <label className="block mb-2 text-sm font-medium text-white/70">
-                                    Profile Picture
+                                    Profile Picture (Optional)
                                 </label>
                                 <input
                                     type="file"

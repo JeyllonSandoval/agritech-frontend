@@ -27,7 +27,9 @@ const Login = () => {
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem("token", data.token);
-                localStorage.setItem("user", JSON.stringify(data.user));
+                if (data.user) {
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                }
                 
                 // Disparar evento personalizado
                 window.dispatchEvent(new Event('loginStateChange'));
@@ -35,11 +37,14 @@ const Login = () => {
                 router.push("/");
             } else {
                 const errorData = await response.json();
-                setMessage(errorData.message || "Invalid credentials");
+                // Log para depurar la respuesta de error del backend
+                console.log('Backend Error Response:', errorData);
+                // Usar errorData.message si existe, si no, usar errorData.error
+                setMessage(errorData.message || errorData.error || "An unexpected error occurred. Please try again.");
             }
         } catch (error) {
             console.error("Error connecting to the server:", error);
-            setMessage("Error connecting to the server");
+            setMessage("Unable to connect to the server. Please check your connection.");
         }
     };
 
