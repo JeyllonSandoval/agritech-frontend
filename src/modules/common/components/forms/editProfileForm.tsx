@@ -16,7 +16,7 @@ interface FormErrors {
     CountryID?: string;
     password?: string;
     confirmPassword?: string;
-    submit?: string;
+    submit?: string | { message: string; field?: string };
 }
 
 interface FormData {
@@ -39,14 +39,6 @@ const initialFormData: FormData = {
     imageUser: null
 };
 
-const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-};
-
-const validatePassword = (password: string): boolean => {
-    return password.length >= 8;
-};
 
 export default function EditProfileForm() {
     const { userData, countryName, isLoading, error, refreshProfile } = useProfile();
@@ -91,32 +83,25 @@ export default function EditProfileForm() {
         fetchCountries();
     }, []);
 
-    const validateField = (name: keyof FormData, value: string | File | null): string | undefined => {
-        if (value === null || value instanceof File) return undefined;
+    const validatePasswords = (pass: string, confirmPass: string) => {
+        const newErrors: FormErrors = {};
         
-        switch (name) {
-            case 'FirstName':
-            case 'LastName':
-                return value.trim() === '' ? 'This field is required' : undefined;
-            case 'Email':
-                if (value.trim() === '') return 'Email is required';
-                if (!validateEmail(value)) return 'Please enter a valid email';
-                return undefined;
-            case 'password':
-                if (value && !validatePassword(value)) {
-                    return 'Password must be at least 8 characters long';
+        // Solo validamos si hay algún valor en cualquiera de los campos
+        if (pass || confirmPass) {
+            // Validación de la contraseña principal
+            if (pass) {
+                if (pass.length < 8) {
+                    newErrors.password = 'Password must be at least 8 characters';
                 }
-                return undefined;
-            case 'confirmPassword':
-                if (value && value !== formData.password) {
-                    return 'Passwords do not match';
-                }
-                return undefined;
-            case 'CountryID':
-                return value === '' ? 'Please select a country' : undefined;
-            default:
-                return undefined;
+            }
+
+            // Validación de la confirmación solo si hay una contraseña principal
+            if (pass && confirmPass && pass !== confirmPass) {
+                newErrors.confirmPassword = 'Passwords do not match';
+            }
         }
+
+        return newErrors;
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -126,22 +111,55 @@ export default function EditProfileForm() {
             [name]: value
         }));
 
-        // Clear error when user starts typing
-        if (errors[name as keyof FormErrors]) {
-            setErrors(prev => ({
-                ...prev,
-                [name]: undefined
-            }));
+        // Validar el campo inmediatamente después de cambiar
+        const newErrors = { ...errors };
+        
+        switch (name) {
+            case 'FirstName':
+                if (!value || value.trim().length < 2) {
+                    newErrors.FirstName = 'First name must be at least 2 characters';
+                } else {
+                    delete newErrors.FirstName;
+                }
+                break;
+            case 'LastName':
+                if (!value || value.trim().length < 2) {
+                    newErrors.LastName = 'Last name must be at least 2 characters';
+                } else {
+                    delete newErrors.LastName;
+                }
+                break;
+            case 'Email':
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!value || !emailRegex.test(value)) {
+                    newErrors.Email = 'Please enter a valid email address';
+                } else {
+                    delete newErrors.Email;
+                }
+                break;
+            case 'CountryID':
+                if (!value) {
+                    newErrors.CountryID = 'Please select a country';
+                } else {
+                    delete newErrors.CountryID;
+                }
+                break;
+            case 'password':
+            case 'confirmPassword':
+                const currentPassword = name === 'password' ? value : formData.password;
+                const currentConfirmPassword = name === 'confirmPassword' ? value : formData.confirmPassword;
+                
+                // Limpiar errores previos de contraseña
+                delete newErrors.password;
+                delete newErrors.confirmPassword;
+                
+                // Aplicar nuevas validaciones
+                const passwordErrors = validatePasswords(currentPassword, currentConfirmPassword);
+                Object.assign(newErrors, passwordErrors);
+                break;
         }
-    };
 
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        const error = validateField(name as keyof FormData, value);
-        setErrors(prev => ({
-            ...prev,
-            [name]: error
-        }));
+        setErrors(newErrors);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,19 +171,43 @@ export default function EditProfileForm() {
         }
     };
 
-    const validateForm = (): boolean => {
+    const validateForm = () => {
         const newErrors: FormErrors = {};
         let isValid = true;
 
-        Object.keys(formData).forEach(key => {
-            if (key !== 'imageUser') {
-                const error = validateField(key as keyof FormData, formData[key as keyof FormData]);
-                if (error) {
-                    newErrors[key as keyof FormErrors] = error;
-                    isValid = false;
-                }
+        // Validar FirstName
+        if (!formData.FirstName || formData.FirstName.trim().length < 2) {
+            newErrors.FirstName = 'First name must be at least 2 characters';
+            isValid = false;
+        }
+
+        // Validar LastName
+        if (!formData.LastName || formData.LastName.trim().length < 2) {
+            newErrors.LastName = 'Last name must be at least 2 characters';
+            isValid = false;
+        }
+
+        // Validar Email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!formData.Email || !emailRegex.test(formData.Email)) {
+            newErrors.Email = 'Please enter a valid email address';
+            isValid = false;
+        }
+
+        // Validar Country
+        if (!formData.CountryID) {
+            newErrors.CountryID = 'Please select a country';
+            isValid = false;
+        }
+
+        // Validar Password solo si se ha ingresado algo
+        if (formData.password || formData.confirmPassword) {
+            const passwordErrors = validatePasswords(formData.password, formData.confirmPassword);
+            if (Object.keys(passwordErrors).length > 0) {
+                Object.assign(newErrors, passwordErrors);
+                isValid = false;
             }
-        });
+        }
 
         setErrors(newErrors);
         return isValid;
@@ -179,18 +221,16 @@ export default function EditProfileForm() {
         }
 
         setIsSubmitting(true);
+        
         try {
             const formDataToSend = new FormData();
             
-            // Compare and append only modified fields
             Object.entries(formData).forEach(([key, value]) => {
                 if (value !== null && value !== '') {
-                    // Skip if the value hasn't changed from initial data
                     if (key in initialData && value === initialData[key as keyof typeof initialData]) {
                         return;
                     }
                     
-                    // For password fields, only send if they have been modified
                     if ((key === 'password' || key === 'confirmPassword') && value === '') {
                         return;
                     }
@@ -203,14 +243,9 @@ export default function EditProfileForm() {
                 }
             });
 
-            // Get token from localStorage
             const token = localStorage.getItem('token');
             if (!token) {
-                setErrors(prev => ({
-                    ...prev,
-                    submit: 'Authentication token not found'
-                }));
-                setIsSubmitting(false);
+                setErrors({ submit: 'Authentication token not found' });
                 return;
             }
 
@@ -224,31 +259,31 @@ export default function EditProfileForm() {
             
             const data = await response.json();
             
-            if (response.ok) {
-                // Update token if provided by the backend
-                if (data.token) {
-                    localStorage.setItem('token', data.token);
-                    // Dispatch a specific event for token update
+            if (response.ok && data.success) {
+                // Actualizar el token con la nueva estructura
+                if (data.data?.token) {
+                    localStorage.setItem('token', data.data.token);
                     window.dispatchEvent(new CustomEvent('token-updated'));
                 }
+
+                // Actualizar el perfil inmediatamente con los nuevos datos
+                if (data.data?.user) {
+                    await refreshProfile();
+                }
                 
-                // Close modal immediately
+                // Cerrar el modal después de actualizar el perfil
                 closeModal();
-                // Dispatch event to update profile with the new user data
-                window.dispatchEvent(new CustomEvent('profile-updated', {
-                    detail: data.updatedUser[0] // Pass the updated user data
-                }));
             } else {
-                setErrors(prev => ({
-                    ...prev,
-                    submit: data.message || 'Error updating profile'
-                }));
+                if (data.errors) {
+                    setErrors(data.errors);
+                } else if (data.field && data.message) {
+                    setErrors({ [data.field]: data.message });
+                } else {
+                    setErrors({ submit: data.message || 'Error updating profile' });
+                }
             }
         } catch (error) {
-            setErrors(prev => ({
-                ...prev,
-                submit: 'An error occurred while updating your profile'
-            }));
+            setErrors({ submit: 'An error occurred while updating your profile' });
         } finally {
             setIsSubmitting(false);
         }
@@ -258,7 +293,7 @@ export default function EditProfileForm() {
     if (error) return <div className="text-red-400 text-xl">Error: {error}</div>;
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6 text-xl">
+        <form onSubmit={handleSubmit} className="space-y-6 text-xl" noValidate>
             <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-300 ${isSubmitting ? 'pointer-events-none opacity-75' : 'opacity-100'}`}>
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-white/70">First Name</label>
@@ -267,16 +302,14 @@ export default function EditProfileForm() {
                         name="FirstName"
                         value={formData.FirstName}
                         onChange={handleChange}
-                        onBlur={handleBlur}
                         disabled={isSubmitting}
-                        className={`w-full px-4 py-2 rounded-xl bg-white/10 border ${
-                            errors.FirstName ? 'border-red-400/50' : 'border-white/20'
+                        className={`w-full px-4 py-2 rounded-xl bg-white/10 border transition-colors duration-200 ${
+                            errors.FirstName ? 'border-red-500' : 'border-white/20'
                         } text-white focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/20 focus:outline-none
                         disabled:opacity-50 disabled:cursor-not-allowed`}
-                        required
                     />
                     {errors.FirstName && (
-                        <p className="text-red-400 text-sm">{errors.FirstName}</p>
+                        <p className="text-red-500 text-sm mt-1">{errors.FirstName}</p>
                     )}
                 </div>
 
@@ -287,16 +320,14 @@ export default function EditProfileForm() {
                         name="LastName"
                         value={formData.LastName}
                         onChange={handleChange}
-                        onBlur={handleBlur}
                         disabled={isSubmitting}
                         className={`w-full px-4 py-2 rounded-xl bg-white/10 border ${
-                            errors.LastName ? 'border-red-400/50' : 'border-white/20'
+                            errors.LastName ? 'border-red-500 ring-1 ring-red-500' : 'border-white/20'
                         } text-white focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/20 focus:outline-none
                         disabled:opacity-50 disabled:cursor-not-allowed`}
-                        required
                     />
                     {errors.LastName && (
-                        <p className="text-red-400 text-sm">{errors.LastName}</p>
+                        <p className="text-red-400 text-sm mt-1">{errors.LastName}</p>
                     )}
                 </div>
 
@@ -307,16 +338,14 @@ export default function EditProfileForm() {
                         name="Email"
                         value={formData.Email}
                         onChange={handleChange}
-                        onBlur={handleBlur}
                         disabled={isSubmitting}
                         className={`w-full px-4 py-2 rounded-xl bg-white/10 border ${
-                            errors.Email ? 'border-red-400/50' : 'border-white/20'
+                            errors.Email ? 'border-red-500 ring-1 ring-red-500' : 'border-white/20'
                         } text-white focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/20 focus:outline-none
                         disabled:opacity-50 disabled:cursor-not-allowed`}
-                        required
                     />
                     {errors.Email && (
-                        <p className="text-red-400 text-sm">{errors.Email}</p>
+                        <p className="text-red-400 text-sm mt-1">{errors.Email}</p>
                     )}
                 </div>
 
@@ -326,16 +355,14 @@ export default function EditProfileForm() {
                         name="CountryID"
                         value={formData.CountryID}
                         onChange={handleChange}
-                        onBlur={handleBlur}
                         disabled={isSubmitting}
                         className={`w-full px-4 py-2 rounded-xl bg-white/10 border ${
-                            errors.CountryID ? 'border-red-400/50' : 'border-white/20'
+                            errors.CountryID ? 'border-red-500 ring-1 ring-red-500' : 'border-white/20'
                         } text-white focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/20 focus:outline-none
                         [&>option]:bg-gray-900 [&>option]:text-white
                         [&>option:hover]:bg-emerald-600 [&>option:hover]:text-white
                         [&>option:checked]:bg-emerald-700
                         disabled:opacity-50 disabled:cursor-not-allowed`}
-                        required
                     >
                         <option value="">Select a country</option>
                         {countries.map((country) => (
@@ -345,7 +372,7 @@ export default function EditProfileForm() {
                         ))}
                     </select>
                     {errors.CountryID && (
-                        <p className="text-red-400 text-sm">{errors.CountryID}</p>
+                        <p className="text-red-400 text-sm mt-1">{errors.CountryID}</p>
                     )}
                 </div>
 
@@ -358,10 +385,9 @@ export default function EditProfileForm() {
                                 name="password"
                                 value={formData.password}
                                 onChange={handleChange}
-                                onBlur={handleBlur}
                                 disabled={isSubmitting}
                                 className={`w-full px-4 py-2 rounded-xl bg-white/10 border ${
-                                    errors.password ? 'border-red-400/50' : 'border-white/20'
+                                    errors.password ? 'border-red-500 ring-1 ring-red-500' : 'border-white/20'
                                 } text-white focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/20 focus:outline-none pr-12
                                 disabled:opacity-50 disabled:cursor-not-allowed`}
                             />
@@ -390,7 +416,7 @@ export default function EditProfileForm() {
                             </button>
                         </div>
                         {errors.password && (
-                            <p className="text-red-400 text-sm">{errors.password}</p>
+                            <p className="text-red-400 text-sm mt-1">{errors.password}</p>
                         )}
                     </div>
 
@@ -402,10 +428,9 @@ export default function EditProfileForm() {
                                 name="confirmPassword"
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
-                                onBlur={handleBlur}
                                 disabled={isSubmitting}
                                 className={`w-full px-4 py-2 rounded-xl bg-white/10 border ${
-                                    errors.confirmPassword ? 'border-red-400/50' : 'border-white/20'
+                                    errors.confirmPassword ? 'border-red-500 ring-1 ring-red-500' : 'border-white/20'
                                 } text-white focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/20 focus:outline-none pr-12
                                 disabled:opacity-50 disabled:cursor-not-allowed`}
                             />
@@ -434,7 +459,7 @@ export default function EditProfileForm() {
                             </button>
                         </div>
                         {errors.confirmPassword && (
-                            <p className="text-red-400 text-sm">{errors.confirmPassword}</p>
+                            <p className="text-red-400 text-sm mt-1">{errors.confirmPassword}</p>
                         )}
                     </div>
                 </div>
@@ -456,8 +481,18 @@ export default function EditProfileForm() {
             </div>
 
             {errors.submit && (
-                <div className="text-red-400 text-sm bg-red-400/10 p-3 rounded-xl">
-                    {errors.submit}
+                <div className={`text-sm px-4 py-3 rounded-xl flex items-center gap-2 
+                    ${typeof errors.submit === 'string' 
+                        ? 'bg-red-400/10 border border-red-400/20 text-red-400'
+                        : errors.submit.field 
+                            ? 'bg-yellow-400/10 border border-yellow-400/20 text-yellow-400'
+                            : 'bg-red-400/10 border border-red-400/20 text-red-400'
+                    }`}>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{typeof errors.submit === 'string' ? errors.submit : errors.submit.message}</span>
                 </div>
             )}
 

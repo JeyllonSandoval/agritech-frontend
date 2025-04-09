@@ -78,6 +78,17 @@ export function useProfile() {
 
     useEffect(() => {
         fetchAllData();
+
+        // Escuchar cambios en el token
+        const handleTokenUpdate = () => {
+            fetchAllData();
+        };
+
+        window.addEventListener('token-updated', handleTokenUpdate);
+
+        return () => {
+            window.removeEventListener('token-updated', handleTokenUpdate);
+        };
     }, []);
 
     const refreshProfile = async () => {
