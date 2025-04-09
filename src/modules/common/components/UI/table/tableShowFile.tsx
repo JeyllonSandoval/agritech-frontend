@@ -58,12 +58,15 @@ export default function TableShowFile({ onSelect }: TableShowFileProps) {
             {!showUploadForm ? (
                 <button
                     onClick={() => setShowUploadForm(true)}
-                    className="w-full px-4 py-3 rounded-xl text-sm
-                        bg-white/5 text-white/70
-                        hover:bg-emerald-400/10 hover:text-emerald-400
+                    className="w-full px-4 py-3 bg-gradient-to-r from-emerald-600/80 to-emerald-500/80
+                        hover:from-emerald-500/80 hover:to-emerald-400/80
+                        active:from-emerald-700/80 active:to-emerald-600/80
+                        backdrop-blur-sm rounded-xl
+                        border border-white/10
+                        shadow-lg shadow-emerald-700/20
                         transition-all duration-300
-                        flex items-center justify-center gap-2
-                        border border-white/10"
+                        text-white
+                        flex items-center justify-center gap-2 text-sm font-medium"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
@@ -72,7 +75,8 @@ export default function TableShowFile({ onSelect }: TableShowFileProps) {
                     Upload New File
                 </button>
             ) : (
-                <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-4">
+                <div className="bg-white/5 backdrop-blur-xl rounded-xl 
+                    border border-white/20 p-4">
                     <FileCreatedForm onClose={() => setShowUploadForm(false)} />
                 </div>
             )}
