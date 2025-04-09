@@ -18,6 +18,16 @@ interface UserData {
     image?: string;
 }
 
+interface ValidationErrors {
+    FirstName?: string;
+    LastName?: string;
+    Email?: string;
+    password?: string;
+    confirmPassword?: string;
+    CountryID?: string;
+    image?: string;
+}
+
 export default function RegisterForm() {
     const router = useRouter();
     const { redirectToLogin } = useAuth();
@@ -32,6 +42,8 @@ export default function RegisterForm() {
     const [image, setImage] = useState<File | null>(null);
     const [message, setMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState<ValidationErrors>({});
+    const [touched, setTouched] = useState<Record<string, boolean>>({});
 
     const fetchCountry = async () => {
         try {
@@ -60,6 +72,108 @@ export default function RegisterForm() {
             setMessage("");
         }
     }, [password, confirmPassword]);
+
+    // Validación en tiempo real
+    const validateField = (name: string, value: string) => {
+        let error = '';
+        
+        switch (name) {
+            case 'FirstName':
+                if (!value.trim()) {
+                    error = 'First name is required';
+                } else if (value.length < 2) {
+                    error = 'First name must be at least 2 characters';
+                } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                    error = 'First name can only contain letters';
+                }
+                break;
+
+            case 'LastName':
+                if (!value.trim()) {
+                    error = 'Last name is required';
+                } else if (value.length < 2) {
+                    error = 'Last name must be at least 2 characters';
+                } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                    error = 'Last name can only contain letters';
+                }
+                break;
+
+            case 'Email':
+                if (!value) {
+                    error = 'Email is required';
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                    error = 'Please enter a valid email address';
+                }
+                break;
+
+            case 'password':
+                if (!value) {
+                    error = 'Password is required';
+                } else if (value.length < 8) {
+                    error = 'Password must be at least 8 characters';
+                }
+                break;
+
+            case 'confirmPassword':
+                if (!value) {
+                    error = 'Please confirm your password';
+                } else if (value !== password) {
+                    error = 'Passwords do not match';
+                }
+                break;
+
+            case 'CountryID':
+                if (!value) {
+                    error = 'Please select your country';
+                }
+                break;
+        }
+
+        return error;
+    };
+
+    const handleBlur = (field: string) => {
+        setTouched(prev => ({ ...prev, [field]: true }));
+        const error = validateField(field, 
+            field === 'confirmPassword' ? confirmPassword :
+            field === 'FirstName' ? FirstName :
+            field === 'LastName' ? LastName :
+            field === 'Email' ? Email :
+            field === 'password' ? password :
+            field === 'CountryID' ? CountryID : ''
+        );
+        setErrors(prev => ({ ...prev, [field]: error }));
+    };
+
+    const handleChange = (field: string, value: string) => {
+        // Actualizar el estado correspondiente
+        switch (field) {
+            case 'FirstName':
+                setFirstName(value);
+                break;
+            case 'LastName':
+                setLastName(value);
+                break;
+            case 'Email':
+                setEmail(value);
+                break;
+            case 'password':
+                setPassword(value);
+                break;
+            case 'confirmPassword':
+                setConfirmPassword(value);
+                break;
+            case 'CountryID':
+                setCountryID(value);
+                break;
+        }
+
+        // Si el campo ya ha sido tocado, validar en tiempo real
+        if (touched[field]) {
+            const error = validateField(field, value);
+            setErrors(prev => ({ ...prev, [field]: error }));
+        }
+    };
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -137,76 +251,97 @@ export default function RegisterForm() {
 
                     <div className="w-full space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="relative flex items-center">
+                            <div className="relative flex flex-col">
                                 <input
                                     value={FirstName}
-                                    onChange={(e) => setFirstName(e.target.value)}
-                                    className="w-full px-4 py-3 text-sm
+                                    onChange={(e) => handleChange('FirstName', e.target.value)}
+                                    onBlur={() => handleBlur('FirstName')}
+                                    className={`w-full px-4 py-3 text-sm
                                         bg-white/10 backdrop-blur-sm rounded-xl
-                                        border border-white/20 text-white
+                                        border text-white
                                         group-hover:border-emerald-400/30
                                         focus:border-emerald-400/50 focus:ring-2 
                                         focus:ring-emerald-400/20 focus:outline-none 
                                         placeholder-white/40
-                                        transition-all duration-300"
+                                        transition-all duration-300
+                                        ${errors.FirstName && touched.FirstName ? 'border-red-400/50' : 'border-white/20'}
+                                        ${errors.FirstName && touched.FirstName ? 'focus:border-red-400/50 focus:ring-red-400/20' : ''}`}
                                     type="text"
-                                    placeholder="First Name"
+                                    placeholder="First Name*"
                                     disabled={isSubmitting}
                                 />
+                                {errors.FirstName && touched.FirstName && (
+                                    <span className="text-xs text-red-400 mt-1 ml-1">{errors.FirstName}</span>
+                                )}
                             </div>
 
-                            <div className="relative flex items-center">
+                            <div className="relative flex flex-col">
                                 <input
                                     value={LastName}
-                                    onChange={(e) => setLastName(e.target.value)}
-                                    className="w-full px-4 py-3 text-sm
+                                    onChange={(e) => handleChange('LastName', e.target.value)}
+                                    onBlur={() => handleBlur('LastName')}
+                                    className={`w-full px-4 py-3 text-sm
                                         bg-white/10 backdrop-blur-sm rounded-xl
-                                        border border-white/20 text-white
+                                        border text-white
                                         group-hover:border-emerald-400/30
                                         focus:border-emerald-400/50 focus:ring-2 
                                         focus:ring-emerald-400/20 focus:outline-none 
                                         placeholder-white/40
-                                        transition-all duration-300"
+                                        transition-all duration-300
+                                        ${errors.LastName && touched.LastName ? 'border-red-400/50' : 'border-white/20'}
+                                        ${errors.LastName && touched.LastName ? 'focus:border-red-400/50 focus:ring-red-400/20' : ''}`}
                                     type="text"
-                                    placeholder="Last Name"
+                                    placeholder="Last Name*"
                                     disabled={isSubmitting}
                                 />
+                                {errors.LastName && touched.LastName && (
+                                    <span className="text-xs text-red-400 mt-1 ml-1">{errors.LastName}</span>
+                                )}
                             </div>
 
-                            <div className="relative flex items-center md:col-span-2">
+                            <div className="relative flex flex-col md:col-span-2">
                                 <input
                                     value={Email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full px-4 py-3 text-sm
+                                    onChange={(e) => handleChange('Email', e.target.value)}
+                                    onBlur={() => handleBlur('Email')}
+                                    className={`w-full px-4 py-3 text-sm
                                         bg-white/10 backdrop-blur-sm rounded-xl
-                                        border border-white/20 text-white
+                                        border text-white
                                         group-hover:border-emerald-400/30
                                         focus:border-emerald-400/50 focus:ring-2 
                                         focus:ring-emerald-400/20 focus:outline-none 
                                         placeholder-white/40
-                                        transition-all duration-300"
+                                        transition-all duration-300
+                                        ${errors.Email && touched.Email ? 'border-red-400/50' : 'border-white/20'}
+                                        ${errors.Email && touched.Email ? 'focus:border-red-400/50 focus:ring-red-400/20' : ''}`}
                                     type="email"
-                                    placeholder="Email address"
+                                    placeholder="Email address*"
                                     disabled={isSubmitting}
                                 />
+                                {errors.Email && touched.Email && (
+                                    <span className="text-xs text-red-400 mt-1 ml-1">{errors.Email}</span>
+                                )}
                             </div>
 
-                            <div className="relative group">
+                            <div className="relative flex flex-col group">
                                 <div className="relative flex items-center">
                                     <input
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full px-4 py-3 text-sm
+                                        onChange={(e) => handleChange('password', e.target.value)}
+                                        onBlur={() => handleBlur('password')}
+                                        className={`w-full px-4 py-3 text-sm
                                             bg-white/10 backdrop-blur-sm rounded-xl
-                                            border border-white/20 text-white
+                                            border text-white
                                             group-hover:border-emerald-400/30
                                             focus:border-emerald-400/50 focus:ring-2 
                                             focus:ring-emerald-400/20 focus:outline-none 
                                             placeholder-white/40
                                             transition-all duration-300
-                                            pr-12"
+                                            pr-12
+                                            ${errors.password && touched.password ? 'border-red-400/50' : 'border-white/20'}
+                                            ${errors.password && touched.password ? 'focus:border-red-400/50 focus:ring-red-400/20' : ''}`}
                                         type={showPassword ? "text" : "password"}
-                                        placeholder="Password"
+                                        placeholder="Password*"
                                         disabled={isSubmitting}
                                     />
                                     <button
@@ -234,24 +369,30 @@ export default function RegisterForm() {
                                         )}
                                     </button>
                                 </div>
+                                {errors.password && touched.password && (
+                                    <span className="text-xs text-red-400 mt-1 ml-1">{errors.password}</span>
+                                )}
                             </div>
 
-                            <div className="relative group">
+                            <div className="relative flex flex-col group">
                                 <div className="relative flex items-center">
                                     <input
                                         value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className="w-full px-4 py-3 text-sm
+                                        onChange={(e) => handleChange('confirmPassword', e.target.value)}
+                                        onBlur={() => handleBlur('confirmPassword')}
+                                        className={`w-full px-4 py-3 text-sm
                                             bg-white/10 backdrop-blur-sm rounded-xl
-                                            border border-white/20 text-white
+                                            border text-white
                                             group-hover:border-emerald-400/30
                                             focus:border-emerald-400/50 focus:ring-2 
                                             focus:ring-emerald-400/20 focus:outline-none 
                                             placeholder-white/40
                                             transition-all duration-300
-                                            pr-12"
+                                            pr-12
+                                            ${errors.confirmPassword && touched.confirmPassword ? 'border-red-400/50' : 'border-white/20'}
+                                            ${errors.confirmPassword && touched.confirmPassword ? 'focus:border-red-400/50 focus:ring-red-400/20' : ''}`}
                                         type={showPassword ? "text" : "password"}
-                                        placeholder="Confirm password"
+                                        placeholder="Confirm password*"
                                         disabled={isSubmitting}
                                     />
                                     <button
@@ -279,23 +420,29 @@ export default function RegisterForm() {
                                         )}
                                     </button>
                                 </div>
+                                {errors.confirmPassword && touched.confirmPassword && (
+                                    <span className="text-xs text-red-400 mt-1 ml-1">{errors.confirmPassword}</span>
+                                )}
                             </div>
 
-                            <div className="relative flex items-center group md:col-span-2">
+                            <div className="relative flex flex-col group md:col-span-2">
                                 <select
                                     value={CountryID}
-                                    onChange={(e) => setCountryID(e.target.value)}
-                                    className="w-full px-4 py-3 text-sm cursor-pointer
+                                    onChange={(e) => handleChange('CountryID', e.target.value)}
+                                    onBlur={() => handleBlur('CountryID')}
+                                    className={`w-full px-4 py-3 text-sm cursor-pointer
                                         bg-white/10 backdrop-blur-sm rounded-xl
-                                        border border-white/20 text-white
+                                        border text-white
                                         group-hover:border-emerald-400/30
                                         focus:border-emerald-400/50 focus:ring-2 
                                         focus:ring-emerald-400/20 focus:outline-none 
                                         placeholder-white/40
-                                        transition-all duration-300"
+                                        transition-all duration-300
+                                        ${errors.CountryID && touched.CountryID ? 'border-red-400/50' : 'border-white/20'}
+                                        ${errors.CountryID && touched.CountryID ? 'focus:border-red-400/50 focus:ring-red-400/20' : ''}`}
                                     disabled={isSubmitting}
                                 >
-                                    <option value="" className="bg-gray-900 text-white">Select your country</option>
+                                    <option value="" className="bg-gray-900 text-white">Select your country*</option>
                                     {countries.map((country) => (
                                         <option 
                                             key={country.CountryID} 
@@ -306,6 +453,9 @@ export default function RegisterForm() {
                                         </option>
                                     ))}
                                 </select>
+                                {errors.CountryID && touched.CountryID && (
+                                    <span className="text-xs text-red-400 mt-1 ml-1">{errors.CountryID}</span>
+                                )}
                             </div>
 
                             <div className="relative flex flex-col items-start group md:col-span-2">
@@ -359,7 +509,7 @@ export default function RegisterForm() {
                                 flex items-center justify-center gap-2
                                 shadow-lg shadow-emerald-400/20
                                 disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || Object.keys(errors).some(key => errors[key as keyof ValidationErrors])}
                         >
                             {isSubmitting ? (
                                 <>
