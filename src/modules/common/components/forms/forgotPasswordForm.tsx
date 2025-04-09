@@ -3,16 +3,38 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+// Helper for basic email validation
+const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
 export default function ForgotPasswordForm() {
     const router = useRouter();
     const [Email, setEmail] = useState("");
     const [message, setMessage] = useState("");
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const validateForm = () => {
+        const newErrors: Record<string, string> = {};
+        if (!Email.trim()) {
+            newErrors.Email = "Email address is required.";
+        } else if (!isValidEmail(Email)) {
+            newErrors.Email = "Please enter a valid email address.";
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitting(true);
         setMessage("");
+
+        if (!validateForm()) {
+            return;
+        }
+
+        setIsSubmitting(true);
 
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/request-password-reset`, {
@@ -29,11 +51,11 @@ export default function ForgotPasswordForm() {
                 if (response.status === 404) {
                     throw new Error("User not found with this email address");
                 } else if (response.status === 400) {
-                    throw new Error(data.error || "Invalid email format");
+                    throw new Error(data.message || data.error || "Invalid email format");
                 } else if (response.status === 429) {
                     throw new Error("Too many requests. Please try again later");
                 } else {
-                    throw new Error(data.error || "Failed to send password reset email");
+                    throw new Error(data.message || data.error || "Failed to send password reset email");
                 }
             }
 
@@ -51,7 +73,7 @@ export default function ForgotPasswordForm() {
 
     return (
         <section className="w-full h-full flex justify-center items-center px-4 ">
-            <form onSubmit={handleSubmit} 
+            <form onSubmit={handleSubmit} noValidate
                 className="w-full max-w-md p-8 
                     bg-white/10 backdrop-blur-xl rounded-2xl 
                     border border-white/20 shadow-lg shadow-emerald-400/20 mt-20"
@@ -67,23 +89,27 @@ export default function ForgotPasswordForm() {
                     </div>
 
                     <div className="w-full space-y-4">
-                        <div className="relative flex items-center">
-                            <input
-                                className="w-full px-4 py-3 text-sm
-                                    bg-white/10 backdrop-blur-sm rounded-xl
-                                    border border-white/20 text-white
-                                    group-hover:border-emerald-400/30
-                                    focus:border-emerald-400/50 focus:ring-2 
-                                    focus:ring-emerald-400/20 focus:outline-none 
-                                    placeholder-white/40
-                                    transition-all duration-300"
-                                type="email"
-                                placeholder="Enter your email"
-                                value={Email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                disabled={isSubmitting}
-                            />
+                        <div>
+                            <div className="relative flex items-center">
+                                <input
+                                    className={`w-full px-4 py-3 text-sm
+                                        bg-white/10 backdrop-blur-sm rounded-xl
+                                        border ${errors.Email ? 'border-red-400/60' : 'border-white/20'} text-white
+                                        group-hover:border-emerald-400/30
+                                        focus:border-emerald-400/50 focus:ring-2 
+                                        focus:ring-emerald-400/20 focus:outline-none 
+                                        placeholder-white/40
+                                        transition-all duration-300`}
+                                    type="email"
+                                    placeholder="Enter your email *"
+                                    value={Email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    aria-invalid={!!errors.Email}
+                                    aria-describedby="emailError"
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+                            {errors.Email && <p id="emailError" className="text-red-400 text-xs mt-1 ml-1">{errors.Email}</p>}
                         </div>
 
                         <button
@@ -121,13 +147,13 @@ export default function ForgotPasswordForm() {
                         {message && (
                             <div className={`text-sm px-4 py-3 rounded-xl 
                                 flex items-center gap-2 ${
-                                    message.includes("Error") 
+                                    message.startsWith("We've sent") 
                                         ? "bg-emerald-400/10 border border-emerald-400/20 text-emerald-400"
                                         : "bg-red-400/10 border border-red-400/20 text-red-400"
                                 }`}
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    {message.includes("Error") ? (
+                                    {message.startsWith("We've sent") ? (
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                     ) : (
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
