@@ -17,6 +17,13 @@ export default function ItemMessage({ content, sendertype, createdAt, isNew, fil
         }
     }, [isNew]);
 
+    const getDisplayContent = (content: string) => {
+        if (content.includes('ASK USER:')) {
+            return content.split('ASK USER:')[1].trim();
+        }
+        return content;
+    };
+
     return (
         <div 
             ref={messageRef}
@@ -44,10 +51,10 @@ export default function ItemMessage({ content, sendertype, createdAt, isNew, fil
                         </div>
                     </div>
                 )}
-                {!fileInfo && content !== 'ASK USER' && (
+                {!fileInfo && (
                     <>
                         <p className="whitespace-pre-wrap text-sm break-words">
-                            {content}
+                            {getDisplayContent(content)}
                         </p>
                         {createdAt && (
                             <span className="text-xs opacity-60 mt-2 block">

@@ -13,7 +13,8 @@ export default {
       },
       animation: {
         'shimmer': 'shimmer 2s linear infinite',
-        'border-flow': 'border-flow 3s linear infinite',
+        'border-flow': 'border-flow 3s ease-in-out infinite',
+        'border-flow-reverse': 'border-flow-reverse 4s linear infinite',
         fadeIn: 'fadeIn 0.3s ease-in-out',
         slideIn: 'slideIn 0.3s ease-in-out',
       },
@@ -23,8 +24,25 @@ export default {
           '100%': { transform: 'translateX(100%)' }
         },
         'border-flow': {
-          '0%, 100%': { backgroundPosition: '0% 50%' },
-          '50%': { backgroundPosition: '100% 50%' }
+          '0%': {
+            transform: 'translateX(-200%)',
+            opacity: '0'
+          },
+          '50%': {
+            opacity: '1'
+          },
+          '100%': {
+            transform: 'translateX(200%)',
+            opacity: '0'
+          }
+        },
+        'border-flow-reverse': {
+          '0%': { 
+            transform: 'rotate(360deg)',
+          },
+          '100%': { 
+            transform: 'rotate(0deg)',
+          }
         },
         fadeIn: {
           '0%': { opacity: '0' },

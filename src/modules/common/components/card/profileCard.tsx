@@ -212,12 +212,16 @@ export default function ProfileCard() {
                         </div>
 
                         <div className="w-full border-t border-white/20 pt-4 flex justify-between items-center">
-                            <div className={`flex w-24 items-center px-4 py-2 rounded-xl text-sm
+                            <div className={`flex items-center px-3 py-1.5 rounded-lg text-xs
                                 transition-all duration-300
-                                ${userData.status === "active" 
-                                    ? "bg-emerald-400/90 text-black" 
-                                    : "bg-red-400/90 text-white"}`}>
-                                <span className={`w-2 h-2 mr-2 rounded-full bg-white/80`}></span>
+                                ${userData.status === "active"
+                                    ? "bg-emerald-400/20 text-emerald-400"
+                                    : "bg-red-400/20 text-red-400"}`}>
+                                <span className={`w-1.5 h-1.5 mr-1.5 rounded-full 
+                                    ${userData.status === "active" 
+                                        ? "bg-emerald-400" 
+                                        : "bg-red-400"}`}>
+                                </span>
                                 {userData.status === "active" ? "Active" : "Inactive"}
                             </div>
                             <ButtonEditProfile />
