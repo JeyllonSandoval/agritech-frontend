@@ -49,11 +49,15 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                 
                 // Procesar los mensajes para mantener la estructura de análisis
                 const processedMessages = allMessages.reduce((acc: ChatMessage[], message: ChatMessage, index: number) => {
-                    // Si es un mensaje de archivo, solo lo agregamos si no hay otro mensaje de archivo reciente
+                    // Si es un mensaje de archivo, lo procesamos de manera diferente
                     if (message.FileID && message.sendertype === 'user') {
                         const lastFileMessage = acc.findLast(m => m.FileID && m.sendertype === 'user');
                         if (!lastFileMessage || lastFileMessage.FileID !== message.FileID) {
-                            acc.push(message);
+                            // Aquí ya no establecemos content como 'ASK USER'
+                            acc.push({
+                                ...message,
+                                content: 'New file selected' // Cambiamos el contenido para mensajes de archivo
+                            });
                         }
                     }
                     // Si es una respuesta de la IA, la procesamos
@@ -109,7 +113,7 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
             MessageID: `file-${Date.now()}`,
             ChatID: currentChat!.ChatID,
             FileID: file.FileID,
-            content: 'ASK USER',
+            content: 'New file selected',
             sendertype: 'user',
             createdAt: new Date().toISOString(),
             status: 'active'
