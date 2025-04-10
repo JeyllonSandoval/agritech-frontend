@@ -241,7 +241,7 @@ export default function EditProfileForm() {
             } else {
                 setErrors(prev => ({
                     ...prev,
-                    submit: data.message || 'Error updating profile'
+                    submit: data.message || 'Please, change any field to update your profile'
                 }));
             }
         } catch (error) {
