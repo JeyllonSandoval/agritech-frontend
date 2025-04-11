@@ -24,8 +24,9 @@ const Login = () => {
                 body: JSON.stringify({ Email, password }),
             });
 
+            const data = await response.json();
+
             if (response.ok) {
-                const data = await response.json();
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
                 
@@ -34,8 +35,8 @@ const Login = () => {
                 
                 router.push("/");
             } else {
-                const errorData = await response.json();
-                setMessage(errorData.message || "Invalid credentials");
+                // Mostrar el mensaje de error del backend
+                setMessage(data.error || "Invalid credentials");
             }
         } catch (error) {
             console.error("Error connecting to the server:", error);
@@ -162,7 +163,7 @@ const Login = () => {
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span>{message}</span>
+                                    <span className="flex-1">{message}</span>
                                 </div>
                             )}
                         </div>
