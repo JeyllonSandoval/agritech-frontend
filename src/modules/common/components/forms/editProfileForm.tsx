@@ -157,9 +157,14 @@ export default function EditProfileForm() {
         const newErrors: FormErrors = {};
         let isValid = true;
 
+        // Solo validar campos que han sido modificados
         Object.keys(formData).forEach(key => {
-            if (key !== 'imageUser') {
-                const error = validateField(key as keyof FormData, formData[key as keyof FormData]);
+            if (key === 'imageUser') return; // No validar la imagen
+            
+            const value = formData[key as keyof FormData];
+            // Solo validar si el campo ha sido modificado
+            if (value !== initialData[key as keyof typeof initialData]) {
+                const error = validateField(key as keyof FormData, value);
                 if (error) {
                     newErrors[key as keyof FormErrors] = error;
                     isValid = false;
@@ -174,7 +179,28 @@ export default function EditProfileForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!validateForm()) {
+        // Verificar si hay cambios
+        const hasChanges = Object.entries(formData).some(([key, value]) => {
+            if (key === 'imageUser') return value !== null;
+            return value !== initialData[key as keyof typeof initialData];
+        });
+
+        if (!hasChanges) {
+            setErrors(prev => ({
+                ...prev,
+                submit: 'Please make changes to update your profile'
+            }));
+            return;
+        }
+
+        // Si solo hay imagen, no validar otros campos
+        const isImageOnlyUpdate = formData.imageUser !== null && 
+            Object.entries(formData).every(([key, value]) => {
+                if (key === 'imageUser') return true;
+                return value === initialData[key as keyof typeof initialData];
+            });
+
+        if (!isImageOnlyUpdate && !validateForm()) {
             return;
         }
 
@@ -182,15 +208,15 @@ export default function EditProfileForm() {
         try {
             const formDataToSend = new FormData();
             
-            // Compare and append only modified fields
+            // Solo agregar campos que han sido modificados
             Object.entries(formData).forEach(([key, value]) => {
                 if (value !== null && value !== '') {
-                    // Skip if the value hasn't changed from initial data
+                    // Skip si el valor no ha cambiado
                     if (key in initialData && value === initialData[key as keyof typeof initialData]) {
                         return;
                     }
                     
-                    // For password fields, only send if they have been modified
+                    // Para campos de contraseña, solo enviar si han sido modificados
                     if ((key === 'password' || key === 'confirmPassword') && value === '') {
                         return;
                     }
@@ -203,7 +229,6 @@ export default function EditProfileForm() {
                 }
             });
 
-            // Get token from localStorage
             const token = localStorage.getItem('token');
             if (!token) {
                 setErrors(prev => ({
@@ -225,23 +250,26 @@ export default function EditProfileForm() {
             const data = await response.json();
             
             if (response.ok) {
-                // Update token if provided by the backend
-                if (data.token) {
-                    localStorage.setItem('token', data.token);
-                    // Dispatch a specific event for token update
+                // Actualizar token si es proporcionado por el backend
+                if (data.data?.token) {
+                    localStorage.setItem('token', data.data.token);
                     window.dispatchEvent(new CustomEvent('token-updated'));
                 }
                 
-                // Close modal immediately
+                // Cerrar modal inmediatamente
                 closeModal();
-                // Dispatch event to update profile with the new user data
+                
+                // Disparar evento para actualizar el perfil con los nuevos datos
                 window.dispatchEvent(new CustomEvent('profile-updated', {
-                    detail: data.updatedUser[0] // Pass the updated user data
+                    detail: data.data?.user
                 }));
+
+                // Mostrar mensaje de éxito
+                setIsSuccess(true);
             } else {
                 setErrors(prev => ({
                     ...prev,
-                    submit: data.message || 'Please, change any field to update your profile'
+                    submit: data.error || 'An error occurred while updating your profile'
                 }));
             }
         } catch (error) {
@@ -254,11 +282,20 @@ export default function EditProfileForm() {
         }
     };
 
+    useEffect(() => {
+        const handleProfileUpdate = (event: CustomEvent) => {
+            // Actualizar los datos del usuario con event.detail
+        };
+
+        window.addEventListener('profile-updated', handleProfileUpdate as EventListener);
+        return () => window.removeEventListener('profile-updated', handleProfileUpdate as EventListener);
+    }, []);
+
     if (isLoading) return <div className="text-white/70 text-xl">Loading...</div>;
     if (error) return <div className="text-red-400 text-xl">Error: {error}</div>;
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6 text-xl">
+        <form noValidate onSubmit={handleSubmit} className="space-y-6 text-xl">
             <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-300 ${isSubmitting ? 'pointer-events-none opacity-75' : 'opacity-100'}`}>
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-white/70">First Name</label>
