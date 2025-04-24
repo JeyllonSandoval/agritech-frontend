@@ -23,7 +23,7 @@ export default function RootLayout({
           <header className="w-full flex justify-center items-center">
             <NavbarH />
           </header>
-          <main className="w-full aspect-screen">
+          <main className="w-full aspect-screen mt-24">
             {children}
             <ModalCreated />
           </main>

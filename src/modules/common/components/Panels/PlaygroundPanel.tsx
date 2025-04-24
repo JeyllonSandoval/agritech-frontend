@@ -1,4 +1,3 @@
-import FilesPanels from '@/modules/common/components/Panels/FilesPanels';
 import ChatPanel from '@/modules/common/components/Panels/ChatPanel';
 import { FileProps } from '@/modules/common/hooks/getFiles';
 
@@ -19,7 +18,6 @@ export default function PlaygroundPanel({ isSidebarOpen, activePanel, onPanelCha
                     <h2 className="text-4xl">Welcome</h2>
                 </div>
             )}
-            {activePanel === 'files' && <FilesPanels onShowPdf={onShowPdf} />}
             {activePanel === 'chat' && <ChatPanel onPanelChange={onPanelChange} />}
         </div>
     );
