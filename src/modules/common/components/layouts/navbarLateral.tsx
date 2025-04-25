@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import Link from "next/link";
 import { getChats } from "@/modules/common/hooks/getChats";
 import { useChatStore } from '@/modules/common/stores/chatStore';
 import ButtonFile from '../UI/buttons/buttonFile';
@@ -109,7 +110,9 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
 
                 <div className="flex flex-col h-[calc(100%-4rem)] p-4">
                     <div className="flex flex-col gap-4">
-                        <ButtonFile onClick={() => handlePanelChange('files')} />
+                        <Link href="/playground/files">
+                            <ButtonFile onClick={() => handlePanelChange('files')} />
+                        </Link>
                         <ButtonCreatedChat onClick={props.onCreateChat} />
                     </div>
                     <div className="flex flex-col gap-3 mt-4 flex-1 min-h-0">

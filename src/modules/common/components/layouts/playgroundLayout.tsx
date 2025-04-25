@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NavbarLateral from "@/modules/common/components/layouts/navbarLateral";
 import PlaygroundPanel from "@/modules/common/components/Panels/PlaygroundPanel";
 import ModalCreated from "@/modules/common/components/modals/modalCreated";
@@ -14,13 +14,25 @@ export default function PlaygroundLayout() {
     const router = useRouter();
     const pathname = usePathname();
 
+    // Sincronizar el panel activo con la ruta actual
+    useEffect(() => {
+        if (pathname === '/playground/files') {
+            setActivePanel('files');
+        } else if (pathname === '/playground/chat') {
+            setActivePanel('chat');
+        } else if (pathname === '/playground') {
+            setActivePanel('welcome');
+        }
+    }, [pathname]);
+
     const handlePanelChange = (panel: 'welcome' | 'files' | 'chat') => {
         setActivePanel(panel);
-        if (panel === 'files') {
+        // Solo navegar si no estamos ya en la ruta correcta
+        if (panel === 'files' && pathname !== '/playground/files') {
             router.push('/playground/files');
-        } else if (panel === 'chat') {
+        } else if (panel === 'chat' && pathname !== '/playground/chat') {
             router.push('/playground/chat');
-        } else {
+        } else if (panel === 'welcome' && pathname !== '/playground') {
             router.push('/playground');
         }
     };
