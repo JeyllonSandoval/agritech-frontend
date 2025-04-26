@@ -86,12 +86,12 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
             setChats(chats.filter(chat => chat.ChatID !== chatId));
             console.log('handleRemoveChat - Successfully deleted chat:', chatId);
             if (selectedChatId === chatId) {
-                router.push('/playground/chat');
+                router.push('/playground');
             }
         } catch (error) {
             console.error('handleRemoveChat - Error:', error);
             // Aquí podríamos mostrar una notificación al usuario
-            alert('Error al eliminar el chat. Por favor, intente nuevamente.');
+            alert('Error deleting chat');
         }
     };
 

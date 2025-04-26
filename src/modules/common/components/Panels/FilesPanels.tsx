@@ -12,7 +12,7 @@ interface FilesPanelsProps {
     onShowPdf?: (file: FileProps) => void;
 }
 
-export default function FilesPage({ onShowPdf }: FilesPanelsProps) {
+export default function FilesPanels({ onShowPdf }: FilesPanelsProps) {
     const { files, loading, error, fetchFiles } = useFileStore();
     const { openModal, setSelectedFile } = useModal();
     const [showTopGradient, setShowTopGradient] = useState(false);
@@ -36,27 +36,15 @@ export default function FilesPage({ onShowPdf }: FilesPanelsProps) {
     };
 
     const handleShowPdf = (file: FileProps) => {
-        setSelectedFile(file);
-        openModal('createdFile', 'preview', file.FileName, undefined, undefined, undefined, file.contentURL);
+        if (onShowPdf) {
+            onShowPdf(file);
+        } else {
+            setSelectedFile(file);
+            openModal('createdFile', 'preview', file.FileName, undefined, undefined, undefined, file.contentURL);
+        }
     };
 
     if (!mounted) return null;
-
-    if (loading) return (
-        <div className="w-full h-full flex justify-center items-center">
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg p-8">
-                <div className="text-white/70 text-2xl">Loading...</div>
-            </div>
-        </div>
-    );
-
-    if (error) return (
-        <div className="w-full h-full flex justify-center items-center">
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg p-8">
-                <div className="text-red-400 text-2xl">{error}</div>
-            </div>
-        </div>
-    );
 
     return (
         <div className="flex">
@@ -105,12 +93,20 @@ export default function FilesPage({ onShowPdf }: FilesPanelsProps) {
                                 scrollbar-thumb-rounded-full
                                 relative z-0"
                         >
-                            {files.length === 0 ? (
+                            {loading ? (
+                                <div className="flex justify-center items-center h-full">
+                                    <div className="text-white/70 text-2xl">Loading...</div>
+                                </div>
+                            ) : error ? (
+                                <div className="flex justify-center items-center h-full">
+                                    <div className="text-red-400 text-2xl">{error}</div>
+                                </div>
+                            ) : files.length === 0 ? (
                                 <div className="flex justify-center items-center h-full">
                                     <p className="text-white/70 text-4xl">No files found</p>
                                 </div>
                             ) : (
-                                <BarFiles files={files} onShowPdf={onShowPdf || handleShowPdf} />
+                                <BarFiles files={files} onShowPdf={handleShowPdf} />
                             )}
                         </div>
 
