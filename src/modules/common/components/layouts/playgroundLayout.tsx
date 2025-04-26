@@ -1,33 +1,19 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import NavbarLateral from "@/modules/common/components/layouts/navbarLateral";
-import PlaygroundPanel from "@/modules/common/components/Panels/PlaygroundPanel";
 import ModalCreated from "@/modules/common/components/modals/modalCreated";
-import { FileProps } from '@/modules/common/hooks/getFiles';
 import { useModal } from '@/modules/common/context/modalContext';
 import { useRouter, usePathname } from 'next/navigation';
+import ChatPanel from '@/modules/common/components/Panels/ChatPanel';
+import FilesPanels from '@/modules/common/components/Panels/FilesPanels';
 
 export default function PlaygroundLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [activePanel, setActivePanel] = useState<'welcome' | 'files' | 'chat'>('welcome');
     const { openModal, closeModal, setSelectedFile } = useModal();
     const router = useRouter();
     const pathname = usePathname();
 
-    // Sincronizar el panel activo con la ruta actual
-    useEffect(() => {
-        if (pathname === '/playground/files') {
-            setActivePanel('files');
-        } else if (pathname === '/playground/chat') {
-            setActivePanel('chat');
-        } else if (pathname === '/playground') {
-            setActivePanel('welcome');
-        }
-    }, [pathname]);
-
     const handlePanelChange = (panel: 'welcome' | 'files' | 'chat') => {
-        setActivePanel(panel);
-        // Solo navegar si no estamos ya en la ruta correcta
         if (panel === 'files' && pathname !== '/playground/files') {
             router.push('/playground/files');
         } else if (panel === 'chat' && pathname !== '/playground/chat') {
@@ -42,7 +28,7 @@ export default function PlaygroundLayout() {
             <NavbarLateral 
                 isOpen={isSidebarOpen}
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                activePanel={activePanel}
+                activePanel={pathname === '/playground/files' ? 'files' : pathname === '/playground/chat' ? 'chat' : 'welcome'}
                 onPanelChange={handlePanelChange}
                 onCreateChat={() => {
                     openModal('createdChat', 'create');
@@ -50,15 +36,26 @@ export default function PlaygroundLayout() {
                 }}
             />
             
-            <PlaygroundPanel 
-                isSidebarOpen={isSidebarOpen}
-                activePanel={activePanel}
-                onPanelChange={handlePanelChange}
-                onShowPdf={(file) => {
-                    setSelectedFile(file);
-                    openModal('createdFile', 'preview', file.FileName, undefined, undefined, undefined, file.contentURL);
-                }}
-            />
+            <div className={`fixed top-[80px] right-0 bottom-0 transition-all duration-300 ${
+                isSidebarOpen ? 'left-[300px]' : 'left-0'
+            }`}>
+                {pathname === '/playground/files' && (
+                    <FilesPanels 
+                        onShowPdf={(file) => {
+                            setSelectedFile(file);
+                            openModal('createdFile', 'preview', file.FileName, undefined, undefined, undefined, file.contentURL);
+                        }}
+                    />
+                )}
+                {pathname === '/playground/chat' && (
+                    <ChatPanel onPanelChange={handlePanelChange} />
+                )}
+                {pathname === '/playground' && (
+                    <div className="flex items-center justify-center h-full">
+                        <h2 className="text-4xl">Welcome</h2>
+                    </div>
+                )}
+            </div>
 
             <ModalCreated />
         </div>
