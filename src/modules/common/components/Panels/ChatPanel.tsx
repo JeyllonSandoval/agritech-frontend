@@ -13,17 +13,43 @@ import predefinedQuestions from '@/modules/common/data/predefinedQuestions.json'
 import { useModal } from '@/modules/common/context/modalContext';
 
 interface ChatPanelProps {
-    onPanelChange: (panel: 'welcome' | 'files' | 'chat') => void;
+    onPanelChange: (panel: 'welcome' | 'files' | 'chat', chatId?: string) => void;
+    chatId?: string | null;
 }
 
-export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
+export default function ChatPanel({ onPanelChange, chatId }: ChatPanelProps) {
     const currentChat = useChatStore(state => state.currentChat);
+    const setCurrentChat = useChatStore(state => state.setCurrentChat);
     const { files, fetchFiles } = useFileStore();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [selectedFile, setSelectedFile] = useState<FileProps | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { openModal } = useModal();
+
+    useEffect(() => {
+        if (chatId) {
+            // Cargar el chat específico cuando se proporciona un chatId
+            const loadChat = async () => {
+                try {
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/chats/${chatId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to load chat');
+                    
+                    const chat = await response.json();
+                    setCurrentChat(chat);
+                } catch (err) {
+                    console.error('Error loading chat:', err);
+                    setError(err instanceof Error ? err.message : 'Error loading chat');
+                }
+            };
+            loadChat();
+        }
+    }, [chatId, setCurrentChat]);
 
     useEffect(() => {
         setSelectedFile(null);
@@ -47,43 +73,16 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                 
                 const allMessages = await response.json();
                 
-                // Procesar los mensajes para mantener la estructura de análisis
                 const processedMessages = allMessages.reduce((acc: ChatMessage[], message: ChatMessage, index: number) => {
-                    // Si es un mensaje de archivo, lo procesamos de manera diferente
                     if (message.FileID && message.sendertype === 'user') {
                         const lastFileMessage = acc.findLast(m => m.FileID && m.sendertype === 'user');
                         if (!lastFileMessage || lastFileMessage.FileID !== message.FileID) {
-                            // Aquí ya no establecemos content como 'ASK USER'
                             acc.push({
                                 ...message,
-                                content: 'New file selected' // Cambiamos el contenido para mensajes de archivo
+                                content: 'New file selected'
                             });
                         }
-                    }
-                    // Si es una respuesta de la IA, la procesamos
-                    else if (message.sendertype === 'ai') {
-                        const previousMessage = allMessages[index - 1];
-                        if (previousMessage) {
-                            const matchingQuestion = predefinedQuestions.questions.find(q => 
-                                previousMessage.content.includes(q.question) || 
-                                previousMessage.content.includes(q.description)
-                            );
-
-                            if (matchingQuestion) {
-                                acc.push({
-                                    ...message,
-                                    question: matchingQuestion.question,
-                                    description: matchingQuestion.description
-                                });
-                            } else {
-                                acc.push(message);
-                            }
-                        } else {
-                            acc.push(message);
-                        }
-                    }
-                    // Para otros tipos de mensajes, los agregamos directamente
-                    else {
+                    } else {
                         acc.push(message);
                     }
                     return acc;
@@ -92,67 +91,12 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                 setMessages(processedMessages);
             } catch (err) {
                 console.error('Error loading chat history:', err);
-                setError('Failed to load chat history');
+                setError(err instanceof Error ? err.message : 'Error loading chat history');
             }
         };
 
         loadChatHistory();
-    }, [currentChat?.ChatID]);
-
-    useEffect(() => {
-        fetchFiles();
-    }, [fetchFiles]);
-
-    const handleFileSelect = async (file: FileProps) => {
-        setSelectedFile(file);
-        setIsAnalyzing(true);
-        setError(null);
-
-        // Agregar mensaje de archivo seleccionado
-        const fileMessage: ChatMessage = {
-            MessageID: `file-${Date.now()}`,
-            ChatID: currentChat!.ChatID,
-            FileID: file.FileID,
-            content: 'New file selected',
-            sendertype: 'user',
-            createdAt: new Date().toISOString(),
-            status: 'active'
-        };
-
-        setMessages(prev => [...prev, fileMessage]);
-
-        // Procesar cada pregunta
-        for (const question of predefinedQuestions.questions) {
-            try {
-                const response = await analyzeDocument({
-                    ChatID: currentChat!.ChatID,
-                    FileID: file.FileID,
-                    content: question.question,
-                    sendertype: 'user'
-                });
-
-                // Agregar cada resultado como un mensaje
-                const analysisMessage: ChatMessage = {
-                    MessageID: `analysis-${question.id}-${Date.now()}`,
-                    ChatID: currentChat!.ChatID,
-                    FileID: file.FileID,
-                    content: response.content,
-                    sendertype: 'ai',
-                    createdAt: new Date().toISOString(),
-                    status: 'active',
-                    question: question.question,
-                    description: question.description
-                };
-
-                setMessages(prev => [...prev, analysisMessage]);
-            } catch (err) {
-                console.error(`Error analyzing question ${question.id}:`, err);
-                setError(err instanceof Error ? err.message : 'Error analyzing document');
-            }
-        }
-
-        setIsAnalyzing(false);
-    };
+    }, [currentChat]);
 
     const handleSendMessage = async (content: string) => {
         if (!currentChat) return;
@@ -177,8 +121,6 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
                 sendertype: 'user' as const
             };
 
-            console.log('Enviando mensaje:', requestData);
-
             const response = await analyzeDocument(requestData as AnalysisRequest);
             setMessages(prev => [...prev, response]);
         } catch (err) {
@@ -197,6 +139,23 @@ export default function ChatPanel({ onPanelChange }: ChatPanelProps) {
         openModal('createdFile', 'select', '', undefined, undefined, (file) => {
             handleFileSelect(file);
         });
+    };
+
+    const handleFileSelect = (file: FileProps) => {
+        if (!currentChat) return;
+        setSelectedFile(file);
+        
+        const newMessage: ChatMessage = {
+            MessageID: Date.now().toString(),
+            ChatID: currentChat.ChatID,
+            FileID: file.FileID,
+            content: 'New file selected',
+            sendertype: 'user',
+            createdAt: new Date().toISOString(),
+            status: 'active'
+        };
+
+        setMessages(prev => [...prev, newMessage]);
     };
 
     if (!currentChat) {

@@ -5,12 +5,14 @@ import { useChatStore } from '@/modules/common/stores/chatStore';
 import ButtonFile from '../UI/buttons/buttonFile';
 import ButtonCreatedChat from '../UI/buttons/buttonCreatedChat';
 import ItemsChats from '../UI/items/itemsChats';
+import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 interface NavbarLateralProps {
     isOpen: boolean;
     onToggle: () => void;
     activePanel: 'welcome' | 'files' | 'chat';
-    onPanelChange: (panel: 'welcome' | 'files' | 'chat') => void;
+    onPanelChange: (panel: 'welcome' | 'files' | 'chat', chatId?: string) => void;
     onCreateChat: () => void;
 }
 
@@ -20,6 +22,8 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
     const setChats = useChatStore(state => state.setChats);
     const setCurrentChat = useChatStore(state => state.setCurrentChat);
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+    const router = useRouter();
+    const pathname = usePathname();
 
     // Reset selected chat when panel changes
     useEffect(() => {
@@ -28,6 +32,16 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
             setCurrentChat(null);
         }
     }, [activePanel, setCurrentChat]);
+
+    // Set selected chat from URL
+    useEffect(() => {
+        if (pathname.startsWith('/playground/chat/')) {
+            const chatId = pathname.split('/').pop();
+            if (chatId) {
+                setSelectedChatId(chatId);
+            }
+        }
+    }, [pathname]);
 
     const loadChats = useCallback(async () => {
         const userChats = await getChats();
@@ -58,8 +72,8 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
         };
     }, [isOpen, onToggle]);
 
-    const handlePanelChange = useCallback((panel: 'welcome' | 'files' | 'chat') => {
-        props.onPanelChange(panel);
+    const handlePanelChange = useCallback((panel: 'welcome' | 'files' | 'chat', chatId?: string) => {
+        props.onPanelChange(panel, chatId);
     }, [props.onPanelChange]);
 
     const handleChatSelect = useCallback((chatId: string, chat: any) => {

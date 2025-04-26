@@ -6,6 +6,7 @@ import { useModal } from '@/modules/common/context/modalContext';
 import { useRouter, usePathname } from 'next/navigation';
 import ChatPanel from '@/modules/common/components/Panels/ChatPanel';
 import FilesPanels from '@/modules/common/components/Panels/FilesPanels';
+import { FileProps } from "@/modules/common/hooks/getFiles";
 
 export default function PlaygroundLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -13,22 +14,29 @@ export default function PlaygroundLayout() {
     const router = useRouter();
     const pathname = usePathname();
 
-    const handlePanelChange = (panel: 'welcome' | 'files' | 'chat') => {
+    const handlePanelChange = (panel: 'welcome' | 'files' | 'chat', chatId?: string) => {
         if (panel === 'files' && pathname !== '/playground/files') {
             router.push('/playground/files');
-        } else if (panel === 'chat' && pathname !== '/playground/chat') {
-            router.push('/playground/chat');
+        } else if (panel === 'chat') {
+            if (chatId) {
+                router.push(`/playground/chat/${chatId}`);
+            } else {
+                router.push('/playground/chat');
+            }
         } else if (panel === 'welcome' && pathname !== '/playground') {
             router.push('/playground');
         }
     };
+
+    const isChatRoute = pathname.startsWith('/playground/chat');
+    const chatId = isChatRoute ? pathname.split('/').pop() : null;
 
     return (
         <div className="flex">
             <NavbarLateral 
                 isOpen={isSidebarOpen}
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                activePanel={pathname === '/playground/files' ? 'files' : pathname === '/playground/chat' ? 'chat' : 'welcome'}
+                activePanel={pathname === '/playground/files' ? 'files' : isChatRoute ? 'chat' : 'welcome'}
                 onPanelChange={handlePanelChange}
                 onCreateChat={() => {
                     openModal('createdChat', 'create');
@@ -41,14 +49,17 @@ export default function PlaygroundLayout() {
             }`}>
                 {pathname === '/playground/files' && (
                     <FilesPanels 
-                        onShowPdf={(file) => {
+                        onShowPdf={(file: FileProps) => {
                             setSelectedFile(file);
                             openModal('createdFile', 'preview', file.FileName, undefined, undefined, undefined, file.contentURL);
                         }}
                     />
                 )}
-                {pathname === '/playground/chat' && (
-                    <ChatPanel onPanelChange={handlePanelChange} />
+                {isChatRoute && (
+                    <ChatPanel 
+                        onPanelChange={handlePanelChange}
+                        chatId={chatId}
+                    />
                 )}
                 {pathname === '/playground' && (
                     <div className="flex items-center justify-center h-full">

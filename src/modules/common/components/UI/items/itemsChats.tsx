@@ -2,9 +2,10 @@ import { useCallback } from 'react';
 import { useChatStore } from '@/modules/common/stores/chatStore';
 import { ButtonItemEdit } from '@/modules/common/components/UI/CompleButtons/ButtonItemEdit';
 import { useModal } from '@/modules/common/context/modalContext';
+import { useRouter } from 'next/navigation';
 
 interface ItemsChatsProps {
-    onPanelChange: (panel: 'welcome' | 'files' | 'chat') => void;
+    onPanelChange: (panel: 'welcome' | 'files' | 'chat', chatId?: string) => void;
     selectedChatId: string | null;
     onChatSelect: (chatId: string, chat: any) => void;
 }
@@ -13,6 +14,7 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
     const chats = useChatStore(state => state.chats);
     const setChats = useChatStore(state => state.setChats);
     const { openModal } = useModal();
+    const router = useRouter();
 
     const handleEditChat = async (chatId: string, newName: string) => {
         try {
@@ -83,6 +85,9 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
             // Actualizar el chat localmente
             setChats(chats.filter(chat => chat.ChatID !== chatId));
             console.log('handleRemoveChat - Successfully deleted chat:', chatId);
+            if (selectedChatId === chatId) {
+                router.push('/playground/chat');
+            }
         } catch (error) {
             console.error('handleRemoveChat - Error:', error);
             // Aquí podríamos mostrar una notificación al usuario
@@ -113,7 +118,8 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
                                 relative overflow-hidden ${selectedChatId === chat.ChatID ? 'bg-green-500/20' : ''}`}
                             onClick={() => {
                                 onChatSelect(chat.ChatID, chat);
-                                onPanelChange('chat');
+                                onPanelChange('chat', chat.ChatID);
+                                router.push(`/playground/chat/${chat.ChatID}`);
                             }}
                         >
                             <div className={`absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-green-800/60 to-transparent
@@ -135,7 +141,7 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
                 ))}
             </div>
         );
-    }, [chats, onPanelChange, selectedChatId, onChatSelect, setChats]);
+    }, [chats, onPanelChange, selectedChatId, onChatSelect, setChats, router]);
 
     return (
         <>
