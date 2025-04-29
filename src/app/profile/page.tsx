@@ -1,4 +1,4 @@
-import ProfileCard from "@/modules/common/components/card/profileCard";
+import ProfileCard from "@/components/common/card/profileCard";
 
 export default function Profile() {
     return (

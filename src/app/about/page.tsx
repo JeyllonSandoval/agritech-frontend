@@ -1,8 +1,8 @@
-import About from "@/modules/about/page";
+import AboutContent from "@/components/common/UI/about/AboutContent";
 export default function AboutPage() {
     return (
         <div className="flex justify-center items-center">
-            <About />
+            <AboutContent />
         </div>
     );
 }

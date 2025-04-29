@@ -1,5 +1,5 @@
-import PlaygroundLayout from '@/modules/common/components/layouts/playgroundLayout';
-import ProtectedRoute from '@/modules/common/utils/protectedRoute';
+import PlaygroundLayout from '@/components/features/layouts/playgroundLayout';
+import ProtectedRoute from '@/utils/protectedRoute';
 
 export default function Playground() {
     return (

@@ -1,8 +1,8 @@
-import NavbarH from "@/modules/common/components/layouts/navbarH";
+import NavbarH from "@/components/features/layouts/navbarH";
 import "@/app/globals.css";
 import { Providers } from './providers';
-import ModalCreated from "@/modules/common/components/modals/modalCreated";
-import MobileRestriccion from "@/modules/common/components/layouts/MobileRestriccion";
+import ModalCreated from "@/components/features/modals/modalCreated";
+import MobileRestriccion from "@/components/features/layouts/MobileRestriccion";
 
 export default function RootLayout({
   children,

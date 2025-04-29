@@ -1,4 +1,4 @@
-import FilesPanels from "@/modules/common/components/Panels/FilesPanels";
+import FilesPanels from "@/components/features/Panels/FilesPanels";
 export default function FilesPage() {
     return (
         <FilesPanels />
