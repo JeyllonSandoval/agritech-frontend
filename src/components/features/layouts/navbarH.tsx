@@ -20,17 +20,14 @@ export default function NavbarH() {
     }, [scrolled]);
 
     return (
-        <section className={`w-[98%] fixed top-0 z-[10] flex justify-center items-center transition-all duration-700 rounded-2xl ${scrolled ? 'bg-white/10 backdrop-blur-xl mt-4' : ''}`}>
-            <nav className="w-[90%] flex justify-between items-center text-white/90 rounded-2xl">
-                {/* Left section - Company name */}
-                <LeftNavbar />
-
-                {/* Middle section - Navigation links */}
-                <CenterNavbar />
-
-                {/* Right section - User profile or Sign Up button */}
-                <RightNavbar />
-            </nav>
-        </section>
+        <div className="fixed top-0 left-0 right-0 z-[9999] pointer-events-none">
+            <div className={`w-[98%] flex justify-center items-center transition-all duration-700 ${scrolled ? 'bg-white/10 backdrop-blur-xl mt-2 rounded-2xl' : ''}`}>
+                <nav className="w-[90%] flex justify-between items-center text-white/90 pointer-events-auto">
+                    <LeftNavbar />
+                    <CenterNavbar />
+                    <RightNavbar />
+                </nav>
+            </div>
+        </div>
     );
 }

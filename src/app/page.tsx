@@ -77,9 +77,9 @@ export default function Home() {
     };
 
     return (
-        <div className="h-screen overflow-y-auto snap-y snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-0">
+        <main className="absolute inset-0 overflow-y-auto snap-y snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {/* Hero Section */}
-            <section className="h-screen snap-start relative flex items-center justify-center overflow-hidden">
+            <section className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/20 to-black/40 z-0" />
                 <div className="container mx-auto px-6 text-center relative z-1">
                     <div className="flex flex-col items-center justify-center">
@@ -99,7 +99,6 @@ export default function Home() {
 
             {/* Features Section */}
             <section className="h-screen snap-start py-20 bg-white/5 backdrop-blur-xl relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/10 via-transparent to-emerald-900/10 z-0" />
                 <div className="container mx-auto px-6 relative z-1 h-full flex flex-col justify-center">
                     <h2 className="text-5xl font-bold text-white text-center mb-16 reveal">
                         {homeData.features.title}
@@ -176,6 +175,6 @@ export default function Home() {
                     </div>
                 </div>
             </section>
-        </div>
+        </main>
     );
 }
