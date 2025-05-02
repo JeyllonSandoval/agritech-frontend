@@ -19,7 +19,6 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-gradient-to-br from-green-950/90 via-black to-green-950/90 scrollbar">
         <Providers>
-          <MobileRestriccion />
           <header className="w-full flex justify-center items-center">
             <NavbarH />
           </header>

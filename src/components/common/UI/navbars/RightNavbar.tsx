@@ -17,7 +17,7 @@ export default function RightNavbar() {
     };
 
     return (
-        <div className="flex-1 flex justify-end relative text-sm">
+        <div className="flex items-center">
             {isAuthenticated ? (
                 <ImgProfileNavbar onLogout={handleLogout} />
             ) : (
