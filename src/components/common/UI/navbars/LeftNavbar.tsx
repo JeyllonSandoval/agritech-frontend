@@ -9,9 +9,9 @@ export default function LeftNavbar() {
                     alt="AgriTech Logo" 
                     width={60} 
                     height={60}
-                    className="w-8 h-8 md:w-12 md:h-12"
+                    className="w-8 h-8 md:w-12 md:h-12 lg:w-20 lg:h-20"
                 />
-                <h1 className="text-lg md:text-2xl font-medium text-white">AgriTech</h1>
+                <h1 className="text-lg md:text-2xl lg:text-4xl font-medium text-white">AgriTech</h1>
             </Link>
         </div>
     )

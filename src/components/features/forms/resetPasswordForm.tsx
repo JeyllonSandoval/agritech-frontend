@@ -82,36 +82,35 @@ export default function ResetPasswordForm() {
     };
 
     return (
-        <section className="w-full h-full flex justify-center items-center px-4 ">
+        <section className="w-full h-full flex justify-center items-center px-4">
             <form onSubmit={handleSubmit} 
-                className="w-full max-w-md p-8 
+                className="w-full max-w-md p-4 md:p-8 
                     bg-white/10 backdrop-blur-xl rounded-2xl 
-                    border border-white/20 shadow-lg shadow-emerald-400/20 mt-20"
+                    border border-white/20 shadow-lg shadow-emerald-400/20 mt-12 md:mt-20"
             >
-                <div className="flex flex-col items-center gap-8">
-                    <div className="text-center space-y-2">
-                        <h1 className="text-2xl font-semibold text-white">
+                <div className="flex flex-col items-center gap-4 md:gap-8">
+                    <div className="text-center space-y-1 md:space-y-2">
+                        <h1 className="text-xl md:text-2xl font-semibold text-white">
                             Reset Password
                         </h1>
-                        <p className="text-sm text-white/70">
-                            Enter your new password
+                        <p className="text-xs md:text-sm text-white/70">
+                            Enter your new password below
                         </p>
                     </div>
 
-                    <div className="w-full space-y-4">
+                    <div className="w-full space-y-3 md:space-y-4">
                         <div className="relative flex items-center">
                             <input
-                                className="w-full px-4 py-3 text-sm
+                                className="w-full px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm
                                     bg-white/10 backdrop-blur-sm rounded-xl
                                     border border-white/20 text-white
                                     group-hover:border-emerald-400/30
                                     focus:border-emerald-400/50 focus:ring-2 
                                     focus:ring-emerald-400/20 focus:outline-none 
                                     placeholder-white/40
-                                    transition-all duration-300
-                                    pr-12"
+                                    transition-all duration-300"
                                 type={showPassword ? "text" : "password"}
-                                placeholder="New password"
+                                placeholder="New Password"
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 required
@@ -144,17 +143,16 @@ export default function ResetPasswordForm() {
 
                         <div className="relative flex items-center">
                             <input
-                                className="w-full px-4 py-3 text-sm
+                                className="w-full px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm
                                     bg-white/10 backdrop-blur-sm rounded-xl
                                     border border-white/20 text-white
                                     group-hover:border-emerald-400/30
                                     focus:border-emerald-400/50 focus:ring-2 
                                     focus:ring-emerald-400/20 focus:outline-none 
                                     placeholder-white/40
-                                    transition-all duration-300
-                                    pr-12"
+                                    transition-all duration-300"
                                 type={showPassword ? "text" : "password"}
-                                placeholder="Confirm new password"
+                                placeholder="Confirm New Password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
@@ -165,7 +163,7 @@ export default function ResetPasswordForm() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full px-4 py-3 text-sm
+                            className="w-full px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm
                                 bg-emerald-400/90 text-black font-medium
                                 rounded-xl
                                 hover:bg-emerald-400 
@@ -178,7 +176,7 @@ export default function ResetPasswordForm() {
                         >
                             {isSubmitting ? (
                                 <>
-                                    <svg className="animate-spin h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <svg className="animate-spin h-3 w-3 md:h-4 md:w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
@@ -187,7 +185,7 @@ export default function ResetPasswordForm() {
                             ) : (
                                 <>
                                     <span>Reset Password</span>
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                     </svg>
                                 </>
@@ -195,23 +193,36 @@ export default function ResetPasswordForm() {
                         </button>
 
                         {message && (
-                            <div className={`text-sm px-4 py-3 rounded-xl 
+                            <div className={`text-xs md:text-sm px-3 py-2 md:px-4 md:py-3 rounded-xl 
                                 flex items-center gap-2 ${
-                                    message.includes("Error") || message.includes("do not match")
-                                        ? "bg-red-400/10 border border-red-400/20 text-red-400"
-                                        : "bg-emerald-400/10 border border-emerald-400/20 text-emerald-400"
+                                    message.includes("successfully") 
+                                        ? "bg-emerald-400/10 border border-emerald-400/20 text-emerald-400"
+                                        : "bg-red-400/10 border border-red-400/20 text-red-400"
                                 }`}
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    {message.includes("Error") || message.includes("do not match") ? (
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    ) : (
+                                <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {message.includes("successfully") ? (
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                    ) : (
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     )}
                                 </svg>
                                 <span>{message}</span>
                             </div>
                         )}
+
+                        <div className="text-center">
+                            <button
+                                type="button"
+                                onClick={() => router.push("/signin")}
+                                className="text-xs md:text-sm text-white/50 
+                                    hover:text-emerald-400/70
+                                    focus:text-emerald-400
+                                    transition-colors duration-300"
+                            >
+                                Back to Login
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>

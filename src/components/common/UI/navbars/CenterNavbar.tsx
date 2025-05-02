@@ -47,7 +47,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     };
 
     return (
-        <div className="flex justify-center items-center  bg-white/10 backdrop-blur-sm py-1.5 px-2 rounded-full lg:w-[600px]">
+        <div className="flex justify-center items-center bg-white/10 backdrop-blur-sm py-1 px-2 rounded-full lg:w-[600px] lg:h-[44px]">
             <div className="flex flex-row gap-6 lg:gap-8 text-base lg:text-lg relative justify-center items-center">
                 {/* Background dinámico */}
                 {!isSignInRoute && !isProfileRoute && (

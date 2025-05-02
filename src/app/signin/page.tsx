@@ -7,38 +7,95 @@ export default function Signin() {
     const [isLogin, setIsLogin] = useState(true);
 
     return (
-        <section className="relative w-full h-full flex items-center justify-center overflow-hidden">
-            {/* Contenedor del toggle izquierdo (Register) */}
-            <div className={`fixed transition-all duration-500 ease-in-out
-                ${!isLogin ? 'left-80 opacity-100' : '-left-full opacity-0'}`}
-            >
-                <div className="flex flex-col items-end gap-4">
-                    <div className="flex flex-col text-right">
-                        <h2 className="text-white/70 text-sm">
-                            Already have an account?
-                        </h2>
-                        <p className="text-emerald-400 text-sm font-medium">
-                            Sign in here
-                        </p>
+        <section className="w-full max-h-screen flex flex-col items-center justify-center overflow-hidden px-4 md:px-6 py-12 md:py-20">
+            {/* Toggle buttons container */}
+            <div className="relative w-full max-w-md mb-16 flex justify-center">
+                {/* Sign In button container */}
+                <div className={`absolute transition-all duration-500 ease-in-out
+                    ${!isLogin ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-full pointer-events-none'}`}
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="flex flex-col text-right">
+                            <h2 className="text-white/70 text-xs md:text-sm">
+                                Already have an account?
+                            </h2>
+                            <p className="text-emerald-400 text-xs md:text-sm font-medium">
+                                Sign in here
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => setIsLogin(true)}
+                            className="group px-4 py-2 rounded-xl
+                                bg-gradient-to-r from-emerald-700/30 to-emerald-600/30
+                                hover:from-emerald-600/40 hover:to-emerald-500/40
+                                active:from-emerald-800/30 active:to-emerald-700/30
+                                backdrop-blur-sm
+                                text-emerald-100 text-xs md:text-sm
+                                transition-all duration-300
+                                border border-emerald-300/50
+                                overflow-hidden
+                                relative
+                                hover:scale-105
+                                hover:shadow-lg hover:shadow-emerald-500/20"
+                        >
+                            <span className="relative z-10 flex items-center gap-2">
+                                <svg className="w-3 h-3 md:w-4 md:h-4 transition-transform duration-300 group-hover:-translate-x-1" 
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Sign In
+                            </span>
+                            <div className="absolute inset-0 rounded-xl overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-700/20 to-transparent animate-border-flow"></div>
+                            </div>
+                        </button>
                     </div>
-                    <button
-                        onClick={() => setIsLogin(true)}
-                        className="transition-all duration-300
-                            bg-white/10 backdrop-blur-sm
-                            px-4 py-2 rounded-lg
-                            border border-white/20
-                            text-white/70 hover:text-white
-                            hover:bg-emerald-400/20
-                            hover:border-emerald-400/30
-                            hover:-translate-x-2
-                            shadow-lg shadow-black/5"
-                    >
-                        <p>&lt;</p>
-                    </button>
+                </div>
+
+                {/* Register button container */}
+                <div className={`absolute transition-all duration-500 ease-in-out
+                    ${isLogin ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'}`}
+                >
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setIsLogin(false)}
+                            className="group px-4 py-2 rounded-xl
+                                bg-gradient-to-r from-emerald-700/30 to-emerald-600/30
+                                hover:from-emerald-600/40 hover:to-emerald-500/40
+                                active:from-emerald-800/30 active:to-emerald-700/30
+                                backdrop-blur-sm
+                                text-emerald-100 text-xs md:text-sm
+                                transition-all duration-300
+                                border border-emerald-300/50
+                                overflow-hidden
+                                relative
+                                hover:scale-105
+                                hover:shadow-lg hover:shadow-emerald-500/20"
+                        >
+                            <span className="relative z-10 flex items-center gap-2">
+                                Register
+                                <svg className="w-3 h-3 md:w-4 md:h-4 transition-transform duration-300 group-hover:translate-x-1" 
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </span>
+                            <div className="absolute inset-0 rounded-xl overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-700/20 to-transparent animate-border-flow"></div>
+                            </div>
+                        </button>
+                        <div className="flex flex-col">
+                            <h2 className="text-white/70 text-xs md:text-sm">
+                                Need an account?
+                            </h2>
+                            <p className="text-emerald-400 text-xs md:text-sm font-medium">
+                                Register here
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Contenedor de los formularios con transición */}
+            {/* Form container */}
             <div className="w-full max-w-md">
                 <div className={`transition-all duration-500 ease-in-out transform
                     ${isLogin ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'}`}
@@ -49,36 +106,6 @@ export default function Signin() {
                     ${!isLogin ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}
                 >
                     {!isLogin && <RegisterForm />}
-                </div>
-            </div>
-
-            {/* Contenedor del toggle derecho (Login) */}
-            <div className={`fixed transition-all duration-500 ease-in-out
-                ${isLogin ? 'right-80 opacity-100' : '-right-full opacity-0'}`}
-            >
-                <div className="flex flex-col items-start gap-4">
-                    <div className="flex flex-col">
-                        <h2 className="text-white/70 text-sm">
-                            Need an account?
-                        </h2>
-                        <p className="text-emerald-400 text-sm font-medium">
-                            Register here
-                        </p>
-                    </div>
-                    <button
-                        onClick={() => setIsLogin(false)}
-                        className="transition-all duration-300
-                            bg-white/10 backdrop-blur-sm
-                            px-4 py-2 rounded-lg
-                            border border-white/20
-                            text-white/70 hover:text-white
-                            hover:bg-emerald-400/20
-                            hover:border-emerald-400/30
-                            hover:translate-x-2
-                            shadow-lg shadow-black/5"
-                    >
-                        <p>&gt;</p>
-                    </button>
                 </div>
             </div>
         </section>
