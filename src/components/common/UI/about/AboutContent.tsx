@@ -41,14 +41,14 @@ export default function AboutContent() {
     };
 
     return (
-        <div className="w-2/3 min-h-screen text-white mt-24">
+        <div className="w-full max-w-7xl mx-auto lg:w-5/6 xl:w-2/3 min-h-screen text-white">
             {/* Company Info Section */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center mb-16"
+                className="text-center mb-12 md:mb-16"
             >
-                <div className="relative w-32 h-32 mx-auto mb-6">
+                <div className="relative w-24 h-24 md:w-32 md:h-32 mx-auto mb-4 md:mb-6">
                     <Image
                         src={aboutData.companyInfo.logo}
                         alt={aboutData.companyInfo.name}
@@ -56,16 +56,16 @@ export default function AboutContent() {
                         className="object-contain"
                     />
                 </div>
-                <h1 className="text-4xl font-bold mb-4 text-white/90">
+                <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4 text-white/90">
                     {aboutData.companyInfo.name}
                 </h1>
-                <p className="text-xl text-white/70 max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto px-4">
                     {aboutData.companyInfo.slogan}
                 </p>
             </motion.div>
 
             {/* Sections */}
-            <div className="w-full mx-auto space-y-6">
+            <div className="w-full mx-auto space-y-4 md:space-y-6">
                 {aboutData.sections.map((section: Section) => (
                     <motion.div
                         key={section.id}
@@ -75,13 +75,13 @@ export default function AboutContent() {
                     >
                         <button
                             onClick={() => setExpandedSection(expandedSection === section.id ? null : section.id)}
-                            className="w-full p-6 flex items-center justify-between hover:bg-white/5 transition-colors"
+                            className="w-full p-4 md:p-6 flex items-center justify-between hover:bg-white/5 transition-colors"
                         >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 md:gap-3">
                                 {getIcon(section.icon)}
-                                <h2 className="text-2xl font-semibold">{section.title}</h2>
+                                <h2 className="text-xl md:text-2xl font-semibold">{section.title}</h2>
                             </div>
-                            <span className="text-2xl transform transition-transform duration-300">
+                            <span className="text-xl md:text-2xl transform transition-transform duration-300">
                                 {expandedSection === section.id ? '−' : '+'}
                             </span>
                         </button>
@@ -94,7 +94,7 @@ export default function AboutContent() {
                                     transition={{ duration: 0.3 }}
                                     className="overflow-hidden"
                                 >
-                                    <div className="p-6 border-t border-white/10">
+                                    <div className="p-4 md:p-6 border-t border-white/10">
                                         <SectionContent content={section.content} />
                                     </div>
                                 </motion.div>

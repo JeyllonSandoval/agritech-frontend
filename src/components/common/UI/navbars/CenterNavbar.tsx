@@ -8,7 +8,7 @@ interface CenterNavbarProps {
 
 export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     const pathname = usePathname();
-    const [activeBackground, setActiveBackground] = useState({ width: 0, left: 0 });
+    const [activeBackground, setActiveBackground] = useState({ width: 4, left: 0 });
     const linksRef = useRef<(HTMLAnchorElement | null)[]>([]);
 
     // Verificar si estamos en la ruta /signin
@@ -47,12 +47,12 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     };
 
     return (
-        <div className="flex justify-center items-center bg-white/10 backdrop-blur-sm py-1.5 px-2 rounded-full">
+        <div className="flex justify-center items-center  bg-white/10 backdrop-blur-sm py-1.5 px-2 rounded-full lg:w-[600px]">
             <div className="flex flex-row gap-6 lg:gap-8 text-base lg:text-lg relative justify-center items-center">
                 {/* Background dinámico */}
                 {!isSignInRoute && !isProfileRoute && (
                     <div
-                        className="absolute h-[34px] bg-emerald-400/90 backdrop-blur-md rounded-full transition-all duration-300 ease-in-out
+                        className="absolute h-[38px] bg-emerald-400/90 backdrop-blur-md rounded-full transition-all duration-300 ease-in-out
                             shadow-md shadow-emerald-300/90"
                         style={{
                             width: `${activeBackground.width}px`,
