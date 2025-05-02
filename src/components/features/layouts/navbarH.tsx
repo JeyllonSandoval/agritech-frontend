@@ -20,6 +20,10 @@ export default function NavbarH() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [scrolled]);
 
+    const handleMenuClose = () => {
+        setIsMenuOpen(false);
+    };
+
     return (
         <div className="fixed top-0 left-0 right-0 z-[9999]">
             <div className={`w-full lg:w-[98%] mx-auto transition-all duration-700 ${scrolled ? 'bg-white/10 backdrop-blur-xl mt-2 rounded-2xl' : ''}`}>
@@ -32,7 +36,7 @@ export default function NavbarH() {
                             lg:hidden
                             ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}
                         `}
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={handleMenuClose}
                     />
 
                     {/* Barra superior */}
@@ -94,7 +98,7 @@ export default function NavbarH() {
                         `}
                     >
                         <div className="py-2">
-                            <CenterNavbar />
+                            <CenterNavbar onSelect={handleMenuClose} />
                         </div>
                     </div>
                 </nav>
