@@ -9,7 +9,7 @@ export default function Signin() {
     return (
         <section className="w-full max-h-screen flex flex-col items-center justify-center overflow-hidden px-4 md:px-6 py-12 md:py-20">
             {/* Toggle buttons container */}
-            <div className="relative w-full max-w-md mb-16 flex justify-center">
+            <div className="relative w-full max-w-md mb-20 flex justify-center">
                 {/* Sign In button container */}
                 <div className={`absolute transition-all duration-500 ease-in-out
                     ${!isLogin ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-full pointer-events-none'}`}

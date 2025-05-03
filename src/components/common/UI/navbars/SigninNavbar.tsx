@@ -6,7 +6,7 @@ export default function DropNavbar() {
     const isSignInRoute = pathname === '/signin';
 
     return (
-        <div className="text-xl rounded-full relative">
+        <div className="text-lg lg:text-2xl rounded-full relative">
             <Link href="/signin"
                 className={`px-4 py-2 rounded-xl
                     bg-gradient-to-r from-emerald-700/30 to-emerald-600/30

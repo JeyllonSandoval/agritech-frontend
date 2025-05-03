@@ -87,7 +87,7 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
                         </p>
                     )}
                 </div>
-                <ul className="mt-2 flex flex-col gap-1">
+                <ul className="mt-2 flex flex-col gap-1 text-sm lg:text-lg">
                     <li>
                         <button 
                             onClick={handleProfileClick}

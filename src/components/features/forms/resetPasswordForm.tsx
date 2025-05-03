@@ -61,7 +61,7 @@ export default function ResetPasswordForm() {
                     throw new Error(errorMessages[data.error as keyof typeof errorMessages]);
                 }
 
-                throw new Error(data.message || "Failed to reset password");
+                throw new Error(data.message || "Failed to reset password, please try with a different password");
             }
 
             // Guardar el nuevo token
