@@ -87,7 +87,7 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
             <button
                 ref={buttonRef}
                 onClick={onToggle}
-                className={`fixed left-4 top-1/4 z-[9] h-1/2
+                className={`fixed left-4 top-1/4 z-[50] h-1/2
                     bg-gray-500/20 hover:bg-gray-500/30 backdrop-blur-md
                     border border-white/10 rounded-xl shadow-lg shadow-black/10
                     transition-all duration-300 p-3
@@ -107,7 +107,9 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
                     bg-gray-500/10 backdrop-blur-xl
                     border border-white/10 rounded-2xl shadow-lg shadow-black/10
                     transition-all duration-500 ease-in-out
-                    ${isOpen ? 'translate-x-0' : '-translate-x-[calc(100%+20px)]'}`}
+                    transform-gpu
+                    ${isOpen ? 'translate-x-0' : '-translate-x-[calc(100%+20px)]'}
+                    z-[50]`}
             >
                 <div className="p-4 border-b border-white/10 flex justify-between items-center">
                     <h1 className="text-xl font-medium text-white/90">Quick Access</h1>

@@ -8,7 +8,7 @@ import ChatPanel from '../Panels/ChatPanel';
 import FilesPanels from '../Panels/FilesPanels';
 import { FileProps } from "@/hooks/getFiles";
 
-export default function PlaygroundLayout() {
+export default function PlaygroundLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const { openModal, closeModal, setSelectedFile } = useModal();
     const router = useRouter();
@@ -47,25 +47,11 @@ export default function PlaygroundLayout() {
             <div className={`fixed top-[80px] right-0 bottom-0 transition-all duration-300 ${
                 isSidebarOpen ? 'left-[300px]' : 'left-0'
             }`}>
-                {pathname === '/playground/files' && (
-                    <FilesPanels 
-                        onShowPdf={(file: FileProps) => {
-                            setSelectedFile(file);
-                            openModal('createdFile', 'preview', file.FileName, undefined, undefined, undefined, file.contentURL);
-                        }}
-                    />
-                )}
-                {isChatRoute && (
-                    <ChatPanel 
-                        onPanelChange={handlePanelChange}
-                        chatId={chatId}
-                    />
-                )}
-                {pathname === '/playground' && (
-                    <div className="flex items-center justify-center h-full">
-                        <h2 className="text-4xl">Welcome</h2>
-                    </div>
-                )}
+
+            </div>
+
+            <div className="flex-1">
+                {children}
             </div>
 
             <ModalCreated />

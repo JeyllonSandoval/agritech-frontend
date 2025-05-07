@@ -28,7 +28,7 @@ export default function ModalCreated({ type, title, content }: ModalCreatedProps
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 flex items-center justify-center z-[9999]">
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal}></div>
             
             <div className="relative w-full max-w-2xl mx-4 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg">

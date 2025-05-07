@@ -25,7 +25,7 @@ export default function NavbarH() {
     };
 
     return (
-        <div className="fixed top-0 left-0 right-0 z-[9999]">
+        <div className="fixed top-0 left-0 right-0 z-10">
             <div className={`w-full lg:w-[95%] mx-auto transition-all duration-700 ${scrolled ? 'w-[98%] bg-white/10 backdrop-blur-xl mt-2 rounded-2xl' : ''}`}>
                 <nav className="w-full lg:w-[90%] mx-auto px-4 lg:px-0 flex flex-col relative">
                     {/* Overlay de difuminado */}
