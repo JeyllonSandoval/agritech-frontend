@@ -45,13 +45,14 @@ export default function FilesPanels({ onShowPdf }: FilesPanelsProps) {
     if (!mounted) return null;
 
     return (
-        <div className="h-full w-full flex flex-col items-center">
-            <div className="flex items-center justify-between w-1/2 p-2">
-                <h1 className="text-4xl font-semibold text-white">Your Files</h1>
+        <div className="h-[calc(100vh-4rem)] w-full flex flex-col items-center p-2 
+            fixed top-16 left-0 right-0 overflow-hidden">
+            <div className="flex items-center justify-between w-full md:w-3/4 lg:w-1/2 p-2 md:p-4">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-white">Your Files</h1>
                 <ButtonCreated type="createdFile" />
             </div>
 
-            <div className="flex-1 w-1/2 h-1/2 mb-10 relative 
+            <div className="flex-1 w-full md:w-3/4 lg:w-1/2 h-[calc(100%-6rem)] mb-4 md:mb-10 relative 
                 bg-white/10 backdrop-blur-xl rounded-2xl 
                 border border-white/20 shadow-lg 
                 overflow-hidden">
@@ -67,7 +68,7 @@ export default function FilesPanels({ onShowPdf }: FilesPanelsProps) {
                 <div 
                     ref={scrollContainerRef}
                     onScroll={handleScroll}
-                    className="h-full overflow-y-auto px-4 py-4
+                    className="h-full overflow-y-auto px-2 md:px-4 py-2 md:py-4
                         scrollbar scrollbar-w-1.5 
                         scrollbar-track-white/5
                         scrollbar-thumb-emerald-400/50
