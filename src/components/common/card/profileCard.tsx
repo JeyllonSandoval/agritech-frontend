@@ -70,9 +70,9 @@ export default function ProfileCard() {
 
     if (isLoading && !userData) {
         return (
-            <div className="w-full h-full flex justify-center items-center">
-                <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg p-8">
-                    <div className="text-white/70 text-2xl">Loading...</div>
+            <div className="w-full h-full flex justify-center items-center p-2 sm:p-4">
+                <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg p-4 sm:p-6 md:p-8">
+                    <div className="text-white/70 text-lg sm:text-xl md:text-2xl">Loading...</div>
                 </div>
             </div>
         );
@@ -80,24 +80,24 @@ export default function ProfileCard() {
 
     if (error) {
         return (
-            <div className="w-full h-full flex justify-center items-center">
-                <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg p-8">
-                    <div className="text-red-400 text-2xl">{error}</div>
+            <div className="w-full h-full flex justify-center items-center p-2 sm:p-4">
+                <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg p-4 sm:p-6 md:p-8">
+                    <div className="text-red-400 text-lg sm:text-xl md:text-2xl">{error}</div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className={`w-full h-full flex justify-center items-center px-4 transition-opacity duration-300 ${isUpdating ? 'opacity-50' : 'opacity-100'}`}>
-            <div className="w-full max-w-md p-8 
+        <div className={`w-full h-full flex justify-center items-center px-2 sm:px-4 transition-opacity duration-300 ${isUpdating ? 'opacity-50' : 'opacity-100'}`}>
+            <div className="w-full max-w-md p-4 sm:p-6 md:p-8 
                 bg-white/10 backdrop-blur-xl rounded-2xl 
                 border border-white/20 shadow-lg">
                 {userData && (
-                    <section className="flex flex-col items-center space-y-6">
+                    <section className="flex flex-col items-center space-y-4 sm:space-y-6">
                         <div className="relative">
                             <div className="bg-white/40 backdrop-blur-sm rounded-full p-[2px]">
-                                <div className="w-24 h-24 rounded-full overflow-hidden 
+                                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden 
                                     bg-emerald-400/90 backdrop-blur-md shadow-xl shadow-emerald-300/90
                                     border-2 border-white/20">
                                     {userData.imageUser ? (
@@ -108,7 +108,7 @@ export default function ProfileCard() {
                                         />
                                     ) : (
                                         <svg 
-                                            className="w-full h-full p-4 text-black" 
+                                            className="w-full h-full p-3 sm:p-4 text-black" 
                                             fill="none" 
                                             stroke="currentColor" 
                                             viewBox="0 0 24 24"
@@ -123,7 +123,7 @@ export default function ProfileCard() {
                                     )}
                                 </div>
                             </div>
-                            <span className={`absolute bottom-0 right-0 w-4 h-4 rounded-full 
+                            <span className={`absolute bottom-0 right-0 w-3 h-3 sm:w-4 sm:h-4 rounded-full 
                                 border-2 border-white/20 shadow-lg backdrop-blur-md
                                 ${userData.status === "active" 
                                     ? "bg-emerald-400/90" 
@@ -132,35 +132,35 @@ export default function ProfileCard() {
                         </div>
                         
                         <div className="text-center">
-                            <h1 className="text-xl font-semibold text-white">
+                            <h1 className="text-lg sm:text-xl font-semibold text-white">
                                 {userData.FirstName} {userData.LastName}
                             </h1>
                         </div>
 
                         <div className="w-full space-y-2">
                             {countryName && (
-                                <div className="flex items-center space-x-3 text-sm px-4 py-3
+                                <div className="flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3
                                     hover:bg-green-500/20 hover:text-green-100 rounded-xl
                                     transition-all duration-300 text-white/70">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"></path>
                                     </svg>
                                     <span>{countryName}</span>
                                 </div>
                             )}
                             
-                            <div className="flex items-center space-x-3 text-sm px-4 py-3
+                            <div className="flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3
                                 hover:bg-green-500/20 hover:text-green-100 rounded-xl
                                 transition-all duration-300 text-white/70">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                 </svg>
                                 <div className="flex items-center justify-between w-full">
-                                    <span>{userData.Email}</span>
+                                    <span className="truncate max-w-[180px] sm:max-w-[240px]">{userData.Email}</span>
                                     {userData.emailVerified === "true" ? (
-                                        <div className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs
+                                        <div className="flex items-center space-x-1 px-2 py-1 rounded-full text-[10px] sm:text-xs
                                             bg-emerald-400/20 text-emerald-400">
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                             </svg>
                                             <span>Verified</span>
@@ -169,19 +169,19 @@ export default function ProfileCard() {
                                         <button
                                             onClick={handleResendVerification}
                                             disabled={isResending}
-                                            className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs
+                                            className="flex items-center space-x-1 px-2 py-1 rounded-full text-[10px] sm:text-xs
                                                 bg-red-400/20 text-red-400
                                                 hover:bg-red-400/30
                                                 transition-all duration-300
                                                 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {isResending ? (
-                                                <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <svg className="animate-spin h-2.5 w-2.5 sm:h-3 sm:w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                 </svg>
                                             ) : (
-                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
                                             )}
@@ -192,7 +192,7 @@ export default function ProfileCard() {
                             </div>
                             
                             {resendMessage && (
-                                <div className={`text-xs px-4 py-2 rounded-xl
+                                <div className={`text-[10px] sm:text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl
                                     ${resendMessage.includes("successfully") 
                                         ? "bg-emerald-400/20 text-emerald-400" 
                                         : "bg-red-400/20 text-red-400"}`}
@@ -201,23 +201,23 @@ export default function ProfileCard() {
                                 </div>
                             )}
                             
-                            <div className="flex items-center space-x-3 text-sm px-4 py-3
+                            <div className="flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3
                                 hover:bg-green-500/20 hover:text-green-100 rounded-xl
                                 transition-all duration-300 text-white/70">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                                 <span>{userData.createdAt}</span>
                             </div>
                         </div>
 
-                        <div className="w-full border-t border-white/20 pt-4 flex justify-between items-center">
-                            <div className={`flex items-center px-3 py-1.5 rounded-lg text-xs
+                        <div className="w-full border-t border-white/20 pt-3 sm:pt-4 flex justify-between items-center">
+                            <div className={`flex items-center px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs
                                 transition-all duration-300
                                 ${userData.status === "active"
                                     ? "bg-emerald-400/20 text-emerald-400"
                                     : "bg-red-400/20 text-red-400"}`}>
-                                <span className={`w-1.5 h-1.5 mr-1.5 rounded-full 
+                                <span className={`w-1 h-1 sm:w-1.5 sm:h-1.5 mr-1 sm:mr-1.5 rounded-full 
                                     ${userData.status === "active" 
                                         ? "bg-emerald-400" 
                                         : "bg-red-400"}`}>
