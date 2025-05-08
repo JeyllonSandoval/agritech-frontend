@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MdEdit, MdDelete } from 'react-icons/md';
 
 interface MenuOptionsProps {
@@ -18,6 +18,38 @@ export default function MenuOptions({
     onEdit, 
     onRemove 
 }: MenuOptionsProps) {
+    const [adjustedPosition, setAdjustedPosition] = useState(position);
+
+    useEffect(() => {
+        if (isOpen) {
+            const menuWidth = 192; // 48 * 4 (w-48)
+            const menuHeight = 100; // Approximate height
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+
+            let newLeft = position.left;
+            let newTop = position.top;
+
+            // Adjust horizontal position if menu would overflow right edge
+            if (position.left + menuWidth > windowWidth) {
+                newLeft = windowWidth - menuWidth - 16; // 16px padding from edge
+            }
+
+            // Adjust vertical position if menu would overflow bottom edge
+            if (position.top + menuHeight > windowHeight) {
+                newTop = position.top - menuHeight;
+            }
+
+            // Ensure menu doesn't go off the left edge
+            newLeft = Math.max(16, newLeft);
+
+            // Ensure menu doesn't go off the top edge
+            newTop = Math.max(16, newTop);
+
+            setAdjustedPosition({ top: newTop, left: newLeft });
+        }
+    }, [isOpen, position]);
+
     if (!isOpen) return null;
 
     return (
@@ -28,10 +60,11 @@ export default function MenuOptions({
             />
             <div 
                 className="fixed w-48 bg-white/5 backdrop-blur-sm
-                    border border-white/10 shadow-lg shadow-black/20 rounded-lg z-[101]"
+                    border border-white/10 shadow-lg shadow-black/20 rounded-lg z-[101]
+                    max-h-[calc(100vh-32px)] overflow-y-auto"
                 style={{
-                    top: position.top,
-                    left: position.left
+                    top: adjustedPosition.top,
+                    left: adjustedPosition.left
                 }}
             >
                 <div className="space-y-1 flex flex-col gap-1 m-1">
