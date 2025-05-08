@@ -61,7 +61,8 @@ export default function NavbarH() {
                                         bg-emerald-500/10 hover:bg-emerald-500/20 
                                         border border-emerald-500/20 hover:border-emerald-500/30
                                         transition-all duration-300
-                                        active:scale-95 focus:outline-none"
+                                        active:scale-95 focus:outline-none
+                                        lg:hidden"
                                 >
                                     <svg 
                                         className={`w-6 h-6 text-emerald-400 transition-transform duration-300 ${isLateralOpen ? 'rotate-180' : ''}`}
