@@ -12,7 +12,9 @@ interface ChatPageProps {
 export default function ChatPage({ params }: ChatPageProps) {
     return (
         <ProtectedRoute>
-            <PlaygroundLayout />
+            <PlaygroundLayout>
+                <div>Chat content for {params.ChatID}</div>
+            </PlaygroundLayout>
         </ProtectedRoute>
     );
 }

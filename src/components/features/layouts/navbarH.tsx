@@ -2,11 +2,16 @@
 import LeftNavbar from '@/components/common/UI/navbars/LeftNavbar';
 import CenterNavbar from '@/components/common/UI/navbars/CenterNavbar';
 import RightNavbar from '@/components/common/UI/navbars/RightNavbar';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import { NavbarLateralContext } from '@/context/navbarLateralContext';
+import { usePathname } from 'next/navigation';
 
 export default function NavbarH() {
     const [scrolled, setScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { isLateralOpen, onLateralToggle } = useContext(NavbarLateralContext);
+    const pathname = usePathname();
+    const isPlaygroundRoute = pathname.startsWith('/playground');
 
     useEffect(() => {
         const handleScroll = () => {
@@ -45,8 +50,30 @@ export default function NavbarH() {
                         transition-all duration-300
                         ${isMenuOpen ? 'opacity-50 blur-sm' : 'opacity-100 blur-none'}
                     `}>
-                        <div className="w-[200px] lg:w-[250px]">
-                            <LeftNavbar />
+                        <div className="w-[200px] lg:w-[250px] flex items-center">
+                            <div className={`${isPlaygroundRoute ? 'hidden lg:block' : 'block'}`}>
+                                <LeftNavbar />
+                            </div>
+                            {isPlaygroundRoute && (
+                                <button 
+                                    onClick={onLateralToggle}
+                                    className="flex items-center gap-2 p-2 rounded-lg 
+                                        bg-emerald-500/10 hover:bg-emerald-500/20 
+                                        border border-emerald-500/20 hover:border-emerald-500/30
+                                        transition-all duration-300
+                                        active:scale-95 focus:outline-none"
+                                >
+                                    <svg 
+                                        className={`w-6 h-6 text-emerald-400 transition-transform duration-300 ${isLateralOpen ? 'rotate-180' : ''}`}
+                                        fill="none" 
+                                        stroke="currentColor" 
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                    <span className="text-emerald-400 text-sm font-medium">Quick Access</span>
+                                </button>
+                            )}
                         </div>
                         
                         {/* Botón de menú en móvil/tablet */}

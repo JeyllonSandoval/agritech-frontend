@@ -1,8 +1,10 @@
+"use client";
 import NavbarH from "@/components/features/layouts/navbarH";
 import "@/app/globals.css";
 import { Providers } from './providers';
 import ModalCreated from "@/components/features/modals/modalCreated";
 import MobileRestriccion from "@/components/features/layouts/MobileRestriccion";
+import { NavbarLateralProvider } from "@/context/navbarLateralContext";
 
 export default function RootLayout({
   children,
@@ -19,13 +21,15 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-gradient-to-br from-green-950/90 via-black to-green-950/90 scrollbar">
         <Providers>
-          <header className="w-full flex justify-center items-center">
-            <NavbarH />
-          </header>
-          <main className="w-full aspect-screen mt-24">
-            {children}
-            <ModalCreated />
-          </main>
+          <NavbarLateralProvider>
+            <header className="w-full flex justify-center items-center">
+              <NavbarH />
+            </header>
+            <main className="w-full aspect-screen mt-24">
+              {children}
+              <ModalCreated />
+            </main>
+          </NavbarLateralProvider>
         </Providers>
       </body>
     </html>

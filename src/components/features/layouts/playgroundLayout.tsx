@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import NavbarLateral from "@/components/features/layouts/navbarLateral";
 import ModalCreated from "@/components/features/modals/modalCreated";
 import { useModal } from '@/context/modalContext';
@@ -7,12 +7,17 @@ import { useRouter, usePathname } from 'next/navigation';
 import ChatPanel from '../Panels/ChatPanel';
 import FilesPanels from '../Panels/FilesPanels';
 import { FileProps } from "@/hooks/getFiles";
+import { NavbarLateralContext } from "@/context/navbarLateralContext";
 
-export default function PlaygroundLayout({ children }: { children: React.ReactNode }) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+interface PlaygroundLayoutProps {
+    children: React.ReactNode;
+}
+
+export default function PlaygroundLayout({ children }: PlaygroundLayoutProps) {
     const { openModal, closeModal, setSelectedFile } = useModal();
     const router = useRouter();
     const pathname = usePathname();
+    const { isLateralOpen } = useContext(NavbarLateralContext);
 
     const handlePanelChange = (panel: 'welcome' | 'files' | 'chat', chatId?: string) => {
         if (panel === 'files' && pathname !== '/playground/files') {
@@ -32,10 +37,8 @@ export default function PlaygroundLayout({ children }: { children: React.ReactNo
     const chatId = isChatRoute ? pathname.split('/').pop() : null;
 
     return (
-        <div className="flex">
+        <div className="flex relative">
             <NavbarLateral 
-                isOpen={isSidebarOpen}
-                onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                 activePanel={pathname === '/playground/files' ? 'files' : isChatRoute ? 'chat' : 'welcome'}
                 onPanelChange={handlePanelChange}
                 onCreateChat={() => {
@@ -45,13 +48,11 @@ export default function PlaygroundLayout({ children }: { children: React.ReactNo
             />
             
             <div className={`fixed top-[80px] right-0 bottom-0 transition-all duration-300 ${
-                isSidebarOpen ? 'left-[300px]' : 'left-0'
+                isLateralOpen ? 'left-[300px]' : 'left-0'
             }`}>
-
-            </div>
-
-            <div className="flex-1">
-                {children}
+                <div className="flex-1 h-full">
+                    {children}
+                </div>
             </div>
 
             <ModalCreated />

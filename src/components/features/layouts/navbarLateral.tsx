@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useContext } from "react";
 import Link from "next/link";
 import { getChats } from "@/hooks/getChats";
 import { useChatStore } from '@/store/chatStore';
@@ -7,16 +7,15 @@ import ButtonCreatedChat from '@/components/common/UI/buttons/buttonCreatedChat'
 import ItemsChats from '@/components/common/UI/items/itemsChats';
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+import { NavbarLateralContext } from "@/context/navbarLateralContext";
 
 interface NavbarLateralProps {
-    isOpen: boolean;
-    onToggle: () => void;
     activePanel: 'welcome' | 'files' | 'chat';
     onPanelChange: (panel: 'welcome' | 'files' | 'chat', chatId?: string) => void;
     onCreateChat: () => void;
 }
 
-export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props }: NavbarLateralProps) {
+export default function NavbarLateral({ activePanel, ...props }: NavbarLateralProps) {
     const navRef = useRef<HTMLElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const setChats = useChatStore(state => state.setChats);
@@ -24,6 +23,7 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
     const router = useRouter();
     const pathname = usePathname();
+    const { isLateralOpen, onLateralToggle } = useContext(NavbarLateralContext);
 
     // Reset selected chat when panel changes
     useEffect(() => {
@@ -54,7 +54,7 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (!isOpen) return;
+            if (!isLateralOpen) return;
 
             if (
                 navRef.current && 
@@ -62,7 +62,7 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
                 buttonRef.current && 
                 !buttonRef.current.contains(event.target as Node)
             ) {
-                onToggle();
+                onLateralToggle();
             }
         };
 
@@ -70,7 +70,7 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isOpen, onToggle]);
+    }, [isLateralOpen, onLateralToggle]);
 
     const handlePanelChange = useCallback((panel: 'welcome' | 'files' | 'chat', chatId?: string) => {
         props.onPanelChange(panel, chatId);
@@ -86,13 +86,14 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
             {/* Toggle Menu Button */}
             <button
                 ref={buttonRef}
-                onClick={onToggle}
+                onClick={onLateralToggle}
                 className={`fixed left-4 top-1/4 z-[50] h-1/2
                     bg-gray-500/20 hover:bg-gray-500/30 backdrop-blur-md
                     border border-white/10 rounded-xl shadow-lg shadow-black/10
                     transition-all duration-300 p-3
-                    flex items-center justify-center
-                    ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                    items-center justify-center
+                    hidden lg:flex
+                    ${isLateralOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
             >
                 <svg className="w-6 h-6 text-white/70 hover:text-white transition-colors" 
                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,13 +109,16 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
                     border border-white/10 rounded-2xl shadow-lg shadow-black/10
                     transition-all duration-500 ease-in-out
                     transform-gpu
-                    ${isOpen ? 'translate-x-0' : '-translate-x-[calc(100%+20px)]'}
-                    z-[50]`}
+                    ${isLateralOpen ? 'translate-x-0' : '-translate-x-[calc(100%+20px)]'}
+                    z-[50]
+                    lg:w-[300px]
+                    md:w-[calc(100%-2rem)]
+                    xs:w-[calc(100%-2rem)]`}
             >
                 <div className="p-4 border-b border-white/10 flex justify-between items-center">
                     <h1 className="text-xl font-medium text-white/90">Quick Access</h1>
                     <button
-                        onClick={onToggle}
+                        onClick={onLateralToggle}
                         className="p-2 rounded-lg hover:bg-white/10 transition-all duration-300"
                     >
                         <svg className="w-6 h-6 text-white/70 hover:text-white transition-colors" 
@@ -124,7 +128,7 @@ export default function NavbarLateral({ isOpen, onToggle, activePanel, ...props 
                     </button>
                 </div>
 
-                <div className="flex flex-col h-[calc(100%-4rem)] p-4">
+                <div className="p-4 flex flex-col h-[calc(100%-80px)]">
                     <div className="flex flex-col gap-4">
                         <Link href="/playground/files">
                             <ButtonFile onClick={() => handlePanelChange('files')} />
