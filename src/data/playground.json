@@ -1,0 +1,52 @@
+{
+    "title": "Welcome to your Workspace",
+    "sections": {
+        "quickGuide": {
+            "title": "Quick Guide",
+            "items": [
+                {
+                    "icon": "chart",
+                    "text": "View your agricultural data in real time"
+                },
+                {
+                    "icon": "leaf",
+                    "text": "Manage your crops and growth tracking"
+                },
+                {
+                    "icon": "mobile",
+                    "text": "Access important data and information"
+                },
+                {
+                    "icon": "pie",
+                    "text": "Analyze your crop performance"
+                }
+            ]
+        },
+        "nextSteps": {
+            "title": "Next Steps",
+            "items": [
+                {
+                    "icon": "check",
+                    "text": "Add your first crop or IoT device"
+                },
+                {
+                    "icon": "cog",
+                    "text": "Configure your workspace"
+                },
+                {
+                    "icon": "wrench",
+                    "text": "Explore available tools"
+                },
+                {
+                    "icon": "chat",
+                    "text": "Create your first chat"
+                },
+                {
+                    "icon": "sparkles",
+                    "text": "Enjoy the benefits of your workspace"
+                }
+            ]
+        }
+    },
+    "helpText": "Need help? Check our documentation or contact technical support"
+} 

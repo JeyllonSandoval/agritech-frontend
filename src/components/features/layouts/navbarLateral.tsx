@@ -104,7 +104,7 @@ export default function NavbarLateral({ activePanel, ...props }: NavbarLateralPr
             {/* Sidebar Navigation */}
             <nav
                 ref={navRef}
-                className={`fixed xs:left-1 xs:top-[70px] xs:w-[calc(100%-0.5rem)] md:left-4 lg:top-[100px] bottom-4 w-[300px]  
+                className={`fixed xs:left-1 xs:top-[70px] xs:w-[calc(98%)] md:left-4 lg:top-[100px] bottom-4 w-[300px]  
                     bg-gray-500/10 backdrop-blur-xl
                     border border-white/10 rounded-2xl shadow-lg shadow-black/10
                     transition-all duration-500 ease-in-out
