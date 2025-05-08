@@ -71,23 +71,23 @@ export default function ModalCreated() {
         <>
             {isOpen && (
                 <div 
-                    className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-2 sm:p-4"
                     onClick={() => closeModal()}
                 >
                     <div 
                         className="bg-gray-100/10 backdrop-blur-sm rounded-2xl 
                             border border-white/20 shadow-lg
-                            p-8 relative w-full max-w-4xl
-                            flex flex-col"
+                            p-4 sm:p-6 md:p-8 relative w-full max-w-[95vw] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl
+                            flex flex-col max-h-[90vh] sm:max-h-[85vh] overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="flex flex-row justify-between items-center mb-6 sticky">
-                            <h1 className="text-2xl font-semibold text-white truncate max-w-[80%]">
+                        <div className="flex flex-row justify-between items-center mb-4 sm:mb-6 sticky top-0 py-2">
+                            <h1 className="text-xl sm:text-2xl font-semibold text-white truncate max-w-[80%]">
                                 {getTitle()}
                             </h1>
                             <button
                                 onClick={() => closeModal()}
-                                className="text-white/70 text-4xl hover:text-red-400 
+                                className="text-white/70 text-3xl sm:text-4xl hover:text-red-400 
                                     transition-colors duration-300"
                             >
                                 &times;
@@ -103,7 +103,7 @@ export default function ModalCreated() {
                                 />
                             )}
                             {type === 'createdFile' && mode === 'preview' && itemId && (
-                                <div className="w-full h-[70vh] flex flex-col gap-4">
+                                <div className="w-full h-[50vh] sm:h-[60vh] md:h-[70vh] flex flex-col gap-2 sm:gap-4">
                                     <div className="flex-1 bg-white/5 rounded-lg overflow-hidden">
                                         <iframe
                                             src={contentURL}
