@@ -17,6 +17,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     const isForgotPasswordRoute = pathname === '/forgot-password';
     const isVerifyEmailRoute = pathname === '/verify-email';
     const isResetPasswordRoute = pathname === '/reset-password';
+    const isPlaygroundRoute = pathname.startsWith('/playground');
 
     const links = [
         { href: "/", label: "Home" },
@@ -27,7 +28,8 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     useEffect(() => {
         // Encontrar el enlace activo y actualizar el background
         const activeLink = linksRef.current.find(
-            (link) => link?.getAttribute('href') === pathname
+            (link) => link?.getAttribute('href') === pathname || 
+                      (link?.getAttribute('href') === '/playground' && isPlaygroundRoute)
         );
 
         if (activeLink && !isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute) {
@@ -41,7 +43,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
                 });
             }
         }
-    }, [pathname, isSignInRoute, isProfileRoute, isForgotPasswordRoute, isVerifyEmailRoute, isResetPasswordRoute]);
+    }, [pathname, isSignInRoute, isProfileRoute, isForgotPasswordRoute, isVerifyEmailRoute, isResetPasswordRoute, isPlaygroundRoute]);
 
     const handleLinkClick = () => {
         if (onSelect) {
@@ -75,7 +77,8 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
                         }}
                         onClick={handleLinkClick}
                         className={`px-5 py-1.5 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 relative z-10 
-                            ${pathname === link.href && !isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute
+                            ${(pathname === link.href || (link.href === '/playground' && isPlaygroundRoute)) && 
+                              !isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute
                                 ? 'text-white font-medium scale-105' 
                                 : 'text-gray-400 hover:bg-white/5'}`}
                     >
