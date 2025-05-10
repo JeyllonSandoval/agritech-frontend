@@ -36,7 +36,7 @@ export default function NavbarH() {
                     {/* Overlay de difuminado */}
                     <div 
                         className={`
-                            fixed inset-0 bg-black/60 backdrop-blur-sm
+                            fixed inset-0 bg-black/10 backdrop-blur-sm
                             transition-all duration-300
                             lg:hidden
                             ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}

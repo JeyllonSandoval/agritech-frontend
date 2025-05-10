@@ -39,7 +39,7 @@ const getIcon = (iconName: string) => {
 export default function Playground() {
     return (
         <ProtectedRoute>
-            <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-green-950/90 via-black to-green-950/90 z-50">
+            <div className="fixed inset-0 flex flex-col items-center justify-center z-50">
                 <div className="w-full max-w-4xl h-full flex flex-col p-4 sm:p-6 md:p-8">
                     <div className="flex-1 flex flex-col justify-center space-y-4 sm:space-y-6 md:space-y-8">
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-white mb-4 sm:mb-6 md:mb-8">
