@@ -51,7 +51,13 @@ export default function PlaygroundLayout({ children }: PlaygroundLayoutProps) {
                 isLateralOpen ? 'left-[300px]' : 'left-0'
             }`}>
                 <div className="flex-1 h-full">
-                    {children}
+                    {isChatRoute ? (
+                        <div className="w-full h-full">
+                            {children}
+                        </div>
+                    ) : (
+                        children
+                    )}
                 </div>
             </div>
 

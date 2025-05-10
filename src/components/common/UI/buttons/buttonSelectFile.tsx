@@ -20,7 +20,7 @@ export default function ButtonSelectFile({ setIsModalOpen, isFileSelected }: But
             >
                 <div className="flex items-center gap-3">
                     <svg 
-                        className="w-6 h-6 transition-transform duration-300
+                        className="w-10 h-10 transition-transform duration-300
                             group-hover:scale-110 group-hover:rotate-6" 
                         fill="none" 
                         stroke="currentColor" 

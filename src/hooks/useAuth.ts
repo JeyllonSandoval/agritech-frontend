@@ -1,37 +1,31 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-export const useAuth = () => {
+export function useAuth() {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
-        const checkAuth = () => {
-            const token = localStorage.getItem('token');
-            setIsAuthenticated(!!token);
+        const checkAuth = async () => {
+            try {
+                // Aquí iría tu lógica de verificación de autenticación
+                // Por ejemplo, verificar un token en localStorage o hacer una llamada a la API
+                const token = localStorage.getItem('token');
+                setIsAuthenticated(!!token);
+            } catch (error) {
+                console.error('Error checking authentication:', error);
+                setIsAuthenticated(false);
+            } finally {
+                setIsLoading(false);
+            }
         };
 
-        // Verificar autenticación inicial
         checkAuth();
-
-        // Escuchar cambios en el estado de login
-        const handleLoginStateChange = () => {
-            checkAuth();
-        };
-
-        window.addEventListener('loginStateChange', handleLoginStateChange);
-
-        return () => {
-            window.removeEventListener('loginStateChange', handleLoginStateChange);
-        };
     }, []);
-
-    const redirectToLogin = (pathname: string) => {
-        router.push(`/signin?redirect=${pathname}`);
-    };
 
     return {
         isAuthenticated,
-        redirectToLogin
+        isLoading
     };
-}; 
+} 
