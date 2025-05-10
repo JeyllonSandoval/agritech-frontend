@@ -1,112 +1,53 @@
-import { useState, useEffect } from 'react';
-import { useChatStore } from '@/store/chatStore';
+import { useChat } from '@/hooks/useChat';
 import { useFileStore } from '@/store/fileStore';
 import ModalCreated from '../modals/modalCreated';
 import ButtonSelectFile from '@/components/common/UI/buttons/buttonSelectFile';
-import { analyzeDocument } from '@/services/chatService';
-import { AnalysisRequest, ChatMessage } from '@/types/chat';
+import { sendMessage } from '@/services/messageService';
+import { Message } from '@/types/message';
 import { FileProps } from '@/hooks/getFiles';
 import TableShowMessage from '@/components/common/UI/table/tableShowMessage';
 import BarWrited from '@/components/common/UI/bars/barWrited';
 import FileAnalysisResult from '@/components/common/UI/items/FileAnalysisResult';
-import predefinedQuestions from '@/data/predefinedQuestions.json';
 import { useModal } from '@/context/modalContext';
+import { useEffect } from 'react';
 
 interface ChatPanelProps {
-    onPanelChange: (panel: 'welcome' | 'files' | 'chat', chatId?: string) => void;
-    chatId?: string | null;
+    onPanelChange: (panel: 'welcome' | 'files' | 'chat', ChatID?: string) => void;
+    ChatID?: string | null;
 }
 
-export default function ChatPanel({ onPanelChange, chatId }: ChatPanelProps) {
-    const currentChat = useChatStore(state => state.currentChat);
-    const setCurrentChat = useChatStore(state => state.setCurrentChat);
-    const { files, fetchFiles } = useFileStore();
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [selectedFile, setSelectedFile] = useState<FileProps | null>(null);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
+    const { 
+        currentChat,
+        messages,
+        selectedFile,
+        isAnalyzing,
+        error,
+        setError,
+        setIsAnalyzing,
+        setMessages,
+        handleFileSelect,
+        loadChat
+    } = useChat({ ChatID });
+
+    const { files } = useFileStore();
     const { openModal } = useModal();
 
+    // Ensure chat is loaded when chatId changes
     useEffect(() => {
-        if (chatId) {
-            // Cargar el chat específico cuando se proporciona un chatId
-            const loadChat = async () => {
-                try {
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/chats/${chatId}`, {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        }
-                    });
-                    
-                    if (!response.ok) throw new Error('Failed to load chat');
-                    
-                    const chat = await response.json();
-                    setCurrentChat(chat);
-                } catch (err) {
-                    console.error('Error loading chat:', err);
-                    setError(err instanceof Error ? err.message : 'Error loading chat');
-                }
-            };
-            loadChat();
+        if (ChatID && (!currentChat || currentChat.ChatID !== ChatID)) {
+            loadChat(ChatID);
         }
-    }, [chatId, setCurrentChat]);
-
-    useEffect(() => {
-        setSelectedFile(null);
-        setMessages([]);
-        setError(null);
-        setIsAnalyzing(false);
-    }, [currentChat]);
-
-    useEffect(() => {
-        const loadChatHistory = async () => {
-            if (!currentChat?.ChatID) return;
-
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/messages/${currentChat.ChatID}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                
-                if (!response.ok) throw new Error('Failed to load chat history');
-                
-                const allMessages = await response.json();
-                
-                const processedMessages = allMessages.reduce((acc: ChatMessage[], message: ChatMessage, index: number) => {
-                    if (message.FileID && message.sendertype === 'user') {
-                        const lastFileMessage = acc.findLast(m => m.FileID && m.sendertype === 'user');
-                        if (!lastFileMessage || lastFileMessage.FileID !== message.FileID) {
-                            acc.push({
-                                ...message,
-                                content: 'New file selected'
-                            });
-                        }
-                    } else {
-                        acc.push(message);
-                    }
-                    return acc;
-                }, []);
-
-                setMessages(processedMessages);
-            } catch (err) {
-                console.error('Error loading chat history:', err);
-                setError(err instanceof Error ? err.message : 'Error loading chat history');
-            }
-        };
-
-        loadChatHistory();
-    }, [currentChat]);
+    }, [ChatID, currentChat, loadChat]);
 
     const handleSendMessage = async (content: string) => {
         if (!currentChat) return;
 
-        const newMessage: ChatMessage = {
+        const newMessage: Message = {
             MessageID: Date.now().toString(),
             ChatID: currentChat.ChatID,
-            FileID: null,
-            content: content,
             sendertype: 'user',
+            contentAsk: content,
             createdAt: new Date().toISOString(),
             status: 'active'
         };
@@ -115,17 +56,12 @@ export default function ChatPanel({ onPanelChange, chatId }: ChatPanelProps) {
         setIsAnalyzing(true);
 
         try {
-            const requestData = {
-                ChatID: currentChat.ChatID,
-                content: content,
-                sendertype: 'user' as const
-            };
-
-            const response = await analyzeDocument(requestData as AnalysisRequest);
+            const response = await sendMessage(currentChat.ChatID, content);
             setMessages(prev => [...prev, response]);
         } catch (err) {
             console.error('Analysis error:', err);
             setError(err instanceof Error ? err.message : 'Error analyzing document');
+            setMessages(prev => prev.filter(msg => msg.MessageID !== newMessage.MessageID));
         } finally {
             setIsAnalyzing(false);
         }
@@ -139,23 +75,6 @@ export default function ChatPanel({ onPanelChange, chatId }: ChatPanelProps) {
         openModal('createdFile', 'select', '', undefined, undefined, (file) => {
             handleFileSelect(file);
         });
-    };
-
-    const handleFileSelect = (file: FileProps) => {
-        if (!currentChat) return;
-        setSelectedFile(file);
-        
-        const newMessage: ChatMessage = {
-            MessageID: Date.now().toString(),
-            ChatID: currentChat.ChatID,
-            FileID: file.FileID,
-            content: 'New file selected',
-            sendertype: 'user',
-            createdAt: new Date().toISOString(),
-            status: 'active'
-        };
-
-        setMessages(prev => [...prev, newMessage]);
     };
 
     if (!currentChat) {
