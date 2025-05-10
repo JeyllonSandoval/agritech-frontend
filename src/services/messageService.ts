@@ -49,10 +49,6 @@ export const getChatMessages = async (chatId: string): Promise<Message[]> => {
             }
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to load chat history');
-        }
-
         const data = await response.json();
         return data;
     } catch (error) {

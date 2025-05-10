@@ -16,8 +16,8 @@ export default function ItemMessage({ content, sendertype, createdAt, isNew, fil
         <div className={`w-full flex ${isUser ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] rounded-lg p-3 sm:p-4 ${
                 isUser 
-                    ? 'bg-green-500/20 text-white' 
-                    : 'bg-white/10 text-white'
+                    ? 'bg-emerald-800/60 text-white' 
+                    : 'bg-white/5 backdrop-blur-sm border border-white/20 text-white/90'
             } ${isNew ? 'animate-fade-in' : ''}`}>
                 {fileInfo && (
                     <div className="mb-2 text-sm text-white/70">

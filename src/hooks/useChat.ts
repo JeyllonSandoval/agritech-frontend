@@ -66,8 +66,6 @@ export const useChat = ({ ChatID }: UseChatProps) => {
                 }
             });
             
-            if (!response.ok) throw new Error('Failed to load chat history');
-            
             const allMessages = await response.json();
             const processedMessages = processMessages(allMessages);
             setMessages(processedMessages);

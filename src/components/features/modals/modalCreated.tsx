@@ -78,10 +78,10 @@ export default function ModalCreated() {
                         className="bg-gray-100/10 backdrop-blur-sm rounded-2xl 
                             border border-white/20 shadow-lg
                             p-4 sm:p-6 md:p-8 relative w-full max-w-[95vw] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl
-                            flex flex-col max-h-[90vh] sm:max-h-[85vh] overflow-y-auto"
+                            flex flex-col max-h-[90vh] sm:max-h-[85vh]"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="flex flex-row justify-between items-center mb-4 sm:mb-6 sticky top-0 py-2">
+                        <div className="flex flex-row justify-between items-center mb-4 sm:mb-6 sticky top-0">
                             <h1 className="text-xl sm:text-2xl font-semibold text-white truncate max-w-[80%]">
                                 {getTitle()}
                             </h1>
