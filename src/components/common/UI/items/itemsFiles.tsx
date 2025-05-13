@@ -1,10 +1,10 @@
 'use client';
 
+import React from 'react';
 import { FileProps } from '@/hooks/getFiles';
 import ButtonShow from '@/components/common/UI/CompleButtons/ButtonShow';
 import { ButtonItemEdit } from '@/components/common/UI/CompleButtons/ButtonItemEdit';
 import { useModal } from '@/context/modalContext';
-import { useState } from 'react';
 
 interface BarFilesProps {
     files: FileProps[];
@@ -16,8 +16,8 @@ interface BarFilesProps {
     onRemoveFile?: (file: FileProps) => void;
 }
 
-export default function BarFiles({ 
-    files: initialFiles, 
+export default React.memo(function BarFiles({ 
+    files,
     onSelect, 
     showActions = true, 
     onShowPdf,
@@ -25,7 +25,6 @@ export default function BarFiles({
     onEditFile,
     onRemoveFile
 }: BarFilesProps) {
-    const [files, setFiles] = useState(initialFiles);
     const { openModal, setSelectedFile } = useModal();
 
     const handleShow = (e: React.MouseEvent, file: FileProps) => {
@@ -64,14 +63,6 @@ export default function BarFiles({
 
             if (!response.ok) throw new Error('Error updating file');
 
-            // Actualizar el archivo localmente
-            const updatedFiles = files.map(f => 
-                f.FileID === file.FileID 
-                    ? { ...f, FileName: newName }
-                    : f
-            );
-            setFiles(updatedFiles);
-
             // Notificar al componente padre si existe
             if (onEditFile) {
                 onEditFile({ ...file, FileName: newName });
@@ -99,10 +90,6 @@ export default function BarFiles({
             });
 
             if (!response.ok) throw new Error('Error deleting file');
-
-            // Actualizar el archivo localmente
-            const updatedFiles = files.filter(f => f.FileID !== file.FileID);
-            setFiles(updatedFiles);
 
             // Notificar al componente padre si existe
             if (onRemoveFile) {
@@ -183,4 +170,4 @@ export default function BarFiles({
             })}
         </div>
     );
-}
+});

@@ -3,6 +3,7 @@ import { useChatStore } from '@/store/chatStore';
 import { Message } from '@/types/message';
 import { FileProps } from '@/hooks/getFiles';
 import { jwtDecode } from 'jwt-decode';
+import predefinedQuestions from '@/data/predefinedQuestions.json';
 
 interface TokenPayload {
     UserID: string;
@@ -66,7 +67,12 @@ export const useChat = ({ ChatID }: UseChatProps) => {
                 }
             });
             
+            if (!response.ok) throw new Error('Failed to load chat history');
+            
             const allMessages = await response.json();
+            if (!Array.isArray(allMessages)) {
+                throw new Error('Invalid response format: messages is not an array');
+            }
             const processedMessages = processMessages(allMessages);
             setMessages(processedMessages);
         } catch (err) {
@@ -99,21 +105,66 @@ export const useChat = ({ ChatID }: UseChatProps) => {
         setIsAnalyzing(false);
     };
 
-    const handleFileSelect = (file: FileProps) => {
+    const handleFileSelect = async (file: FileProps) => {
         if (!currentChat) return;
         setSelectedFile(file);
         
-        const newMessage: Message = {
-            MessageID: Date.now().toString(),
-            ChatID: currentChat.ChatID,
-            FileID: file.FileID,
-            contentFile: 'New file selected',
-            sendertype: 'user',
-            createdAt: new Date().toISOString(),
-            status: 'active'
-        };
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) throw new Error('No token found');
 
-        setMessages(prev => [...prev, newMessage]);
+            // Send file selection message to backend
+            const fileMessageResponse = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/message`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    ChatID: currentChat.ChatID,
+                    FileID: file.FileID,
+                    contentFile: 'New file selected',
+                    sendertype: 'user',
+                    status: 'active'
+                })
+            });
+
+            let fileMessage = await fileMessageResponse.json();
+            // Fallback for createdAt
+            if (!fileMessage.createdAt) fileMessage.createdAt = new Date().toISOString();
+            setMessages(prev => [...prev, fileMessage]);
+
+            // Add predefined questions as AI responses
+            const questions = predefinedQuestions.questions;
+            const questionPromises = questions.map(async (q) => {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/message`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        ChatID: currentChat.ChatID,
+                        FileID: file.FileID,
+                        sendertype: 'ai',
+                        contentAsk: q.question,
+                        contentResponse: q.description,
+                        status: 'active',
+                        isPredefinedQuestion: true
+                    })
+                });
+                let msg = await response.json();
+                // Fallback for createdAt
+                if (!msg.createdAt) msg.createdAt = new Date().toISOString();
+                return msg;
+            });
+
+            const questionMessages = await Promise.all(questionPromises);
+            setMessages(prev => [...prev, ...questionMessages]);
+        } catch (err) {
+            console.error('Error sending messages:', err);
+            setError(err instanceof Error ? err.message : 'Error sending messages');
+        }
     };
 
     return {

@@ -8,4 +8,6 @@ export interface Message {
     contentResponse?: string;
     createdAt: string;
     status: string;
+    isPredefinedQuestion?: boolean;
+    isLoading?: boolean;
 } 

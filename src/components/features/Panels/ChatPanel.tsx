@@ -43,27 +43,77 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
     const handleSendMessage = async (content: string) => {
         if (!currentChat) return;
 
-        const newMessage: Message = {
-            MessageID: Date.now().toString(),
-            ChatID: currentChat.ChatID,
-            sendertype: 'user',
-            contentAsk: content,
-            createdAt: new Date().toISOString(),
-            status: 'active'
-        };
+        if (selectedFile) {
+            setIsAnalyzing(true);
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) throw new Error('No token found');
+                const questions = (await import('@/data/predefinedQuestions.json')).default.questions;
+                for (const q of questions) {
+                    // Add a loading message for this question
+                    const loadingMessage = {
+                        MessageID: `${Date.now()}-${Math.random()}`,
+                        ChatID: currentChat.ChatID,
+                        FileID: selectedFile.FileID,
+                        sendertype: 'ai',
+                        contentAsk: q.question,
+                        contentResponse: '',
+                        createdAt: new Date().toISOString(),
+                        status: 'loading',
+                        isPredefinedQuestion: true,
+                        isLoading: true
+                    };
+                    setMessages(prev => [...prev, loadingMessage as Message]);
 
-        setMessages(prev => [...prev, newMessage]);
-        setIsAnalyzing(true);
+                    // Send the message to the backend
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/message`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            ChatID: currentChat.ChatID,
+                            FileID: selectedFile.FileID,
+                            sendertype: 'user',
+                            contentAsk: q.question,
+                            status: 'active',
+                        })
+                    });
+                    const backendMessage = await response.json();
+                    // Replace the loading message with the real response
+                    setMessages(prev => prev.map(msg =>
+                        msg.MessageID === loadingMessage.MessageID ? backendMessage : msg
+                    ));
+                }
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Error analyzing document');
+            } finally {
+                setIsAnalyzing(false);
+            }
+        } else {
+            // Normal message flow
+            const newMessage: Message = {
+                MessageID: Date.now().toString(),
+                ChatID: currentChat.ChatID,
+                sendertype: 'user',
+                contentAsk: content,
+                createdAt: new Date().toISOString(),
+                status: 'active'
+            };
 
-        try {
-            const response = await sendMessage(currentChat.ChatID, content);
-            setMessages(prev => [...prev, response]);
-        } catch (err) {
-            console.error('Analysis error:', err);
-            setError(err instanceof Error ? err.message : 'Error analyzing document');
-            setMessages(prev => prev.filter(msg => msg.MessageID !== newMessage.MessageID));
-        } finally {
-            setIsAnalyzing(false);
+            setMessages(prev => [...prev, newMessage]);
+            setIsAnalyzing(true);
+
+            try {
+                const response = await sendMessage(currentChat.ChatID, content);
+                setMessages(prev => [...prev, response]);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Error analyzing document');
+                setMessages(prev => prev.filter(msg => msg.MessageID !== newMessage.MessageID));
+            } finally {
+                setIsAnalyzing(false);
+            }
         }
     };
 

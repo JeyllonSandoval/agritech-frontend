@@ -1,16 +1,31 @@
 import { Message } from '@/types/message';
 
 interface ItemMessageProps extends Pick<Message, 'sendertype' | 'createdAt'> {
-    content: string;
+    content?: string;
+    contentAsk?: string;
+    contentResponse?: string;
+    contentFile?: string;
     isNew?: boolean;
     fileInfo?: {
         FileName: string;
     };
 }
 
-export default function ItemMessage({ content, sendertype, createdAt, isNew, fileInfo }: ItemMessageProps) {
+export default function ItemMessage({ content, contentAsk, contentResponse, contentFile, sendertype, createdAt, isNew, fileInfo }: ItemMessageProps) {
     const formattedDate = new Date(createdAt).toLocaleString();
     const isUser = sendertype === 'user';
+
+    // Determine which content to show (priority: content > contentAsk > contentFile > contentResponse)
+    let displayContent = '';
+    if (typeof content === 'string' && content.trim() !== '') {
+        displayContent = content;
+    } else if (typeof contentAsk === 'string' && contentAsk.trim() !== '') {
+        displayContent = contentAsk;
+    } else if (typeof contentFile === 'string' && contentFile.trim() !== '') {
+        displayContent = contentFile;
+    } else if (typeof contentResponse === 'string' && contentResponse.trim() !== '') {
+        displayContent = contentResponse;
+    }
 
     return (
         <div className={`w-full flex ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -24,7 +39,9 @@ export default function ItemMessage({ content, sendertype, createdAt, isNew, fil
                         File: {fileInfo.FileName}
                     </div>
                 )}
-                <p className="text-sm sm:text-base">{content}</p>
+                {displayContent ? (
+                    <p className="text-sm sm:text-base">{displayContent}</p>
+                ) : null}
                 <div className="mt-2 text-xs text-white/50">
                     {formattedDate}
                 </div>
