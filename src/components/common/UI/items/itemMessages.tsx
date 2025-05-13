@@ -15,16 +15,16 @@ export default function ItemMessage({ content, contentAsk, contentResponse, cont
     const formattedDate = new Date(createdAt).toLocaleString();
     const isUser = sendertype === 'user';
 
-    // Determine which content to show (priority: content > contentAsk > contentFile > contentResponse)
+    // Determine which content to show
     let displayContent = '';
-    if (typeof content === 'string' && content.trim() !== '') {
-        displayContent = content;
-    } else if (typeof contentAsk === 'string' && contentAsk.trim() !== '') {
+    if (sendertype === 'ai' && typeof contentResponse === 'string' && contentResponse.trim() !== '') {
+        displayContent = contentResponse;
+    } else if (sendertype === 'user' && typeof contentAsk === 'string' && contentAsk.trim() !== '') {
         displayContent = contentAsk;
     } else if (typeof contentFile === 'string' && contentFile.trim() !== '') {
         displayContent = contentFile;
-    } else if (typeof contentResponse === 'string' && contentResponse.trim() !== '') {
-        displayContent = contentResponse;
+    } else if (typeof content === 'string' && content.trim() !== '') {
+        displayContent = content;
     }
 
     return (

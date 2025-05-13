@@ -56,6 +56,14 @@ export const useChat = ({ ChatID }: UseChatProps) => {
     useEffect(() => {
         if (currentChat?.ChatID) {
             loadChatHistory(currentChat.ChatID);
+            
+            // Set up polling interval for real-time updates
+            const intervalId = setInterval(() => {
+                loadChatHistory(currentChat.ChatID);
+            }, 5000); // Poll every 5 seconds
+
+            // Cleanup interval on unmount or when chat changes
+            return () => clearInterval(intervalId);
         }
     }, [currentChat]);
 
@@ -177,6 +185,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
         setIsAnalyzing,
         setMessages,
         handleFileSelect,
-        loadChat
+        loadChat,
+        loadChatHistory
     };
 }; 

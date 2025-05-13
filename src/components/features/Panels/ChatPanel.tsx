@@ -27,7 +27,8 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
         setIsAnalyzing,
         setMessages,
         handleFileSelect,
-        loadChat
+        loadChat,
+        loadChatHistory
     } = useChat({ ChatID });
 
     const { files } = useFileStore();
@@ -86,6 +87,8 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
                         msg.MessageID === loadingMessage.MessageID ? backendMessage : msg
                     ));
                 }
+                // Refresca mensajes tras enviar todos
+                await loadChatHistory(currentChat.ChatID);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Error analyzing document');
             } finally {
@@ -108,6 +111,8 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
             try {
                 const response = await sendMessage(currentChat.ChatID, content);
                 setMessages(prev => [...prev, response]);
+                // Refresca mensajes tras enviar
+                await loadChatHistory(currentChat.ChatID);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Error analyzing document');
                 setMessages(prev => prev.filter(msg => msg.MessageID !== newMessage.MessageID));

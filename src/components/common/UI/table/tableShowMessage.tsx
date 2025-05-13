@@ -69,6 +69,9 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                         <ItemMessage
                             key={message.MessageID + '-single'}
                             content={getMessageContent(message)}
+                            contentAsk={message.contentAsk}
+                            contentResponse={message.contentResponse}
+                            contentFile={message.contentFile}
                             sendertype={message.sendertype}
                             createdAt={message.createdAt}
                             isNew={index === messages.length - 1}
