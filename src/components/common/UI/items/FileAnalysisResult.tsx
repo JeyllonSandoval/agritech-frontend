@@ -58,7 +58,7 @@ export default function FileAnalysisResult({
                         </div>
                     ) : (
                         <p className="text-white/80 whitespace-pre-wrap text-sm leading-relaxed">
-                            {answer}
+                            {answer && answer.trim() !== '' ? answer : 'Esperando respuesta del sistema...'}
                         </p>
                     )}
                 </div>

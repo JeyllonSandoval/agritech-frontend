@@ -134,7 +134,7 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
 
     if (!currentChat) {
         return (
-            <div className="w-full h-full flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
+            <div className="fixed left-0 right-0 top-[80px] h-[calc(100vh-80px)] flex flex-col items-center justify-center">
                 <div className="text-center space-y-4">
                     <p className="text-white/70 text-base sm:text-lg">
                         Please select a chat to start

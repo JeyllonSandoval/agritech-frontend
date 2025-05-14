@@ -3,6 +3,7 @@ import { Message } from '@/types/message';
 import ItemMessage from '@/components/common/UI/items/itemMessages';
 import FileAnalysisResult from '@/components/common/UI/items/FileAnalysisResult';
 import { FileProps } from '@/hooks/getFiles';
+import predefinedQuestions from '@/data/predefinedQuestions.json';
 
 interface TableShowMessageProps {
     messages: Message[];
@@ -37,11 +38,11 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
     return (
         <div className="flex-1 overflow-y-auto p-1 sm:p-3 space-y-2 sm:space-y-3 md:p-4 scrollbar z-0">
             {messages.map((message, index) => (
-                <div key={message.MessageID} className="w-full">
+                <div key={message.MessageID + '-' + message.sendertype + '-' + (message.FileID || '')} className="w-full">
                     {message.isPredefinedQuestion ? (
                         <div className="flex flex-col gap-2">
                             <ItemMessage
-                                key={message.MessageID + '-question'}
+                                key={message.MessageID + '-' + message.sendertype + '-' + (message.FileID || '') + '-question'}
                                 content={message.contentAsk || ''}
                                 sendertype="ai"
                                 createdAt={message.createdAt}
@@ -49,7 +50,7 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                             />
                             {message.contentResponse && (
                                 <ItemMessage
-                                    key={message.MessageID + '-response'}
+                                    key={message.MessageID + '-' + message.sendertype + '-' + (message.FileID || '') + '-response'}
                                     content={message.contentResponse}
                                     sendertype="ai"
                                     createdAt={message.createdAt}
@@ -57,17 +58,17 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                                 />
                             )}
                         </div>
-                    ) : message.contentAsk && message.contentResponse && message.FileID ? (
+                    ) : message.contentAsk && message.contentResponse && message.contentAsk.trim() !== '' && message.FileID ? (
                         <FileAnalysisResult
-                            key={message.MessageID + '-analysis'}
+                            key={message.MessageID + '-' + message.sendertype + '-' + (message.FileID || '') + '-analysis'}
                             question={message.contentAsk}
-                            description={message.contentFile || ''}
+                            description={predefinedQuestions.questions.find(q => q.id === message.contentAsk)?.description || ''}
                             answer={message.contentResponse}
                             isLoading={isLoading}
                         />
                     ) : (
                         <ItemMessage
-                            key={message.MessageID + '-single'}
+                            key={message.MessageID + '-' + message.sendertype + '-' + (message.FileID || '') + '-single'}
                             content={getMessageContent(message)}
                             contentAsk={message.contentAsk}
                             contentResponse={message.contentResponse}
