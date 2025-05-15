@@ -154,9 +154,8 @@ export const useChat = ({ ChatID }: UseChatProps) => {
                     body: JSON.stringify({
                         ChatID: currentChat.ChatID,
                         FileID: file.FileID,
-                        sendertype: 'ai',
+                        sendertype: 'user',
                         contentAsk: q.question,
-                        contentResponse: q.description,
                         status: 'active',
                         isPredefinedQuestion: true
                     })

@@ -50,23 +50,23 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
                 const token = localStorage.getItem('token');
                 if (!token) throw new Error('No token found');
                 const questions = (await import('@/data/predefinedQuestions.json')).default.questions;
+                let questionIndex = 0;
+                
                 for (const q of questions) {
-                    // Add a loading message for this question
-                    const loadingMessage = {
-                        MessageID: `${Date.now()}-${Math.random()}`,
+                    // Create and send message for each predefined question
+                    const message: Message = {
                         ChatID: currentChat.ChatID,
                         FileID: selectedFile.FileID,
-                        sendertype: 'ai',
+                        sendertype: 'user',
                         contentAsk: q.question,
-                        contentResponse: '',
                         createdAt: new Date().toISOString(),
-                        status: 'loading',
-                        isPredefinedQuestion: true,
-                        isLoading: true
+                        status: 'active',
+                        questionIndex: questionIndex // Add index to track order
                     };
-                    setMessages(prev => [...prev, loadingMessage as Message]);
 
-                    // Send the message to the backend
+                    setMessages(prev => [...prev, message]);
+
+                    // Send to backend
                     const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/message`, {
                         method: 'POST',
                         headers: {
@@ -79,15 +79,23 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
                             sendertype: 'user',
                             contentAsk: q.question,
                             status: 'active',
+                            questionIndex: questionIndex
                         })
                     });
+
                     const backendMessage = await response.json();
-                    // Replace the loading message with the real response
-                    setMessages(prev => prev.map(msg =>
-                        msg.MessageID === loadingMessage.MessageID ? backendMessage : msg
-                    ));
+                    setMessages(prev => [...prev, {
+                        ...backendMessage,
+                        sendertype: 'user',
+                        questionIndex: questionIndex
+                    }]);
+
+                    questionIndex++;
+                    // Wait a bit before sending the next question
+                    await new Promise(resolve => setTimeout(resolve, 500));
                 }
-                // Refresca mensajes tras enviar todos
+                
+                // Refresh messages after all questions are sent
                 await loadChatHistory(currentChat.ChatID);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Error analyzing document');
@@ -97,7 +105,7 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
         } else {
             // Normal message flow
             const newMessage: Message = {
-                MessageID: Date.now().toString(),
+
                 ChatID: currentChat.ChatID,
                 sendertype: 'user',
                 contentAsk: content,
@@ -111,11 +119,9 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
             try {
                 const response = await sendMessage(currentChat.ChatID, content);
                 setMessages(prev => [...prev, response]);
-                // Refresca mensajes tras enviar
                 await loadChatHistory(currentChat.ChatID);
             } catch (err) {
-                setError(err instanceof Error ? err.message : 'Error analyzing document');
-                setMessages(prev => prev.filter(msg => msg.MessageID !== newMessage.MessageID));
+                setError(err instanceof Error ? err.message : 'Error sending message');
             } finally {
                 setIsAnalyzing(false);
             }

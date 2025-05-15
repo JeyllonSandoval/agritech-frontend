@@ -1,5 +1,4 @@
 export interface Message {
-    MessageID: string;
     ChatID: string;
     FileID?: string;
     sendertype: "user" | "ai";
@@ -10,4 +9,5 @@ export interface Message {
     status: string;
     isPredefinedQuestion?: boolean;
     isLoading?: boolean;
+    questionIndex?: number;
 } 
