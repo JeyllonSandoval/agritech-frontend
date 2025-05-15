@@ -1,6 +1,7 @@
-import { AnalysisRequest, ChatMessage } from '@/types/chat';
+import { AnalysisRequest} from '@/types/chat';
+import { Message } from '@/types/message';
 
-export const analyzeDocument = async (request: AnalysisRequest): Promise<ChatMessage> => {
+export const analyzeDocument = async (request: AnalysisRequest): Promise<Message> => {
     try {
         const token = localStorage.getItem('token');
         if (!token) {

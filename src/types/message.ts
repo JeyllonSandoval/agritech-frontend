@@ -1,4 +1,5 @@
 export interface Message {
+    MessageID?: string;
     ChatID: string;
     FileID?: string;
     sendertype: "user" | "ai";

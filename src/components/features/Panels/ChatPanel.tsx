@@ -53,19 +53,6 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
                 let questionIndex = 0;
                 
                 for (const q of questions) {
-                    // Create and send message for each predefined question
-                    const message: Message = {
-                        ChatID: currentChat.ChatID,
-                        FileID: selectedFile.FileID,
-                        sendertype: 'user',
-                        contentAsk: q.question,
-                        createdAt: new Date().toISOString(),
-                        status: 'active',
-                        questionIndex: questionIndex // Add index to track order
-                    };
-
-                    setMessages(prev => [...prev, message]);
-
                     // Send to backend
                     const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/message`, {
                         method: 'POST',
@@ -94,9 +81,6 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
                     // Wait a bit before sending the next question
                     await new Promise(resolve => setTimeout(resolve, 500));
                 }
-                
-                // Refresh messages after all questions are sent
-                await loadChatHistory(currentChat.ChatID);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Error analyzing document');
             } finally {
@@ -104,22 +88,10 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
             }
         } else {
             // Normal message flow
-            const newMessage: Message = {
-
-                ChatID: currentChat.ChatID,
-                sendertype: 'user',
-                contentAsk: content,
-                createdAt: new Date().toISOString(),
-                status: 'active'
-            };
-
-            setMessages(prev => [...prev, newMessage]);
             setIsAnalyzing(true);
-
             try {
                 const response = await sendMessage(currentChat.ChatID, content);
                 setMessages(prev => [...prev, response]);
-                await loadChatHistory(currentChat.ChatID);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Error sending message');
             } finally {

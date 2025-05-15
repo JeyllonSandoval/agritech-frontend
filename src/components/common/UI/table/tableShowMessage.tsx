@@ -38,10 +38,10 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
     return (
         <div className="flex-1 overflow-y-auto p-1 sm:p-3 space-y-2 sm:space-y-3 md:p-4 scrollbar z-0">
             {messages.map((message, index) => (
-                <div key={message.sendertype + '-' + (message.FileID || '')} className="w-full">
+                <div key={message.MessageID || (message.sendertype + '-' + (message.FileID || '') + '-' + (message.questionIndex ?? index))} className="w-full">
                     {message.FileID && message.contentAsk && message.contentResponse ? (
                         <FileAnalysisResult
-                            key={message.sendertype + '-' + (message.FileID || '') + '-analysis'}
+                            key={message.MessageID || (message.sendertype + '-' + (message.FileID || '') + '-analysis-' + (message.questionIndex ?? index))}
                             question={predefinedQuestions.questions[message.questionIndex || 0]?.question || ''}
                             description={predefinedQuestions.questions[message.questionIndex || 0]?.description || ''}
                             answer={message.contentResponse}
@@ -49,7 +49,7 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                         />
                     ) : (
                         <ItemMessage
-                            key={message.sendertype + '-' + (message.FileID || '') + '-single'}
+                            key={message.MessageID || (message.sendertype + '-' + (message.FileID || '') + '-single-' + (message.questionIndex ?? index))}
                             content={getMessageContent(message)}
                             contentAsk={message.contentAsk}
                             contentResponse={message.contentResponse}
