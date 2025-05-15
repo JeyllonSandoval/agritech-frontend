@@ -6,22 +6,31 @@ export function useAuth() {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
+    const checkAuth = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            setIsAuthenticated(!!token);
+        } catch (error) {
+            console.error('Error checking authentication:', error);
+            setIsAuthenticated(false);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                // Aquí iría tu lógica de verificación de autenticación
-                // Por ejemplo, verificar un token en localStorage o hacer una llamada a la API
-                const token = localStorage.getItem('token');
-                setIsAuthenticated(!!token);
-            } catch (error) {
-                console.error('Error checking authentication:', error);
-                setIsAuthenticated(false);
-            } finally {
-                setIsLoading(false);
-            }
+        checkAuth();
+
+        // Listen for login state changes
+        const handleLoginStateChange = () => {
+            checkAuth();
         };
 
-        checkAuth();
+        window.addEventListener('loginStateChange', handleLoginStateChange);
+
+        return () => {
+            window.removeEventListener('loginStateChange', handleLoginStateChange);
+        };
     }, []);
 
     return {

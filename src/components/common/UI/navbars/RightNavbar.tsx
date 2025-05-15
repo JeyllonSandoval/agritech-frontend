@@ -3,10 +3,11 @@ import ImgProfileNavbar from "./ImgProfileNavbar";
 import DropNavbar from "./SigninNavbar";
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function RightNavbar() {
     const pathname = usePathname();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
 
     const handleLogout = () => {
@@ -15,6 +16,10 @@ export default function RightNavbar() {
         window.dispatchEvent(new Event('loginStateChange'));
         router.push('/');
     };
+
+    if (isLoading) {
+        return <div className="w-[200px] lg:w-[250px] flex justify-end" />;
+    }
 
     return (
         <div className="flex items-center">
