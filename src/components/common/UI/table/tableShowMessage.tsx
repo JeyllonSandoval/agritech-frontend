@@ -38,10 +38,10 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
     return (
         <div className="flex-1 overflow-y-auto p-1 sm:p-3 space-y-2 sm:space-y-3 md:p-4 scrollbar z-0">
             {messages.map((message, index) => (
-                <div key={message.MessageID || (message.sendertype + '-' + (message.FileID || '') + '-' + (message.questionIndex ?? index))} className="w-full">
+                <div key={`${message.MessageID || 'temp'}-${index}`} className="w-full">
                     {message.FileID && message.contentAsk && message.contentResponse ? (
                         <FileAnalysisResult
-                            key={message.MessageID || (message.sendertype + '-' + (message.FileID || '') + '-analysis-' + (message.questionIndex ?? index))}
+                            key={`analysis-${message.MessageID || 'temp'}-${index}`}
                             question={predefinedQuestions.questions[message.questionIndex || 0]?.question || ''}
                             description={predefinedQuestions.questions[message.questionIndex || 0]?.description || ''}
                             answer={message.contentResponse}
@@ -49,7 +49,7 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                         />
                     ) : (
                         <ItemMessage
-                            key={message.MessageID || (message.sendertype + '-' + (message.FileID || '') + '-single-' + (message.questionIndex ?? index))}
+                            key={`message-${message.MessageID || 'temp'}-${index}`}
                             content={getMessageContent(message)}
                             contentAsk={message.contentAsk}
                             contentResponse={message.contentResponse}
@@ -66,12 +66,12 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
             ))}
             <div ref={messagesEndRef} />
             
-            {isLoading && (
+            {isLoading && messages.length > 0 && messages[messages.length - 1].sendertype === 'user' && (
                 <div className="flex justify-start mb-4 animate-fadeIn">
-                    <div className="bg-white/10 rounded-xl p-2 sm:p-3 flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce" />
-                        <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce [animation-delay:0.2s]" />
-                        <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce [animation-delay:0.4s]" />
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-lg p-3 sm:p-4 flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDuration: '0.8s' }} />
+                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDuration: '0.8s', animationDelay: '0.2s' }} />
+                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDuration: '0.8s', animationDelay: '0.4s' }} />
                     </div>
                 </div>
             )}

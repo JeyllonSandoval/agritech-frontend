@@ -12,19 +12,24 @@ interface ItemMessageProps extends Pick<Message, 'sendertype' | 'createdAt'> {
 }
 
 export default function ItemMessage({ content, contentAsk, contentResponse, contentFile, sendertype, createdAt, isNew, fileInfo }: ItemMessageProps) {
-    const formattedDate = new Date(createdAt).toLocaleString();
+    const formattedDate = createdAt ? new Date(createdAt).toLocaleString(undefined, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    }) : '';
     const isUser = sendertype === 'user';
 
     // Determine which content to show
     let displayContent = '';
-    if (sendertype === 'ai' && typeof contentResponse === 'string' && contentResponse.trim() !== '') {
-        displayContent = contentResponse;
-    } else if (sendertype === 'user' && typeof contentAsk === 'string' && contentAsk.trim() !== '') {
-        displayContent = contentAsk;
-    } else if (typeof contentFile === 'string' && contentFile.trim() !== '') {
-        displayContent = contentFile;
-    } else if (typeof content === 'string' && content.trim() !== '') {
-        displayContent = content;
+    if (sendertype === 'user') {
+        displayContent = contentAsk || content || '';
+    } else if (sendertype === 'ai') {
+        displayContent = contentResponse || content || '';
+    } else {
+        displayContent = contentFile || content || '';
     }
 
     return (
@@ -39,9 +44,9 @@ export default function ItemMessage({ content, contentAsk, contentResponse, cont
                         File: {fileInfo.FileName}
                     </div>
                 )}
-                {displayContent ? (
+                {displayContent && (
                     <p className="text-sm sm:text-base">{displayContent}</p>
-                ) : null}
+                )}
                 <div className="mt-2 text-xs text-white/50">
                     {formattedDate}
                 </div>

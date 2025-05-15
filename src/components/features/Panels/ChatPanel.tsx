@@ -88,10 +88,23 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
             }
         } else {
             // Normal message flow
+            // Add user message immediately
+            const userMessage: Message = {
+                ChatID: currentChat.ChatID,
+                sendertype: 'user',
+                contentAsk: content,
+                createdAt: new Date().toISOString(),
+                status: 'active',
+                MessageID: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+            };
+            setMessages(prev => [...prev, userMessage]);
+            
             setIsAnalyzing(true);
             try {
                 const response = await sendMessage(currentChat.ChatID, content);
-                setMessages(prev => [...prev, response]);
+                setMessages(prev => prev.map(msg => 
+                    msg.MessageID === userMessage.MessageID ? response : msg
+                ));
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Error sending message');
             } finally {

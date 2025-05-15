@@ -50,11 +50,11 @@ export default function FileAnalysisResult({
                 }`}
             >
                 <div className="overflow-hidden">
-                    {isLoading ? (
+                    {isLoading && (!answer || answer.trim() === '') ? (
                         <div className="flex items-center space-x-2 py-2">
-                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" />
-                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce [animation-delay:0.2s]" />
-                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce [animation-delay:0.4s]" />
+                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDuration: '1s' }} />
+                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDuration: '1s', animationDelay: '0.2s' }} />
+                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDuration: '1s', animationDelay: '0.4s' }} />
                         </div>
                     ) : (
                         <p className="text-white/80 whitespace-pre-wrap text-sm leading-relaxed">
