@@ -6,6 +6,9 @@ export interface Message {
     contentFile?: string;
     contentAsk?: string;
     contentResponse?: string;
+    content?: string;
+    question?: string;
+    answer?: string;
     createdAt: string;
     status: string;
     isPredefinedQuestion?: boolean;

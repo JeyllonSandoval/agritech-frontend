@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import BarFiles from '@/components/common/UI/items/itemsFiles';
 import ButtonCreated from '@/components/common/UI/buttons/buttonCreatedFile';
 import { useFileStore } from '@/store/fileStore';
@@ -33,14 +33,16 @@ export default function FilesPanels({ onShowPdf }: FilesPanelsProps) {
         }
     };
 
-    const handleShowPdf = (file: FileProps) => {
+    const filesMemo = useMemo(() => files, [files]);
+
+    const handleShowPdfMemo = useCallback((file: FileProps) => {
         if (onShowPdf) {
             onShowPdf(file);
         } else {
             setSelectedFile(file);
             openModal('createdFile', 'preview', file.FileName, undefined, undefined, undefined, file.contentURL);
         }
-    };
+    }, [onShowPdf, setSelectedFile, openModal]);
 
     if (!mounted) return null;
 
@@ -90,7 +92,7 @@ export default function FilesPanels({ onShowPdf }: FilesPanelsProps) {
                             <p className="text-white/70 text-4xl">No files found</p>
                         </div>
                     ) : (
-                        <BarFiles files={files} onShowPdf={handleShowPdf} />
+                        <BarFiles files={filesMemo} onShowPdf={handleShowPdfMemo} />
                     )}
                 </div>
 

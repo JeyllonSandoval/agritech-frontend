@@ -35,11 +35,24 @@ export const useChat = ({ ChatID }: UseChatProps) => {
             setIsLoading(true);
             const allMessages = await chatService.getMessages(chatId);
             
-            // Asegurar que todos los mensajes tengan la hora del cliente
-            const messagesWithClientTime = allMessages.map((message: Message) => ({
-                ...message,
-                createdAt: message.createdAt || new Date().toISOString()
-            }));
+            // Asegurar que todos los mensajes tengan la hora del cliente y los campos correctos para FileAnalysisResult
+            const messagesWithClientTime = allMessages.map((message: Message) => {
+                let transformed = {
+                    ...message,
+                    createdAt: message.createdAt || new Date().toISOString()
+                };
+                // Si es respuesta de archivo, asegura los campos
+                if (message.FileID && message.sendertype === 'ai') {
+                    transformed = {
+                        ...transformed,
+                        contentAsk: message.contentAsk || message.question || '',
+                        contentResponse: message.contentResponse || message.content || message.answer || '',
+                        questionIndex: message.questionIndex || 0,
+                        isLoading: false
+                    };
+                }
+                return transformed;
+            });
 
             setMessages(messagesWithClientTime);
         } catch (err) {
@@ -103,14 +116,17 @@ export const useChat = ({ ChatID }: UseChatProps) => {
     const handleFileSelect = async (file: FileProps) => {
         if (!currentChat) return;
         setSelectedFile(file);
-        
         try {
             setIsLoading(true);
             setError(null);
 
             // 1. Enviar mensaje de archivo
             const fileMessage = await chatService.sendFileMessage(currentChat.ChatID, file.FileID);
-            setMessages(prev => [...prev, fileMessage]);
+            setMessages(prev => {
+                const updated = [...prev, fileMessage];
+                console.log('Después de fileMessage:', updated);
+                return updated;
+            });
 
             // 2. Procesar preguntas predefinidas
             for (const [questionIndex, question] of predefinedQuestions.questions.entries()) {
@@ -127,7 +143,11 @@ export const useChat = ({ ChatID }: UseChatProps) => {
                     contentAsk: question.question,
                     questionIndex
                 };
-                setMessages(prev => [...prev, aiPlaceholder]);
+                setMessages(prev => {
+                    const updated = [...prev, aiPlaceholder];
+                    console.log('Después de placeholder:', updated);
+                    return updated;
+                });
 
                 // 2. Espera respuesta real
                 const questionResponse = await chatService.sendMessage(
@@ -144,9 +164,13 @@ export const useChat = ({ ChatID }: UseChatProps) => {
                 };
 
                 // 3. Reemplaza el placeholder por la respuesta real
-                setMessages(prev => prev.map(msg =>
-                    msg.MessageID === placeholderId ? backendMessage : msg
-                ));
+                setMessages(prev => {
+                    const updated = prev.map(msg =>
+                        msg.MessageID === placeholderId ? backendMessage : msg
+                    );
+                    console.log('Después de respuesta real:', updated);
+                    return updated;
+                });
             }
         } catch (err) {
             console.error('Error handling file:', err);

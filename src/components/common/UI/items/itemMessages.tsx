@@ -55,11 +55,8 @@ export default function ItemMessage({ content, contentAsk, contentResponse, cont
                         <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDuration: '0.8s', animationDelay: '0.4s' }} />
                     </div>
                 ) : (
-                    displayContent &&  (
-                        // Solo mostrar el contenido si no es 'New file selected' cuando hay fileInfo
-                        !(fileInfo && displayContent === 'New file selected') && (
-                            <p className="text-sm sm:text-base">{displayContent}</p>
-                        )
+                    !fileInfo && displayContent && (
+                        <p className="text-sm sm:text-base">{displayContent}</p>
                     )
                 )}
                 

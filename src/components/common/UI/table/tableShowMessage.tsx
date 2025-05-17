@@ -35,43 +35,72 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
         return '';
     };
 
+    // Mantener un registro de los FileIDs que ya han mostrado su mensaje inicial
+    const shownFileIds = new Set<string>();
+    const processedFileIds = new Set<string>();
+
     return (
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-1 sm:p-3 space-y-2 sm:space-y-3 md:p-4 scrollbar z-0">
-            {messages.map((message, index) => (
-                <div key={`${message.MessageID || 'temp'}-${index}`} className="w-full">
-                    {message.FileID && message.contentAsk && message.contentResponse ? (
-                        <FileAnalysisResult
-                            key={`analysis-${message.MessageID || 'temp'}-${index}`}
-                            question={predefinedQuestions.questions[message.questionIndex || 0]?.question || ''}
-                            description={predefinedQuestions.questions[message.questionIndex || 0]?.description || ''}
-                            answer={message.contentResponse}
-                            isLoading={isLoading}
-                        />
-                    ) : message.FileID && message.contentFile ? (
+            {messages.map((message, index) => {
+                // Mostrar mensaje de archivo solo la primera vez que aparece ese FileID
+                if (message.FileID && message.contentFile && !shownFileIds.has(message.FileID)) {
+                    shownFileIds.add(message.FileID);
+                    return (
+                        <div key={`filemsg-${message.MessageID || 'temp'}-${index}`} className="w-full">
+                            <ItemMessage
+                                content={message.contentFile}
+                                sendertype={'user'}
+                                createdAt={message.createdAt}
+                                isNew={false}
+                                fileInfo={(() => {
+                                    const name = getFileName(message.FileID);
+                                    if (name) return { FileName: name };
+                                    if (files.length === 0) return { FileName: 'Loading file...' };
+                                    return { FileName: 'File not found' };
+                                })()}
+                                isLoading={message.isLoading}
+                            />
+                        </div>
+                    );
+                }
+
+                // Mostrar FileAnalysisResult para respuestas de análisis
+                if (message.FileID && message.contentAsk && message.contentResponse && !processedFileIds.has(message.MessageID || '')) {
+                    processedFileIds.add(message.MessageID || '');
+                    const questionIndex = message.questionIndex || 0;
+                    const question = predefinedQuestions.questions[questionIndex]?.question || message.contentAsk;
+                    
+                    return (
+                        <div key={`analysis-${message.MessageID || 'temp'}-${index}`} className="w-full">
+                            <FileAnalysisResult
+                                question={question}
+                                description={predefinedQuestions.questions[questionIndex]?.description || ''}
+                                answer={message.contentResponse}
+                                isLoading={message.isLoading || isLoading}
+                            />
+                        </div>
+                    );
+                }
+
+                // Mensajes normales
+                return (
+                    <div key={`message-${message.MessageID || 'temp'}-${index}`} className="w-full">
                         <ItemMessage
-                            key={`filemsg-${message.MessageID || 'temp'}-${index}`}
-                            content={message.contentFile}
-                            sendertype={message.sendertype}
-                            createdAt={message.createdAt}
-                            isNew={index === messages.length - 1}
-                            fileInfo={{ FileName: getFileName(message.FileID) || 'File not found' }}
-                            isLoading={message.isLoading}
-                        />
-                    ) : (
-                        <ItemMessage
-                            key={`message-${message.MessageID || 'temp'}-${index}`}
                             content={getMessageContent(message)}
                             sendertype={message.sendertype}
                             createdAt={message.createdAt}
-                            isNew={index === messages.length - 1}
-                            fileInfo={message.FileID ? { 
-                                FileName: getFileName(message.FileID) || 'File not found'
-                            } : undefined}
+                            isNew={false}
+                            fileInfo={message.FileID ? (() => {
+                                const name = getFileName(message.FileID);
+                                if (name) return { FileName: name };
+                                if (files.length === 0) return { FileName: 'Loading file...' };
+                                return { FileName: 'File not found' };
+                            })() : undefined}
                             isLoading={message.isLoading}
                         />
-                    )}
-                </div>
-            ))}
+                    </div>
+                );
+            })}
             <div ref={messagesEndRef} />
         </div>
     );

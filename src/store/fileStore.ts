@@ -15,12 +15,12 @@ files: [],
 loading: false,
 error: null,
 fetchFiles: async () => {
-    set({ loading: true, error: null, files: [] });
+    set({ loading: true, error: null });
     try {
     const files = await getFiles();
     set({ files, loading: false });
     } catch (error) {
-    set({ error: 'Error loading files', loading: false, files: [] });
+    set({ error: 'Error loading files', loading: false });
     }
 },
 addFile: (file) => set((state) => ({ files: [...state.files, file] })),
