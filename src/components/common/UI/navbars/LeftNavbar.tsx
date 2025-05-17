@@ -11,7 +11,7 @@ export default function LeftNavbar() {
                     height={60}
                     className="w-8 h-8 md:w-12 md:h-12 lg:w-20 lg:h-20"
                 />
-                <h1 className="text-lg md:text-2xl lg:text-4xl font-medium text-white">AgriTech</h1>
+                <h1 className="text-lg md:text-2xl lg:text-4xl font-semibold text-white bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-600 group-hover:from-emerald-300 group-hover:to-emerald-500">AgriTech</h1>
             </Link>
         </div>
     )

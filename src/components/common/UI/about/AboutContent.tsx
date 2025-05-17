@@ -31,21 +31,21 @@ interface Section {
     };
 }
 
-
 export default function AboutContent() {
     const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
     const getIcon = (iconName: string) => {
         const IconComponent = (FaIcons as any)[iconName];
-        return IconComponent ? <IconComponent className="w-6 h-6" /> : null;
+        return IconComponent ? <IconComponent className="w-6 h-6 text-emerald-400" /> : null;
     };
 
     return (
         <div className="w-full max-w-7xl mx-auto lg:w-5/6 xl:w-2/3 min-h-screen text-white">
             {/* Company Info Section */}
             <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
                 className="text-center mb-12 md:mb-16"
             >
                 <div className="relative w-24 h-24 md:w-32 md:h-32 mx-auto mb-4 md:mb-6">
@@ -56,7 +56,7 @@ export default function AboutContent() {
                         className="object-contain"
                     />
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4 text-white/90">
+                <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-600">
                     {aboutData.companyInfo.name}
                 </h1>
                 <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto px-4">
@@ -69,9 +69,10 @@ export default function AboutContent() {
                 {aboutData.sections.map((section: Section) => (
                     <motion.div
                         key={section.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="border border-white/10 rounded-xl overflow-hidden"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden hover:border-emerald-400/30 transition-colors duration-300"
                     >
                         <button
                             onClick={() => setExpandedSection(expandedSection === section.id ? null : section.id)}
@@ -79,9 +80,9 @@ export default function AboutContent() {
                         >
                             <div className="flex items-center gap-2 md:gap-3">
                                 {getIcon(section.icon)}
-                                <h2 className="text-xl md:text-2xl font-semibold">{section.title}</h2>
+                                <h2 className="text-xl md:text-2xl font-semibold text-white">{section.title}</h2>
                             </div>
-                            <span className="text-xl md:text-2xl transform transition-transform duration-300">
+                            <span className="text-xl md:text-2xl text-emerald-400 transform transition-transform duration-300">
                                 {expandedSection === section.id ? '−' : '+'}
                             </span>
                         </button>
