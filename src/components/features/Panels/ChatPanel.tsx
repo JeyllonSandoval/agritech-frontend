@@ -36,7 +36,8 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
         if (ChatID && (!currentChat || currentChat.ChatID !== ChatID)) {
             loadChat(ChatID);
         }
-    }, [ChatID, currentChat, loadChat]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ChatID]);
 
     const handleSendMessage = async (content: string) => {
         if (!currentChat) return;
