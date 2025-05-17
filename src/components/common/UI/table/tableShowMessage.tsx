@@ -47,6 +47,16 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                             answer={message.contentResponse}
                             isLoading={isLoading}
                         />
+                    ) : message.FileID && message.contentFile ? (
+                        <ItemMessage
+                            key={`filemsg-${message.MessageID || 'temp'}-${index}`}
+                            content={message.contentFile}
+                            sendertype={message.sendertype}
+                            createdAt={message.createdAt}
+                            isNew={index === messages.length - 1}
+                            fileInfo={{ FileName: getFileName(message.FileID) || 'File not found' }}
+                            isLoading={message.isLoading}
+                        />
                     ) : (
                         <ItemMessage
                             key={`message-${message.MessageID || 'temp'}-${index}`}

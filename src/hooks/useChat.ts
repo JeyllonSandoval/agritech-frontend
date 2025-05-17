@@ -113,9 +113,40 @@ export const useChat = ({ ChatID }: UseChatProps) => {
             setMessages(prev => [...prev, fileMessage]);
 
             // 2. Procesar preguntas predefinidas
-            for (const question of predefinedQuestions.questions) {
-                const questionResponse = await chatService.sendMessage(currentChat.ChatID, question.question);
-                setMessages(prev => [...prev, questionResponse]);
+            for (const [questionIndex, question] of predefinedQuestions.questions.entries()) {
+                // 1. Placeholder
+                const placeholderId = `loading-fileq-${questionIndex}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                const aiPlaceholder: Message = {
+                    ChatID: currentChat.ChatID,
+                    FileID: file.FileID,
+                    sendertype: 'ai',
+                    status: 'loading',
+                    createdAt: new Date().toISOString(),
+                    isLoading: true,
+                    MessageID: placeholderId,
+                    contentAsk: question.question,
+                    questionIndex
+                };
+                setMessages(prev => [...prev, aiPlaceholder]);
+
+                // 2. Espera respuesta real
+                const questionResponse = await chatService.sendMessage(
+                    currentChat.ChatID,
+                    question.question,
+                    file.FileID
+                );
+                const backendMessage: Message = {
+                    ...questionResponse,
+                    FileID: file.FileID,
+                    contentAsk: question.question,
+                    questionIndex,
+                    isLoading: false
+                };
+
+                // 3. Reemplaza el placeholder por la respuesta real
+                setMessages(prev => prev.map(msg =>
+                    msg.MessageID === placeholderId ? backendMessage : msg
+                ));
             }
         } catch (err) {
             console.error('Error handling file:', err);

@@ -9,20 +9,23 @@ const getToken = () => {
 };
 
 export const chatService = {
-    async sendMessage(chatId: string, content: string): Promise<Message> {
+    async sendMessage(chatId: string, content: string, fileId?: string): Promise<Message> {
         const token = getToken();
+        const body: any = {
+            ChatID: chatId,
+            contentAsk: content,
+            sendertype: 'user',
+            status: 'active'
+        };
+        if (fileId) body.FileID = fileId;
+
         const response = await fetch(`${API_URL}/message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-                ChatID: chatId,
-                contentAsk: content,
-                sendertype: 'user',
-                status: 'active'
-            })
+            body: JSON.stringify(body)
         });
 
         if (!response.ok) throw new Error('Failed to send message');
@@ -73,6 +76,16 @@ export const chatService = {
         });
 
         if (!response.ok) throw new Error('Failed to send file message');
-        return response.json();
+        const backendResponse = await response.json();
+        const msg = backendResponse.message;
+        return {
+            MessageID: msg.id,
+            ChatID: msg.chatId,
+            FileID: msg.fileId,
+            sendertype: msg.senderType,
+            contentFile: msg.content || msg.contentFile,
+            createdAt: msg.createdAt,
+            status: msg.status
+        };
     }
 }; 
