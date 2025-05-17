@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useChatStore } from '@/store/chatStore';
 
@@ -21,6 +21,7 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
         noSpecialChars: false
     });
     const addChat = useChatStore(state => state.addChat);
+    const firstInputRef = useRef<HTMLInputElement>(null);
 
     
     const isFormValid = validations.length && validations.noSpecialChars;
@@ -31,6 +32,10 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
             noSpecialChars: /^[a-zA-Z0-9\s-_]+$/.test(chatName)
         });
     }, [chatName]);
+
+    useEffect(() => {
+        firstInputRef.current?.focus();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -97,6 +102,7 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
         <form onSubmit={handleSubmit} className="w-full space-y-6">
             <div className="relative flex flex-col gap-2">
                 <input
+                    ref={firstInputRef}
                     type="text"
                     value={chatName}
                     onChange={(e) => setChatName(e.target.value)}

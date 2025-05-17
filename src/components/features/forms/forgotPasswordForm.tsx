@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordForm() {
     const router = useRouter();
+    const emailInputRef = useRef<HTMLInputElement>(null);
     const [Email, setEmail] = useState("");
     const [message, setMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        emailInputRef.current?.focus();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,6 +74,7 @@ export default function ForgotPasswordForm() {
                     <div className="w-full space-y-3 md:space-y-4">
                         <div className="relative flex items-center">
                             <input
+                                ref={emailInputRef}
                                 className="w-full px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm
                                     bg-white/10 backdrop-blur-sm rounded-xl
                                     border border-white/20 text-white

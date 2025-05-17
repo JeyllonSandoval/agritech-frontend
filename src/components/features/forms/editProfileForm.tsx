@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { useModal } from "@/context/modalContext";
 
@@ -60,6 +60,7 @@ export default function EditProfileForm() {
     const [isSuccess, setIsSuccess] = useState(false);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [initialData, setInitialData] = useState<Partial<FormData>>({});
+    const firstNameInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (userData) {
@@ -76,6 +77,10 @@ export default function EditProfileForm() {
             });
         }
     }, [userData]);
+
+    useEffect(() => {
+        firstNameInputRef.current?.focus();
+    }, []);
 
     const fetchCountries = async () => {
         try {
@@ -300,6 +305,7 @@ export default function EditProfileForm() {
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-white/70">First Name</label>
                     <input
+                        ref={firstNameInputRef}
                         type="text"
                         name="FirstName"
                         value={formData.FirstName}

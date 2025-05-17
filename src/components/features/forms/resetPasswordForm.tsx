@@ -1,18 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function ResetPasswordForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
+    const passwordInputRef = useRef<HTMLInputElement>(null);
     
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [message, setMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        passwordInputRef.current?.focus();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -101,6 +106,7 @@ export default function ResetPasswordForm() {
                     <div className="w-full space-y-3 md:space-y-4">
                         <div className="relative flex items-center">
                             <input
+                                ref={passwordInputRef}
                                 className="w-full px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm
                                     bg-white/10 backdrop-blur-sm rounded-xl
                                     border border-white/20 text-white

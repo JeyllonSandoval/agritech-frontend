@@ -24,10 +24,15 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
         validType: false,
         validSize: false
     });
+    const firstInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         setToken(storedToken);
+    }, []);
+
+    useEffect(() => {
+        firstInputRef.current?.focus();
     }, []);
 
     const validateFile = (file: File | null) => {

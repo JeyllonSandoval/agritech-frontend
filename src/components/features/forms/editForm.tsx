@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface EditFormProps {
     initialValue: string;
@@ -24,6 +24,7 @@ export const EditForm: React.FC<EditFormProps> = ({
         length: false,
         noSpecialChars: false
     });
+    const firstInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         setValidations({
@@ -31,6 +32,10 @@ export const EditForm: React.FC<EditFormProps> = ({
             noSpecialChars: /^[a-zA-Z0-9\s-_]+$/.test(value)
         });
     }, [value]);
+
+    useEffect(() => {
+        firstInputRef.current?.focus();
+    }, []);
 
     const isFormValid = validations.length && validations.noSpecialChars;
 
@@ -89,6 +94,7 @@ export const EditForm: React.FC<EditFormProps> = ({
         <form onSubmit={handleSubmit} className="w-full space-y-6 text-xl">
             <div className="relative flex flex-col gap-2">
                 <input
+                    ref={firstInputRef}
                     type="text"
                     value={value}
                     onChange={(e) => setValue(e.target.value)}

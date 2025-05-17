@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/hooks/useAuth';
 
@@ -11,6 +11,11 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [message, setMessage] = useState("");
+    const emailInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        emailInputRef.current?.focus();
+    }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -65,6 +70,7 @@ const Login = () => {
                         <div className="space-y-3 md:space-y-4">
                             <div className="relative flex items-center">
                                 <input
+                                    ref={emailInputRef}
                                     className="w-full px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm
                                         bg-white/10 backdrop-blur-sm rounded-xl
                                         border border-white/20 text-white

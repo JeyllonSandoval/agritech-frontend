@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/hooks/useAuth';
 
@@ -44,6 +44,7 @@ export default function RegisterForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [touched, setTouched] = useState<Record<string, boolean>>({});
+    const firstInputRef = useRef<HTMLInputElement>(null);
 
     const fetchCountry = async () => {
         try {
@@ -72,6 +73,10 @@ export default function RegisterForm() {
             setMessage("");
         }
     }, [password, confirmPassword]);
+
+    useEffect(() => {
+        firstInputRef.current?.focus();
+    }, []);
 
     // Validación en tiempo real
     const validateField = (name: string, value: string) => {
@@ -253,6 +258,7 @@ export default function RegisterForm() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                             <div className="relative flex flex-col">
                                 <input
+                                    ref={firstInputRef}
                                     value={FirstName}
                                     onChange={(e) => handleChange('FirstName', e.target.value)}
                                     onBlur={() => handleBlur('FirstName')}

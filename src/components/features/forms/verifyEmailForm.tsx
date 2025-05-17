@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function VerifyEmailForm() {
@@ -9,6 +9,7 @@ export default function VerifyEmailForm() {
     const token = searchParams.get('token');
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(true);
+    const firstInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const verifyEmail = async () => {
@@ -55,6 +56,10 @@ export default function VerifyEmailForm() {
 
         verifyEmail();
     }, [token, router]);
+
+    useEffect(() => {
+        firstInputRef.current?.focus();
+    }, []);
 
     return (
         <section className="w-full h-full flex justify-center items-center px-4">
