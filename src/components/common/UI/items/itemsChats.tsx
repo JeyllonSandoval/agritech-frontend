@@ -115,18 +115,20 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
                             className={`w-full px-4 py-3 backdrop-blur-sm text-white/90 rounded-lg 
                                 shadow-lg shadow-black/20 transition-all duration-300
                                 flex items-center justify-between gap-2 text-sm font-medium
-                                relative overflow-hidden ${selectedChatId === chat.ChatID ? 'bg-green-500/20' : ''}`}
+                                relative overflow-hidden
+                                hover:bg-emerald-500/20 hover:border-emerald-400/30
+                                ${selectedChatId === chat.ChatID 
+                                    ? 'bg-emerald-500/30 border border-emerald-400/40' 
+                                    : 'bg-gray-800/20 border border-transparent'}`}
                             onClick={() => {
                                 onChatSelect(chat.ChatID, chat);
                                 onPanelChange('chat', chat.ChatID);
                                 router.push(`/playground/chat/${chat.ChatID}`);
                             }}
                         >
-                            <div className={`absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-green-800/60 to-transparent
-                                transform transition-transform duration-500 ease-in-out
-                                ${selectedChatId === chat.ChatID ? 'translate-y-[70%]' : 'translate-y-full group-hover:translate-y-0'}`}>
-                            </div>
-                            <span className="relative z-10 text-white">{chat.chatname || 'Unnamed Chat'}</span>
+                            <span className="relative z-10 text-white group-hover:translate-x-1 transition-transform duration-300">
+                                {chat.chatname || 'Unnamed Chat'}
+                            </span>
                         </button>
                         <div className="absolute right-2 top-1/2 -translate-y-1/2">
                             <ButtonItemEdit 

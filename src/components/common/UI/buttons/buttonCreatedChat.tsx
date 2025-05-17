@@ -17,10 +17,17 @@ export default function ButtonCreatedChat({ onClick }: ButtonCreatedChatProps) {
     return (
         <button 
             onClick={handleClick}
-            className="w-full px-4 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500
-                hover:from-emerald-500 hover:to-emerald-400 text-white rounded-lg
-                shadow-lg shadow-emerald-500/20 transition-all duration-300
-                flex items-center justify-center gap-2 text-sm font-medium"
+            className="text-white/90 px-6 py-3 rounded-xl text-sm
+                bg-gradient-to-br from-emerald-400/40 to-emerald-600/40
+                border border-emerald-400/30
+                shadow-lg shadow-emerald-400/20
+                backdrop-blur-md
+                hover:from-emerald-400/60 hover:to-emerald-600/60
+                hover:border-emerald-400/50 hover:text-white
+                hover:shadow-emerald-400/30
+                active:scale-95
+                transition-all duration-300
+                flex items-center gap-2 w-full justify-center"
         >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 

@@ -72,7 +72,7 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
             onClick={onClose}
         >
             <div className="absolute right-8 top-14 w-48 py-2 mt-6 
-                bg-white/10 backdrop-blur-xl rounded-2xl 
+                bg-white/15 backdrop-blur-3xl rounded-2xl 
                 border border-white/20 shadow-lg overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
@@ -87,7 +87,7 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
                         </p>
                     )}
                 </div>
-                <ul className="mt-2 flex flex-col gap-1 text-sm lg:text-lg">
+                <ul className="mt-2 flex flex-col gap-1 text-sm lg:text-sm">
                     <li>
                         <button 
                             onClick={handleProfileClick}

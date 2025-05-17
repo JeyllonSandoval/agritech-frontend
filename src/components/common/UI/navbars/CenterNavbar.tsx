@@ -57,8 +57,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
                 {/* Background dinámico */}
                 {!isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute && (
                     <div
-                        className="absolute h-[38px] bg-emerald-400/90 backdrop-blur-md rounded-full transition-all duration-300 ease-in-out
-                            shadow-md shadow-emerald-600/50"
+                        className="absolute h-[38px] bg-emerald-600/90 backdrop-blur-md rounded-full transition-all duration-300 ease-in-out"
                         style={{
                             width: `${activeBackground.width}px`,
                             left: `${activeBackground.left}px`,

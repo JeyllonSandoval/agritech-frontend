@@ -36,7 +36,7 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
     };
 
     return (
-        <div className="flex-1 overflow-y-auto p-1 sm:p-3 space-y-2 sm:space-y-3 md:p-4 scrollbar z-0">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-1 sm:p-3 space-y-2 sm:space-y-3 md:p-4 scrollbar z-0">
             {messages.map((message, index) => (
                 <div key={`${message.MessageID || 'temp'}-${index}`} className="w-full">
                     {message.FileID && message.contentAsk && message.contentResponse ? (

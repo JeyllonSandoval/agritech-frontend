@@ -2,8 +2,6 @@ import { useChat } from '@/hooks/useChat';
 import { useFileStore } from '@/store/fileStore';
 import ModalCreated from '../modals/modalCreated';
 import ButtonSelectFile from '@/components/common/UI/buttons/buttonSelectFile';
-import { Message } from '@/types/message';
-import { FileProps } from '@/hooks/getFiles';
 import TableShowMessage from '@/components/common/UI/table/tableShowMessage';
 import BarWrited from '@/components/common/UI/bars/barWrited';
 import { useModal } from '@/context/modalContext';

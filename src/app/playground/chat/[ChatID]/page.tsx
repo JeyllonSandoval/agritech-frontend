@@ -1,6 +1,5 @@
 'use client';
 
-import PlaygroundLayout from '@/components/features/layouts/playgroundLayout';
 import ProtectedRoute from '@/utils/protectedRoute';
 import { use } from 'react';
 import ChatPanel from '@/components/features/Panels/ChatPanel';
@@ -26,9 +25,7 @@ export default function ChatPage({ params }: ChatPageProps) {
     
     return (
         <ProtectedRoute>
-            <PlaygroundLayout>
-                <ChatPanel onPanelChange={handlePanelChange} chatId={ChatID} />
-            </PlaygroundLayout>
+            <ChatPanel onPanelChange={handlePanelChange} ChatID={ChatID} />
         </ProtectedRoute>
     );
 }

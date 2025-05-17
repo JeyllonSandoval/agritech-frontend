@@ -6,12 +6,15 @@ export default function ButtonCreated({ type }: { type: 'createdFile' | 'created
     return (
         <button 
             onClick={() => openModal(type, 'create', '')}
-            className="text-white/70 px-6 py-3 rounded-xl text-sm
-                border-2 border-green-200/20
-                shadow-lg shadow-emerald-300/30
-                bg-emerald-400/60 backdrop-blur-md
-                hover:bg-emerald-400/90 hover:text-black
-                hover:shadow-none hover:backdrop-blur-none
+            className="text-white/90 px-4 py-2 rounded-xl text-sm lg:text-xl
+                bg-gradient-to-br from-emerald-400/40 to-emerald-600/40
+                border border-emerald-400/30
+                shadow-lg shadow-emerald-400/20
+                backdrop-blur-md
+                hover:from-emerald-400/60 hover:to-emerald-600/60
+                hover:border-emerald-400/50 hover:text-white
+                hover:shadow-emerald-400/30
+                active:scale-95
                 transition-all duration-300
                 flex items-center gap-2"
         >

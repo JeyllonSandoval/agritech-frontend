@@ -67,7 +67,7 @@ export default function BarWrited({
                             block leading-none h-[50px] m-0"
                     />
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 sm:gap-2">
-                        <ButtonAdjunt onClick={handleOpenFileSelect} />
+                        <ButtonAdjunt onClick={handleOpenFileSelect} disabled={isLoading} />
                         <ButtonSend 
                             isLoading={isLoading}
                             disabled={!message.trim() || isLoading}

@@ -1,14 +1,18 @@
 interface ButtonAdjuntProps {
     onClick: () => void;
+    disabled?: boolean;
 }
 
-export default function ButtonAdjunt({ onClick }: ButtonAdjuntProps) {
+export default function ButtonAdjunt({ onClick, disabled }: ButtonAdjuntProps) {
     return (
         <button
             onClick={onClick}
-            className="flex items-center justify-center p-2 
-                text-white/70 hover:text-white transition-colors duration-300
-                border border-white/20 rounded-lg hover:border-white/40"
+            disabled={disabled}
+            className={`flex items-center justify-center p-2
+                text-white/70 transition-colors duration-300
+                border border-white/20 rounded-lg
+                ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-white hover:border-white/40'}
+            `}
             type="button"
         >
             <svg 

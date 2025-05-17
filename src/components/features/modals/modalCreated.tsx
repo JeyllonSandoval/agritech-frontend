@@ -71,18 +71,18 @@ export default function ModalCreated() {
         <>
             {isOpen && (
                 <div 
-                    className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-2 sm:p-4"
+                    className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-50 p-2 sm:p-4"
                     onClick={() => closeModal()}
                 >
                     <div 
-                        className="bg-gray-100/10 backdrop-blur-sm rounded-2xl 
+                        className="bg-gray-100/10 rounded-2xl 
                             border border-white/20 shadow-lg
                             p-4 sm:p-6 md:p-8 relative w-full max-w-[95vw] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl
                             flex flex-col max-h-[90vh] sm:max-h-[85vh]"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex flex-row justify-between items-center mb-4 sm:mb-6 sticky top-0">
-                            <h1 className="text-xl sm:text-2xl font-semibold text-white truncate max-w-[80%]">
+                            <h1 className="text-xl sm:text-2xl font-bold text-white truncate max-w-[80%]">
                                 {getTitle()}
                             </h1>
                             <button
