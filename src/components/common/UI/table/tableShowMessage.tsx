@@ -29,9 +29,9 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
     };
 
     const getMessageContent = (message: Message): string => {
-        if (typeof message.contentAsk === 'string' && message.contentAsk.trim() !== '') return message.contentAsk;
-        if (typeof message.contentFile === 'string' && message.contentFile.trim() !== '') return message.contentFile;
-        if (typeof message.contentResponse === 'string' && message.contentResponse.trim() !== '') return message.contentResponse;
+        if (message.sendertype === 'user' && message.contentAsk) return message.contentAsk;
+        if (message.sendertype === 'ai' && message.contentResponse) return message.contentResponse;
+        if (message.contentFile) return message.contentFile;
         return '';
     };
 
@@ -51,30 +51,18 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                         <ItemMessage
                             key={`message-${message.MessageID || 'temp'}-${index}`}
                             content={getMessageContent(message)}
-                            contentAsk={message.contentAsk}
-                            contentResponse={message.contentResponse}
-                            contentFile={message.contentFile}
                             sendertype={message.sendertype}
                             createdAt={message.createdAt}
                             isNew={index === messages.length - 1}
                             fileInfo={message.FileID ? { 
                                 FileName: getFileName(message.FileID) || 'File not found'
                             } : undefined}
+                            isLoading={message.isLoading}
                         />
                     )}
                 </div>
             ))}
             <div ref={messagesEndRef} />
-            
-            {isLoading && messages.length > 0 && messages[messages.length - 1].sendertype === 'user' && (
-                <div className="flex justify-start mb-4 animate-fadeIn">
-                    <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-lg p-3 sm:p-4 flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDuration: '0.8s' }} />
-                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDuration: '0.8s', animationDelay: '0.2s' }} />
-                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDuration: '0.8s', animationDelay: '0.4s' }} />
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

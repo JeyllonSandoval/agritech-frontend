@@ -1,40 +1,78 @@
-import { AnalysisRequest} from '@/types/chat';
 import { Message } from '@/types/message';
 
-export const analyzeDocument = async (request: AnalysisRequest): Promise<Message> => {
-    try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('No token found');
-        }
+const API_URL = process.env.NEXT_PUBLIC_AGRITECH_API_URL;
 
-        console.log('Estado actual de la solicitud:', {
-            ChatID: request.ChatID,
-            FileID: request.FileID,
-            content: request.content,
-            timestamp: new Date().toISOString()
-        });
+const getToken = () => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('No token found');
+    return token;
+};
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/message`, {
+export const chatService = {
+    async sendMessage(chatId: string, content: string): Promise<Message> {
+        const token = getToken();
+        const response = await fetch(`${API_URL}/message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(request)
+            body: JSON.stringify({
+                ChatID: chatId,
+                contentAsk: content,
+                sendertype: 'user',
+                status: 'active'
+            })
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => null);
-            console.error('Server error details:', errorData);
-            throw new Error(errorData?.message || `Server error: ${response.status}`);
-        }
+        if (!response.ok) throw new Error('Failed to send message');
+        const backendResponse = await response.json();
+        const msg = backendResponse.message;
+        return {
+            MessageID: msg.id,
+            ChatID: msg.chatId,
+            FileID: msg.fileId,
+            sendertype: msg.senderType,
+            contentResponse: msg.content,
+            createdAt: msg.createdAt,
+            status: msg.status
+        };
+    },
 
-        const data = await response.json();
-        console.log('Respuesta del servidor:', data);
-        return data.newMessage;
-    } catch (error) {
-        console.error('Error in analyzeDocument:', error);
-        throw error;
+    async getMessages(chatId: string): Promise<Message[]> {
+        const token = getToken();
+        const response = await fetch(`${API_URL}/messages/${chatId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) throw new Error('Failed to load messages');
+        const messages = await response.json();
+        if (!Array.isArray(messages)) {
+            throw new Error('Invalid response format: messages is not an array');
+        }
+        return messages;
+    },
+
+    async sendFileMessage(chatId: string, fileId: string): Promise<Message> {
+        const token = getToken();
+        const response = await fetch(`${API_URL}/message`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                ChatID: chatId,
+                FileID: fileId,
+                contentFile: 'New file selected',
+                sendertype: 'user',
+                status: 'active'
+            })
+        });
+
+        if (!response.ok) throw new Error('Failed to send file message');
+        return response.json();
     }
 }; 

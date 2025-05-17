@@ -2,12 +2,10 @@ import { useChat } from '@/hooks/useChat';
 import { useFileStore } from '@/store/fileStore';
 import ModalCreated from '../modals/modalCreated';
 import ButtonSelectFile from '@/components/common/UI/buttons/buttonSelectFile';
-import { sendMessage } from '@/services/messageService';
 import { Message } from '@/types/message';
 import { FileProps } from '@/hooks/getFiles';
 import TableShowMessage from '@/components/common/UI/table/tableShowMessage';
 import BarWrited from '@/components/common/UI/bars/barWrited';
-import FileAnalysisResult from '@/components/common/UI/items/FileAnalysisResult';
 import { useModal } from '@/context/modalContext';
 import { useEffect } from 'react';
 
@@ -22,10 +20,11 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
         messages,
         selectedFile,
         isAnalyzing,
+        isLoading,
         error,
         setError,
         setIsAnalyzing,
-        setMessages,
+        sendMessage,
         handleFileSelect,
         loadChat,
         loadChatHistory
@@ -43,74 +42,7 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
 
     const handleSendMessage = async (content: string) => {
         if (!currentChat) return;
-
-        if (selectedFile) {
-            setIsAnalyzing(true);
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) throw new Error('No token found');
-                const questions = (await import('@/data/predefinedQuestions.json')).default.questions;
-                let questionIndex = 0;
-                
-                for (const q of questions) {
-                    // Send to backend
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/message`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            ChatID: currentChat.ChatID,
-                            FileID: selectedFile.FileID,
-                            sendertype: 'user',
-                            contentAsk: q.question,
-                            status: 'active',
-                            questionIndex: questionIndex
-                        })
-                    });
-
-                    const backendMessage = await response.json();
-                    setMessages(prev => [...prev, {
-                        ...backendMessage,
-                        sendertype: 'user',
-                        questionIndex: questionIndex
-                    }]);
-
-                    questionIndex++;
-                    // Wait a bit before sending the next question
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                }
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'Error analyzing document');
-            } finally {
-                setIsAnalyzing(false);
-            }
-        } else {
-            // Normal message flow
-            // Add user message immediately
-            const userMessage: Message = {
-                ChatID: currentChat.ChatID,
-                sendertype: 'user',
-                contentAsk: content,
-                createdAt: new Date().toISOString(),
-                status: 'active',
-                MessageID: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-            };
-            setMessages(prev => [...prev, userMessage]);
-            
-            setIsAnalyzing(true);
-            try {
-                const response = await sendMessage(currentChat.ChatID, content);
-                setMessages(prev => prev.map(msg => 
-                    msg.MessageID === userMessage.MessageID ? response : msg
-                ));
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'Error sending message');
-            } finally {
-                setIsAnalyzing(false);
-            }
-        }
+        await sendMessage(content);
     };
 
     const handleOpenFileSelect = () => {
@@ -177,14 +109,14 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
                         <div className="flex-1 overflow-y-auto pb-4">
                             <TableShowMessage 
                                 messages={messages}
-                                isLoading={isAnalyzing}
+                                isLoading={isLoading || isAnalyzing}
                                 files={files}
                             />
                         </div>
                         <div className="sticky bottom-0">
                             <BarWrited 
                                 onSendMessage={handleSendMessage}
-                                isLoading={isAnalyzing}
+                                isLoading={isLoading || isAnalyzing}
                                 onFileSelect={handleFileSelect}
                                 selectedFile={selectedFile}
                             />

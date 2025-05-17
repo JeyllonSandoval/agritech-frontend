@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useChatStore } from '@/store/chatStore';
 import { Message } from '@/types/message';
 import { FileProps } from '@/hooks/getFiles';
 import { jwtDecode } from 'jwt-decode';
 import predefinedQuestions from '@/data/predefinedQuestions.json';
+import { chatService } from '@/services/chatService';
 
 interface TokenPayload {
     UserID: string;
@@ -20,9 +21,113 @@ export const useChat = ({ ChatID }: UseChatProps) => {
     const [selectedFile, setSelectedFile] = useState<FileProps | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Cargar historial inicial
+    useEffect(() => {
+        if (currentChat?.ChatID) {
+            loadChatHistory(currentChat.ChatID);
+        }
+    }, [currentChat]);
+
+    const loadChatHistory = async (chatId: string) => {
+        try {
+            setIsLoading(true);
+            const allMessages = await chatService.getMessages(chatId);
+            
+            // Asegurar que todos los mensajes tengan la hora del cliente
+            const messagesWithClientTime = allMessages.map((message: Message) => ({
+                ...message,
+                createdAt: message.createdAt || new Date().toISOString()
+            }));
+
+            setMessages(messagesWithClientTime);
+        } catch (err) {
+            console.error('Error loading chat history:', err);
+            setError(err instanceof Error ? err.message : 'Error loading chat history');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const sendMessage = async (content: string) => {
+        if (!currentChat?.ChatID) return;
+
+        try {
+            setIsLoading(true);
+            setError(null);
+
+            // 1. Crear y mostrar mensaje del usuario
+            const userMessage: Message = {
+                ChatID: currentChat.ChatID,
+                contentAsk: content,
+                sendertype: 'user',
+                status: 'active',
+                createdAt: new Date().toISOString()
+            };
+
+            // 2. Crear placeholder de IA con ID único
+            const placeholderId = `loading-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            const aiPlaceholder: Message = {
+                ChatID: currentChat.ChatID,
+                sendertype: 'ai',
+                status: 'loading',
+                createdAt: new Date().toISOString(),
+                isLoading: true,
+                MessageID: placeholderId
+            };
+
+            setMessages(prev => [...prev, userMessage, aiPlaceholder]);
+
+            // 3. Enviar al backend y obtener respuesta
+            const backendResponse = await chatService.sendMessage(currentChat.ChatID, content);
+            const backendMessage: Message = {
+                ...backendResponse,
+                createdAt: new Date().toISOString(),
+                isLoading: false
+            };
+
+            // 4. Reemplazar el placeholder por la respuesta real usando MessageID
+            setMessages(prev => prev.map(msg =>
+                msg.MessageID === placeholderId ? backendMessage : msg
+            ));
+
+        } catch (err) {
+            console.error('Error sending message:', err);
+            setError(err instanceof Error ? err.message : 'Error sending message');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleFileSelect = async (file: FileProps) => {
+        if (!currentChat) return;
+        setSelectedFile(file);
+        
+        try {
+            setIsLoading(true);
+            setError(null);
+
+            // 1. Enviar mensaje de archivo
+            const fileMessage = await chatService.sendFileMessage(currentChat.ChatID, file.FileID);
+            setMessages(prev => [...prev, fileMessage]);
+
+            // 2. Procesar preguntas predefinidas
+            for (const question of predefinedQuestions.questions) {
+                const questionResponse = await chatService.sendMessage(currentChat.ChatID, question.question);
+                setMessages(prev => [...prev, questionResponse]);
+            }
+        } catch (err) {
+            console.error('Error handling file:', err);
+            setError(err instanceof Error ? err.message : 'Error handling file');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const loadChat = async (chatID: string) => {
         try {
+            setIsLoading(true);
             const token = localStorage.getItem('token');
             if (!token) throw new Error('No token found');
             
@@ -40,70 +145,9 @@ export const useChat = ({ ChatID }: UseChatProps) => {
         } catch (err) {
             console.error('Error loading chat:', err);
             setError(err instanceof Error ? err.message : 'Error loading chat');
+        } finally {
+            setIsLoading(false);
         }
-    };
-
-    useEffect(() => {
-        if (ChatID) {
-            loadChat(ChatID);
-        }
-    }, [ChatID]);
-
-    useEffect(() => {
-        resetChatState();
-    }, [currentChat]);
-
-    useEffect(() => {
-        if (currentChat?.ChatID) {
-            loadChatHistory(currentChat.ChatID);
-            
-            // Set up polling interval for real-time updates
-            const intervalId = setInterval(() => {
-                loadChatHistory(currentChat.ChatID);
-            }, 5000); // Poll every 5 seconds
-
-            // Cleanup interval on unmount or when chat changes
-            return () => clearInterval(intervalId);
-        }
-    }, [currentChat]);
-
-    const loadChatHistory = async (chatId: string) => {
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/messages/${chatId}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            
-            if (!response.ok) throw new Error('Failed to load chat history');
-            
-            const allMessages = await response.json();
-            if (!Array.isArray(allMessages)) {
-                throw new Error('Invalid response format: messages is not an array');
-            }
-            const processedMessages = processMessages(allMessages);
-            setMessages(processedMessages);
-        } catch (err) {
-            console.error('Error loading chat history:', err);
-            setError(err instanceof Error ? err.message : 'Error loading chat history');
-        }
-    };
-
-    const processMessages = (messages: Message[]): Message[] => {
-        return messages.reduce((acc: Message[], message: Message) => {
-            if (message.FileID && message.sendertype === 'user') {
-                const lastFileMessage = acc.findLast(m => m.FileID && m.sendertype === 'user');
-                if (!lastFileMessage || lastFileMessage.FileID !== message.FileID) {
-                    acc.push({
-                        ...message,
-                        contentFile: 'New file selected'
-                    });
-                }
-            } else {
-                acc.push(message);
-            }
-            return acc;
-        }, []);
     };
 
     const resetChatState = () => {
@@ -111,67 +155,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
         setMessages([]);
         setError(null);
         setIsAnalyzing(false);
-    };
-
-    const handleFileSelect = async (file: FileProps) => {
-        if (!currentChat) return;
-        setSelectedFile(file);
-        
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('No token found');
-
-            // Send file selection message to backend
-            const fileMessageResponse = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/message`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    ChatID: currentChat.ChatID,
-                    FileID: file.FileID,
-                    contentFile: 'New file selected',
-                    sendertype: 'user',
-                    status: 'active'
-                })
-            });
-
-            let fileMessage = await fileMessageResponse.json();
-            // Fallback for createdAt
-            if (!fileMessage.createdAt) fileMessage.createdAt = new Date().toISOString();
-            setMessages(prev => [...prev, fileMessage]);
-
-            // Add predefined questions as AI responses
-            const questions = predefinedQuestions.questions;
-            const questionPromises = questions.map(async (q) => {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/message`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        ChatID: currentChat.ChatID,
-                        FileID: file.FileID,
-                        sendertype: 'user',
-                        contentAsk: q.question,
-                        status: 'active',
-                        isPredefinedQuestion: true
-                    })
-                });
-                let msg = await response.json();
-                // Fallback for createdAt
-                if (!msg.createdAt) msg.createdAt = new Date().toISOString();
-                return msg;
-            });
-
-            const questionMessages = await Promise.all(questionPromises);
-            setMessages(prev => [...prev, ...questionMessages]);
-        } catch (err) {
-            console.error('Error sending messages:', err);
-            setError(err instanceof Error ? err.message : 'Error sending messages');
-        }
+        setIsLoading(false);
     };
 
     return {
@@ -179,12 +163,15 @@ export const useChat = ({ ChatID }: UseChatProps) => {
         messages,
         selectedFile,
         isAnalyzing,
+        isLoading,
         error,
         setError,
         setIsAnalyzing,
-        setMessages,
+        sendMessage,
         handleFileSelect,
         loadChat,
-        loadChatHistory
+        loadChatHistory,
+        resetChatState,
+        setMessages
     };
 }; 
