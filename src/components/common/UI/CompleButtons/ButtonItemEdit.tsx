@@ -85,6 +85,7 @@ export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
                 onClick={handleClick}
                 className="p-2 cursor-pointer rounded-full hover:bg-white/10 transition-colors"
                 aria-label="Options"
+                data-options-button
             >
                 <IoMdMore className="w-5 h-5 text-white/90 hover:text-emerald-400/70 transition-colors" />
             </div>

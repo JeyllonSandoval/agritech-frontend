@@ -56,11 +56,16 @@ export default function NavbarLateral({ activePanel, ...props }: NavbarLateralPr
         const handleClickOutside = (event: MouseEvent) => {
             if (!isLateralOpen) return;
 
+            // Check if the click is on a chat item's options button
+            const target = event.target as HTMLElement;
+            const isOptionsButton = target.closest('[data-options-button]');
+
             if (
                 navRef.current && 
                 !navRef.current.contains(event.target as Node) &&
                 buttonRef.current && 
-                !buttonRef.current.contains(event.target as Node)
+                !buttonRef.current.contains(event.target as Node) &&
+                !isOptionsButton
             ) {
                 onLateralToggle();
             }
