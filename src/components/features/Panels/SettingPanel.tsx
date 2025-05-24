@@ -1,41 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useModal } from '@/context/modalContext';
 import SettingButton from '@/components/common/UI/buttons/SettingButton';
 import { chatService } from '@/services/chatService';
 import { fileService } from '@/services/fileService';
 import { useChatStore } from '@/store/chatStore';
 import { useFileStore } from '@/store/fileStore';
+import { useLanguage } from '@/context/languageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function SettingPanel() {
     const { closeModal, openConfirmModal } = useModal();
     const clearChats = useChatStore(state => state.clearChats);
     const clearFiles = useFileStore(state => state.clearFiles);
-    const [settings, setSettings] = useState({
-        theme: 'dark',
-        notifications: true,
-        language: 'en'
-    });
+    const { language, setLanguage } = useLanguage();
+    const { t, loadTranslations } = useTranslation();
 
-    const handleLanguageChange = (newLanguage: string) => {
-        setSettings(prev => ({
-            ...prev,
-            language: newLanguage
-        }));
-        // Aquí iría la lógica para cambiar el idioma de la aplicación
+    useEffect(() => {
+        loadTranslations('settings');
+    }, [language]);
+
+    const handleLanguageChange = (newLanguage: 'en' | 'es') => {
+        setLanguage(newLanguage);
     };
 
     const handleDeleteChats = () => {
         openConfirmModal(
-            'Are you sure you want to delete all your chats? This action cannot be undone.',
+            t('dataManagement.deleteChats.confirm'),
             async () => {
                 try {
                     await chatService.deleteAllChats();
                     clearChats();
                 } catch (error) {
                     console.error('Error deleting chats:', error);
-                    // You might want to show an error message to the user here
                 }
             }
         );
@@ -43,14 +41,13 @@ export default function SettingPanel() {
 
     const handleDeleteFiles = () => {
         openConfirmModal(
-            'Are you sure you want to delete all your files? This action cannot be undone.',
+            t('dataManagement.deleteFiles.confirm'),
             async () => {
                 try {
                     await fileService.deleteAllFiles();
                     clearFiles();
                 } catch (error) {
                     console.error('Error deleting files:', error);
-                    // You might want to show an error message to the user here
                 }
             }
         );
@@ -66,30 +63,30 @@ export default function SettingPanel() {
                             <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                             </svg>
-                            <h3 className="text-xl font-semibold text-white">Language</h3>
+                            <h3 className="text-xl font-semibold text-white">{t('language.title')}</h3>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <SettingButton
                                 icon={
-                                    <svg className={`w-6 h-6 ${settings.language === 'en' ? 'text-emerald-400' : 'text-white/50'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className={`w-6 h-6 ${language === 'en' ? 'text-emerald-400' : 'text-white/50'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                                     </svg>
                                 }
-                                title="English"
-                                description="Switch to English"
+                                title={t('language.english')}
+                                description={t('language.switchToEnglish')}
                                 onClick={() => handleLanguageChange('en')}
-                                variant={settings.language === 'en' ? 'default' : 'inactive'}
+                                variant={language === 'en' ? 'default' : 'inactive'}
                             />
                             <SettingButton
                                 icon={
-                                    <svg className={`w-6 h-6 ${settings.language === 'es' ? 'text-emerald-400' : 'text-white/50'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className={`w-6 h-6 ${language === 'es' ? 'text-emerald-400' : 'text-white/50'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                                     </svg>
                                 }
-                                title="Español"
-                                description="Cambiar a Español"
+                                title={t('language.spanish')}
+                                description={t('language.switchToSpanish')}
                                 onClick={() => handleLanguageChange('es')}
-                                variant={settings.language === 'es' ? 'default' : 'inactive'}
+                                variant={language === 'es' ? 'default' : 'inactive'}
                             />
                         </div>
                     </div>
@@ -100,7 +97,7 @@ export default function SettingPanel() {
                             <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
-                            <h3 className="text-xl font-semibold text-white">Data Management</h3>
+                            <h3 className="text-xl font-semibold text-white">{t('dataManagement.title')}</h3>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <SettingButton
@@ -109,8 +106,8 @@ export default function SettingPanel() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 }
-                                title="Delete All Chats"
-                                description="Remove all your chat history"
+                                title={t('dataManagement.deleteChats.title')}
+                                description={t('dataManagement.deleteChats.description')}
                                 onClick={handleDeleteChats}
                                 variant="danger"
                             />
@@ -120,8 +117,8 @@ export default function SettingPanel() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 }
-                                title="Delete All Files"
-                                description="Remove all your uploaded files"
+                                title={t('dataManagement.deleteFiles.title')}
+                                description={t('dataManagement.deleteFiles.description')}
                                 onClick={handleDeleteFiles}
                                 variant="danger"
                             />

@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import homeData from '@/data/Lenguage/en/home.json';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
 import { 
     DocumentTextIcon, 
     ChatBubbleLeftRightIcon, 
@@ -30,6 +31,15 @@ type SocialPlatform = {
 export default function Home() {
     const [isVisible, setIsVisible] = useState(true);
     const pathname = usePathname();
+    const { t, loadTranslations, getNamespace } = useTranslation();
+    const { language } = useLanguage();
+    const [homeData, setHomeData] = useState<any>(null);
+
+    useEffect(() => {
+        loadTranslations('home').then(() => {
+            setHomeData(getNamespace());
+        });
+    }, [language]);
 
     useEffect(() => {
         const observerOptions = {
@@ -93,6 +103,8 @@ export default function Home() {
                 return null;
         }
     };
+
+    if (!homeData) return null;
 
     return (
         <main className="absolute inset-0 overflow-y-auto snap-y snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -177,7 +189,7 @@ export default function Home() {
                         {homeData.features.title}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
-                        {homeData.features.items.map((feature, index) => (
+                        {(homeData.features.items as any[]).map((feature, index) => (
                             <div key={index} 
                                 className="group feature-card bg-white/5 backdrop-blur-xl rounded-xl p-4 md:p-6 
                                          border border-white/10 hover:border-emerald-400/30
@@ -206,7 +218,7 @@ export default function Home() {
                         {homeData.audience.title}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                        {homeData.audience.groups.map((group, index) => (
+                        {(homeData.audience.groups as any[]).map((group, index) => (
                             <div key={index} 
                                 className="group feature-card bg-white/5 backdrop-blur-xl rounded-xl p-4 md:p-6
                                         border border-white/10 hover:border-emerald-400/30
