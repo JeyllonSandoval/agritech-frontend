@@ -75,7 +75,7 @@ export default function ModalCreated() {
                     onClick={() => closeModal()}
                 >
                     <div 
-                        className="bg-gray-100/10 rounded-2xl 
+                        className="bg-gray-100/10 rounded-2xl backdrop-blur-sm 
                             border border-white/20 shadow-lg
                             p-4 sm:p-6 md:p-8 relative w-full max-w-[95vw] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl
                             flex flex-col max-h-[90vh] sm:max-h-[85vh]"

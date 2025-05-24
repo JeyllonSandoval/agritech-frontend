@@ -9,11 +9,11 @@ interface ConfirmModalProps {
 export default function ConfirmModal({ message, onConfirm, onCancel }: ConfirmModalProps) {
     return (
         <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4"
             onClick={onCancel}
         >
             <div 
-                className="bg-gray-100/10 backdrop-blur-sm rounded-2xl 
+                className="bg-gray-100/10 backdrop-blur-md rounded-2xl 
                     border border-white/20 shadow-lg
                     p-8 relative w-full max-w-md
                     flex flex-col"
