@@ -3,7 +3,7 @@ import { Message } from '@/types/message';
 import ItemMessage from '@/components/common/UI/items/itemMessages';
 import FileAnalysisResult from '@/components/common/UI/items/FileAnalysisResult';
 import { FileProps } from '@/hooks/getFiles';
-import predefinedQuestions from '@/data/predefinedQuestions.json';
+import predefinedQuestions from '@/data/Lenguage/en/predefinedQuestions.json';
 
 interface TableShowMessageProps {
     messages: Message[];

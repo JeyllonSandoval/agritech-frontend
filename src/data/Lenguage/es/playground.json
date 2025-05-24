@@ -1,0 +1,52 @@
+{
+    "title": "Bienvenido a tu Espacio de Trabajo",
+    "sections": {
+        "quickGuide": {
+            "title": "Guía rápida",
+            "items": [
+                {
+                    "icon": "chart",
+                    "text": "Ver tus datos agrícolas en tiempo real"
+                },
+                {
+                    "icon": "leaf",
+                    "text": "Gestiona tus cultivos y rastreo de crecimiento"
+                },
+                {
+                    "icon": "mobile",
+                    "text": "Accede a datos importantes y información"
+                },
+                {
+                    "icon": "pie",
+                    "text": "Analiza el rendimiento de tus cultivos"
+                }
+            ]
+        },
+        "nextSteps": {
+            "title": "Pasos siguientes",
+            "items": [
+                {
+                    "icon": "check",
+                    "text": "Agrega tu primer cultivo o dispositivo IoT"
+                },
+                {
+                    "icon": "cog",
+                    "text": "Configura tu espacio de trabajo"
+                },
+                {
+                    "icon": "wrench",
+                    "text": "Explora las herramientas disponibles"
+                },
+                {
+                    "icon": "chat",
+                    "text": "Crea tu primer chat"
+                },
+                {
+                    "icon": "sparkles",
+                    "text": "Disfruta los beneficios de tu espacio de trabajo"
+                }
+            ]
+        }
+    },
+    "helpText": "¿Necesitas ayuda? Contáctanos en agriJJtech@hotmail.com"
+} 

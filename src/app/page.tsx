@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import homeData from '@/data/home.json';
+import homeData from '@/data/Lenguage/en/home.json';
 import { 
     DocumentTextIcon, 
     ChatBubbleLeftRightIcon, 

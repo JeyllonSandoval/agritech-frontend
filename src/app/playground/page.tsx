@@ -1,5 +1,5 @@
 import ProtectedRoute from '@/utils/protectedRoute';
-import playgroundData from '@/data/playground.json';
+import playgroundData from '@/data/Lenguage/en/playground.json';
 import { 
     ChartBarIcon, 
     SparklesIcon, 

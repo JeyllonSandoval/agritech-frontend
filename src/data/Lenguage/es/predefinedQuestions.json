@@ -3,17 +3,17 @@
         {
             "id": "1",
             "question": "¿Qué tipo de análisis de suelo se realizó en el estudio?",
-            "description": "Identificar si fue un análisis físico, químico, biológico o una combinación"
+            "description": "Identifica si fue un análisis físico, químico, biológico o una combinación de ellos"
         },
         {
             "id": "2",
-            "question": "¿Cuáles fueron las principales características del suelo encontradas?",
+            "question": "¿Cuáles fueron las características principales del suelo encontrado?",
             "description": "Textura, pH, niveles de nutrientes, materia orgánica, entre otros"
         },
         {
             "id": "3",
             "question": "¿Qué recomendaciones agrícolas se derivaron del estudio?",
-            "description": "Sugerencias sobre cultivos adecuados, fertilización, riego, etc."
+            "description": "Sugerencias para cultivos apropiados, fertilización, riego, etc."
         },
         {
             "id": "4",
@@ -22,8 +22,8 @@
         },
         {
             "id": "5",
-            "question": "¿Cómo se relacionan los resultados del estudio con la productividad del terreno?",
-            "description": "Análisis del impacto en el rendimiento agrícola"
+            "question": "¿Cómo están relacionados los resultados del estudio con la productividad de la tierra?",
+            "description": "Análisis del impacto en la producción agrícola"
         }
     ]
 }

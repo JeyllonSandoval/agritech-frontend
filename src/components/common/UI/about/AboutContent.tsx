@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import aboutData from '@/data/about.json';
+import aboutData from '@/data/Lenguage/en/about.json';
 import SectionContent from './SectionContent';
 import * as FaIcons from 'react-icons/fa';
 

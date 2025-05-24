@@ -3,7 +3,7 @@ import { useChatStore } from '@/store/chatStore';
 import { Message } from '@/types/message';
 import { FileProps } from '@/hooks/getFiles';
 import { jwtDecode } from 'jwt-decode';
-import predefinedQuestions from '@/data/predefinedQuestions.json';
+import predefinedQuestions from '@/data/Lenguage/en/predefinedQuestions.json';
 import { chatService } from '@/services/chatService';
 
 interface TokenPayload {
