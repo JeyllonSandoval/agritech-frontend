@@ -1,4 +1,5 @@
 import { Message } from '@/types/message';
+import { jwtDecode } from 'jwt-decode';
 
 const API_URL = process.env.NEXT_PUBLIC_AGRITECH_API_URL;
 
@@ -87,5 +88,22 @@ export const chatService = {
             createdAt: msg.createdAt,
             status: msg.status
         };
+    },
+
+    async deleteAllChats(): Promise<void> {
+        const token = getToken();
+        const decodedToken = jwtDecode(token) as { UserID: string };
+        
+        const response = await fetch(`${API_URL}/chat/user/${decodedToken.UserID}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to delete chats');
+        }
     }
 }; 

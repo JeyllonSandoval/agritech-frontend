@@ -5,6 +5,7 @@ import { FileProps } from '@/hooks/getFiles';
 import ButtonShow from '@/components/common/UI/CompleButtons/ButtonShow';
 import { ButtonItemEdit } from '@/components/common/UI/CompleButtons/ButtonItemEdit';
 import { useModal } from '@/context/modalContext';
+import { useFileStore } from '@/store/fileStore';
 
 interface BarFilesProps {
     files: FileProps[];
@@ -26,6 +27,7 @@ export default React.memo(function BarFiles({
     onRemoveFile
 }: BarFilesProps) {
     const { openModal, setSelectedFile } = useModal();
+    const removeFile = useFileStore(state => state.removeFile);
 
     const handleShow = (e: React.MouseEvent, file: FileProps) => {
         e.preventDefault();
@@ -90,6 +92,9 @@ export default React.memo(function BarFiles({
             });
 
             if (!response.ok) throw new Error('Error deleting file');
+
+            // Actualizar el store
+            removeFile(file.FileID);
 
             // Notificar al componente padre si existe
             if (onRemoveFile) {

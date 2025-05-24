@@ -3,9 +3,15 @@
 import { useState } from 'react';
 import { useModal } from '@/context/modalContext';
 import SettingButton from '@/components/common/UI/buttons/SettingButton';
+import { chatService } from '@/services/chatService';
+import { fileService } from '@/services/fileService';
+import { useChatStore } from '@/store/chatStore';
+import { useFileStore } from '@/store/fileStore';
 
 export default function SettingPanel() {
     const { closeModal, openConfirmModal } = useModal();
+    const clearChats = useChatStore(state => state.clearChats);
+    const clearFiles = useFileStore(state => state.clearFiles);
     const [settings, setSettings] = useState({
         theme: 'dark',
         notifications: true,
@@ -23,9 +29,14 @@ export default function SettingPanel() {
     const handleDeleteChats = () => {
         openConfirmModal(
             'Are you sure you want to delete all your chats? This action cannot be undone.',
-            () => {
-                // Aquí iría la lógica para eliminar todos los chats
-                console.log('Deleting all chats');
+            async () => {
+                try {
+                    await chatService.deleteAllChats();
+                    clearChats();
+                } catch (error) {
+                    console.error('Error deleting chats:', error);
+                    // You might want to show an error message to the user here
+                }
             }
         );
     };
@@ -33,9 +44,14 @@ export default function SettingPanel() {
     const handleDeleteFiles = () => {
         openConfirmModal(
             'Are you sure you want to delete all your files? This action cannot be undone.',
-            () => {
-                // Aquí iría la lógica para eliminar todos los archivos
-                console.log('Deleting all files');
+            async () => {
+                try {
+                    await fileService.deleteAllFiles();
+                    clearFiles();
+                } catch (error) {
+                    console.error('Error deleting files:', error);
+                    // You might want to show an error message to the user here
+                }
             }
         );
     };
