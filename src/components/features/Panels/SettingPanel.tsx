@@ -16,10 +16,14 @@ export default function SettingPanel() {
     const clearFiles = useFileStore(state => state.clearFiles);
     const { language, setLanguage } = useLanguage();
     const { t, loadTranslations } = useTranslation();
+    const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        loadTranslations('settings');
+        setIsLoaded(false);
+        loadTranslations('settings').then(() => setIsLoaded(true));
     }, [language]);
+
+    if (!isLoaded) return null;
 
     const handleLanguageChange = (newLanguage: 'en' | 'es') => {
         setLanguage(newLanguage);

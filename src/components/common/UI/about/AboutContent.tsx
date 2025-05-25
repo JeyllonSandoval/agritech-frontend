@@ -1,8 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import aboutData from '@/data/Lenguage/en/about.json';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
 import SectionContent from './SectionContent';
 import * as FaIcons from 'react-icons/fa';
 
@@ -33,11 +34,22 @@ interface Section {
 
 export default function AboutContent() {
     const [expandedSection, setExpandedSection] = useState<string | null>(null);
+    const { t, loadTranslations, getNamespace } = useTranslation();
+    const { language } = useLanguage();
+    const [aboutData, setAboutData] = useState<any>(null);
+
+    useEffect(() => {
+        loadTranslations('about').then(() => {
+            setAboutData(getNamespace());
+        });
+    }, [language]);
 
     const getIcon = (iconName: string) => {
         const IconComponent = (FaIcons as any)[iconName];
         return IconComponent ? <IconComponent className="w-6 h-6 text-emerald-400" /> : null;
     };
+
+    if (!aboutData) return null;
 
     return (
         <div className="w-full max-w-7xl mx-auto lg:w-5/6 xl:w-2/3 min-h-screen text-white">
