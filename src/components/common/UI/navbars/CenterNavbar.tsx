@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
 
 interface CenterNavbarProps {
     onSelect?: () => void;
@@ -10,6 +12,9 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     const pathname = usePathname();
     const [activeBackground, setActiveBackground] = useState({ width: 4, left: 0 });
     const linksRef = useRef<(HTMLAnchorElement | null)[]>([]);
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
 
     // Verificar si estamos en rutas específicas donde no queremos mostrar el background
     const isSignInRoute = pathname === '/signin';
@@ -19,11 +24,16 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     const isResetPasswordRoute = pathname === '/reset-password';
     const isPlaygroundRoute = pathname.startsWith('/playground');
 
-    const links = [
-        { href: "/", label: "Home" },
-        { href: "/playground", label: "Playground" },
-        { href: "/about", label: "About" },
-    ];
+    const links = useMemo(() => [
+        { href: "/", label: t('home') },
+        { href: "/playground", label: t('playground') },
+        { href: "/about", label: t('about') },
+    ], [t, language]);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('navbar').then(() => setIsLoaded(true));
+    }, [language]);
 
     useEffect(() => {
         // Encontrar el enlace activo y actualizar el background
@@ -50,6 +60,8 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
             onSelect();
         }
     };
+
+    if (!isLoaded) return null;
 
     return (
         <div className="flex justify-center items-center bg-white/10 backdrop-blur-sm py-1 px-2 rounded-full lg:w-[600px] lg:h-[44px]">

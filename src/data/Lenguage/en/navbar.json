@@ -1,0 +1,17 @@
+{
+  "home": "Home",
+  "playground": "Playground",
+  "about": "About",
+  "profile": "Profile",
+  "settings": "Settings",
+  "logout": "Logout",
+  "login": "Login",
+  "register": "Register",
+  "search": "Search",
+  "notifications": "Notifications",
+  "welcome": "Welcome",
+  "myAccount": "My Account",
+  "language": "Language",
+  "darkMode": "Dark Mode",
+  "lightMode": "Light Mode"
+} 

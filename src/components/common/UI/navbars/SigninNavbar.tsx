@@ -1,10 +1,20 @@
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
+import { useState, useEffect } from 'react';
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function DropNavbar() {
     const pathname = usePathname();
     const isSignInRoute = pathname === '/signin';
-
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('navbar').then(() => setIsLoaded(true));
+    }, [language]);
+    if (!isLoaded) return null;
     return (
         <div className="text-lg lg:text-2xl rounded-full relative">
             <Link href="/signin"
@@ -19,7 +29,7 @@ export default function DropNavbar() {
                     border border-emerald-300/50
                     overflow-hidden`}
             >
-                <span className="relative z-10">Sign Up</span>
+                <span className="relative z-10">{t('register')}</span>
                 {!isSignInRoute && (
                     <div className="absolute inset-0 rounded-xl overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-700/20 to-transparent animate-border-flow"></div>
