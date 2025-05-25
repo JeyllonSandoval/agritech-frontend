@@ -1,7 +1,20 @@
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
+import { useState, useEffect } from 'react';
 import { useModal } from '@/context/modalContext';
 
 export default function ButtonCreated({ type }: { type: 'createdFile' | 'createdChat' }) {
     const { openModal } = useModal();
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('buttons').then(() => setIsLoaded(true));
+    }, [language]);
+
+    if (!isLoaded) return null;
 
     return (
         <button 
@@ -22,7 +35,7 @@ export default function ButtonCreated({ type }: { type: 'createdFile' | 'created
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
                     d="M12 4v16m8-8H4"/>
             </svg>
-            Create
+            {t('create')}
         </button>
     );
 }

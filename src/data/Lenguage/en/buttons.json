@@ -1,0 +1,19 @@
+{
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "edit": "Edit",
+  "submit": "Submit",
+  "close": "Close",
+  "next": "Next",
+  "previous": "Previous",
+  "ok": "OK",
+  "yes": "Yes",
+  "no": "No",
+  "editProfile": "Edit Profile",
+  "selectFile": "Select the file you want to analyze",
+  "changeFile": "Change file",
+  "create": "Create",
+  "createChat": "Create Chat",
+  "filePDF": "File PDF"
+} 

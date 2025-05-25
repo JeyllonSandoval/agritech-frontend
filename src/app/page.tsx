@@ -160,7 +160,7 @@ export default function Home() {
                         <span className="pointer-events-none absolute -inset-4 z-0 rounded-3xl bg-gradient-to-r from-emerald-400/30 via-emerald-500/20 to-cyan-400/30 animate-gradient-move opacity-80" />
                         {/* Texto con gradiente y animación */}
                         <span className="text-lg font-extrabold z-10 relative bg-gradient-to-r from-emerald-300 via-emerald-400 to-cyan-300 bg-clip-text text-transparent group-hover:from-cyan-300 group-hover:to-emerald-400 transition-all duration-500">
-                            Go to Playground
+                            {homeData.hero.buttonPlayground}
                         </span>
                         <ArrowRightIcon className="w-5 h-5 z-10 relative transition-transform duration-500 group-hover:translate-x-10 group-hover:scale-150 text-emerald-200 drop-shadow-[0_2px_12px_rgba(16,185,129,0.4)]" />
                         {/* Efecto de hover aurora extra */}

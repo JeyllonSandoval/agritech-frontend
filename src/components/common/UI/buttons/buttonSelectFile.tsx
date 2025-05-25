@@ -1,3 +1,7 @@
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
+import { useState, useEffect } from 'react';
+
 interface ButtonSelectFileProps {
     setIsModalOpen: (isOpen: boolean) => void;
     isFileSelected?: boolean;
@@ -5,6 +9,17 @@ interface ButtonSelectFileProps {
 }
 
 export default function ButtonSelectFile({ setIsModalOpen, isFileSelected, disabled }: ButtonSelectFileProps) {
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('buttons').then(() => setIsLoaded(true));
+    }, [language]);
+
+    if (!isLoaded) return null;
+
     return (
         <div className="flex justify-center">
             <button
@@ -46,7 +61,7 @@ export default function ButtonSelectFile({ setIsModalOpen, isFileSelected, disab
                 </svg>
                 {/* Texto con gradiente y animación */}
                 <span className="text-lg font-extrabold z-10 relative bg-gradient-to-r from-emerald-300 via-emerald-400 to-cyan-300 bg-clip-text text-transparent group-hover:from-cyan-300 group-hover:to-emerald-400 transition-all duration-500">
-                    {isFileSelected ? 'Change file' : 'Select the file you want to analyze'}
+                    {isFileSelected ? t('changeFile') : t('selectFile')}
                 </span>
                 {/* Efecto de hover aurora extra */}
                 <span className="pointer-events-none absolute -inset-8 z-0 rounded-3xl bg-gradient-to-br from-cyan-400/20 via-emerald-400/10 to-emerald-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />

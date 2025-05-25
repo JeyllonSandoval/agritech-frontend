@@ -3,7 +3,8 @@
         "image": "/icon/AgriTech-Logo-_transparent_.webp",
         "title": "AgriTech",
         "subtitle": "Innovando la agricultura para un futuro sostenible",
-        "description": "Una plataforma innovadora que combina inteligencia artificial con conocimientos agrícolas para mejorar el desarrollo de tu campo"
+        "description": "Una plataforma innovadora que combina inteligencia artificial con conocimientos agrícolas para mejorar el desarrollo de tu campo",
+        "buttonPlayground": "Ir al Playground"
     },
     "features": {
         "title": "Características",
