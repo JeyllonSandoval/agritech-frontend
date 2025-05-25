@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
+import { useState, useEffect } from 'react';
 
 interface FileAnalysisResultProps {
     question: string;
@@ -14,6 +16,16 @@ export default function FileAnalysisResult({
     isLoading 
 }: FileAnalysisResultProps) {
     const [isExpanded, setIsExpanded] = useState(false);
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('items').then(() => setIsLoaded(true));
+    }, [language]);
+
+    if (!isLoaded) return null;
 
     return (
         <div className="bg-gray-800/50 rounded-xl p-2 sm:p-4 mb-2 sm:mb-4 border border-gray-700/30 hover:border-gray-600/50 transition-colors duration-200 w-full">
@@ -31,7 +43,7 @@ export default function FileAnalysisResult({
                 </div>
                 <div className="flex items-center gap-2 mt-2 sm:mt-0">
                     <span className="text-xs text-white/40">
-                        {isExpanded ? 'Ocultar' : 'Ver más'}
+                        {isExpanded ? t('hide') : t('viewMore')}
                     </span>
                     <svg 
                         className={`w-4 h-4 sm:w-5 sm:h-5 text-white/50 transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
@@ -58,7 +70,7 @@ export default function FileAnalysisResult({
                         </div>
                     ) : (
                         <p className="text-white/80 whitespace-pre-wrap text-xs sm:text-sm leading-relaxed break-words">
-                            {answer && answer.trim() !== '' ? answer : 'Esperando respuesta del sistema...'}
+                            {answer && answer.trim() !== '' ? answer : t('waiting System')}
                         </p>
                     )}
                 </div>

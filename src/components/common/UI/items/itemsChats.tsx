@@ -1,8 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useChatStore } from '@/store/chatStore';
 import { ButtonItemEdit } from '@/components/common/UI/CompleButtons/ButtonItemEdit';
 import { useModal } from '@/context/modalContext';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
 
 interface ItemsChatsProps {
     onPanelChange: (panel: 'welcome' | 'files' | 'chat', chatId?: string) => void;
@@ -15,6 +17,14 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
     const setChats = useChatStore(state => state.setChats);
     const { openModal } = useModal();
     const router = useRouter();
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('items').then(() => setIsLoaded(true));
+    }, [language]);
 
     const handleEditChat = async (chatId: string, newName: string) => {
         try {
@@ -99,7 +109,7 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
         if (chats.length === 0) {
             return (
                 <div key="empty-chats-container" className="space-y-2 flex flex-col gap-2 text-2xl">
-                    <p key="empty-chats-message" className="text-gray-400/70 text-xl text-center mt-32">Empty chats</p>
+                    <p key="empty-chats-message" className="text-gray-400/70 text-xl text-center mt-32">{t('noChats')}</p>
                 </div>
             );
         }
@@ -143,11 +153,11 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
                 ))}
             </div>
         );
-    }, [chats, onPanelChange, selectedChatId, onChatSelect, setChats, router]);
+    }, [chats, onPanelChange, selectedChatId, onChatSelect, setChats, router, t]);
+
+    if (!isLoaded) return null;
 
     return (
-        <>
-            {renderChats()}
-        </>
+        <>{renderChats()}</>
     );
 }

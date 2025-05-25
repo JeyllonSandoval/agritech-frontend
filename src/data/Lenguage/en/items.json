@@ -1,0 +1,18 @@
+{
+  "noFiles": "No files found.",
+  "noChats": "No chats found.",
+  "noMessages": "No messages yet.",
+  "analysisResult": "Analysis Result",
+  "download": "Download",
+  "delete": "Delete",
+  "view": "View",
+  "fileName": "File Name",
+  "createdAt": "Created at",
+  "actions": "Actions",
+  "confirmDeleteFile": "Are you sure you want to delete this file?",
+  "confirmDeleteChat": "Are you sure you want to delete this chat?",
+  "confirmDeleteMessage": "Are you sure you want to delete this message?",
+  "hide": "Hide",
+  "viewMore": "View more",
+  "waitingSystem": "Waiting for system response..."
+} 
