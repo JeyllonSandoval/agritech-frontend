@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useChatStore } from '@/store/chatStore';
+import { useLanguage } from '@/context/languageContext';
+import formsTranslations from '@/data/Lenguage/en/forms.json';
 
 interface TokenPayload {
     UserID: string;
@@ -13,6 +15,9 @@ interface ChatCreatedFormProps {
 }
 
 export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
+    const { language } = useLanguage();
+    const translations = formsTranslations.chatCreated;
+    const commonTranslations = formsTranslations.common;
     const [chatName, setChatName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -23,7 +28,6 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
     const addChat = useChatStore(state => state.addChat);
     const firstInputRef = useRef<HTMLInputElement>(null);
 
-    
     const isFormValid = validations.length && validations.noSpecialChars;
 
     useEffect(() => {
@@ -64,23 +68,21 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
             });
 
             if (!response.ok) {
-                throw new Error('Error creating chat');
+                throw new Error(translations.error);
             }
 
             const responseData = await response.json();
             console.log('Server response:', responseData);
             
-            
             if (!responseData.newChat || !Array.isArray(responseData.newChat) || responseData.newChat.length === 0) {
-                throw new Error('Invalid chat response: missing chat data');
+                throw new Error(translations.error);
             }
 
             const newChat = responseData.newChat[0];
             
-            
             if (!newChat.ChatID) {
                 console.log('Chat object structure:', Object.keys(newChat));
-                throw new Error('Invalid chat response: missing ChatID');
+                throw new Error(translations.error);
             }
 
             const chatToAdd = {
@@ -92,7 +94,7 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
             onClose();
         } catch (err) {
             console.error('Error creating chat:', err);
-            setError(err instanceof Error ? err.message : 'Failed to create chat');
+            setError(err instanceof Error ? err.message : translations.error);
         } finally {
             setIsLoading(false);
         }
@@ -106,7 +108,7 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                     type="text"
                     value={chatName}
                     onChange={(e) => setChatName(e.target.value)}
-                    placeholder="Enter chat name"
+                    placeholder={translations.name}
                     className="w-full px-4 py-3 text-sm
                         bg-white/10 backdrop-blur-sm rounded-xl
                         border border-white/20 text-white
@@ -128,7 +130,7 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             )}
                         </svg>
-                        <span>Between 3 and 50 characters</span>
+                        <span>{translations.maxLength.replace('{length}', '50')}</span>
                     </div>
                     <div className={`flex items-center gap-2 ${
                         validations.noSpecialChars ? 'text-emerald-400' : 'text-white/50'
@@ -160,7 +162,7 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                         hover:bg-white/10 hover:text-white
                         transition-all duration-300"
                 >
-                    Cancel
+                    {translations.cancel}
                 </button>
                 <button
                     type="submit"
@@ -178,9 +180,9 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
                             </svg>
-                            Creating...
+                            {commonTranslations.loading}
                         </span>
-                    ) : 'Create Chat'}
+                    ) : translations.create}
                 </button>
             </div>
         </form>

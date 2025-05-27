@@ -3,10 +3,13 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/context/languageContext';
+import formsTranslations from '@/data/Lenguage/en/forms.json';
 
 const Login = () => {
     const router = useRouter();
-    const { redirectToLogin } = useAuth();
+    const { language } = useLanguage();
+    const translations = formsTranslations.login;
     const [Email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -59,10 +62,10 @@ const Login = () => {
                 <div className="flex flex-col items-center gap-4 md:gap-8">
                     <div className="text-center space-y-1 md:space-y-2">
                         <h1 className="text-xl md:text-2xl font-semibold text-white">
-                            Welcome Back
+                            {translations.title}
                         </h1>
                         <p className="text-xs md:text-sm text-white/70">
-                            Sign in to continue to AgriTech
+                            {translations.subtitle}
                         </p>
                     </div>
 
@@ -80,7 +83,7 @@ const Login = () => {
                                         placeholder-white/40
                                         transition-all duration-300"
                                     type="text"
-                                    placeholder="Enter your email"
+                                    placeholder={translations.email}
                                     value={Email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
@@ -99,7 +102,7 @@ const Login = () => {
                                             transition-all duration-300
                                             pr-12"
                                         type={showPassword ? "text" : "password"}
-                                        placeholder="Enter your password"
+                                        placeholder={translations.password}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
@@ -138,7 +141,7 @@ const Login = () => {
                                         focus:text-emerald-400
                                         transition-colors duration-300"
                                 >
-                                    Forgot Password?
+                                    {translations.forgotPassword}
                                 </button>
                             </div>
 
@@ -154,7 +157,7 @@ const Login = () => {
                                     flex items-center justify-center gap-2
                                     shadow-lg shadow-emerald-400/20"
                             >
-                                <span>Sign In</span>
+                                <span>{translations.signIn}</span>
                                 <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                 </svg>

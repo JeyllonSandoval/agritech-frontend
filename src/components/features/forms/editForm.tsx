@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useLanguage } from '@/context/languageContext';
+import formsTranslations from '@/data/Lenguage/en/forms.json';
 
 interface EditFormProps {
     initialValue: string;
@@ -17,6 +19,9 @@ export const EditForm: React.FC<EditFormProps> = ({
     type,
     itemId
 }) => {
+    const { language } = useLanguage();
+    const translations = formsTranslations.edit;
+    const commonTranslations = formsTranslations.common;
     const [value, setValue] = useState(initialValue);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -78,13 +83,13 @@ export const EditForm: React.FC<EditFormProps> = ({
             });
 
             if (!response.ok) {
-                throw new Error(responseData.message || 'Error updating item');
+                throw new Error(responseData.message || translations.error);
             }
 
             onSubmit(value);
         } catch (error) {
             console.error('EditForm - Error details:', error);
-            setError(error instanceof Error ? error.message : 'Error updating item');
+            setError(error instanceof Error ? error.message : translations.error);
         } finally {
             setIsLoading(false);
         }
@@ -98,7 +103,7 @@ export const EditForm: React.FC<EditFormProps> = ({
                     type="text"
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
-                    placeholder="Enter name"
+                    placeholder={translations.name}
                     className="w-full px-4 py-3 text-xl
                         bg-white/10 backdrop-blur-sm rounded-xl
                         border border-white/20 text-white
@@ -127,7 +132,7 @@ export const EditForm: React.FC<EditFormProps> = ({
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             )}
                         </svg>
-                        <span>Between 3 and 50 characters</span>
+                        <span>{translations.maxLength.replace('{length}', '50')}</span>
                     </div>
                     <div className={`flex items-center gap-2 ${
                         validations.noSpecialChars ? 'text-emerald-400' : 'text-white/50'
@@ -152,7 +157,7 @@ export const EditForm: React.FC<EditFormProps> = ({
                         transition-colors rounded-lg"
                     disabled={isLoading}
                 >
-                    Cancel
+                    {translations.cancel}
                 </button>
                 <button
                     type="submit"
@@ -169,10 +174,10 @@ export const EditForm: React.FC<EditFormProps> = ({
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
                             </svg>
-                            <span>Saving...</span>
+                            <span>{commonTranslations.loading}</span>
                         </>
                     ) : (
-                        'Save'
+                        translations.save
                     )}
                 </button>
             </div>

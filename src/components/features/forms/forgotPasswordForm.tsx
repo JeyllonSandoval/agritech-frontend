@@ -2,9 +2,14 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from '@/context/languageContext';
+import formsTranslations from '@/data/Lenguage/en/forms.json';
 
 export default function ForgotPasswordForm() {
     const router = useRouter();
+    const { language } = useLanguage();
+    const translations = formsTranslations.forgotPassword;
+    const commonTranslations = formsTranslations.common;
     const emailInputRef = useRef<HTMLInputElement>(null);
     const [Email, setEmail] = useState("");
     const [message, setMessage] = useState("");
@@ -32,23 +37,23 @@ export default function ForgotPasswordForm() {
 
             if (!response.ok) {
                 if (response.status === 404) {
-                    throw new Error("User not found with this email address");
+                    throw new Error(translations.userNotFound);
                 } else if (response.status === 400) {
-                    throw new Error(data.error || "Invalid email format");
+                    throw new Error(data.error || translations.invalidEmail);
                 } else if (response.status === 429) {
-                    throw new Error("Too many requests. Please try again later");
+                    throw new Error(translations.tooManyRequests);
                 } else {
-                    throw new Error(data.error || "Failed to send password reset email");
+                    throw new Error(data.error || translations.resetFailed);
                 }
             }
 
-            setMessage("We've sent you an email with instructions to reset your password.");
+            setMessage(translations.resetEmailSent);
             setTimeout(() => {
                 router.push("/signin");
             }, 3000);
         } catch (error) {
             console.error("Error in password reset request:", error);
-            setMessage(error instanceof Error ? error.message : "Error connecting to the server");
+            setMessage(error instanceof Error ? error.message : commonTranslations.error);
         } finally {
             setIsSubmitting(false);
         }
@@ -64,10 +69,10 @@ export default function ForgotPasswordForm() {
                 <div className="flex flex-col items-center gap-4 md:gap-8">
                     <div className="text-center space-y-1 md:space-y-2">
                         <h1 className="text-xl md:text-2xl font-semibold text-white">
-                            Reset Password
+                            {translations.title}
                         </h1>
                         <p className="text-xs md:text-sm text-white/70">
-                            Enter your email to receive password reset instructions
+                            {translations.subtitle}
                         </p>
                     </div>
 
@@ -84,7 +89,7 @@ export default function ForgotPasswordForm() {
                                     placeholder-white/40
                                     transition-all duration-300"
                                 type="email"
-                                placeholder="Enter your email"
+                                placeholder={translations.emailPlaceholder}
                                 value={Email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
@@ -112,11 +117,11 @@ export default function ForgotPasswordForm() {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    <span>Sending...</span>
+                                    <span>{commonTranslations.loading}</span>
                                 </>
                             ) : (
                                 <>
-                                    <span>Send Reset Link</span>
+                                    <span>{translations.sendResetLink}</span>
                                     <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                     </svg>
@@ -127,13 +132,13 @@ export default function ForgotPasswordForm() {
                         {message && (
                             <div className={`text-xs md:text-sm px-3 py-2 md:px-4 md:py-3 rounded-xl 
                                 flex items-center gap-2 ${
-                                    message.includes("sent you") 
+                                    message.includes(translations.resetEmailSent) 
                                         ? "bg-emerald-400/10 border border-emerald-400/20 text-emerald-400"
                                         : "bg-red-400/10 border border-red-400/20 text-red-400"
                                 }`}
                             >
                                 <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    {message.includes("sent you") ? (
+                                    {message.includes(translations.resetEmailSent) ? (
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                     ) : (
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -152,7 +157,7 @@ export default function ForgotPasswordForm() {
                                     focus:text-emerald-400
                                     transition-colors duration-300"
                             >
-                                Back to Login
+                                {translations.backToLogin}
                             </button>
                         </div>
                     </div>

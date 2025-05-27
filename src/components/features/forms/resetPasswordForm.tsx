@@ -2,10 +2,15 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useLanguage } from '@/context/languageContext';
+import formsTranslations from '@/data/Lenguage/en/forms.json';
 
 export default function ResetPasswordForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { language } = useLanguage();
+    const translations = formsTranslations.resetPassword;
+    const commonTranslations = formsTranslations.common;
     const token = searchParams.get('token');
     const passwordInputRef = useRef<HTMLInputElement>(null);
     
@@ -24,17 +29,17 @@ export default function ResetPasswordForm() {
         setMessage("");
         
         if (newPassword !== confirmPassword) {
-            setMessage("Passwords do not match");
+            setMessage(commonTranslations.passwordMismatch);
             return;
         }
 
         if (newPassword.length < 8) {
-            setMessage("Password must be at least 8 characters long");
+            setMessage(commonTranslations.minLength.replace('{length}', '8'));
             return;
         }
 
         if (!token) {
-            setMessage("Invalid or expired reset link");
+            setMessage(translations.invalidLink);
             return;
         }
 
@@ -56,17 +61,17 @@ export default function ResetPasswordForm() {
 
             if (!response.ok) {
                 const errorMessages = {
-                    "Invalid token": "Invalid or expired reset token. Please request a new password reset.",
-                    "Token expired": "This password reset link has expired. Please request a new one.",
-                    "Invalid password": "New password must be different from your current password",
-                    "Validation error": "Invalid input data. Please check your password format."
+                    "Invalid token": translations.invalidToken,
+                    "Token expired": translations.expiredToken,
+                    "Invalid password": translations.samePassword,
+                    "Validation error": translations.invalidFormat
                 };
 
                 if (response.status === 400 && data.error in errorMessages) {
                     throw new Error(errorMessages[data.error as keyof typeof errorMessages]);
                 }
 
-                throw new Error(data.message || "Failed to reset password, please try with a different password");
+                throw new Error(data.message || translations.resetFailed);
             }
 
             // Guardar el nuevo token
@@ -74,13 +79,13 @@ export default function ResetPasswordForm() {
                 localStorage.setItem("token", data.token);
             }
 
-            setMessage(data.message || "Your password has been successfully reset");
+            setMessage(translations.resetSuccess);
             setTimeout(() => {
                 router.push("/");
             }, 3000);
         } catch (error) {
             console.error("Error in password reset:", error);
-            setMessage(error instanceof Error ? error.message : "Error connecting to the server");
+            setMessage(error instanceof Error ? error.message : commonTranslations.error);
         } finally {
             setIsSubmitting(false);
         }
@@ -96,10 +101,10 @@ export default function ResetPasswordForm() {
                 <div className="flex flex-col items-center gap-4 md:gap-8">
                     <div className="text-center space-y-1 md:space-y-2">
                         <h1 className="text-xl md:text-2xl font-semibold text-white">
-                            Reset Password
+                            {translations.title}
                         </h1>
                         <p className="text-xs md:text-sm text-white/70">
-                            Enter your new password below
+                            {translations.subtitle}
                         </p>
                     </div>
 
@@ -116,7 +121,7 @@ export default function ResetPasswordForm() {
                                     placeholder-white/40
                                     transition-all duration-300"
                                 type={showPassword ? "text" : "password"}
-                                placeholder="New Password"
+                                placeholder={translations.newPassword}
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 required
@@ -158,7 +163,7 @@ export default function ResetPasswordForm() {
                                     placeholder-white/40
                                     transition-all duration-300"
                                 type={showPassword ? "text" : "password"}
-                                placeholder="Confirm New Password"
+                                placeholder={translations.confirmPassword}
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
@@ -186,11 +191,11 @@ export default function ResetPasswordForm() {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    <span>Resetting...</span>
+                                    <span>{commonTranslations.loading}</span>
                                 </>
                             ) : (
                                 <>
-                                    <span>Reset Password</span>
+                                    <span>{translations.resetButton}</span>
                                     <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                     </svg>
@@ -201,13 +206,13 @@ export default function ResetPasswordForm() {
                         {message && (
                             <div className={`text-xs md:text-sm px-3 py-2 md:px-4 md:py-3 rounded-xl 
                                 flex items-center gap-2 ${
-                                    message.includes("successfully") 
+                                    message.includes(translations.resetSuccess) 
                                         ? "bg-emerald-400/10 border border-emerald-400/20 text-emerald-400"
                                         : "bg-red-400/10 border border-red-400/20 text-red-400"
                                 }`}
                             >
                                 <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    {message.includes("successfully") ? (
+                                    {message.includes(translations.resetSuccess) ? (
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                     ) : (
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -226,7 +231,7 @@ export default function ResetPasswordForm() {
                                     focus:text-emerald-400
                                     transition-colors duration-300"
                             >
-                                Back to Login
+                                {translations.backToLogin}
                             </button>
                         </div>
                     </div>

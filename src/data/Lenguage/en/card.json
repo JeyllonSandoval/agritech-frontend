@@ -1,0 +1,37 @@
+{
+    "profile": {
+        "title": "Profile",
+        "edit": "Edit Profile",
+        "logout": "Logout",
+        "name": "Name",
+        "email": "Email",
+        "country": "Country",
+        "role": "Role",
+        "verified": "Verified",
+        "resend": "Resend",
+        "active": "Active",
+        "inactive": "Inactive"
+    },
+    "chat": {
+        "title": "Chat",
+        "new": "New Chat",
+        "delete": "Delete Chat",
+        "edit": "Edit Chat",
+        "name": "Chat Name",
+        "description": "Description",
+        "created": "Created",
+        "updated": "Updated"
+    },
+    "file": {
+        "title": "File",
+        "new": "New File",
+        "delete": "Delete File",
+        "edit": "Edit File",
+        "name": "File Name",
+        "description": "Description",
+        "uploaded": "Uploaded",
+        "updated": "Updated",
+        "size": "Size",
+        "type": "Type"
+    }
+} 

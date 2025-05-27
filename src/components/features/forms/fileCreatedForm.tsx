@@ -1,220 +1,221 @@
-'use client';
+"use client";
 
-import { useState, useRef, ChangeEvent, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
-import { useFileStore } from '@/store/fileStore';
+import { useState, useRef } from "react";
+import { useLanguage } from '@/context/languageContext';
+import formsTranslations from '@/data/Lenguage/en/forms.json';
 
 interface FileCreatedFormProps {
+    onSubmit: (formData: FormData) => Promise<void>;
+    onCancel: () => void;
     onClose: () => void;
 }
 
-interface TokenData {
-    UserID: string;
+interface FormData {
+    name: string;
+    file: File | null;
 }
 
-export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
-    const [loading, setLoading] = useState(false);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [token, setToken] = useState<string | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const { fetchFiles } = useFileStore();
-    const [validations, setValidations] = useState({
-        fileSelected: false,
-        validType: false,
-        validSize: false
+interface FormErrors {
+    name?: string;
+    file?: string;
+    submit?: string;
+}
+
+interface FileFormData extends FormData {
+    name: string;
+    file: File | null;
+}
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+export default function FileCreatedForm({ onSubmit, onCancel, onClose }: FileCreatedFormProps) {
+    const { language } = useLanguage();
+    const translations = formsTranslations.fileCreated;
+    const commonTranslations = formsTranslations.common;
+    const [formData, setFormData] = useState<FileFormData>({
+        name: "",
+        file: null
     });
-    const firstInputRef = useRef<HTMLInputElement>(null);
+    const [errors, setErrors] = useState<FormErrors>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        const storedToken = localStorage.getItem('token');
-        setToken(storedToken);
-    }, []);
+    const validateForm = () => {
+        const newErrors: FormErrors = {};
 
-    useEffect(() => {
-        firstInputRef.current?.focus();
-    }, []);
-
-    const validateFile = (file: File | null) => {
-        if (!file) {
-            setValidations({
-                fileSelected: false,
-                validType: false,
-                validSize: false
-            });
-            return;
+        if (!formData.name.trim()) {
+            newErrors.name = translations.nameRequired;
         }
 
-        setValidations({
-            fileSelected: true,
-            validType: file.type === 'application/pdf',
-            validSize: file.size <= 10 * 1024 * 1024 // 10MB máximo
-        });
-    };
+        if (!formData.file) {
+            newErrors.file = translations.fileRequired;
+        } else if (formData.file.size > MAX_FILE_SIZE) {
+            newErrors.file = translations.fileTooLarge;
+        }
 
-    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        setSelectedFile(file || null);
-        validateFile(file || null);
-        setError(null);
-    };
-
-    const truncateFileName = (name: string, maxLength: number = 30) => {
-        return name.length > maxLength ? `${name.substring(0, maxLength)}...` : name;
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedFile || !token) {
-            setError('Please select a file and ensure you are logged in');
+
+        if (!validateForm()) {
             return;
         }
 
-        setLoading(true);
-        setError(null);
-
+        setIsSubmitting(true);
         try {
-            const decodedToken = jwtDecode(token) as TokenData;
-            const formData = new FormData();
-            
-            // Agregar UserID como string
-            formData.append('UserID', decodedToken.UserID);
-            
-            // Agregar el archivo con el nombre correcto
-            formData.append('file', selectedFile, selectedFile.name);
-
-            console.log('Sending file upload request:', {
-                UserID: decodedToken.UserID,
-                fileName: selectedFile.name,
-                fileSize: selectedFile.size
-            });
-
-            const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/file`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
-                throw new Error(errorData?.message || `Error: ${response.status} - ${response.statusText}`);
+            const formDataToSend = new FormData();
+            formDataToSend.append("name", formData.name);
+            if (formData.file) {
+                formDataToSend.append("file", formData.file);
             }
 
-            // Actualizar la lista de archivos
-            await fetchFiles();
-            onClose();
+            await onSubmit(formDataToSend as unknown as FileFormData);
         } catch (error) {
-            console.error('Error uploading file:', error);
-            setError(error instanceof Error ? error.message : 'An unexpected error occurred while uploading the file');
+            console.error("Error creating file:", error);
+            setErrors(prev => ({
+                ...prev,
+                submit: translations.error
+            }));
         } finally {
-            setLoading(false);
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (file.size > MAX_FILE_SIZE) {
+                setErrors(prev => ({
+                    ...prev,
+                    file: translations.fileTooLarge
+                }));
+                return;
+            }
+
+            const validFormats = ['.pdf', '.doc', '.docx', '.txt', '.xls', '.xlsx'];
+            const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+            
+            if (!validFormats.includes(fileExtension)) {
+                setErrors(prev => ({
+                    ...prev,
+                    file: translations.invalidFormat
+                }));
+                return;
+            }
+
+            setFormData(prev => ({
+                ...prev,
+                file
+            }));
+            setErrors(prev => ({
+                ...prev,
+                file: undefined
+            }));
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col w-full items-center justify-center gap-6">
-            <div className="flex flex-col w-full gap-4">
+        <form onSubmit={handleSubmit} className="w-full space-y-6">
+            <div className="space-y-4">
                 <div>
-                    <label htmlFor="fileInput" className="block text-sm text-white/70 mb-2">
-                        Select File
-                    </label>
                     <input
-                        type="file"
-                        id="fileInput"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        accept=".pdf"
-                        className="hidden"
-                        required
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => {
+                            setFormData(prev => ({
+                                ...prev,
+                                name: e.target.value
+                            }));
+                            if (errors.name) {
+                                setErrors(prev => ({
+                                    ...prev,
+                                    name: undefined
+                                }));
+                            }
+                        }}
+                        placeholder={translations.name}
+                        className="w-full px-4 py-3 text-sm
+                            bg-white/10 backdrop-blur-sm rounded-xl
+                            border border-white/20 text-white
+                            focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/20
+                            focus:outline-none placeholder-white/40
+                            transition-all duration-300"
                     />
-                    <div className="h-16">
-                        <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="w-full h-full text-sm border-2 
-                                border-dashed border-white/20 rounded-xl 
-                                text-white/70 
-                                hover:border-emerald-400/50 hover:text-emerald-400/70
-                                transition-all duration-300 
-                                flex items-center justify-center px-4 
-                                bg-white/5 backdrop-blur-sm"
-                        >
-                            {selectedFile ? truncateFileName(selectedFile.name) : 'Click to select a file'}
-                        </button>
-                    </div>
+                    {errors.name && (
+                        <p className="text-red-400 text-xs mt-1">{errors.name}</p>
+                    )}
                 </div>
 
-                {/* Validadores dinámicos */}
-                <div className="text-xs space-y-1 px-2">
-                    <div className={`flex items-center gap-2 ${
-                        validations.fileSelected ? 'text-emerald-400' : 'text-white/50'
-                    }`}>
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            {validations.fileSelected ? (
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            ) : (
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            )}
+                <div>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept=".pdf,.doc,.docx,.txt,.xls,.xlsx"
+                        className="hidden"
+                        id="file-upload"
+                    />
+                    <label
+                        htmlFor="file-upload"
+                        className="w-full px-4 py-3 text-sm
+                            bg-white/10 backdrop-blur-sm rounded-xl
+                            border border-white/20 text-white
+                            focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/20
+                            focus:outline-none placeholder-white/40
+                            transition-all duration-300
+                            cursor-pointer
+                            flex items-center justify-center gap-2"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
-                        <span>File selected</span>
-                    </div>
-                    <div className={`flex items-center gap-2 ${
-                        validations.validType ? 'text-emerald-400' : 'text-white/50'
-                    }`}>
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            {validations.validType ? (
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            ) : (
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            )}
-                        </svg>
-                        <span>Valid PDF format</span>
-                    </div>
-                    <div className={`flex items-center gap-2 ${
-                        validations.validSize ? 'text-emerald-400' : 'text-white/50'
-                    }`}>
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            {validations.validSize ? (
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            ) : (
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            )}
-                        </svg>
-                        <span>Size less than 10MB</span>
-                    </div>
+                        {formData.file ? formData.file.name : translations.file}
+                    </label>
+                    {errors.file && (
+                        <p className="text-red-400 text-xs mt-1">{errors.file}</p>
+                    )}
                 </div>
             </div>
 
-            {error && (
+            {errors.submit && (
                 <div className="text-red-400 text-sm bg-red-400/10 px-4 py-2 rounded-xl border border-red-400/20">
-                    {error}
+                    {errors.submit}
                 </div>
             )}
 
-            <div className="flex justify-end gap-3 w-full">
+            <div className="flex justify-end gap-3">
                 <button
                     type="button"
-                    onClick={onClose}
+                    onClick={onCancel}
                     className="px-6 py-2.5 text-sm rounded-xl
                         border border-white/20 text-white/70
                         hover:bg-white/10 hover:text-white
                         transition-all duration-300"
                 >
-                    Cancel
+                    {translations.cancel}
                 </button>
                 <button
                     type="submit"
-                    disabled={loading || !selectedFile}
+                    disabled={isSubmitting}
                     className={`px-6 py-2.5 text-sm rounded-xl
                         transition-all duration-300
-                        ${!selectedFile || loading
+                        ${isSubmitting
                             ? 'bg-white/10 text-white/40 cursor-not-allowed'
                             : 'bg-emerald-400/90 text-black hover:bg-emerald-400'
                         }`}
                 >
-                    {loading ? 'Uploading...' : (!selectedFile ? 'Select a file first' : 'Upload')}
+                    {isSubmitting ? (
+                        <span className="flex items-center gap-2">
+                            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                            </svg>
+                            {commonTranslations.loading}
+                        </span>
+                    ) : translations.upload}
                 </button>
             </div>
         </form>

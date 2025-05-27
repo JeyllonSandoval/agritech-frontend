@@ -4,6 +4,8 @@ import ItemMessage from '@/components/common/UI/items/itemMessages';
 import FileAnalysisResult from '@/components/common/UI/items/FileAnalysisResult';
 import { FileProps } from '@/hooks/getFiles';
 import predefinedQuestions from '@/data/Lenguage/en/predefinedQuestions.json';
+import { useLanguage } from '@/context/languageContext';
+import tableTranslations from '@/data/Lenguage/en/table.json';
 
 interface TableShowMessageProps {
     messages: Message[];
@@ -13,6 +15,8 @@ interface TableShowMessageProps {
 
 export default function TableShowMessage({ messages, isLoading, files }: TableShowMessageProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const { language } = useLanguage();
+    const translations = tableTranslations;
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -76,8 +80,8 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                                 fileInfo={(() => {
                                     const name = getFileName(message.FileID);
                                     if (name) return { FileName: name };
-                                    if (files.length === 0) return { FileName: 'Loading file...' };
-                                    return { FileName: 'File not found' };
+                                    if (files.length === 0) return { FileName: translations.loadingFile };
+                                    return { FileName: translations.fileNotFound };
                                 })()}
                                 isLoading={message.isLoading}
                             />
@@ -129,8 +133,8 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                             fileInfo={message.FileID ? (() => {
                                 const name = getFileName(message.FileID);
                                 if (name) return { FileName: name };
-                                if (files.length === 0) return { FileName: 'Loading file...' };
-                                return { FileName: 'File not found' };
+                                if (files.length === 0) return { FileName: translations.loadingFile };
+                                return { FileName: translations.fileNotFound };
                             })() : undefined}
                             isLoading={message.isLoading}
                         />
