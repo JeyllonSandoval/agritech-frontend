@@ -10,6 +10,9 @@ import { FileProps } from '@/hooks/getFiles';
 import { useModal } from '@/context/modalContext';
 import SettingPanel from '../Panels/SettingPanel';
 import EditProfileForm from '../forms/editProfileForm';
+import { useLanguage } from '@/context/languageContext';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useEffect } from 'react';
 
 type ModalType = 'createdChat' | 'createdFile' | 'updateChat' | 'updateFile' | 'settings' | 'edit-profile';
 type ModalMode = 'create' | 'select' | 'preview' | 'edit';
@@ -32,29 +35,36 @@ export default function ModalCreated() {
         contentURL
     } = useModal();
 
+    const { language } = useLanguage();
+    const { t, loadTranslations } = useTranslation();
+
+    useEffect(() => {
+        loadTranslations('modals');
+    }, [language]);
+
     if (!isOpen && !isConfirmOpen) return null;
 
     const getTitle = () => {
         if (mode === 'edit') {
-            if (type === 'edit-profile') return 'Edit Profile';
-            return type === 'updateFile' ? 'Edit File Name' : 'Edit Chat Name';
+            if (type === 'edit-profile') return t('editProfile');
+            return type === 'updateFile' ? t('editFileName') : t('editChatName');
         }
         if (type === 'createdFile' && mode === 'preview' && itemId) {
             return initialValue;
         }
         switch (type) {
             case 'createdChat':
-                return 'Create New Chat';
+                return t('createNewChat');
             case 'createdFile':
-                return mode === 'preview' ? initialValue : 'Upload New File';
+                return mode === 'preview' ? initialValue : t('uploadNewFile');
             case 'updateChat':
-                return 'Update Chat Name';
+                return t('updateChatName');
             case 'updateFile':
-                return 'Update File Name';
+                return t('updateFileName');
             case 'settings':
-                return 'Settings';
+                return t('settings');
             case 'edit-profile':
-                return 'Edit Profile';
+                return t('editProfile.title');
             default:
                 return '';
         }
