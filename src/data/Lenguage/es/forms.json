@@ -11,12 +11,16 @@
         "or": "o",
         "continueWithGoogle": "Continuar con Google",
         "continueWithGithub": "Continuar con Github",
-        "invalidCredentials": "Correo electrónico o contraseña inválidos"
+        "invalidCredentials": "Correo electrónico o contraseña inválidos",
+        "invalidEmail": "Correo electrónico inválido",
+        "required": "Este campo es obligatorio",
+        "invalidFormat": "Formato de correo electrónico inválido"
     },
     "register": {
         "title": "Crear Cuenta",
         "subtitle": "Únete a AgriTech y comienza tu viaje",
         "name": "Nombre",
+        "lastName": "Apellido",
         "email": "Correo electrónico",
         "password": "Contraseña",
         "confirmPassword": "Confirmar Contraseña",
@@ -31,9 +35,9 @@
     },
     "forgotPassword": {
         "title": "Restablecer Contraseña",
-        "subtitle": "Ingresa tu correo electrónico para recibir instrucciones de restablecimiento",
+        "subtitle": "Ingresa tu correo electrónico para recibir instrucciones de recuperación",
         "emailPlaceholder": "Ingresa tu correo electrónico",
-        "sendResetLink": "Enviar Enlace",
+        "sendResetLink": "Enviar correo de recuperación",
         "backToLogin": "Volver al Inicio de Sesión",
         "userNotFound": "No se encontró un usuario con este correo electrónico",
         "invalidEmail": "Formato de correo electrónico inválido",
@@ -67,7 +71,8 @@
     "editProfile": {
         "title": "Editar Perfil",
         "subtitle": "Actualiza tu información de perfil",
-        "name": "Nombre Completo",
+        "name": "Nombre",
+        "lastName": "Apellido",
         "email": "Correo electrónico",
         "currentPassword": "Contraseña Actual",
         "newPassword": "Nueva Contraseña",
@@ -80,7 +85,8 @@
         "invalidCurrentPassword": "La contraseña actual es incorrecta",
         "profilePicture": "Foto de Perfil",
         "uploadPicture": "Subir nueva foto",
-        "removePicture": "Eliminar foto"
+        "removePicture": "Eliminar foto",
+        "country": "Selecciona tu país"
     },
     "chatCreated": {
         "title": "Crear Nuevo Chat",
@@ -93,6 +99,7 @@
         "error": "Error al crear el chat",
         "nameRequired": "El nombre del chat es obligatorio",
         "descriptionRequired": "La descripción es obligatoria",
+        "noSpecialChars": "Solo letras, números, espacios, guiones y guiones bajos",
         "maxLength": "Longitud máxima: {length} caracteres"
     },
     "fileCreated": {
@@ -105,8 +112,8 @@
         "cancel": "Cancelar",
         "success": "Archivo subido exitosamente",
         "error": "Error al subir el archivo",
-        "dragAndDrop": "Arrastra y suelta tu archivo aquí, o haz clic para seleccionar",
-        "supportedFormats": "Formatos soportados: PDF, DOC, DOCX, TXT",
+        "selectFile": "Arrastra y suelta tu archivo aquí, o haz clic para seleccionar",
+        "supportedFormats": "Formato soportado: PDF",
         "maxSize": "Tamaño máximo: 10MB",
         "nameRequired": "El nombre del archivo es obligatorio",
         "fileRequired": "Por favor selecciona un archivo",
@@ -124,6 +131,7 @@
         "error": "Error al guardar los cambios",
         "nameRequired": "El nombre es obligatorio",
         "descriptionRequired": "La descripción es obligatoria",
+        "noSpecialChars": "Solo letras, números, espacios, guiones y guiones bajos",
         "maxLength": "Longitud máxima: {length} caracteres"
     },
     "common": {

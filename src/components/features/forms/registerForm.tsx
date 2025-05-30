@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/context/languageContext';
-import formsTranslations from '@/data/Lenguage/en/forms.json';
+import { useTranslation } from '@/hooks/useTranslation';
+import Select from 'react-select';
 
 interface Country {
     CountryID: string;
@@ -33,8 +34,7 @@ interface ValidationErrors {
 export default function RegisterForm() {
     const router = useRouter();
     const { language } = useLanguage();
-    const translations = formsTranslations.register;
-    const commonTranslations = formsTranslations.common;
+    const { t, loadTranslations } = useTranslation();
     const [countries, setCountries] = useState<Country[]>([]);
     const [FirstName, setFirstName] = useState("");
     const [LastName, setLastName] = useState("");
@@ -71,8 +71,12 @@ export default function RegisterForm() {
     }, []);
 
     useEffect(() => {
+        loadTranslations('forms');
+    }, [language]);
+
+    useEffect(() => {
         if (password && confirmPassword && password !== confirmPassword) {
-            setMessage(commonTranslations.passwordMismatch);
+            setMessage(t('common.passwordMismatch'));
         } else {
             setMessage("");
         }
@@ -89,9 +93,9 @@ export default function RegisterForm() {
         switch (name) {
             case 'FirstName':
                 if (!value.trim()) {
-                    error = commonTranslations.required;
+                    error = t('common.required');
                 } else if (value.length < 2) {
-                    error = commonTranslations.minLength.replace('{length}', '2');
+                    error = t('common.minLength').replace('{length}', '2');
                 } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
                     error = 'First name can only contain letters';
                 }
@@ -99,9 +103,9 @@ export default function RegisterForm() {
 
             case 'LastName':
                 if (!value.trim()) {
-                    error = commonTranslations.required;
+                    error = t('common.required');
                 } else if (value.length < 2) {
-                    error = commonTranslations.minLength.replace('{length}', '2');
+                    error = t('common.minLength').replace('{length}', '2');
                 } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
                     error = 'Last name can only contain letters';
                 }
@@ -109,31 +113,31 @@ export default function RegisterForm() {
 
             case 'Email':
                 if (!value) {
-                    error = commonTranslations.required;
+                    error = t('common.required');
                 } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                    error = commonTranslations.invalidEmail;
+                    error = t('common.invalidEmail');
                 }
                 break;
 
             case 'password':
                 if (!value) {
-                    error = commonTranslations.required;
+                    error = t('common.required');
                 } else if (value.length < 8) {
-                    error = commonTranslations.minLength.replace('{length}', '8');
+                    error = t('common.minLength').replace('{length}', '8');
                 }
                 break;
 
             case 'confirmPassword':
                 if (!value) {
-                    error = commonTranslations.required;
+                    error = t('common.required');
                 } else if (value !== password) {
-                    error = commonTranslations.passwordMismatch;
+                    error = t('common.passwordMismatch');
                 }
                 break;
 
             case 'CountryID':
                 if (!value) {
-                    error = commonTranslations.required;
+                    error = t('common.required');
                 }
                 break;
         }
@@ -188,7 +192,7 @@ export default function RegisterForm() {
         e.preventDefault();
 
         if (password !== confirmPassword) {
-            setMessage(commonTranslations.passwordMismatch);
+            setMessage(t('common.passwordMismatch'));
             return;
         }
 
@@ -223,11 +227,11 @@ export default function RegisterForm() {
                 
                 router.push("/");
             } else {
-                setMessage(data.message || data.error || commonTranslations.error);
+                setMessage(data.message || data.error || t('common.error'));
             }
         } catch (error) {
             console.error("Error registering user:", error);
-            setMessage(commonTranslations.error);
+            setMessage(t('common.error'));
         } finally {
             setIsSubmitting(false);
         }
@@ -251,10 +255,10 @@ export default function RegisterForm() {
                 <div className="flex flex-col items-center gap-4 md:gap-8">
                     <div className="text-center space-y-1 md:space-y-2">
                         <h1 className="text-xl md:text-2xl font-semibold text-white">
-                            {translations.title}
+                            {t('register.title')}
                         </h1>
                         <p className="text-xs md:text-sm text-white/70">
-                            {translations.subtitle}
+                            {t('register.subtitle')}
                         </p>
                     </div>
 
@@ -273,16 +277,16 @@ export default function RegisterForm() {
                                             placeholder-white/40
                                             transition-all duration-300"
                                         type="text"
-                                        placeholder={translations.name}
+                                        placeholder={t('register.name')}
                                         value={FirstName}
                                         onChange={(e) => handleChange('FirstName', e.target.value)}
                                         onBlur={() => handleBlur('FirstName')}
                                     />
-                                    {touched.FirstName && errors.FirstName && (
-                                        <div className="absolute -bottom-5 left-0 text-xs text-red-400">
-                                            {errors.FirstName}
-                                        </div>
-                                    )}
+                                    <div className="absolute -bottom-5 left-0 text-xs min-h-[20px]">
+                                        {touched.FirstName && errors.FirstName && (
+                                            <span className="text-red-400">{errors.FirstName}</span>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="relative flex items-center">
@@ -296,16 +300,16 @@ export default function RegisterForm() {
                                             placeholder-white/40
                                             transition-all duration-300"
                                         type="text"
-                                        placeholder={translations.name}
+                                        placeholder={t('register.lastName')}
                                         value={LastName}
                                         onChange={(e) => handleChange('LastName', e.target.value)}
                                         onBlur={() => handleBlur('LastName')}
                                     />
-                                    {touched.LastName && errors.LastName && (
-                                        <div className="absolute -bottom-5 left-0 text-xs text-red-400">
-                                            {errors.LastName}
-                                        </div>
-                                    )}
+                                    <div className="absolute -bottom-5 left-0 text-xs min-h-[20px]">
+                                        {touched.LastName && errors.LastName && (
+                                            <span className="text-red-400">{errors.LastName}</span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -320,16 +324,16 @@ export default function RegisterForm() {
                                         placeholder-white/40
                                         transition-all duration-300"
                                     type="email"
-                                    placeholder={translations.email}
+                                    placeholder={t('register.email')}
                                     value={Email}
                                     onChange={(e) => handleChange('Email', e.target.value)}
                                     onBlur={() => handleBlur('Email')}
                                 />
-                                {touched.Email && errors.Email && (
-                                    <div className="absolute -bottom-5 left-0 text-xs text-red-400">
-                                        {errors.Email}
-                                    </div>
-                                )}
+                                <div className="absolute -bottom-5 left-0 text-xs min-h-[20px]">
+                                    {touched.Email && errors.Email && (
+                                        <span className="text-red-400">{errors.Email}</span>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="relative group">
@@ -345,7 +349,7 @@ export default function RegisterForm() {
                                             transition-all duration-300
                                             pr-12"
                                         type={showPassword ? "text" : "password"}
-                                        placeholder={translations.password}
+                                        placeholder={t('register.password')}
                                         value={password}
                                         onChange={(e) => handleChange('password', e.target.value)}
                                         onBlur={() => handleBlur('password')}
@@ -374,11 +378,11 @@ export default function RegisterForm() {
                                         )}
                                     </button>
                                 </div>
-                                {touched.password && errors.password && (
-                                    <div className="absolute -bottom-5 left-0 text-xs text-red-400">
-                                        {errors.password}
-                                    </div>
-                                )}
+                                <div className="absolute -bottom-5 left-0 text-xs min-h-[20px]">
+                                    {touched.password && errors.password && (
+                                        <span className="text-red-400">{errors.password}</span>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="relative group">
@@ -394,45 +398,95 @@ export default function RegisterForm() {
                                             transition-all duration-300
                                             pr-12"
                                         type={showPassword ? "text" : "password"}
-                                        placeholder={translations.confirmPassword}
+                                        placeholder={t('register.confirmPassword')}
                                         value={confirmPassword}
                                         onChange={(e) => handleChange('confirmPassword', e.target.value)}
                                         onBlur={() => handleBlur('confirmPassword')}
                                     />
                                 </div>
-                                {touched.confirmPassword && errors.confirmPassword && (
-                                    <div className="absolute -bottom-5 left-0 text-xs text-red-400">
-                                        {errors.confirmPassword}
-                                    </div>
-                                )}
+                                <div className="absolute -bottom-5 left-0 text-xs min-h-[20px]">
+                                    {touched.confirmPassword && errors.confirmPassword && (
+                                        <span className="text-red-400">{errors.confirmPassword}</span>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="relative flex items-center">
-                                <select
-                                    className="w-full px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm
-                                        bg-white/10 backdrop-blur-sm rounded-xl
-                                        border border-white/20 text-white
-                                        group-hover:border-emerald-400/30
-                                        focus:border-emerald-400/50 focus:ring-2 
-                                        focus:ring-emerald-400/20 focus:outline-none 
-                                        placeholder-white/40
-                                        transition-all duration-300"
-                                    value={CountryID}
-                                    onChange={(e) => handleChange('CountryID', e.target.value)}
-                                    onBlur={() => handleBlur('CountryID')}
-                                >
-                                    <option value="">Select your country</option>
-                                    {countries.map((country) => (
-                                        <option key={country.CountryID} value={country.CountryID}>
-                                            {country.countryname}
-                                        </option>
-                                    ))}
-                                </select>
-                                {touched.CountryID && errors.CountryID && (
-                                    <div className="absolute -bottom-5 left-0 text-xs text-red-400">
-                                        {errors.CountryID}
+                            <div className="relative flex">
+                                <div className="w-full text-base">
+                                    <Select 
+                                        inputId="country-select"
+                                        classNamePrefix="agritech-select"
+                                        options={countries.map(c => ({ value: c.CountryID, label: c.countryname }))}
+                                        value={countries.length ? countries.map(c => ({ value: c.CountryID, label: c.countryname })).find(opt => opt.value === CountryID) : null}
+                                        onChange={opt => handleChange('CountryID', opt ? opt.value : '')}
+                                        onBlur={() => handleBlur('CountryID')}
+                                        placeholder={t('register.country')}
+                                        isSearchable
+                                        styles={{
+                                            control: (base, state) => ({
+                                                ...base,
+                                                backgroundColor: 'rgba(23,23,23,0.3)',
+                                                borderColor: errors.CountryID ? '#f87171' : 'rgba(255,255,255,0.2)',
+                                                boxShadow: state.isFocused ? '0 0 0 2px rgba(16,185,129,0.2)' : undefined,
+                                                color: '#fff',
+                                                minHeight: '45px',
+                                                
+                                                paddingLeft: '0.75rem',
+                                                paddingRight: '2.5rem',
+                                            }),
+                                            menu: base => ({
+                                                ...base,
+                                                backgroundColor: '#111',
+                                                color: '#fff',
+                                                
+                                                marginTop: 2,
+                                                zIndex: 20,
+                                            }),
+                                            option: (base, state) => ({
+                                                ...base,
+                                                backgroundColor: state.isSelected
+                                                    ? 'rgba(16,185,129,0.8)'
+                                                    : state.isFocused
+                                                        ? 'rgba(16,185,129,0.2)'
+                                                        : '#111',
+                                                color: state.isSelected ? '#111' : '#fff',
+                                                cursor: 'pointer',
+                                            }),
+                                            singleValue: base => ({
+                                                ...base,
+                                                color: '#fff',
+                                            }),
+                                            placeholder: base => ({
+                                                ...base,
+                                                color: 'rgba(255,255,255,0.4)',
+                                            }),
+                                            dropdownIndicator: base => ({
+                                                ...base,
+                                                color: 'rgba(255,255,255,0.4)',
+                                            }),
+                                            indicatorSeparator: base => ({
+                                                ...base,
+                                                backgroundColor: 'rgba(255,255,255,0.2)',
+                                            }),
+                                        }}
+                                        theme={theme => ({
+                                            ...theme,
+                                            borderRadius: 12,
+                                            colors: {
+                                                ...theme.colors,
+                                                primary25: 'rgba(16,185,129,0.2)',
+                                                primary: 'rgba(16,185,129,0.8)',
+                                                neutral0: '#111',
+                                                neutral80: '#fff',
+                                            },
+                                        })}
+                                    />
+                                    <div className="text-xs mt-1">
+                                        {touched.CountryID && errors.CountryID && (
+                                            <span className="text-red-400">{errors.CountryID}</span>
+                                        )}
                                     </div>
-                                )}
+                                </div>
                             </div>
 
                             <div className="relative flex items-center">
@@ -459,7 +513,7 @@ export default function RegisterForm() {
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    {image ? image.name : 'Upload Profile Picture'}
+                                    {image ? image.name : t('register.profilePicture')}
                                 </label>
                             </div>
 
@@ -483,11 +537,11 @@ export default function RegisterForm() {
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        <span>{commonTranslations.loading}</span>
+                                        <span>{t('common.loading')}</span>
                                     </>
                                 ) : (
                                     <>
-                                        <span>{translations.signUp}</span>
+                                        <span>{t('register.signUp')}</span>
                                         <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                         </svg>
@@ -507,19 +561,6 @@ export default function RegisterForm() {
                                     <span className="flex-1">{message}</span>
                                 </div>
                             )}
-
-                            <div className="text-center">
-                                <p className="text-xs md:text-sm text-white/50">
-                                    {translations.haveAccount}{' '}
-                                    <button
-                                        type="button"
-                                        onClick={() => router.push('/login')}
-                                        className="text-emerald-400 hover:text-emerald-300 transition-colors duration-300"
-                                    >
-                                        {translations.signIn}
-                                    </button>
-                                </p>
-                            </div>
                         </div>
                     </div>
                 </div>

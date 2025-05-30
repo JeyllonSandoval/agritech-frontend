@@ -68,6 +68,7 @@
         "title": "Edit Profile",
         "subtitle": "Update your personal information",
         "name": "Name",
+        "lastName": "Last Name",
         "email": "Email",
         "currentPassword": "Current Password",
         "newPassword": "New Password",

@@ -2,7 +2,7 @@ import ForgotPasswordForm from "@/components/features/forms/forgotPasswordForm";
 
 export default function ForgotPasswordPage() {
     return (
-        <main className="min-h-screen bg-gradient-to-br from-green-950/90 via-black to-green-950/90">
+        <main className="flex justify-center items-center max-h-screen ">
             <ForgotPasswordForm />
         </main>
     );
