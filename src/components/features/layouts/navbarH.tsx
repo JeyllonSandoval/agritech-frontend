@@ -5,6 +5,8 @@ import RightNavbar from '@/components/common/UI/navbars/RightNavbar';
 import { useEffect, useState, useContext } from 'react';
 import { NavbarLateralContext } from '@/context/navbarLateralContext';
 import { usePathname } from 'next/navigation';
+import { useLanguage } from '@/context/languageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function NavbarH() {
     const [scrolled, setScrolled] = useState(false);
@@ -12,6 +14,8 @@ export default function NavbarH() {
     const { isLateralOpen, onLateralToggle } = useContext(NavbarLateralContext);
     const pathname = usePathname();
     const isPlaygroundRoute = pathname.startsWith('/playground');
+    const { language } = useLanguage();
+    const { t, loadTranslations } = useTranslation();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -24,6 +28,10 @@ export default function NavbarH() {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, [scrolled]);
+
+    useEffect(() => {
+        loadTranslations('navbar');
+    }, [language]);
 
     const handleMenuClose = () => {
         setIsMenuOpen(false);
@@ -72,7 +80,7 @@ export default function NavbarH() {
                                     >
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>
-                                    <span className="text-emerald-400 text-sm font-medium">Quick Access</span>
+                                    <span className="text-emerald-400 text-sm font-medium">{t('navbar.quickAccess')}</span>
                                 </button>
                             )}
                         </div>

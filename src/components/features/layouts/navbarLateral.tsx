@@ -8,6 +8,8 @@ import ItemsChats from '@/components/common/UI/items/itemsChats';
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { NavbarLateralContext } from "@/context/navbarLateralContext";
+import { useLanguage } from '@/context/languageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface NavbarLateralProps {
     activePanel: 'welcome' | 'files' | 'chat';
@@ -24,6 +26,8 @@ export default function NavbarLateral({ activePanel, ...props }: NavbarLateralPr
     const router = useRouter();
     const pathname = usePathname();
     const { isLateralOpen, onLateralToggle } = useContext(NavbarLateralContext);
+    const { language } = useLanguage();
+    const { t, loadTranslations } = useTranslation();
 
     // Reset selected chat when panel changes
     useEffect(() => {
@@ -51,6 +55,10 @@ export default function NavbarLateral({ activePanel, ...props }: NavbarLateralPr
     useEffect(() => {
         loadChats();
     }, [loadChats]);
+
+    useEffect(() => {
+        loadTranslations('navbar');
+    }, [language]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -121,7 +129,7 @@ export default function NavbarLateral({ activePanel, ...props }: NavbarLateralPr
                     xs:w-[calc(100%-2rem)]`}
             >
                 <div className="p-4 border-b border-white/10 flex justify-between items-center">
-                    <h1 className="text-xl font-medium text-white/90">Quick Access</h1>
+                    <h1 className="text-xl font-medium text-white/90">{t('navbarLateral.quickAccess')}</h1>
                     <button
                         onClick={onLateralToggle}
                         className="p-2 rounded-lg hover:bg-white/10 transition-all duration-300"
@@ -141,7 +149,7 @@ export default function NavbarLateral({ activePanel, ...props }: NavbarLateralPr
                         <ButtonCreatedChat onClick={props.onCreateChat} />
                     </div>
                     <div className="flex flex-col gap-3 mt-4 flex-1 min-h-0">
-                        <h2 className="text-lg font-medium text-gray-400 px-2">Recent Chats</h2>
+                        <h2 className="text-lg font-medium text-gray-400 px-2">{t('navbarLateral.recentChats')}</h2>
                         <div className="flex-1 overflow-y-auto pr-2
                             scrollbar scrollbar-w-1.5 
                             scrollbar-track-white/5
