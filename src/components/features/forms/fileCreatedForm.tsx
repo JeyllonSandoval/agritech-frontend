@@ -27,12 +27,14 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
         validSize: false
     });
     const [isDragActive, setIsDragActive] = useState(false);
+    const [translationsReady, setTranslationsReady] = useState(false);
 
     const { language } = useLanguage();
     const { t, loadTranslations } = useTranslation();
 
     useEffect(() => {
-        loadTranslations('forms');
+        setTranslationsReady(false);
+        loadTranslations('forms').then(() => setTranslationsReady(true));
     }, [language]);
 
     useEffect(() => {
@@ -129,6 +131,10 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
             setLoading(false);
         }
     };
+
+    const isFormValid = validations.fileSelected && validations.validType && validations.validSize;
+
+    if (!translationsReady) return null;
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col w-full items-center justify-center gap-6">
@@ -228,10 +234,10 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
                 </button>
                 <button
                     type="submit"
-                    disabled={loading || !selectedFile}
+                    disabled={loading || !isFormValid}
                     className={`px-6 py-2.5 text-sm rounded-xl
                         transition-all duration-300
-                        ${!selectedFile || loading
+                        ${!isFormValid || loading
                             ? 'bg-white/10 text-white/40 cursor-not-allowed'
                             : 'bg-emerald-400/90 text-black hover:bg-emerald-400'
                         }`}
