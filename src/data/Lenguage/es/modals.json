@@ -1,0 +1,13 @@
+{
+  "confirmDelete": "Confirmar eliminación",
+  "cancel": "Cancelar",
+  "delete": "Eliminar",
+  "editProfile": "Editar perfil",
+  "editFileName": "Editar nombre de archivo",
+  "editChatName": "Editar nombre del chat",
+  "createNewChat": "Crear nuevo chat",
+  "uploadNewFile": "Subir nuevo archivo",
+  "updateChatName": "Actualizar nombre del chat",
+  "updateFileName": "Actualizar nombre de archivo",
+  "settings": "Configuración"
+} 

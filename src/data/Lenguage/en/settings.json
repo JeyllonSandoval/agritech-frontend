@@ -1,0 +1,23 @@
+{
+    "title": "Settings",
+    "language": {
+        "title": "Language",
+        "english": "English",
+        "spanish": "Spanish",
+        "switchToEnglish": "Switch to English",
+        "switchToSpanish": "Switch to Spanish"
+    },
+    "dataManagement": {
+        "title": "Data Management",
+        "deleteChats": {
+            "title": "Delete All Chats",
+            "description": "Remove all your chat history",
+            "confirm": "Are you sure you want to delete all your chats? This action cannot be undone."
+        },
+        "deleteFiles": {
+            "title": "Delete All Files",
+            "description": "Remove all your uploaded files",
+            "confirm": "Are you sure you want to delete all your files? This action cannot be undone."
+        }
+    }
+} 

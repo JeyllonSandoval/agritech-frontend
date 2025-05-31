@@ -8,6 +8,8 @@ loading: boolean;
 error: string | null;
 fetchFiles: () => Promise<void>;
 addFile: (file: FileProps) => void;
+removeFile: (fileId: string) => void;
+clearFiles: () => void;
 }
 
 export const useFileStore = create<FileStore>((set) => ({
@@ -24,4 +26,8 @@ fetchFiles: async () => {
     }
 },
 addFile: (file) => set((state) => ({ files: [...state.files, file] })),
+removeFile: (fileId) => set((state) => ({ 
+    files: state.files.filter(file => file.FileID !== fileId) 
+})),
+clearFiles: () => set({ files: [] })
 })); 

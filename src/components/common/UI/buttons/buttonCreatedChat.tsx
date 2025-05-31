@@ -1,6 +1,9 @@
 'use client';
 
 import { useModal } from '@/context/modalContext';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
+import { useState, useEffect } from 'react';
 
 interface ButtonCreatedChatProps {
     onClick?: () => void;
@@ -8,11 +11,21 @@ interface ButtonCreatedChatProps {
 
 export default function ButtonCreatedChat({ onClick }: ButtonCreatedChatProps) {
     const { openModal } = useModal();
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('buttons').then(() => setIsLoaded(true));
+    }, [language]);
 
     const handleClick = () => {
         openModal('createdChat', 'create', '');
         onClick?.();
     };
+
+    if (!isLoaded) return null;
 
     return (
         <button 
@@ -33,7 +46,7 @@ export default function ButtonCreatedChat({ onClick }: ButtonCreatedChatProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                     d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            Create Chat
+            {t('createChat')}
         </button>
     );
 }

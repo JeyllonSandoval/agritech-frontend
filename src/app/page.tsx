@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import homeData from '@/data/home.json';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
 import { 
     DocumentTextIcon, 
     ChatBubbleLeftRightIcon, 
@@ -30,6 +31,15 @@ type SocialPlatform = {
 export default function Home() {
     const [isVisible, setIsVisible] = useState(true);
     const pathname = usePathname();
+    const { t, loadTranslations, getNamespace } = useTranslation();
+    const { language } = useLanguage();
+    const [homeData, setHomeData] = useState<any>(null);
+
+    useEffect(() => {
+        loadTranslations('home').then(() => {
+            setHomeData(getNamespace());
+        });
+    }, [language]);
 
     useEffect(() => {
         const observerOptions = {
@@ -94,6 +104,8 @@ export default function Home() {
         }
     };
 
+    if (!homeData) return null;
+
     return (
         <main className="absolute inset-0 overflow-y-auto snap-y snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {/* Hero Section */}
@@ -128,14 +140,44 @@ export default function Home() {
                     </p>
                     <Link 
                         href="/playground" 
-                        className="group bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-full 
-                                 transform transition-all duration-300 hover:scale-105 hover:shadow-lg 
-                                 hover:shadow-emerald-500/25 flex items-center gap-2 reveal text-lg md:text-xl lg:text-2xl"
-                        style={{ animationDelay: '1600ms' }}
+                        className="group relative px-24 py-4
+                            bg-white/10 backdrop-blur-xl
+                            border-2 border-emerald-400/40
+                            rounded-2xl
+                            shadow-2xl shadow-emerald-400/20
+                            overflow-hidden
+                            transition-all duration-300
+                            flex items-center gap-4
+                            active:scale-95"
+                        style={{
+                            WebkitBackdropFilter: 'blur(16px)',
+                            backdropFilter: 'blur(16px)'
+                        }}
                     >
-                        Go to Playground
-                        <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        {/* Borde doble y glow animado */}
+                        <span className="pointer-events-none absolute inset-0 rounded-2xl z-0 border-4 border-transparent group-hover:border-emerald-400/60 group-hover:shadow-[0_0_32px_8px_rgba(16,185,129,0.25)] transition-all duration-500" />
+                        {/* Gradiente animado tipo aurora */}
+                        <span className="pointer-events-none absolute -inset-4 z-0 rounded-3xl bg-gradient-to-r from-emerald-400/30 via-emerald-500/20 to-cyan-400/30 animate-gradient-move opacity-80" />
+                        {/* Texto con gradiente y animación */}
+                        <span className="text-lg font-extrabold z-10 relative bg-gradient-to-r from-emerald-300 via-emerald-400 to-cyan-300 bg-clip-text text-transparent group-hover:from-cyan-300 group-hover:to-emerald-400 transition-all duration-500">
+                            {homeData.hero.buttonPlayground}
+                        </span>
+                        <ArrowRightIcon className="w-5 h-5 z-10 relative transition-transform duration-500 group-hover:translate-x-10 group-hover:scale-150 text-emerald-200 drop-shadow-[0_2px_12px_rgba(16,185,129,0.4)]" />
+                        {/* Efecto de hover aurora extra */}
+                        <span className="pointer-events-none absolute -inset-8 z-0 rounded-3xl bg-gradient-to-br from-cyan-400/20 via-emerald-400/10 to-emerald-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                     </Link>
+                    {/* Animación de gradiente personalizada */}
+                    <style jsx>{`
+                        @keyframes gradient-move {
+                            0% { background-position: 0% 50%; }
+                            50% { background-position: 100% 50%; }
+                            100% { background-position: 0% 50%; }
+                        }
+                        .animate-gradient-move {
+                            background-size: 200% 200%;
+                            animation: gradient-move 4s ease-in-out infinite;
+                        }
+                    `}</style>
                 </div>
             </section>
 
@@ -147,7 +189,7 @@ export default function Home() {
                         {homeData.features.title}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
-                        {homeData.features.items.map((feature, index) => (
+                        {(homeData.features.items as any[]).map((feature, index) => (
                             <div key={index} 
                                 className="group feature-card bg-white/5 backdrop-blur-xl rounded-xl p-4 md:p-6 
                                          border border-white/10 hover:border-emerald-400/30
@@ -176,7 +218,7 @@ export default function Home() {
                         {homeData.audience.title}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                        {homeData.audience.groups.map((group, index) => (
+                        {(homeData.audience.groups as any[]).map((group, index) => (
                             <div key={index} 
                                 className="group feature-card bg-white/5 backdrop-blur-xl rounded-xl p-4 md:p-6
                                         border border-white/10 hover:border-emerald-400/30

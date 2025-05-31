@@ -1,0 +1,81 @@
+{
+    "hero": {
+        "image": "/icon/AgriTech-Logo-_transparent_.webp",
+        "title": "AgriTech",
+        "subtitle": "Innovando la agricultura para un futuro sostenible",
+        "description": "Una plataforma innovadora que combina inteligencia artificial con conocimientos agrícolas para mejorar el desarrollo de tu campo",
+        "buttonPlayground": "Ir al Playground"
+    },
+    "features": {
+        "title": "Características",
+        "items": [
+        {
+            "title": "Análisis de documentos",
+            "description": "Procesa y analiza documentos técnicos agrícolas para obtener información relevante rápidamente",
+            "icon": "document"
+        },
+        {
+            "title": "Chat inteligente",
+            "description": "Interactúa con un IA especializada en agricultura que responde a tus preguntas y proporciona recomendaciones",
+            "icon": "chat"
+        },
+        {
+            "title": "Gestión de archivos",
+            "description": "Organiza y accede a tus documentos técnicos de manera eficiente",
+            "icon": "folder"
+        },
+        {
+            "title": "Aprendizaje continuo",
+            "description": "La plataforma aprende y mejora constantemente con cada interacción",
+            "icon": "learn"
+        }
+        ]
+    },
+    "audience": {
+        "title": "¿Para quién está diseñada?",
+        "groups": [
+        {
+            "title": "Agricultores pequeños",
+            "description": "Accede a conocimientos técnicos de manera simple y práctica para mejorar tus cultivos",
+            "icon": "farmer"
+        },
+        {
+            "title": "Estudiantes",
+            "description": "Complementa tu formación académica con herramientas prácticas y conocimientos actualizados",
+            "icon": "student"
+        },
+        {
+            "title": "Entusiastas",
+            "description": "Explora el mundo de la agricultura con una herramienta moderna y accesible",
+            "icon": "sprout"
+        }
+        ]
+    },
+    "contact": {
+        "title": "Contáctanos",
+        "description": "¿Tienes preguntas o sugerencias? Estamos aquí para ayudarte",
+        "email": "agriJJtech@hotmail.com",
+        "social": {
+        "linkedin": {
+            "profileOne": {
+                "title": "Juan Flores",
+                "urlPlayerOne": "https://www.linkedin.com"
+            },
+            "profileTwo": {
+                "title": "Jeyllon Sandoval",
+                "urlPlayerTwo": "https://www.linkedin.com/in/jeyllon-slon-sandoval-rosario-bb2292320/"
+            }
+        },
+            "github": {
+                "optionOne": {
+                    "title": "Frontend",
+                    "urlFrontEnd": "https://github.com/JeyllonSandoval/agritech-frontend"
+                },
+                "optionTwo": {
+                    "title": "Backend",
+                    "urlBackEnd": "https://github.com/JeyllonSandoval/agritech-backend"
+                }
+            }
+        }
+    }
+}

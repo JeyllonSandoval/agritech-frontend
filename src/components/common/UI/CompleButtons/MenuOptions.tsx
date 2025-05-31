@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { MdEdit, MdDelete } from 'react-icons/md';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
 
 interface MenuOptionsProps {
     isOpen: boolean;
@@ -19,6 +21,14 @@ export default function MenuOptions({
     onRemove 
 }: MenuOptionsProps) {
     const [adjustedPosition, setAdjustedPosition] = useState(position);
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('compleButtons').then(() => setIsLoaded(true));
+    }, [language]);
 
     useEffect(() => {
         if (isOpen) {
@@ -50,7 +60,7 @@ export default function MenuOptions({
         }
     }, [isOpen, position]);
 
-    if (!isOpen) return null;
+    if (!isOpen || !isLoaded) return null;
 
     return (
         <>
@@ -75,7 +85,7 @@ export default function MenuOptions({
                                 hover:text-emerald-400/70 hover:bg-white/10 transition-colors rounded-lg"
                         >
                             <MdEdit className="w-4 h-4 mr-2" />
-                            Edit
+                            {t('edit')}
                         </button>
                     )}
                     {onRemove && (
@@ -85,7 +95,7 @@ export default function MenuOptions({
                                 hover:text-red-400 hover:bg-white/10 transition-colors rounded-lg"
                         >
                             <MdDelete className="w-4 h-4 mr-2" />
-                            Remove
+                            {t('remove')}
                         </button>
                     )}
                 </div>

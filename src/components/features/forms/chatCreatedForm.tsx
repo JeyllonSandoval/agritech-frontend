@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useChatStore } from '@/store/chatStore';
+import { useLanguage } from '@/context/languageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface TokenPayload {
     UserID: string;
@@ -13,6 +15,8 @@ interface ChatCreatedFormProps {
 }
 
 export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
+    const { language } = useLanguage();
+    const { t, loadTranslations } = useTranslation();
     const [chatName, setChatName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -23,8 +27,11 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
     const addChat = useChatStore(state => state.addChat);
     const firstInputRef = useRef<HTMLInputElement>(null);
 
-    
     const isFormValid = validations.length && validations.noSpecialChars;
+
+    useEffect(() => {
+        loadTranslations('forms');
+    }, [language, loadTranslations]);
 
     useEffect(() => {
         setValidations({
@@ -64,35 +71,27 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
             });
 
             if (!response.ok) {
-                throw new Error('Error creating chat');
+                throw new Error(t('chatCreated.error'));
             }
 
             const responseData = await response.json();
-            console.log('Server response:', responseData);
-            
-            
             if (!responseData.newChat || !Array.isArray(responseData.newChat) || responseData.newChat.length === 0) {
-                throw new Error('Invalid chat response: missing chat data');
+                throw new Error(t('chatCreated.error'));
             }
 
             const newChat = responseData.newChat[0];
-            
-            
             if (!newChat.ChatID) {
-                console.log('Chat object structure:', Object.keys(newChat));
-                throw new Error('Invalid chat response: missing ChatID');
+                throw new Error(t('chatCreated.error'));
             }
 
             const chatToAdd = {
                 ChatID: newChat.ChatID,
                 chatname: chatName
             };
-            
             addChat(chatToAdd);
             onClose();
         } catch (err) {
-            console.error('Error creating chat:', err);
-            setError(err instanceof Error ? err.message : 'Failed to create chat');
+            setError(err instanceof Error ? err.message : t('chatCreated.error'));
         } finally {
             setIsLoading(false);
         }
@@ -106,7 +105,7 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                     type="text"
                     value={chatName}
                     onChange={(e) => setChatName(e.target.value)}
-                    placeholder="Enter chat name"
+                    placeholder={t('chatCreated.name')}
                     className="w-full px-4 py-3 text-sm
                         bg-white/10 backdrop-blur-sm rounded-xl
                         border border-white/20 text-white
@@ -115,7 +114,6 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                         transition-all duration-300"
                     required
                 />
-                
                 {/* Validadores dinámicos */}
                 <div className="text-xs space-y-1 px-2">
                     <div className={`flex items-center gap-2 ${
@@ -128,7 +126,7 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             )}
                         </svg>
-                        <span>Between 3 and 50 characters</span>
+                        <span>{t('chatCreated.maxLength').replace('{length}', '50')}</span>
                     </div>
                     <div className={`flex items-center gap-2 ${
                         validations.noSpecialChars ? 'text-emerald-400' : 'text-white/50'
@@ -140,17 +138,15 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             )}
                         </svg>
-                        <span>Only letters, numbers, spaces, hyphens and underscores</span>
+                        <span>{t('chatCreated.noSpecialChars')}</span>
                     </div>
                 </div>
             </div>
-            
             {error && (
                 <p className="text-red-400 text-sm bg-red-400/10 px-4 py-2 rounded-xl border border-red-400/20">
                     {error}
                 </p>
             )}
-            
             <div className="flex justify-end gap-3">
                 <button
                     type="button"
@@ -160,7 +156,7 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                         hover:bg-white/10 hover:text-white
                         transition-all duration-300"
                 >
-                    Cancel
+                    {t('chatCreated.cancel')}
                 </button>
                 <button
                     type="submit"
@@ -172,15 +168,7 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                             : 'bg-emerald-400/90 text-black hover:bg-emerald-400'
                         }`}
                 >
-                    {isLoading ? (
-                        <span className="flex items-center gap-2">
-                            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                            </svg>
-                            Creating...
-                        </span>
-                    ) : 'Create Chat'}
+                    {isLoading ? t('common.loading') : t('chatCreated.create')}
                 </button>
             </div>
         </form>

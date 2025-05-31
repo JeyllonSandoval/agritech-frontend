@@ -10,6 +10,9 @@ import { FileProps } from '@/hooks/getFiles';
 import { useModal } from '@/context/modalContext';
 import SettingPanel from '../Panels/SettingPanel';
 import EditProfileForm from '../forms/editProfileForm';
+import { useLanguage } from '@/context/languageContext';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useEffect } from 'react';
 
 type ModalType = 'createdChat' | 'createdFile' | 'updateChat' | 'updateFile' | 'settings' | 'edit-profile';
 type ModalMode = 'create' | 'select' | 'preview' | 'edit';
@@ -32,29 +35,36 @@ export default function ModalCreated() {
         contentURL
     } = useModal();
 
+    const { language } = useLanguage();
+    const { t, loadTranslations } = useTranslation();
+
+    useEffect(() => {
+        loadTranslations('modals');
+    }, [language]);
+
     if (!isOpen && !isConfirmOpen) return null;
 
     const getTitle = () => {
         if (mode === 'edit') {
-            if (type === 'edit-profile') return 'Edit Profile';
-            return type === 'updateFile' ? 'Edit File Name' : 'Edit Chat Name';
+            if (type === 'edit-profile') return t('editProfile');
+            return type === 'updateFile' ? t('editFileName') : t('editChatName');
         }
         if (type === 'createdFile' && mode === 'preview' && itemId) {
             return initialValue;
         }
         switch (type) {
             case 'createdChat':
-                return 'Create New Chat';
+                return t('createNewChat');
             case 'createdFile':
-                return mode === 'preview' ? initialValue : 'Upload New File';
+                return mode === 'preview' ? initialValue : t('uploadNewFile');
             case 'updateChat':
-                return 'Update Chat Name';
+                return t('updateChatName');
             case 'updateFile':
-                return 'Update File Name';
+                return t('updateFileName');
             case 'settings':
-                return 'Settings';
+                return t('settings');
             case 'edit-profile':
-                return 'Edit Profile';
+                return t('editProfile.title');
             default:
                 return '';
         }
@@ -75,7 +85,7 @@ export default function ModalCreated() {
                     onClick={() => closeModal()}
                 >
                     <div 
-                        className="bg-gray-100/10 rounded-2xl 
+                        className="bg-gray-100/10 rounded-2xl backdrop-blur-sm 
                             border border-white/20 shadow-lg
                             p-4 sm:p-6 md:p-8 relative w-full max-w-[95vw] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl
                             flex flex-col max-h-[90vh] sm:max-h-[85vh]"

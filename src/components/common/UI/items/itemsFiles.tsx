@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { FileProps } from '@/hooks/getFiles';
 import ButtonShow from '@/components/common/UI/CompleButtons/ButtonShow';
 import { ButtonItemEdit } from '@/components/common/UI/CompleButtons/ButtonItemEdit';
 import { useModal } from '@/context/modalContext';
+import { useFileStore } from '@/store/fileStore';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
 
 interface BarFilesProps {
     files: FileProps[];
@@ -26,6 +29,15 @@ export default React.memo(function BarFiles({
     onRemoveFile
 }: BarFilesProps) {
     const { openModal, setSelectedFile } = useModal();
+    const removeFile = useFileStore(state => state.removeFile);
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('items').then(() => setIsLoaded(true));
+    }, [language]);
 
     const handleShow = (e: React.MouseEvent, file: FileProps) => {
         e.preventDefault();
@@ -91,6 +103,9 @@ export default React.memo(function BarFiles({
 
             if (!response.ok) throw new Error('Error deleting file');
 
+            // Actualizar el store
+            removeFile(file.FileID);
+
             // Notificar al componente padre si existe
             if (onRemoveFile) {
                 onRemoveFile(file);
@@ -100,7 +115,9 @@ export default React.memo(function BarFiles({
         }
     };
 
-    const fileItems = useMemo(() => files.map((file) => {
+    const fileItems = useMemo(() => files.length === 0 ? [
+        <div key="no-files" className="text-gray-400/70 text-center py-8">{t('noFiles')}</div>
+    ] : files.map((file) => {
         // Solo un log para depuración controlada
         console.log('Rendering file:', { FileID: file.FileID, FileName: file.FileName });
         return (
@@ -158,7 +175,9 @@ export default React.memo(function BarFiles({
                 </div>
             </div>
         );
-    }), [files, onSelect, showActions, isInTableShowFile]);
+    }), [files, onSelect, showActions, isInTableShowFile, t]);
+
+    if (!isLoaded) return null;
 
     return (
         <div className="space-y-2">

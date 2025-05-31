@@ -1,0 +1,30 @@
+{
+  "navbar" : {
+    "home": "Inicio",
+    "playground": "Playground",
+    "about": "Nosotros",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "search": "Buscar",
+    "notifications": "Notificaciones",
+    "welcome": "Bienvenido!",
+    "myAccount": "Mi cuenta",
+    "language": "Idioma",
+    "darkMode": "Modo oscuro",
+    "lightMode": "Modo claro"
+  },
+
+  "navbarLateral": {
+    "quickAccess": "Accesos rápidos",
+    "files": "Archivos",
+    "chat": "Chat",
+    "createChat": "Crear chat",
+    "createFile": "Crear archivo",
+    "recentChats": "Chats recientes",
+    "recentFiles": "Archivos recientes"
+  }
+}
+

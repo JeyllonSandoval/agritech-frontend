@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { IoMdMore } from 'react-icons/io';
 import { useModal } from '@/context/modalContext';
 import { useMenu } from './GlobalMenu';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
 
 interface ButtonItemEditProps {
     onEdit?: (newName: string) => void;
@@ -25,6 +27,16 @@ export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
     const buttonRef = useRef<HTMLDivElement>(null);
     const { openModal, openConfirmModal } = useModal();
     const { openMenu, closeMenu } = useMenu();
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('compleButtons').then(() => setIsLoaded(true));
+    }, [language]);
+
+    if (!isLoaded) return null;
 
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -73,8 +85,8 @@ export const ButtonItemEdit: React.FC<ButtonItemEditProps> = ({
         closeMenu();
         if (onRemove) {
             const message = type === 'updateFile' 
-                ? 'Are you sure you want to delete this file? All related messages will be deleted.'
-                : 'Are you sure you want to delete this chat? All related messages will be deleted.';
+                ? t('areYouSureDeleteFile')
+                : t('areYouSureDeleteChat');
             openConfirmModal(message, () => onRemove(e));
         }
     };

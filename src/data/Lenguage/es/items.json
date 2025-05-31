@@ -1,0 +1,18 @@
+{
+  "noFiles": "No se encontraron archivos.",
+  "noChats": "No se encontraron chats.",
+  "noMessages": "Aún no hay mensajes.",
+  "analysisResult": "Resultado del análisis",
+  "download": "Descargar",
+  "delete": "Eliminar",
+  "view": "Ver",
+  "fileName": "Nombre del archivo",
+  "createdAt": "Creado el",
+  "actions": "Acciones",
+  "confirmDeleteFile": "¿Estás seguro de que deseas eliminar este archivo?",
+  "confirmDeleteChat": "¿Estás seguro de que deseas eliminar este chat?",
+  "confirmDeleteMessage": "¿Estás seguro de que deseas eliminar este mensaje?",
+  "hide": "Ocultar",
+  "viewMore": "Ver más",
+  "waitingSystem": "Esperando respuesta del sistema..."
+} 

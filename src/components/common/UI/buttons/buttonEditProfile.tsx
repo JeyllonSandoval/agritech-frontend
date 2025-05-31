@@ -1,9 +1,22 @@
 'use client';
 
 import { useModal } from '@/context/modalContext';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
+import { useState, useEffect } from 'react';
 
 export default function ButtonEditProfile() {
     const { openModal } = useModal();
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('buttons').then(() => setIsLoaded(true));
+    }, [language]);
+
+    if (!isLoaded) return null;
 
     return (
         <button
@@ -26,7 +39,7 @@ export default function ButtonEditProfile() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
-            Edit Profile
+            {t('editProfile')}
         </button>
     );
 }

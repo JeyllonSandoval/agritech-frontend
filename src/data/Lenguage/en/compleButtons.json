@@ -1,0 +1,7 @@
+{
+  "options": "Options",
+  "edit": "Edit",
+  "remove": "Remove",
+  "areYouSureDeleteFile": "Are you sure you want to delete this file? All related messages will be deleted.",
+  "areYouSureDeleteChat": "Are you sure you want to delete this chat? All related messages will be deleted."
+} 

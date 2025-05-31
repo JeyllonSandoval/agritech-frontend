@@ -1,4 +1,7 @@
 import { useModal } from '@/context/modalContext';
+import { useLanguage } from '@/context/languageContext';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useEffect } from 'react';
 
 interface ConfirmModalProps {
     message: string;
@@ -7,13 +10,20 @@ interface ConfirmModalProps {
 }
 
 export default function ConfirmModal({ message, onConfirm, onCancel }: ConfirmModalProps) {
+    const { language } = useLanguage();
+    const { t, loadTranslations } = useTranslation();
+    
+    useEffect(() => {
+        loadTranslations('modals');
+    }, [language]);
+
     return (
         <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4"
             onClick={onCancel}
         >
             <div 
-                className="bg-gray-100/10 backdrop-blur-sm rounded-2xl 
+                className="bg-gray-100/10 backdrop-blur-md rounded-2xl 
                     border border-white/20 shadow-lg
                     p-8 relative w-full max-w-md
                     flex flex-col"
@@ -27,7 +37,7 @@ export default function ConfirmModal({ message, onConfirm, onCancel }: ConfirmMo
                             </svg>
                         </div>
                         <h2 className="text-xl font-semibold text-white">
-                            Confirm delete
+                            {t('confirmDelete')}
                         </h2>
                     </div>
                     <p className="text-white/70 text-sm">
@@ -40,7 +50,7 @@ export default function ConfirmModal({ message, onConfirm, onCancel }: ConfirmMo
                                 hover:bg-white/20 hover:text-white/90
                                 transition-all duration-300"
                         >
-                            Cancel
+                            {t('cancel')}
                         </button>
                         <button
                             onClick={onConfirm}
@@ -52,7 +62,7 @@ export default function ConfirmModal({ message, onConfirm, onCancel }: ConfirmMo
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
-                            Delete
+                            {t('delete')}
                         </button>
                     </div>
                 </div>

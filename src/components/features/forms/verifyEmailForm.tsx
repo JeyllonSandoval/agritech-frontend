@@ -2,10 +2,15 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useLanguage } from '@/context/languageContext';
+import formsTranslations from '@/data/Lenguage/en/forms.json';
 
 export default function VerifyEmailForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { language } = useLanguage();
+    const translations = formsTranslations.verifyEmail;
+    const commonTranslations = formsTranslations.common;
     const token = searchParams.get('token');
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(true);
@@ -14,7 +19,7 @@ export default function VerifyEmailForm() {
     useEffect(() => {
         const verifyEmail = async () => {
             if (!token) {
-                setMessage("Invalid verification link");
+                setMessage(translations.invalidLink);
                 setIsLoading(false);
                 return;
             }
@@ -27,7 +32,7 @@ export default function VerifyEmailForm() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    setMessage(data.message || "Email verified successfully! Redirecting to home...");
+                    setMessage(translations.success);
                     // Store the new token in localStorage
                     if (data.token) {
                         localStorage.setItem("token", data.token);
@@ -44,11 +49,11 @@ export default function VerifyEmailForm() {
                         router.push("/");
                     }, 3000);
                 } else {
-                    setMessage(data.error || "Error verifying email");
+                    setMessage(data.error || translations.error);
                 }
             } catch (error) {
                 console.error("Error:", error);
-                setMessage("Error connecting to the server");
+                setMessage(commonTranslations.error);
             } finally {
                 setIsLoading(false);
             }
@@ -75,10 +80,10 @@ export default function VerifyEmailForm() {
                             </svg>
                         </div>
                         <h1 className="text-2xl font-semibold text-white">
-                            Email Verification
+                            {translations.title}
                         </h1>
                         <p className="text-sm text-white/70">
-                            {isLoading ? "Verifying your email..." : message}
+                            {isLoading ? translations.verifying : message}
                         </p>
                     </div>
 
@@ -100,7 +105,7 @@ export default function VerifyEmailForm() {
                                 transition-colors duration-300
                                 bg-emerald-400/10 border border-emerald-400/20 rounded-full px-4 py-2"
                         >
-                            Back to Home
+                            {translations.backToHome}
                         </button>
                     )}
                 </div>

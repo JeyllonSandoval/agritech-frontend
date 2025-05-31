@@ -3,6 +3,8 @@
 import { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useFileStore } from '@/store/fileStore';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
 
 interface FileCreatedFormProps {
     onClose: () => void;
@@ -24,15 +26,20 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
         validType: false,
         validSize: false
     });
-    const firstInputRef = useRef<HTMLInputElement>(null);
+    const [isDragActive, setIsDragActive] = useState(false);
+    const [translationsReady, setTranslationsReady] = useState(false);
+
+    const { language } = useLanguage();
+    const { t, loadTranslations } = useTranslation();
+
+    useEffect(() => {
+        setTranslationsReady(false);
+        loadTranslations('forms').then(() => setTranslationsReady(true));
+    }, [language]);
 
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         setToken(storedToken);
-    }, []);
-
-    useEffect(() => {
-        firstInputRef.current?.focus();
     }, []);
 
     const validateFile = (file: File | null) => {
@@ -59,6 +66,30 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
         setError(null);
     };
 
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(false);
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(false);
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            setSelectedFile(file);
+            validateFile(file);
+            setError(null);
+        }
+    };
+
     const truncateFileName = (name: string, maxLength: number = 30) => {
         return name.length > maxLength ? `${name.substring(0, maxLength)}...` : name;
     };
@@ -66,7 +97,7 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedFile || !token) {
-            setError('Please select a file and ensure you are logged in');
+            setError(t('fileCreated.fileRequired'));
             return;
         }
 
@@ -76,18 +107,8 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
         try {
             const decodedToken = jwtDecode(token) as TokenData;
             const formData = new FormData();
-            
-            // Agregar UserID como string
             formData.append('UserID', decodedToken.UserID);
-            
-            // Agregar el archivo con el nombre correcto
             formData.append('file', selectedFile, selectedFile.name);
-
-            console.log('Sending file upload request:', {
-                UserID: decodedToken.UserID,
-                fileName: selectedFile.name,
-                fileSize: selectedFile.size
-            });
 
             const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/file`, {
                 method: 'POST',
@@ -102,23 +123,25 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
                 throw new Error(errorData?.message || `Error: ${response.status} - ${response.statusText}`);
             }
 
-            // Actualizar la lista de archivos
             await fetchFiles();
             onClose();
         } catch (error) {
-            console.error('Error uploading file:', error);
-            setError(error instanceof Error ? error.message : 'An unexpected error occurred while uploading the file');
+            setError(error instanceof Error ? error.message : t('fileCreated.error'));
         } finally {
             setLoading(false);
         }
     };
+
+    const isFormValid = validations.fileSelected && validations.validType && validations.validSize;
+
+    if (!translationsReady) return null;
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col w-full items-center justify-center gap-6">
             <div className="flex flex-col w-full gap-4">
                 <div>
                     <label htmlFor="fileInput" className="block text-sm text-white/70 mb-2">
-                        Select File
+                        {t('fileCreated.file')}
                     </label>
                     <input
                         type="file"
@@ -129,7 +152,12 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
                         className="hidden"
                         required
                     />
-                    <div className="h-16">
+                    <div
+                        className={`h-16 ${isDragActive ? 'border-emerald-400/70 bg-emerald-400/10' : ''}`}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                    >
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
@@ -141,7 +169,7 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
                                 flex items-center justify-center px-4 
                                 bg-white/5 backdrop-blur-sm"
                         >
-                            {selectedFile ? truncateFileName(selectedFile.name) : 'Click to select a file'}
+                            {selectedFile ? truncateFileName(selectedFile.name) : t('fileCreated.selectFile')}
                         </button>
                     </div>
                 </div>
@@ -158,7 +186,7 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             )}
                         </svg>
-                        <span>File selected</span>
+                        <span>{t('fileCreated.file')}</span>
                     </div>
                     <div className={`flex items-center gap-2 ${
                         validations.validType ? 'text-emerald-400' : 'text-white/50'
@@ -170,7 +198,7 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             )}
                         </svg>
-                        <span>Valid PDF format</span>
+                        <span>{t('fileCreated.supportedFormats')}</span>
                     </div>
                     <div className={`flex items-center gap-2 ${
                         validations.validSize ? 'text-emerald-400' : 'text-white/50'
@@ -182,7 +210,7 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             )}
                         </svg>
-                        <span>Size less than 10MB</span>
+                        <span>{t('fileCreated.maxSize')}</span>
                     </div>
                 </div>
             </div>
@@ -202,19 +230,19 @@ export default function FileCreatedForm({ onClose }: FileCreatedFormProps) {
                         hover:bg-white/10 hover:text-white
                         transition-all duration-300"
                 >
-                    Cancel
+                    {t('fileCreated.cancel')}
                 </button>
                 <button
                     type="submit"
-                    disabled={loading || !selectedFile}
+                    disabled={loading || !isFormValid}
                     className={`px-6 py-2.5 text-sm rounded-xl
                         transition-all duration-300
-                        ${!selectedFile || loading
+                        ${!isFormValid || loading
                             ? 'bg-white/10 text-white/40 cursor-not-allowed'
                             : 'bg-emerald-400/90 text-black hover:bg-emerald-400'
                         }`}
                 >
-                    {loading ? 'Uploading...' : (!selectedFile ? 'Select a file first' : 'Upload')}
+                    {loading ? t('common.loading') : (!selectedFile ? t('fileCreated.upload') : t('fileCreated.upload'))}
                 </button>
             </div>
         </form>

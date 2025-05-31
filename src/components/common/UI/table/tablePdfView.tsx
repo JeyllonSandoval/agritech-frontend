@@ -1,15 +1,20 @@
 import { FileProps } from '@/hooks/getFiles';
+import { useLanguage } from '@/context/languageContext';
+import tableTranslations from '@/data/Lenguage/en/table.json';
 
 interface TablePdfViewProps {
     file: FileProps;
 }
 
 export default function TablePdfView({ file }: TablePdfViewProps) {
+    const { language } = useLanguage();
+    const translations = tableTranslations;
+
     if (!file?.contentURL) {
         return (
             <div className="w-full h-[80vh] bg-gray-900/50 rounded-xl overflow-hidden">
                 <div className="w-full h-full flex items-center justify-center text-white/70 text-2xl">
-                    No file selected or preview not available
+                    {translations.noFileSelected}
                 </div>
             </div>
         );

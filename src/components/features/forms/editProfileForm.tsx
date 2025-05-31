@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { useModal } from "@/context/modalContext";
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
 
 interface Country {
     CountryID: string;
@@ -51,6 +53,8 @@ const validatePassword = (password: string): boolean => {
 export default function EditProfileForm() {
     const { userData, countryName, isLoading, error, refreshProfile } = useProfile();
     const { closeModal } = useModal();
+    const { language } = useLanguage();
+    const { t, loadTranslations } = useTranslation();
     const [countries, setCountries] = useState<Country[]>([]);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -61,6 +65,10 @@ export default function EditProfileForm() {
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [initialData, setInitialData] = useState<Partial<FormData>>({});
     const firstNameInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        loadTranslations('forms');
+    }, [language]);
 
     useEffect(() => {
         if (userData) {
@@ -303,7 +311,7 @@ export default function EditProfileForm() {
         <form noValidate onSubmit={handleSubmit} className="space-y-6 text-xl">
             <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-300 ${isSubmitting ? 'pointer-events-none opacity-75' : 'opacity-100'}`}>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-white/70">First Name</label>
+                    <label className="block text-sm font-medium text-white/70">{t('editProfile.title')}</label>
                     <input
                         ref={firstNameInputRef}
                         type="text"
@@ -324,7 +332,7 @@ export default function EditProfileForm() {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-white/70">Last Name</label>
+                    <label className="block text-sm font-medium text-white/70">{t('editProfile.lastName')}</label>
                     <input
                         type="text"
                         name="LastName"
@@ -344,7 +352,7 @@ export default function EditProfileForm() {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                    <label className="block text-sm font-medium text-white/70">Email</label>
+                    <label className="block text-sm font-medium text-white/70">{t('editProfile.email')}</label>
                     <input
                         type="email"
                         name="Email"
@@ -364,7 +372,7 @@ export default function EditProfileForm() {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                    <label className="block text-sm font-medium text-white/70">Country</label>
+                    <label className="block text-sm font-medium text-white/70">{t('editProfile.country')}</label>
                     <select
                         name="CountryID"
                         value={formData.CountryID}
@@ -380,7 +388,7 @@ export default function EditProfileForm() {
                         disabled:opacity-50 disabled:cursor-not-allowed`}
                         required
                     >
-                        <option value="">Select a country</option>
+                        <option value="">{t('editProfile.country')}</option>
                         {countries.map((country) => (
                             <option key={country.CountryID} value={country.CountryID}>
                                 {country.countryname}
@@ -394,7 +402,7 @@ export default function EditProfileForm() {
 
                 <div className="grid grid-cols-2 gap-4 md:col-span-2">
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium text-white/70">New Password</label>
+                        <label className="block text-sm font-medium text-white/70">{t('editProfile.newPassword')}</label>
                         <div className="relative">
                             <input
                                 type={showPassword ? "text" : "password"}
@@ -438,7 +446,7 @@ export default function EditProfileForm() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium text-white/70">Confirm New Password</label>
+                        <label className="block text-sm font-medium text-white/70">{t('editProfile.confirmPassword')}</label>
                         <div className="relative">
                             <input
                                 type={showPassword ? "text" : "password"}
@@ -483,18 +491,34 @@ export default function EditProfileForm() {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                    <label className="block text-sm font-medium text-white/70">Profile Picture</label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        disabled={isSubmitting}
-                        className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white
-                            file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0
-                            file:text-sm file:font-medium file:bg-emerald-400/90 file:text-black
-                            hover:file:bg-emerald-400
-                            disabled:opacity-50 disabled:cursor-not-allowed"
-                    />
+                    <label className="block text-sm font-medium text-white/70">{t('editProfile.profilePicture')}</label>
+                    <div className="relative flex items-center">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                    id="image-upload"
+                                />
+                                <label
+                                    htmlFor="image-upload"
+                                    className="w-full px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm
+                                        bg-white/10 backdrop-blur-sm rounded-xl
+                                        border border-white/20 text-white
+                                        group-hover:border-emerald-400/30
+                                        focus:border-emerald-400/50 focus:ring-2 
+                                        focus:ring-emerald-400/20 focus:outline-none 
+                                        placeholder-white/40
+                                        transition-all duration-300
+                                        cursor-pointer
+                                        flex items-center justify-center gap-2"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    {formData.imageUser ? formData.imageUser.name : t('editProfile.profilePicture')}
+                                </label>
+                            </div>
                 </div>
             </div>
 
@@ -509,7 +533,7 @@ export default function EditProfileForm() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    Profile updated successfully!
+                    {t('editProfile.success')}
                 </div>
             )}
 
@@ -533,9 +557,9 @@ export default function EditProfileForm() {
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                             </svg>
-                            Saving...
+                            {t('common.loading')}
                         </div>
-                    ) : isSuccess ? 'Saved!' : 'Save Changes'}
+                    ) : isSuccess ? t('editProfile.save') : t('editProfile.save')}
                 </button>
             </div>
         </form>

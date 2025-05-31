@@ -1,0 +1,29 @@
+{
+  "navbar": {
+    "home": "Home",
+    "playground": "Playground",
+    "about": "About",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "search": "Search",
+    "notifications": "Notifications",
+    "welcome": "Welcome",
+    "myAccount": "My Account",
+    "language": "Language",
+    "darkMode": "Dark Mode",
+    "lightMode": "Light Mode"
+  },
+
+  "navbarLateral": {
+    "quickAccess": "Quick Access",
+    "recentChats": "Recent Chats",
+    "files": "Files",
+    "chat": "Chat",
+    "createChat": "Create Chat",
+    "createFile": "Create File"
+
+  }
+} 

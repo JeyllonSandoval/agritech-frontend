@@ -1,0 +1,112 @@
+{
+  "companyInfo": {
+    "name": "AgriTech",
+    "logo": "/icon/AgriTech-Logo-_transparent_.webp",
+    "slogan": "Innovando Agricultura para un Futuro Sostenible"
+  },
+  "sections": [
+    {
+      "id": "general-objective",
+      "title": "Objetivo General",
+      "icon": "FaTrophy",
+      "content": {
+        "type": "description",
+        "description": "Desarrollar y poner en marcha una plataforma basada en la inteligencia artificial que optimiza la producción agrícola a través del análisis de datos en tiempo real, mejorando la eficiencia y la sostenibilidad en el sector agrícola."
+      }
+    },
+    {
+      "id": "specific-objectives",
+      "title": "Objetivos Específicos",
+      "icon": "FaClipboardList",
+      "content": {
+        "type": "items",
+        "items": [
+          {
+            "title": "Integración de tecnologías avanzadas",
+            "icon": "FaTools",
+            "description": "Implementar modelos de aprendizaje automático y sensores especializados para recopilar y analizar datos sobre suelo, clima y detección temprana de plagas."
+          },
+          {
+            "title": "Optimización de recursos agrícolas",
+            "icon": "FaBolt",
+            "description": "Reducir el uso excesivo de fertilizantes, agua y pesticidas a través de recomendaciones personalizadas basadas en datos precisos."
+          },
+          {
+            "title": "Prevención de pérdidas por plagas y enfermedades",
+            "icon": "FaShieldAlt",
+            "description": "Utilizar inteligencia artificial para identificar y alertar sobre potenciales amenazas a las cosechas antes de que causen daños significativos."
+          },
+          {
+            "title": "Accesibilidad para diferentes tipos de productores",
+            "icon": "FaUsers",
+            "description": "Diseñar un sistema intuitivo y adaptable que pueda ser utilizado por agricultores pequeños y medianos."
+          },
+          {
+            "title": "Promoción de la sostenibilidad agrícola",
+            "icon": "FaLeaf",
+            "description": "Foster more responsible farming practices that minimize environmental impact and improve global food security."
+          }
+        ]
+      }
+    },
+    {
+      "id": "mission-vision",
+      "title": "Misión y Visión",
+      "icon": "FaBullseye",
+      "content": {
+        "type": "mission-vision",
+        "mission": {
+          "title": "Misión",
+          "icon": "FaFlag",
+          "items": [
+            "Transformar la agricultura mediante el uso de inteligencia artificial y tecnología avanzada, optimizando la producción agrícola y promoviendo un uso eficiente de los recursos naturales. Buscamos proporcionar soluciones innovadoras que ayuden a los agricultores a mejorar su productividad, reducir su impacto ambiental y garantizar la sostenibilidad en el sector agroalimentario.",
+            "Crear soluciones tecnológicas que mejoren la eficiencia agrícola y la sostenibilidad."
+          ]
+        },
+        "vision": {
+          "title": "Visión",
+          "icon": "FaEye",
+          "items": [
+            "Ser la plataforma líder en agricultura inteligente a nivel global, reconocida por su innovación, accesibilidad y compromiso con el desarrollo sostenible. Aspiramos a revolucionar el sector agrícola mediante la digitalización y la inteligencia artificial, mejorando la calidad de vida de los agricultores y contribuyendo a la seguridad alimentaria global.",
+            "Llevar la transformación digital de la agricultura al máximo rendimiento y reducir el impacto ambiental."
+          ]
+        }
+      }
+    },
+    {
+      "id": "values",
+      "title": "Valores",
+      "icon": "FaHandshake",
+      "content": {
+        "type": "items",
+        "items": [
+          {
+            "title": "Innovación",
+            "icon": "FaLightbulb",
+            "description": "Promovemos el desarrollo de tecnologías avanzadas para mejorar la eficiencia agrícola y la sostenibilidad."
+          },
+          {
+            "title": "Sostenibilidad",
+            "icon": "FaLeaf",
+            "description": "Promovemos prácticas agrícolas responsables que minimizan el impacto ambiental."
+          },
+          {
+            "title": "Compromiso",
+            "icon": "FaHandshake",
+            "description": "Trabajamos con pasión para proporcionar soluciones tecnológicas accesibles y efectivas."
+          },
+          {
+            "title": "Precisión",
+            "icon": "FaBullseye",
+            "description": "Utilizamos datos y algoritmos inteligentes para proporcionar información confiable y útil."
+          },
+          {
+            "title": "Integridad",
+            "icon": "FaBalanceScale",
+            "description": "Mantenemos altos estándares éticos y transparencia en todas nuestras operaciones."
+          }
+        ]
+      }
+    }
+  ]
+}

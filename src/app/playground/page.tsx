@@ -1,5 +1,7 @@
+"use client";
 import ProtectedRoute from '@/utils/protectedRoute';
-import playgroundData from '@/data/playground.json';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
 import { 
     ChartBarIcon, 
     SparklesIcon, 
@@ -10,6 +12,7 @@ import {
     WrenchScrewdriverIcon,
     ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
 
 const getIcon = (iconName: string) => {
     switch (iconName) {
@@ -37,6 +40,18 @@ const getIcon = (iconName: string) => {
 };
 
 export default function Playground() {
+    const { t, loadTranslations, getNamespace } = useTranslation();
+    const { language } = useLanguage();
+    const [playgroundData, setPlaygroundData] = useState<any>(null);
+
+    useEffect(() => {
+        loadTranslations('playground').then(() => {
+            setPlaygroundData(getNamespace());
+        });
+    }, [language]);
+
+    if (!playgroundData) return null;
+
     return (
         <ProtectedRoute>
             <div className="fixed inset-0 flex flex-col items-center justify-center z-50">
@@ -52,7 +67,7 @@ export default function Playground() {
                                     {playgroundData.sections.quickGuide.title}
                                 </h3>
                                 <ul className="space-y-2 sm:space-y-3 text-sm sm:text-base text-white/70">
-                                    {playgroundData.sections.quickGuide.items.map((item, index) => (
+                                    {playgroundData.sections.quickGuide.items.map((item: any, index: number) => (
                                         <li key={index} className="flex items-start group">
                                             <span className="mr-2 text-emerald-400 group-hover:text-emerald-300 transition-colors">
                                                 {getIcon(item.icon)}
@@ -70,7 +85,7 @@ export default function Playground() {
                                     {playgroundData.sections.nextSteps.title}
                                 </h3>
                                 <ul className="space-y-2 sm:space-y-3 text-sm sm:text-base text-white/70">
-                                    {playgroundData.sections.nextSteps.items.map((item, index) => (
+                                    {playgroundData.sections.nextSteps.items.map((item: any, index: number) => (
                                         <li key={index} className="flex items-start group">
                                             <span className="mr-2 text-emerald-400 group-hover:text-emerald-300 transition-colors">
                                                 {getIcon(item.icon)}

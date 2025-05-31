@@ -1,4 +1,7 @@
 import { Message } from '@/types/message';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
+import { useState, useEffect } from 'react';
 
 interface ItemMessageProps extends Pick<Message, 'sendertype' | 'createdAt'> {
     content?: string;
@@ -13,6 +16,17 @@ interface ItemMessageProps extends Pick<Message, 'sendertype' | 'createdAt'> {
 }
 
 export default function ItemMessage({ content, contentAsk, contentResponse, contentFile, sendertype, createdAt, isNew, fileInfo, isLoading }: ItemMessageProps) {
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('items').then(() => setIsLoaded(true));
+    }, [language]);
+
+    if (!isLoaded) return null;
+
     const formattedDate = createdAt ? new Date(createdAt).toLocaleString(undefined, {
         year: 'numeric',
         month: '2-digit',
@@ -45,7 +59,7 @@ export default function ItemMessage({ content, contentAsk, contentResponse, cont
                 {/* Texto secundario arriba */}
                 {fileInfo && !isLoading && (
                     <div className="text-xs text-white/50 font-normal">
-                        New file selected
+                        {t('noMessages')}
                     </div>
                 )}
                 {isLoading ? (

@@ -2,12 +2,17 @@
 import { useProfile } from "@/hooks/useProfile";
 import ButtonEditProfile from "../UI/buttons/buttonEditProfile";
 import { useEffect, useState } from "react";
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
 
 export default function ProfileCard() {
     const { userData, countryName, isLoading, error, refreshProfile } = useProfile();
     const [isUpdating, setIsUpdating] = useState(false);
     const [isResending, setIsResending] = useState(false);
     const [resendMessage, setResendMessage] = useState("");
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
 
     // Add refresh mechanism
     useEffect(() => {
@@ -30,6 +35,11 @@ export default function ProfileCard() {
             window.removeEventListener('profile-updated', handleProfileUpdate);
         };
     }, []);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('card').then(() => setIsLoaded(true));
+    }, [language]);
 
     const handleResendVerification = async () => {
         if (isResending || !userData) return;
@@ -87,6 +97,8 @@ export default function ProfileCard() {
             </div>
         );
     }
+
+    if (!isLoaded) return null;
 
     return (
         <div className={`w-full h-full flex justify-center items-center px-2 sm:px-4 transition-opacity duration-300 ${isUpdating ? 'opacity-50' : 'opacity-100'}`}>
@@ -163,7 +175,7 @@ export default function ProfileCard() {
                                             <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                             </svg>
-                                            <span>Verified</span>
+                                            <span>{t('verified')}</span>
                                         </div>
                                     ) : (
                                         <button
@@ -185,7 +197,7 @@ export default function ProfileCard() {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
                                             )}
-                                            <span>Resend</span>
+                                            <span>{t('resend')}</span>
                                         </button>
                                     )}
                                 </div>
@@ -222,7 +234,7 @@ export default function ProfileCard() {
                                         ? "bg-emerald-400" 
                                         : "bg-red-400"}`}>
                                 </span>
-                                {userData.status === "active" ? "Active" : "Inactive"}
+                                {userData.status === "active" ? t('active') : t('inactive')}
                             </div>
                             <ButtonEditProfile />
                         </div>

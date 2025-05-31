@@ -5,6 +5,8 @@ import { useFileStore } from '@/store/fileStore';
 import BarFiles from '@/components/common/UI/items/itemsFiles';
 import { FileProps } from '@/hooks/getFiles';
 import FileCreatedForm from '@/components/features/forms/fileCreatedForm';
+import { useLanguage } from '@/context/languageContext';
+import tableTranslations from '@/data/Lenguage/en/table.json';
 
 interface TableShowFileProps {
     onSelect?: (file: FileProps) => void;
@@ -13,6 +15,8 @@ interface TableShowFileProps {
 export default function TableShowFile({ onSelect }: TableShowFileProps) {
     const { files, loading, error: fileError, fetchFiles } = useFileStore();
     const [showUploadForm, setShowUploadForm] = useState(false);
+    const { language } = useLanguage();
+    const translations = tableTranslations;
 
     useEffect(() => {
         fetchFiles();
@@ -37,11 +41,11 @@ export default function TableShowFile({ onSelect }: TableShowFileProps) {
                     scrollbar-thumb-rounded-full">
                     {loading ? (
                         <div className="flex justify-center items-center h-full text-lg sm:text-2xl">
-                            <p className="text-white/70">Loading files...</p>
+                            <p className="text-white/70">{translations.loading}</p>
                         </div>
                     ) : files.length === 0 ? (
                         <div className="flex justify-center items-center h-full text-lg sm:text-2xl">
-                            <p className="text-white/70">No files found</p>
+                            <p className="text-white/70">{translations.noFiles}</p>
                         </div>
                     ) : (
                         <div className="space-y-2">
@@ -72,12 +76,19 @@ export default function TableShowFile({ onSelect }: TableShowFileProps) {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
                             d="M12 4v16m8-8H4"/>
                     </svg>
-                    Upload New File
+                    {translations.uploadNewFile}
                 </button>
             ) : (
                 <div className="bg-white/5 backdrop-blur-xl rounded-xl 
                     border border-white/20 p-2 sm:p-4">
-                    <FileCreatedForm onClose={() => setShowUploadForm(false)} />
+                    <FileCreatedForm 
+                        onClose={() => setShowUploadForm(false)}
+                        onSubmit={async (formData) => {
+                            await fetchFiles();
+                            setShowUploadForm(false);
+                        }}
+                        onCancel={() => setShowUploadForm(false)}
+                    />
                 </div>
             )}
         </div>

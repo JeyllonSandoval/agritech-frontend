@@ -1,8 +1,23 @@
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/context/languageContext';
+import { useState, useEffect } from 'react';
+
 interface ButtonFileProps {
     onClick: () => void;
 }
 
 export default function ButtonFile({ onClick }: ButtonFileProps) {
+    const { t, loadTranslations } = useTranslation();
+    const { language } = useLanguage();
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        loadTranslations('buttons').then(() => setIsLoaded(true));
+    }, [language]);
+
+    if (!isLoaded) return null;
+
     return (
         <button 
             onClick={onClick}
@@ -23,7 +38,7 @@ export default function ButtonFile({ onClick }: ButtonFileProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <span className="text-emerald-300">File PDF</span>
+            <span className="text-emerald-300">{t('filePDF')}</span>
             <div className="absolute inset-0 -z-10 bg-gradient-to-r from-emerald-600/20 to-emerald-500/20 
                 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             </div>

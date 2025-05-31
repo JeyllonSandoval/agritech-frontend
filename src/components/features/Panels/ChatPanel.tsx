@@ -6,6 +6,8 @@ import TableShowMessage from '@/components/common/UI/table/tableShowMessage';
 import BarWrited from '@/components/common/UI/bars/barWrited';
 import { useModal } from '@/context/modalContext';
 import { useEffect } from 'react';
+import { useLanguage } from '@/context/languageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ChatPanelProps {
     onPanelChange: (panel: 'welcome' | 'files' | 'chat', ChatID?: string) => void;
@@ -30,6 +32,8 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
 
     const { files } = useFileStore();
     const { openModal } = useModal();
+    const { language } = useLanguage();
+    const { t, loadTranslations } = useTranslation();
 
     // Ensure chat is loaded when chatId changes
     useEffect(() => {
@@ -38,6 +42,10 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ChatID]);
+
+    useEffect(() => {
+        loadTranslations('chatPanel');
+    }, [language]);
 
     const handleSendMessage = async (content: string) => {
         if (!currentChat) return;
@@ -59,7 +67,7 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
             <div className="fixed left-0 right-0 top-[80px] h-[calc(100vh-80px)] flex flex-col items-center justify-center">
                 <div className="text-center space-y-4">
                     <p className="text-white/70 text-base sm:text-lg">
-                        Please select a chat to start
+                        {t('selectChat')}
                     </p>
                 </div>
             </div>
@@ -75,8 +83,7 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
                     </h1>
                 </div>
                 <p className="text-white/70 text-base sm:text-lg leading-relaxed">
-                    Start your analysis by selecting a document to analyze. 
-                    Our system will process the information and be ready to answer your questions.
+                    {t('startAnalysis')}
                 </p>
             </div>
 
@@ -88,7 +95,7 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
             {selectedFile && (
                 <div className="flex flex-col items-center gap-3 sm:gap-4">
                     <p className="text-white/70 text-base sm:text-lg text-center">
-                        File selected: <span className="font-medium">{selectedFile.FileName}</span>
+                        {t('fileSelected')}: <span className="font-medium">{selectedFile.FileName}</span>
                     </p>
                     {error && (
                         <p className="text-red-400 text-sm bg-red-400/10 px-3 sm:px-4 py-2 rounded-xl border border-red-400/20 text-center">
