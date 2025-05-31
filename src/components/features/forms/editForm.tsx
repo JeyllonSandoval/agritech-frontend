@@ -29,9 +29,11 @@ export const EditForm: React.FC<EditFormProps> = ({
         noSpecialChars: false
     });
     const firstInputRef = useRef<HTMLInputElement>(null);
+    const [translationsReady, setTranslationsReady] = useState(false);
 
     useEffect(() => {
-        loadTranslations('forms');
+        setTranslationsReady(false);
+        loadTranslations('forms').then(() => setTranslationsReady(true));
     }, [language, loadTranslations]);
 
     useEffect(() => {
@@ -72,16 +74,20 @@ export const EditForm: React.FC<EditFormProps> = ({
 
             const responseData = await response.json();
             if (!response.ok) {
-                throw new Error(responseData.message || t('edit.error'));
+                throw new Error(responseData.message || t('error'));
             }
 
             onSubmit(value);
         } catch (error) {
-            setError(error instanceof Error ? error.message : t('edit.error'));
+            setError(error instanceof Error ? error.message : t('error'));
         } finally {
             setIsLoading(false);
         }
     };
+
+    if (!translationsReady) {
+        return null;
+    }
 
     return (
         <form onSubmit={handleSubmit} className="w-full space-y-6 text-xl">

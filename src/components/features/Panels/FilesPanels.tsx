@@ -6,6 +6,8 @@ import ButtonCreated from '@/components/common/UI/buttons/buttonCreatedFile';
 import { useFileStore } from '@/store/fileStore';
 import { FileProps } from '@/hooks/getFiles';
 import { useModal } from '@/context/modalContext';
+import { useLanguage } from '@/context/languageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface FilesPanelsProps {
     onShowPdf?: (file: FileProps) => void;
@@ -18,11 +20,14 @@ export default function FilesPanels({ onShowPdf }: FilesPanelsProps) {
     const [showBottomGradient, setShowBottomGradient] = useState(false);
     const [mounted, setMounted] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const { language } = useLanguage();
+    const { t, loadTranslations } = useTranslation();
 
     useEffect(() => {
         setMounted(true);
         fetchFiles();
-    }, [fetchFiles]);
+        loadTranslations('filesPanel');
+    }, [fetchFiles, language]);
 
     const handleScroll = () => {
         const container = scrollContainerRef.current;
@@ -50,7 +55,7 @@ export default function FilesPanels({ onShowPdf }: FilesPanelsProps) {
         <div className="h-[calc(100vh-4rem)] w-full flex flex-col items-center p-2 
             fixed top-16 left-0 right-0 overflow-hidden">
             <div className="flex items-center justify-between w-full md:w-3/4 lg:w-1/2 p-2 md:p-4">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-white">Your Files</h1>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-white">{t('yourFiles')}</h1>
                 <ButtonCreated type="createdFile" />
             </div>
 
@@ -81,7 +86,7 @@ export default function FilesPanels({ onShowPdf }: FilesPanelsProps) {
                 >
                     {loading ? (
                         <div className="flex justify-center items-center h-full">
-                            <div className="text-white/70 text-2xl">Loading...</div>
+                            <div className="text-white/70 text-2xl">{t('loading')}</div>
                         </div>
                     ) : error ? (
                         <div className="flex justify-center items-center h-full">
@@ -89,7 +94,7 @@ export default function FilesPanels({ onShowPdf }: FilesPanelsProps) {
                         </div>
                     ) : files.length === 0 ? (
                         <div className="flex justify-center items-center h-full">
-                            <p className="text-white/70 text-4xl">No files found</p>
+                            <p className="text-white/70 text-4xl">{t('noFiles')}</p>
                         </div>
                     ) : (
                         <BarFiles files={filesMemo} onShowPdf={handleShowPdfMemo} />

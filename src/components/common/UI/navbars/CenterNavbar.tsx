@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, useLayoutEffect } from "react";
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/context/languageContext';
 
@@ -24,28 +24,20 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     const isResetPasswordRoute = pathname === '/reset-password';
     const isPlaygroundRoute = pathname.startsWith('/playground');
 
-    const links = useMemo(() => [
-        { href: "/", label: t('home') },
-        { href: "/playground", label: t('playground') },
-        { href: "/about", label: t('about') },
-    ], [t, language]);
-
     useEffect(() => {
         setIsLoaded(false);
         loadTranslations('navbar').then(() => setIsLoaded(true));
     }, [language]);
 
-    useEffect(() => {
-        // Encontrar el enlace activo y actualizar el background
+    useLayoutEffect(() => {
+        // recalcula el background solo cuando isLoaded es true
         const activeLink = linksRef.current.find(
-            (link) => link?.getAttribute('href') === pathname || 
+            (link) => link?.getAttribute('href') === pathname ||
                       (link?.getAttribute('href') === '/playground' && isPlaygroundRoute)
         );
-
         if (activeLink && !isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute) {
             const rect = activeLink.getBoundingClientRect();
             const parentRect = activeLink.parentElement?.getBoundingClientRect();
-            
             if (parentRect) {
                 setActiveBackground({
                     width: rect.width,
@@ -53,7 +45,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
                 });
             }
         }
-    }, [pathname, isSignInRoute, isProfileRoute, isForgotPasswordRoute, isVerifyEmailRoute, isResetPasswordRoute, isPlaygroundRoute]);
+    }, [pathname, isSignInRoute, isProfileRoute, isForgotPasswordRoute, isVerifyEmailRoute, isResetPasswordRoute, isPlaygroundRoute, isLoaded, language]);
 
     const handleLinkClick = () => {
         if (onSelect) {
@@ -62,6 +54,12 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     };
 
     if (!isLoaded) return null;
+
+    const links = [
+        { href: "/", label: t('navbar.home') },
+        { href: "/playground", label: t('navbar.playground') },
+        { href: "/about", label: t('navbar.about') },
+    ];
 
     return (
         <div className="flex justify-center items-center bg-white/10 backdrop-blur-sm py-1 px-2 rounded-full lg:w-[600px] lg:h-[44px]">

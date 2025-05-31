@@ -126,6 +126,7 @@
         "error": "Failed to save changes",
         "nameRequired": "Name is required",
         "descriptionRequired": "Description is required",
+        "noSpecialChars": "No special characters allowed",
         "maxLength": "Maximum length is {length} characters"
     },
     "common": {
