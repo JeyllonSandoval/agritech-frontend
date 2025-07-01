@@ -1,0 +1,15 @@
+{
+  "telemetry": {
+    "title": "Telemetry",
+    "subtitle": "Intelligent sensor monitoring for precision agriculture",
+    "comingSoon": "Coming Soon",
+    "description": "We are developing a complete telemetry system that will allow you to monitor in real-time all sensors in your agricultural operation.",
+    "features": "Main features that will include: real-time monitoring, data analysis, intelligent alerts, automatic reports and advanced visualization.",
+    "realTimeData": "Real-Time Data",
+    "realTimeDataDesc": "Continuous monitoring of temperature, humidity, pH and other critical parameters of your crops.",
+    "analytics": "Advanced Analytics",
+    "analyticsDesc": "Predictive analysis and detailed statistics to optimize your crop performance.",
+    "reports": "Automatic Reports",
+    "reportsDesc": "Automatic generation of reports and personalized alerts according to your needs."
+  }
+} 

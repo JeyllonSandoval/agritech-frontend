@@ -1,0 +1,15 @@
+{
+  "telemetry": {
+    "title": "Telemetría",
+    "subtitle": "Monitoreo inteligente de sensores para agricultura de precisión",
+    "comingSoon": "Próximamente",
+    "description": "Estamos desarrollando un sistema completo de telemetría que te permitirá monitorear en tiempo real todos los sensores de tu explotación agrícola.",
+    "features": "Características principales que incluirá: monitoreo en tiempo real, análisis de datos, alertas inteligentes, reportes automáticos y visualización avanzada.",
+    "realTimeData": "Datos en Tiempo Real",
+    "realTimeDataDesc": "Monitoreo continuo de temperatura, humedad, pH y otros parámetros críticos de tus cultivos.",
+    "analytics": "Análisis Avanzado",
+    "analyticsDesc": "Análisis predictivo y estadísticas detalladas para optimizar el rendimiento de tus cultivos.",
+    "reports": "Reportes Automáticos",
+    "reportsDesc": "Generación automática de reportes y alertas personalizadas según tus necesidades."
+  }
+} 

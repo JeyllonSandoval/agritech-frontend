@@ -23,6 +23,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     const isVerifyEmailRoute = pathname === '/verify-email';
     const isResetPasswordRoute = pathname === '/reset-password';
     const isPlaygroundRoute = pathname.startsWith('/playground');
+    const isTelemetryRoute = pathname === '/telemetry';
 
     useEffect(() => {
         setIsLoaded(false);
@@ -35,7 +36,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
             (link) => link?.getAttribute('href') === pathname ||
                       (link?.getAttribute('href') === '/playground' && isPlaygroundRoute)
         );
-        if (activeLink && !isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute) {
+        if (activeLink && !isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute && !isTelemetryRoute) {
             const rect = activeLink.getBoundingClientRect();
             const parentRect = activeLink.parentElement?.getBoundingClientRect();
             if (parentRect) {
@@ -45,7 +46,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
                 });
             }
         }
-    }, [pathname, isSignInRoute, isProfileRoute, isForgotPasswordRoute, isVerifyEmailRoute, isResetPasswordRoute, isPlaygroundRoute, isLoaded, language]);
+    }, [pathname, isSignInRoute, isProfileRoute, isForgotPasswordRoute, isVerifyEmailRoute, isResetPasswordRoute, isPlaygroundRoute, isTelemetryRoute, isLoaded, language]);
 
     const handleLinkClick = () => {
         if (onSelect) {
@@ -58,6 +59,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     const links = [
         { href: "/", label: t('navbar.home') },
         { href: "/playground", label: t('navbar.playground') },
+        { href: "/telemetry", label: t('navbar.telemetry') },
         { href: "/about", label: t('navbar.about') },
     ];
 
@@ -65,7 +67,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
         <div className="flex justify-center items-center bg-white/10 backdrop-blur-sm py-1 px-2 rounded-full lg:w-[600px] lg:h-[44px]">
             <div className="flex flex-row gap-3 lg:gap-8 text-base lg:text-lg relative justify-center items-center">
                 {/* Background dinámico */}
-                {!isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute && (
+                {!isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute && !isTelemetryRoute && (
                     <div
                         className="absolute h-[38px] bg-emerald-600/90 backdrop-blur-md rounded-full transition-all duration-300 ease-in-out"
                         style={{
@@ -86,7 +88,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
                         }}
                         onClick={handleLinkClick}
                         className={`px-5 py-1.5 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 relative z-10 
-                            ${(pathname === link.href || (link.href === '/playground' && isPlaygroundRoute)) && 
+                            ${(pathname === link.href || (link.href === '/playground' && isPlaygroundRoute) || (link.href === '/telemetry' && isTelemetryRoute)) && 
                               !isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute
                                 ? 'text-white font-medium scale-105' 
                                 : 'text-gray-400 hover:bg-white/5'}`}
