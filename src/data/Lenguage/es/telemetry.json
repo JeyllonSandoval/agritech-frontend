@@ -7,9 +7,24 @@
     "features": "Características principales que incluirá: monitoreo en tiempo real, análisis de datos, alertas inteligentes, reportes automáticos y visualización avanzada.",
     "realTimeData": "Datos en Tiempo Real",
     "realTimeDataDesc": "Monitoreo continuo de temperatura, humedad, pH y otros parámetros críticos de tus cultivos.",
+    "realTimeDataDetails": "Sensores IoT conectados que transmiten datos cada 5 minutos. Monitoreo de temperatura del suelo (-40°C a +85°C), humedad relativa (0-100%), pH del suelo (3-10), conductividad eléctrica, y niveles de nutrientes.",
     "analytics": "Análisis Avanzado",
     "analyticsDesc": "Análisis predictivo y estadísticas detalladas para optimizar el rendimiento de tus cultivos.",
+    "analyticsDetails": "Algoritmos de machine learning que analizan patrones históricos para predecir rendimientos, detectar enfermedades tempranas, y recomendar acciones específicas para cada zona de cultivo.",
     "reports": "Reportes Automáticos",
-    "reportsDesc": "Generación automática de reportes y alertas personalizadas según tus necesidades."
+    "reportsDesc": "Generación automática de reportes y alertas personalizadas según tus necesidades.",
+    "reportsDetails": "Reportes diarios, semanales y mensuales con gráficos interactivos. Alertas por email/SMS cuando los parámetros superan umbrales críticos. Exportación en PDF, Excel y formatos personalizados.",
+    "automation": "Automatización Inteligente",
+    "automationDesc": "Sistemas automatizados que ajustan riego, fertilización y clima según los datos de los sensores.",
+    "automationDetails": "Control automático de sistemas de riego, ventilación, calefacción y fertilización. Integración con sistemas existentes mediante APIs. Programación de tareas basada en condiciones ambientales y del suelo.",
+    "monitoring": "Monitoreo 24/7",
+    "monitoringDesc": "Vigilancia continua de todos los parámetros ambientales y del suelo con alertas en tiempo real.",
+    "monitoringDetails": "Monitoreo ininterrumpido con redundancia de sistemas. Dashboard en tiempo real accesible desde cualquier dispositivo. Histórico de datos con capacidad de almacenamiento de hasta 10 años.",
+    "ai": "Inteligencia Artificial",
+    "aiDesc": "Algoritmos de IA que predicen problemas y optimizan automáticamente las condiciones de cultivo.",
+    "aiDetails": "IA predictiva para anticipar problemas de plagas, enfermedades y estrés hídrico. Optimización automática de recursos basada en condiciones climáticas y necesidades del cultivo. Recomendaciones personalizadas por tipo de cultivo.",
+    "helpTitle": "¿Qué es Telemetría?",
+    "helpDescription": "El panel de Telemetría es una herramienta avanzada de monitoreo agrícola que utiliza sensores IoT y tecnología de inteligencia artificial para optimizar el rendimiento de tus cultivos. Aquí te explicamos cada funcionalidad en detalle:",
+    "helpFooter": "Esta funcionalidad estará disponible próximamente. Mientras tanto, puedes explorar nuestras otras herramientas en el Playground."
   }
 } 

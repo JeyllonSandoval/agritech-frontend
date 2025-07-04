@@ -48,5 +48,40 @@
             ]
         }
     },
-    "helpText": "Need help? Contact us at agriJJtech@hotmail.com"
+    "helpText": "Need help? Contact us at agriJJtech@hotmail.com",
+    "helpTitle": "What is the Playground?",
+    "helpDescription": "The Playground is your central workspace where you can access all AgriTech tools. Here you can manage files, create AI chats, and access advanced features to optimize your agriculture.",
+    "helpFooter": "The Playground is constantly evolving. Stay tuned for new features!",
+    "features": {
+        "chat": {
+            "title": "AI Chat",
+            "description": "Converse with our agriculture-specialized AI",
+            "details": "Create intelligent conversations about your crops, get personalized recommendations, analyze agricultural problems and receive expert advice in real time."
+        },
+        "files": {
+            "title": "File Management",
+            "description": "Upload and analyze documents related to your agriculture",
+            "details": "Upload PDFs, images and documents. Our AI analyzes them to extract relevant information about crops, reports, technical manuals and more."
+        },
+        "analytics": {
+            "title": "Data Analytics",
+            "description": "Visualize and analyze your crop performance",
+            "details": "Interactive charts, detailed reports, performance comparisons and predictive analysis to optimize your agricultural decisions."
+        },
+        "automation": {
+            "title": "Automation",
+            "description": "Configure alerts and automatic tasks",
+            "details": "Schedule automatic irrigation, pest alerts, fertilization reminders and scheduled tasks based on environmental conditions."
+        },
+        "collaboration": {
+            "title": "Collaboration",
+            "description": "Work as a team with other farmers",
+            "details": "Share data, reports and experiences with other users. Create work groups and collaborate on agricultural projects."
+        },
+        "integration": {
+            "title": "IoT Integration",
+            "description": "Connect sensors and smart devices",
+            "details": "Integrate temperature, humidity, pH sensors and other IoT devices for automatic monitoring and control of your operation."
+        }
+    }
 } 
