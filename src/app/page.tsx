@@ -140,7 +140,7 @@ export default function Home() {
                     </p>
                     <Link 
                         href="/playground" 
-                        className="group relative px-24 py-4
+                        className="group relative px-4 md:px-24 py-4
                             bg-white/10 backdrop-blur-xl
                             border-2 border-emerald-400/40
                             rounded-2xl

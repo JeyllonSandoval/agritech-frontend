@@ -48,5 +48,40 @@
             ]
         }
     },
-    "helpText": "¿Necesitas ayuda? Contáctanos en agriJJtech@hotmail.com"
+    "helpText": "¿Necesitas ayuda? Contáctanos en agriJJtech@hotmail.com",
+    "helpTitle": "¿Qué es el Playground?",
+    "helpDescription": "El Playground es tu espacio de trabajo central donde puedes acceder a todas las herramientas de AgriTech. Aquí puedes gestionar archivos, crear chats con IA, y acceder a funcionalidades avanzadas para optimizar tu agricultura.",
+    "helpFooter": "El Playground está en constante evolución. ¡Mantente atento a las nuevas funcionalidades!",
+    "features": {
+        "chat": {
+            "title": "Chat con IA",
+            "description": "Conversa con nuestra IA especializada en agricultura",
+            "details": "Crea conversaciones inteligentes sobre tus cultivos, obtén recomendaciones personalizadas, analiza problemas agrícolas y recibe consejos expertos en tiempo real."
+        },
+        "files": {
+            "title": "Gestión de Archivos",
+            "description": "Sube y analiza documentos relacionados con tu agricultura",
+            "details": "Sube PDFs, imágenes y documentos. Nuestra IA los analiza para extraer información relevante sobre cultivos, reportes, manuales técnicos y más."
+        },
+        "analytics": {
+            "title": "Análisis de Datos",
+            "description": "Visualiza y analiza el rendimiento de tus cultivos",
+            "details": "Gráficos interactivos, reportes detallados, comparativas de rendimiento y análisis predictivo para optimizar tus decisiones agrícolas."
+        },
+        "automation": {
+            "title": "Automatización",
+            "description": "Configura alertas y tareas automáticas",
+            "details": "Programa riego automático, alertas de plagas, recordatorios de fertilización y tareas programadas basadas en condiciones ambientales."
+        },
+        "collaboration": {
+            "title": "Colaboración",
+            "description": "Trabaja en equipo con otros agricultores",
+            "details": "Comparte datos, reportes y experiencias con otros usuarios. Crea grupos de trabajo y colabora en proyectos agrícolas."
+        },
+        "integration": {
+            "title": "Integración IoT",
+            "description": "Conecta sensores y dispositivos inteligentes",
+            "details": "Integra sensores de temperatura, humedad, pH y otros dispositivos IoT para monitoreo automático y control de tu explotación."
+        }
+    }
 } 

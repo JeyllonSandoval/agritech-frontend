@@ -83,11 +83,6 @@ export default function TableShowFile({ onSelect }: TableShowFileProps) {
                     border border-white/20 p-2 sm:p-4">
                     <FileCreatedForm 
                         onClose={() => setShowUploadForm(false)}
-                        onSubmit={async (formData) => {
-                            await fetchFiles();
-                            setShowUploadForm(false);
-                        }}
-                        onCancel={() => setShowUploadForm(false)}
                     />
                 </div>
             )}

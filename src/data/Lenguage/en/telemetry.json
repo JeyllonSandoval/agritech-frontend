@@ -1,0 +1,30 @@
+{
+  "telemetry": {
+    "title": "Telemetry",
+    "subtitle": "Intelligent sensor monitoring for precision agriculture",
+    "comingSoon": "Coming Soon",
+    "description": "We are developing a complete telemetry system that will allow you to monitor in real-time all sensors in your agricultural operation.",
+    "features": "Main features that will include: real-time monitoring, data analysis, intelligent alerts, automatic reports and advanced visualization.",
+    "realTimeData": "Real-Time Data",
+    "realTimeDataDesc": "Continuous monitoring of temperature, humidity, pH and other critical parameters of your crops.",
+    "realTimeDataDetails": "IoT sensors connected that transmit data every 5 minutes. Monitoring of soil temperature (-40°C to +85°C), relative humidity (0-100%), soil pH (3-10), electrical conductivity, and nutrient levels.",
+    "analytics": "Advanced Analytics",
+    "analyticsDesc": "Predictive analysis and detailed statistics to optimize your crop performance.",
+    "analyticsDetails": "Machine learning algorithms that analyze historical patterns to predict yields, detect early diseases, and recommend specific actions for each growing zone.",
+    "reports": "Automatic Reports",
+    "reportsDesc": "Automatic generation of reports and personalized alerts according to your needs.",
+    "reportsDetails": "Daily, weekly and monthly reports with interactive charts. Email/SMS alerts when parameters exceed critical thresholds. Export in PDF, Excel and custom formats.",
+    "automation": "Smart Automation",
+    "automationDesc": "Automated systems that adjust irrigation, fertilization and climate based on sensor data.",
+    "automationDetails": "Automatic control of irrigation, ventilation, heating and fertilization systems. Integration with existing systems through APIs. Task scheduling based on environmental and soil conditions.",
+    "monitoring": "24/7 Monitoring",
+    "monitoringDesc": "Continuous surveillance of all environmental and soil parameters with real-time alerts.",
+    "monitoringDetails": "Uninterrupted monitoring with system redundancy. Real-time dashboard accessible from any device. Data history with storage capacity of up to 10 years.",
+    "ai": "Artificial Intelligence",
+    "aiDesc": "AI algorithms that predict issues and automatically optimize growing conditions.",
+    "aiDetails": "Predictive AI to anticipate pest, disease and water stress problems. Automatic resource optimization based on weather conditions and crop needs. Personalized recommendations by crop type.",
+    "helpTitle": "What is Telemetry?",
+    "helpDescription": "The Telemetry panel is an advanced agricultural monitoring tool that uses IoT sensors and artificial intelligence technology to optimize your crop performance. Here we explain each functionality in detail:",
+    "helpFooter": "This functionality will be available soon. In the meantime, you can explore our other tools in the Playground."
+  }
+} 

@@ -2,6 +2,7 @@
   "navbar": {
     "home": "Home",
     "playground": "Playground",
+    "telemetry": "Telemetry",
     "about": "About",
     "profile": "Profile",
     "settings": "Settings",
