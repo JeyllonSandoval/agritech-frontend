@@ -23,7 +23,6 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     const isVerifyEmailRoute = pathname === '/verify-email';
     const isResetPasswordRoute = pathname === '/reset-password';
     const isPlaygroundRoute = pathname.startsWith('/playground');
-    const isTelemetryRoute = pathname === '/telemetry';
 
     useEffect(() => {
         setIsLoaded(false);
@@ -34,9 +33,9 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
         // recalcula el background solo cuando isLoaded es true
         const activeLink = linksRef.current.find(
             (link) => link?.getAttribute('href') === pathname ||
-                      (link?.getAttribute('href') === '/playground' && isPlaygroundRoute)
+            (link?.getAttribute('href') === '/playground' && isPlaygroundRoute)
         );
-        if (activeLink && !isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute && !isTelemetryRoute) {
+        if (activeLink && !isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute) {
             const rect = activeLink.getBoundingClientRect();
             const parentRect = activeLink.parentElement?.getBoundingClientRect();
             if (parentRect) {
@@ -46,7 +45,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
                 });
             }
         }
-    }, [pathname, isSignInRoute, isProfileRoute, isForgotPasswordRoute, isVerifyEmailRoute, isResetPasswordRoute, isPlaygroundRoute, isTelemetryRoute, isLoaded, language]);
+    }, [pathname, isSignInRoute, isProfileRoute, isForgotPasswordRoute, isVerifyEmailRoute, isResetPasswordRoute, isPlaygroundRoute, isLoaded, language]);
 
     const handleLinkClick = () => {
         if (onSelect) {
@@ -64,12 +63,12 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     ];
 
     return (
-        <div className="flex justify-center items-center bg-white/10 backdrop-blur-sm py-1 px-2 rounded-full lg:w-[600px] lg:h-[44px]">
-            <div className="flex flex-row gap-3 lg:gap-8 text-base lg:text-lg relative justify-center items-center">
-                {/* Background dinámico */}
-                {!isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute && !isTelemetryRoute && (
+        <div className="flex justify-center items-center bg-white/10 backdrop-blur-2xl py-2 px-2 m-2 rounded-xl lg:w-[600px] lg:h-[44px] lg:rounded-full lg:backdrop-blur-none">
+            <div className="flex flex-col lg:flex-row gap-3 lg:gap-8 text-base lg:text-lg relative justify-center items-center">
+                {/* Background dinámico solo en desktop */}
+                {!isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute && (
                     <div
-                        className="absolute h-[38px] bg-emerald-600/90 backdrop-blur-md rounded-full transition-all duration-300 ease-in-out"
+                        className="absolute h-[38px] bg-emerald-600/90 backdrop-blur-md rounded-full transition-all duration-300 ease-in-out hidden lg:block"
                         style={{
                             width: `${activeBackground.width}px`,
                             left: `${activeBackground.left}px`,
@@ -77,25 +76,26 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
                         }}
                     />
                 )}
-                
                 {/* Enlaces */}
-                {links.map((link, index) => (
-                    <Link
-                        key={link.href}
-                        href={link.href}
-                        ref={(el) => {
-                            linksRef.current[index] = el;
-                        }}
-                        onClick={handleLinkClick}
-                        className={`px-5 py-1.5 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 relative z-10 
-                            ${(pathname === link.href || (link.href === '/playground' && isPlaygroundRoute) || (link.href === '/telemetry' && isTelemetryRoute)) && 
-                              !isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute
-                                ? 'text-white font-medium scale-105' 
-                                : 'text-gray-400 hover:bg-white/5'}`}
-                    >
-                        {link.label}
-                    </Link>
-                ))}
+                {links.map((link, index) => {
+                    const isActive = (pathname === link.href || (link.href === '/playground' && isPlaygroundRoute)) &&
+                        !isSignInRoute && !isProfileRoute && !isForgotPasswordRoute && !isVerifyEmailRoute && !isResetPasswordRoute;
+                    return (
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            ref={(el) => {
+                                linksRef.current[index] = el;
+                            }}
+                            onClick={handleLinkClick}
+                            className={`px-5 py-1.5 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 relative z-10 
+                                ${isActive ? 'text-white font-medium scale-105' : 'text-gray-400 hover:bg-white/5'}
+                                ${isActive ? 'lg:bg-transparent bg-emerald-600/90' : ''}`}
+                        >
+                            {link.label}
+                        </Link>
+                    );
+                })}
             </div>
         </div>
     );

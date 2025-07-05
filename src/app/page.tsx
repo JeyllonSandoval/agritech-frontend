@@ -107,9 +107,9 @@ export default function Home() {
     if (!homeData) return null;
 
     return (
-        <main className="absolute inset-0 overflow-y-auto snap-y snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <main className="absolute inset-0 overflow-y-auto snap-y snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {/* Hero Section */}
-            <section className="min-h-screen w-full snap-start relative flex items-center justify-center overflow-hidden py-20 lg:py-0">
+            <section className="min-h-screen w-full snap-start relative flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <div className={`absolute inset-0 bg-gradient-to-b from-black via-emerald-900/20 to-black transition-opacity duration-800 ${isVisible ? 'animate-bg-fade-in' : 'animate-bg-fade-out'}`} />
                     <div className={`absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] transition-opacity duration-800 ${isVisible ? 'animate-grid-fade-in' : 'animate-grid-fade-out'}`} />
@@ -212,7 +212,7 @@ export default function Home() {
             </section>
 
             {/* Audience Section */}
-            <section className="min-h-screen snap-start py-20 bg-gradient-to-l from-black to-[#022510] relative overflow-hidden flex items-center justify-center">
+            <section className="min-h-screen snap-start bg-gradient-to-l from-black to-[#022510] relative overflow-hidden flex items-center justify-center">
                 <div className="container mx-auto px-4 md:px-6 relative z-1 flex flex-col items-center justify-center">
                     <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-8 md:mb-16 reveal bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-600">
                         {homeData.audience.title}
@@ -241,7 +241,7 @@ export default function Home() {
             </section>
 
             {/* Contact Section */}
-            <section className="min-h-screen snap-start py-20 bg-gradient-to-b from-black to-[#022510] relative overflow-hidden flex items-center justify-center">
+            <section className="min-h-screen snap-start bg-gradient-to-b from-black to-[#022510] relative overflow-hidden flex items-center justify-center">
                 <div className="container mx-auto px-4 md:px-6 text-center relative z-1 flex flex-col items-center justify-center">
                     <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-8 reveal bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-600">
                         {homeData.contact.title}

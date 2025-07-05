@@ -49,6 +49,8 @@ export default function RegisterForm() {
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [touched, setTouched] = useState<Record<string, boolean>>({});
     const firstInputRef = useRef<HTMLInputElement>(null);
+    const [translationsReady, setTranslationsReady] = useState(false);
+    const [, forceUpdate] = useState(0);
 
     const fetchCountry = async () => {
         try {
@@ -71,7 +73,10 @@ export default function RegisterForm() {
     }, []);
 
     useEffect(() => {
-        loadTranslations('forms');
+        loadTranslations('forms').then(() => {
+            setTranslationsReady(true);
+            forceUpdate(n => n + 1);
+        });
     }, [language]);
 
     useEffect(() => {
@@ -84,6 +89,11 @@ export default function RegisterForm() {
 
     useEffect(() => {
         firstInputRef.current?.focus();
+        // Forzar reflow/redraw para corregir layout en móvil
+        setTimeout(() => {
+            window.scrollBy(0, 1);
+            window.scrollBy(0, -1);
+        }, 100);
     }, []);
 
     // Validación en tiempo real
@@ -243,8 +253,12 @@ export default function RegisterForm() {
         }
     };
 
+    if (!translationsReady) {
+        return null;
+    }
+
     return (
-        <section className="w-full h-full flex justify-center items-center">
+        <section className="w-full max-h-[100dvh] flex justify-center items-center">
             <form onSubmit={handleRegister} 
                 className={`w-full max-w-2xl p-4 md:p-8 
                     bg-white/10 backdrop-blur-xl rounded-2xl 
