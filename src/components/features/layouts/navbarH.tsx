@@ -39,12 +39,12 @@ export default function NavbarH() {
 
     return (
         <div className="fixed top-0 left-0 right-0 z-10">
-            <div className={`w-full lg:w-[95%] mx-auto transition-all duration-700 ${scrolled ? 'w-[98%] bg-white/10 backdrop-blur-xl mt-2 rounded-2xl' : ''}`}>
-                <nav className="w-full lg:w-[90%] mx-auto px-4 lg:px-0 flex flex-col relative">
+            <div className={`w-full lg:w-[100%] mx-auto transition-all duration-700 ${scrolled ? 'w-[98%] bg-white/10 backdrop-blur-xl mt-2 rounded-2xl' : ''}`}>
+                <nav className="w-full lg:w-[90%] mx-auto lg:px-0 flex flex-col relative">
                     {/* Overlay de difuminado */}
                     <div 
                         className={`
-                            fixed inset-0 bg-black/10 backdrop-blur-sm
+                            fixed inset-0 bg-black/10 backdrop-blur-sm 
                             transition-all duration-300
                             lg:hidden
                             ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}
@@ -58,7 +58,7 @@ export default function NavbarH() {
                         transition-all duration-300
                         ${isMenuOpen ? 'opacity-50 blur-sm' : 'opacity-100 blur-none'}
                     `}>
-                        <div className="w-[200px] lg:w-[250px] flex items-center">
+                        <div className="w-[200px] lg:w-[250px] flex items-center ">
                             <div className={`${isPlaygroundRoute ? 'hidden lg:block' : 'block'}`}>
                                 <LeftNavbar />
                             </div>
@@ -130,7 +130,7 @@ export default function NavbarH() {
                             overflow-hidden 
                             transition-all duration-300 ease-in-out
                             relative z-40
-                            ${isMenuOpen ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'}
+                            ${isMenuOpen ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'}
                         `}
                     >
                         <div className="py-2">
