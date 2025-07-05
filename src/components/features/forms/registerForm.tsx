@@ -427,74 +427,30 @@ export default function RegisterForm() {
 
                             <div className="relative flex">
                                 <div className="w-full text-base">
-                                    <Select 
-                                        inputId="country-select"
-                                        classNamePrefix="agritech-select"
-                                        options={countries.map(c => ({ value: c.CountryID, label: c.countryname }))}
-                                        value={countries.length ? countries.map(c => ({ value: c.CountryID, label: c.countryname })).find(opt => opt.value === CountryID) : null}
-                                        onChange={opt => handleChange('CountryID', opt ? opt.value : '')}
+                                    <select
+                                        id="country-select"
+                                        className={`w-full px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm
+                                            bg-[#111] text-black appearance-none rounded-xl
+                                            border ${errors.CountryID ? 'border-red-400' : 'border-white/20'}
+                                            focus:border-emerald-400/50 focus:ring-2 
+                                            focus:ring-emerald-400/20 focus:outline-none 
+                                            placeholder-white/40
+                                            transition-all duration-300`}
+                                        value={CountryID}
+                                        onChange={e => handleChange('CountryID', e.target.value)}
                                         onBlur={() => handleBlur('CountryID')}
-                                        placeholder={t('register.country')}
-                                        isSearchable
-                                        styles={{
-                                            control: (base, state) => ({
-                                                ...base,
-                                                backgroundColor: 'rgba(23,23,23,0.3)',
-                                                borderColor: errors.CountryID ? '#f87171' : 'rgba(255,255,255,0.2)',
-                                                boxShadow: state.isFocused ? '0 0 0 2px rgba(16,185,129,0.2)' : undefined,
-                                                color: '#fff',
-                                                minHeight: '45px',
-                                                
-                                                paddingLeft: '0.75rem',
-                                                paddingRight: '2.5rem',
-                                            }),
-                                            menu: base => ({
-                                                ...base,
-                                                backgroundColor: '#111',
-                                                color: '#fff',
-                                                
-                                                marginTop: 2,
-                                                zIndex: 20,
-                                            }),
-                                            option: (base, state) => ({
-                                                ...base,
-                                                backgroundColor: state.isSelected
-                                                    ? 'rgba(16,185,129,0.8)'
-                                                    : state.isFocused
-                                                        ? 'rgba(16,185,129,0.2)'
-                                                        : '#111',
-                                                color: state.isSelected ? '#111' : '#fff',
-                                                cursor: 'pointer',
-                                            }),
-                                            singleValue: base => ({
-                                                ...base,
-                                                color: '#fff',
-                                            }),
-                                            placeholder: base => ({
-                                                ...base,
-                                                color: 'rgba(255,255,255,0.4)',
-                                            }),
-                                            dropdownIndicator: base => ({
-                                                ...base,
-                                                color: 'rgba(255,255,255,0.4)',
-                                            }),
-                                            indicatorSeparator: base => ({
-                                                ...base,
-                                                backgroundColor: 'rgba(255,255,255,0.2)',
-                                            }),
-                                        }}
-                                        theme={theme => ({
-                                            ...theme,
-                                            borderRadius: 12,
-                                            colors: {
-                                                ...theme.colors,
-                                                primary25: 'rgba(16,185,129,0.2)',
-                                                primary: 'rgba(16,185,129,0.8)',
-                                                neutral0: '#111',
-                                                neutral80: '#fff',
-                                            },
-                                        })}
-                                    />
+                                    >
+                                        <option value="" disabled className="bg-[#111] text-white">{t('register.country')}</option>
+                                        {countries.map((c) => (
+                                            <option key={c.CountryID} value={c.CountryID} className="bg-[#111] text-white">{c.countryname}</option>
+                                        ))}
+                                    </select>
+                                    <style jsx global>{`
+                                        select#country-select, select#country-select option {
+                                            background-color: #555 !important;
+                                            color: #fff !important;
+                                        }
+                                    `}</style>
                                     <div className="text-xs mt-1">
                                         {touched.CountryID && errors.CountryID && (
                                             <span className="text-red-400">{errors.CountryID}</span>
