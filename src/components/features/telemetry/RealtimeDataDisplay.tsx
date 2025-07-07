@@ -139,7 +139,7 @@ export default function RealtimeDataDisplay({
   return (
     <div className="space-y-6">
       {/* Header con información de actualización */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-col md:flex-row gap-4">
         <h3 className="text-xl font-semibold text-white">
           Datos en Tiempo Real
         </h3>
@@ -219,7 +219,7 @@ export default function RealtimeDataDisplay({
       </div>
 
       {/* Resumen de dispositivos */}
-      <div className="grid grid-cols-3 gap-4 p-4 bg-white/5 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white/5 rounded-lg">
         <div className="text-center">
           <div className="text-2xl font-bold text-white">
             {devices.length}

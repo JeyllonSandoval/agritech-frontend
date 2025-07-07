@@ -99,7 +99,7 @@ export default function TelemetryPage() {
                 {/* Demo Mode Toggle */}
                 <div className="mb-8">
                     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between flex-col md:flex-row gap-4">
                             <div>
                                 <h3 className="text-lg font-semibold text-white mb-2">
                                     Modo Demostración
@@ -110,7 +110,7 @@ export default function TelemetryPage() {
                             </div>
                             <button
                                 onClick={() => setShowDemo(!showDemo)}
-                                className={`px-6 py-2 text-lg rounded-lg font-medium transition-all duration-200 ${
+                                className={`px-6 py-2 text-lg w-full md:w-auto rounded-lg font-medium transition-all duration-200 ${
                                     showDemo
                                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-400/30'
                                         : 'bg-gray-500/20 text-gray-400 border border-gray-400/30'

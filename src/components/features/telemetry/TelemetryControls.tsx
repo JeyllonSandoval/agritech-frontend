@@ -53,7 +53,7 @@ export default function TelemetryControls({
 
   return (
     <div className={`bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 ${className}`}>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-col md:flex-row gap-4">
         {/* Estado del monitoreo */}
         <div className="flex items-center space-x-4">
           <div className="flex items-center">
