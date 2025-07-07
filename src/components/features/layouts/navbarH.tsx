@@ -38,8 +38,8 @@ export default function NavbarH() {
     };
 
     return (
-        <div className="fixed top-0 left-0 right-0 z-10">
-            <div className={`w-full lg:w-[100%] mx-auto transition-all duration-700 ${scrolled ? 'w-[98%] bg-white/10 backdrop-blur-xl mt-2 rounded-2xl' : ''}`}>
+        <div className="fixed top-0 left-2 right-2 z-10">
+            <div className={`w-full lg:w-[100%] mx-auto transition-all duration-700 ${scrolled ? 'w-[95%] bg-white/10 backdrop-blur-xl mt-2 rounded-2xl' : ''}`}>
                 <nav className="w-full lg:w-[90%] mx-auto lg:px-0 flex flex-col relative">
                     {/* Overlay de difuminado */}
                     <div 
@@ -80,7 +80,7 @@ export default function NavbarH() {
                                     >
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>
-                                    <span className="text-emerald-400 text-sm font-medium">{t('navbar.quickAccess')}</span>
+                                    <span className="text-emerald-400 text-lg font-medium">{t('navbarLateral.quickAccess')}</span>
                                 </button>
                             )}
                         </div>
