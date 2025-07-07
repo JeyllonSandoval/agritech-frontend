@@ -115,27 +115,28 @@ export class MockTelemetryService {
       msg: 'success',
       time: new Date().toISOString(),
       data: {
-        device: {
-          name: `Dispositivo ${mac.slice(-6)}`,
-          mac: mac,
-          model: 'WS1900',
-          firmware: '1.1.8',
-          timezone: 'America/Mexico_City',
-          location: 'Campo Principal',
-          coordinates: {
-            latitude: 19.4326,
-            longitude: -99.1332
+        id: 1,
+        name: `Dispositivo ${mac.slice(-6)}`,
+        mac: mac,
+        type: 1, // WEATHER_STATION
+        date_zone_id: 'America/Mexico_City',
+        createtime: Math.floor(Date.now() / 1000) - 86400, // 1 día atrás
+        longitude: -99.1332,
+        latitude: 19.4326,
+        stationtype: 'WS1900',
+        last_update: {
+          timestamp: Math.floor(Date.now() / 1000),
+          status: 'online',
+          sensors: {
+            'outdoor_temperature': 'online',
+            'outdoor_humidity': 'online',
+            'pressure': 'online',
+            'wind_speed': 'online',
+            'rainfall': 'online',
+            'soil_moisture_1': 'online',
+            'soil_moisture_2': 'online'
           }
-        },
-        sensors: [
-          { name: 'Temperatura Exterior', type: 'temperature', unit: '°C' },
-          { name: 'Humedad Exterior', type: 'humidity', unit: '%' },
-          { name: 'Presión Atmosférica', type: 'pressure', unit: 'hPa' },
-          { name: 'Velocidad del Viento', type: 'wind', unit: 'km/h' },
-          { name: 'Intensidad de Lluvia', type: 'rainfall', unit: 'mm/h' },
-          { name: 'Humedad del Suelo 1', type: 'soil', unit: '%' },
-          { name: 'Humedad del Suelo 2', type: 'soil', unit: '%' }
-        ]
+        }
       }
     };
   }
