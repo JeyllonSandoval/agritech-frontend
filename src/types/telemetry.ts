@@ -1,227 +1,410 @@
-/**
- * Tipos TypeScript para el sistema de telemetría
- * Basado en la documentación de Ecowitt
- */
+// ============================================================================
+// TYPES FOR ECOWITT TELEMETRY SYSTEM
+// Based on EcoWitt API documentation
+// ============================================================================
 
-// Re-exportar los tipos de Ecowitt con namespaces para evitar conflictos
-export { 
-  CALLBACK_TYPES,
-  TEMPERATURE_UNITS,
-  PRESSURE_UNITS,
-  WIND_SPEED_UNITS,
-  RAINFALL_UNITS,
-  SOLAR_IRRADIANCE_UNITS,
-  CAPACITY_UNITS,
-  DEFAULT_REALTIME_PARAMS,
-  createRealtimeRequestParams,
-  validateRealtimeRequestParams
-} from '../../docs/ecowitt-parameters/realtime-request.types';
+// ============================================================================
+// DEVICE MANAGEMENT TYPES
+// ============================================================================
 
-export type { 
-  RealtimeRequestParams,
-  CallbackType,
-  TemperatureUnit,
-  PressureUnit,
-  WindSpeedUnit,
-  RainfallUnit,
-  SolarIrradianceUnit,
-  CapacityUnit
-} from '../../docs/ecowitt-parameters/realtime-request.types';
-
-export {
-  isWaterLeakStatus,
-  getWaterLeakStatusDescription,
-  validateRealtimeResponse,
-  extractOutdoorData,
-  extractIndoorData,
-  extractWindData,
-  extractRainfallData
-} from '../../docs/ecowitt-parameters/realtime-response.types';
-
-export type {
-  RealtimeResponse,
-  RealtimeData,
-  OutdoorData,
-  IndoorData,
-  SolarAndUVIData,
-  RainfallData,
-  RainfallPiezoData,
-  WindData,
-  PressureData,
-  LightningData,
-  IndoorCO2Data,
-  PM25Data,
-  CO2AQIComboData,
-  PM25AQIComboData,
-  PM10AQIComboData,
-  PM1AQIComboData,
-  PM4AQIComboData,
-  TRHAQIComboData,
-  WaterLeakData,
-  WaterLeakStatus,
-  TempHumidityData,
-  SoilData,
-  TempData,
-  LeafData,
-  BatteryData,
-  LDSData,
-  CameraData,
-  WFC01Data,
-  AC1100Data,
-  WFC02Data,
-  WaterLeakStatusType
-} from '../../docs/ecowitt-parameters/realtime-response.types';
-
-export {
-  validateDeviceInfoRequestParams
-} from '../../docs/ecowitt-parameters/device-info-request.types';
-
-export type {
-  DeviceInfoRequestParams
-} from '../../docs/ecowitt-parameters/device-info-request.types';
-
-export {
-  validateDeviceInfoResponse
-} from '../../docs/ecowitt-parameters/device-info-response.types';
-
-export type {
-  DeviceInfoResponse,
-  DeviceInfoData
-} from '../../docs/ecowitt-parameters/device-info-response.types';
-
-export {
-  validateHistoryRequestParams
-} from '../../docs/ecowitt-parameters/history-request.types';
-
-export type {
-  HistoryRequestParams
-} from '../../docs/ecowitt-parameters/history-request.types';
-
-export {
-  validateHistoryResponse
-} from '../../docs/ecowitt-parameters/history-response.types';
-
-export type {
-  HistoryResponse,
-  HistoryData
-} from '../../docs/ecowitt-parameters/history-response.types';
-
-// Estados del sensor
-export enum SensorStatus {
-  ONLINE = 'online',
-  OFFLINE = 'offline',
-  ERROR = 'error',
-  WARNING = 'warning'
+export interface DeviceRegistration {
+  DeviceName: string;
+  DeviceMac: string;
+  DeviceApplicationKey: string;
+  DeviceApiKey: string;
+  DeviceType: 'Outdoor' | 'Indoor' | 'Hybrid';
+  UserID: string;
 }
 
-// Tipos de sensores
-export enum SensorType {
-  TEMPERATURE = 'temperature',
-  HUMIDITY = 'humidity',
-  PRESSURE = 'pressure',
-  WIND = 'wind',
-  RAINFALL = 'rainfall',
-  SOLAR = 'solar',
-  SOIL = 'soil',
-  LEAF = 'leaf',
-  CO2 = 'co2',
-  PM25 = 'pm25',
-  LIGHTNING = 'lightning',
-  WATER_LEAK = 'water_leak',
-  BATTERY = 'battery'
+export interface DeviceInfo {
+  DeviceID: string;
+  DeviceName: string;
+  DeviceMac: string;
+  DeviceType: 'Outdoor' | 'Indoor' | 'Hybrid';
+  UserID: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
 }
 
-// Interfaz para un sensor individual
-export interface Sensor {
-  id: string;
+export interface DeviceLocation {
+  latitude: number;
+  longitude: number;
+  elevation: number;
+}
+
+export interface DeviceSensor {
   name: string;
-  type: SensorType;
-  status: SensorStatus;
-  value: number | null;
+  type: 'number' | 'string' | 'boolean';
   unit: string;
-  lastUpdate: Date;
-  location?: string;
-  description?: string;
+  enabled?: boolean;
 }
 
-// Interfaz para un dispositivo
-export interface Device {
-  id: string;
-  name: string;
+export interface DeviceCharacteristics {
   mac: string;
-  imei?: string;
-  status: SensorStatus;
-  sensors: Sensor[];
-  lastUpdate: Date;
-  location?: string;
-  description?: string;
+  device_id: string;
+  model: string;
+  name: string;
+  location: DeviceLocation;
+  timezone: string;
+  region: string;
+  country: string;
+  city: string;
+  firmware_version: string;
+  hardware_version: string;
+  last_seen: string;
+  battery_level?: number;
+  signal_strength?: number;
+  sensors: DeviceSensor[];
 }
 
-// Interfaz para datos de telemetría en tiempo real
-export interface TelemetryData {
-  devices: Device[];
-  timestamp: Date;
-  totalDevices: number;
-  onlineDevices: number;
-  offlineDevices: number;
+export interface DeviceInfoData {
+  deviceId: string;
+  deviceName: string;
+  deviceType: string;
+  deviceMac: string;
+  status: string;
+  createdAt: string;
+  location: DeviceLocation;
+  model: string;
+  sensors: DeviceSensor[];
+  lastUpdate: string;
+  currentData: RealtimeData;
 }
 
-// Interfaz para configuración de telemetría
-export interface TelemetryConfig {
-  apiKey: string;
-  applicationKey: string;
-  updateInterval: number; // en milisegundos
-  units: {
-    temperature: 'celsius' | 'fahrenheit';
-    pressure: 'hpa' | 'inhg' | 'mmhg';
-    windSpeed: 'mps' | 'kmh' | 'knots' | 'mph' | 'bft' | 'fpm';
-    rainfall: 'mm' | 'in';
-    solar: 'lux' | 'fc' | 'wm2';
-    capacity: 'l' | 'm3' | 'gal';
+export interface DeviceCharacteristicsData {
+  deviceId: string;
+  deviceName: string;
+  deviceType: string;
+  deviceMac: string;
+  status: string;
+  createdAt: string;
+  ecowittInfo: DeviceCharacteristics;
+}
+
+// ============================================================================
+// REALTIME DATA TYPES
+// ============================================================================
+
+export interface RealtimeData {
+  temperature?: number;
+  humidity?: number;
+  pressure?: number;
+  windSpeed?: number;
+  windDirection?: number;
+  rainfall?: number;
+  uv?: number;
+  solarRadiation?: number;
+  tempf?: number;
+  humidity1?: number;
+  baromrelin?: number;
+  windspeedmph?: number;
+  winddir?: number;
+  rainin?: number;
+  uv1?: number;
+  solarradiation?: number;
+  [key: string]: any; // For additional sensor data
+}
+
+export interface RealtimeResponse {
+  deviceId: string;
+  deviceName: string;
+  timestamp: string;
+  data: RealtimeData;
+}
+
+// ============================================================================
+// HISTORICAL DATA TYPES
+// ============================================================================
+
+export type TimeRange = 
+  | 'one_hour'
+  | 'one_day' 
+  | 'one_week'
+  | 'one_month'
+  | 'three_months';
+
+export interface HistoricalDataPoint {
+  timestamp: string;
+  value: number;
+}
+
+export interface HistoricalData {
+  unit: string;
+  list: Record<string, string>;
+}
+
+export interface HistoricalResponse {
+  indoor?: {
+    temperature?: HistoricalData;
+    humidity?: HistoricalData;
+    pressure?: HistoricalData;
+    [key: string]: HistoricalData | undefined;
   };
+  outdoor?: {
+    temperature?: HistoricalData;
+    humidity?: HistoricalData;
+    pressure?: HistoricalData;
+    windSpeed?: HistoricalData;
+    windDirection?: HistoricalData;
+    rainfall?: HistoricalData;
+    uv?: HistoricalData;
+    solarRadiation?: HistoricalData;
+    [key: string]: HistoricalData | undefined;
+  };
+  [key: string]: any;
 }
 
-// Interfaz para alertas
+// ============================================================================
+// WEATHER API TYPES
+// ============================================================================
+
+export interface WeatherData {
+  lat: number;
+  lon: number;
+  timezone: string;
+  timezone_offset: number;
+  current: {
+    dt: number;
+    sunrise: number;
+    sunset: number;
+    temp: number;
+    feels_like: number;
+    pressure: number;
+    humidity: number;
+    dew_point: number;
+    uvi: number;
+    clouds: number;
+    visibility: number;
+    wind_speed: number;
+    wind_deg: number;
+    weather: WeatherCondition[];
+  };
+  minutely?: WeatherMinutely[];
+  hourly?: WeatherHourly[];
+  daily?: WeatherDaily[];
+  alerts?: WeatherAlert[];
+}
+
+export interface WeatherCondition {
+  id: number;
+  main: string;
+  description: string;
+  icon: string;
+}
+
+export interface WeatherMinutely {
+  dt: number;
+  precipitation: number;
+}
+
+export interface WeatherHourly {
+  dt: number;
+  temp: number;
+  feels_like: number;
+  pressure: number;
+  humidity: number;
+  dew_point: number;
+  uvi: number;
+  clouds: number;
+  visibility: number;
+  wind_speed: number;
+  wind_deg: number;
+  weather: WeatherCondition[];
+  pop: number;
+}
+
+export interface WeatherDaily {
+  dt: number;
+  sunrise: number;
+  sunset: number;
+  moonrise: number;
+  moonset: number;
+  moon_phase: number;
+  temp: {
+    day: number;
+    min: number;
+    max: number;
+    night: number;
+    eve: number;
+    morn: number;
+  };
+  feels_like: {
+    day: number;
+    night: number;
+    eve: number;
+    morn: number;
+  };
+  pressure: number;
+  humidity: number;
+  dew_point: number;
+  wind_speed: number;
+  wind_deg: number;
+  weather: WeatherCondition[];
+  clouds: number;
+  pop: number;
+  rain?: number;
+  snow?: number;
+  uvi: number;
+}
+
+export interface WeatherAlert {
+  sender_name: string;
+  event: string;
+  start: number;
+  end: number;
+  description: string;
+  tags: string[];
+}
+
+// ============================================================================
+// GROUP MANAGEMENT TYPES
+// ============================================================================
+
+export interface Group {
+  GroupID: string;
+  GroupName: string;
+  UserID: string;
+  Description?: string;
+  deviceIds: string[];
+  createdAt: string;
+  status: 'active' | 'inactive';
+}
+
+export interface GroupCreation {
+  GroupName: string;
+  UserID: string;
+  Description?: string;
+  deviceIds: string[];
+}
+
+// ============================================================================
+// API RESPONSE TYPES
+// ============================================================================
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  error?: string | string[];
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  count: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+}
+
+// ============================================================================
+// TELEMETRY STATE TYPES
+// ============================================================================
+
+export interface TelemetryState {
+  devices: DeviceInfo[];
+  selectedDevice: DeviceInfo | null;
+  realtimeData: RealtimeData | null;
+  historicalData: HistoricalResponse | null;
+  weatherData: WeatherData | null;
+  deviceInfo: DeviceInfoData | null;
+  deviceCharacteristics: DeviceCharacteristicsData | null;
+  groups: Group[];
+  selectedGroup: Group | null;
+  loading: boolean;
+  error: string | null;
+  polling: boolean;
+  lastUpdate: string | null;
+}
+
+export interface TelemetryFilters {
+  deviceType?: string;
+  userId?: string;
+  timeRange?: TimeRange;
+  includeHistory?: boolean;
+}
+
+// ============================================================================
+// CHART DATA TYPES
+// ============================================================================
+
+export interface ChartDataPoint {
+  x: string;
+  y: number;
+}
+
+export interface ChartDataset {
+  label: string;
+  data: ChartDataPoint[];
+  borderColor: string;
+  backgroundColor: string;
+  tension: number;
+}
+
+export interface ChartConfig {
+  type: 'line' | 'bar' | 'doughnut';
+  data: {
+    labels: string[];
+    datasets: ChartDataset[];
+  };
+  options: any;
+}
+
+// ============================================================================
+// ALERT TYPES
+// ============================================================================
+
 export interface TelemetryAlert {
   id: string;
   deviceId: string;
-  sensorId: string;
-  type: 'threshold' | 'offline' | 'error';
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  deviceName?: string;
+  type: 'temperature' | 'humidity' | 'pressure' | 'wind' | 'rain' | 'uv';
+  severity: 'critical' | 'warning' | 'info';
+  title: string;
   message: string;
-  timestamp: Date;
+  value: number;
+  threshold: number;
+  timestamp: string;
   acknowledged: boolean;
-  value?: number;
-  threshold?: number;
+  data?: Record<string, any>;
 }
 
-// Interfaz para estadísticas
-export interface TelemetryStats {
-  totalReadings: number;
-  averageResponseTime: number;
-  errorRate: number;
-  last24Hours: {
-    readings: number;
-    errors: number;
-    alerts: number;
+// ============================================================================
+// UTILITY TYPES
+// ============================================================================
+
+export type SensorType = 
+  | 'temperature'
+  | 'humidity' 
+  | 'pressure'
+  | 'windSpeed'
+  | 'windDirection'
+  | 'rainfall'
+  | 'uv'
+  | 'solarRadiation';
+
+export interface SensorConfig {
+  name: SensorType;
+  displayName: string;
+  unit: string;
+  icon: string;
+  color: string;
+  minValue?: number;
+  maxValue?: number;
+  thresholds?: {
+    low: number;
+    medium: number;
+    high: number;
+    critical: number;
   };
 }
 
-// Estados de carga
-export enum LoadingState {
-  IDLE = 'idle',
-  LOADING = 'loading',
-  SUCCESS = 'success',
-  ERROR = 'error'
-}
-
-// Interfaz para el estado de telemetría
-export interface TelemetryState {
-  data: TelemetryData | null;
-  config: TelemetryConfig;
-  alerts: TelemetryAlert[];
-  stats: TelemetryStats;
-  loadingState: LoadingState;
-  error: string | null;
-  lastUpdate: Date | null;
+export interface TelemetryStats {
+  totalDevices: number;
+  activeDevices: number;
+  totalGroups: number;
+  lastDataUpdate: string;
+  averageTemperature: number;
+  averageHumidity: number;
+  totalAlerts: number;
+  criticalAlerts: number;
 } 

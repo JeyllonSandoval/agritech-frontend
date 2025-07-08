@@ -1,164 +1,115 @@
-/**
- * Componente para controlar el monitoreo de telemetría
- */
+// ============================================================================
+// TELEMETRY CONTROLS
+// Component for telemetry control buttons and actions
+// ============================================================================
 
-import React, { useState } from 'react';
-import { 
-  PlayIcon, 
-  PauseIcon, 
-  ArrowPathIcon,
-  CogIcon,
-  SignalIcon
-} from '@heroicons/react/24/outline';
+import React from 'react';
+import { DeviceInfo } from '../../../types/telemetry';
 
 interface TelemetryControlsProps {
-  isRunning: boolean;
-  onStart: () => void;
-  onStop: () => void;
+  polling: boolean;
+  loading: boolean;
   onRefresh: () => void;
-  onSettings?: () => void;
-  lastUpdate?: Date;
-  updateInterval?: number;
-  className?: string;
+  onTogglePolling: () => void;
+  onShowDeviceInfo?: () => void;
+  selectedDevice?: DeviceInfo | null;
 }
 
-export default function TelemetryControls({
-  isRunning,
-  onStart,
-  onStop,
+const TelemetryControls: React.FC<TelemetryControlsProps> = ({
+  polling,
+  loading,
   onRefresh,
-  onSettings,
-  lastUpdate,
-  updateInterval = 30000,
-  className = ''
-}: TelemetryControlsProps) {
-  const [showIntervalInfo, setShowIntervalInfo] = useState(false);
-
-  // Función para formatear la fecha
-  const formatDate = (date: Date) => {
-    return date.toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
-  };
-
-  // Función para formatear el intervalo
-  const formatInterval = (ms: number) => {
-    const seconds = Math.round(ms / 1000);
-    if (seconds < 60) return `${seconds}s`;
-    const minutes = Math.round(seconds / 60);
-    return `${minutes}m`;
-  };
-
+  onTogglePolling,
+  onShowDeviceInfo,
+  selectedDevice
+}) => {
   return (
-    <div className={`bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 ${className}`}>
-      <div className="flex items-center justify-between flex-col md:flex-row gap-4">
-        {/* Estado del monitoreo */}
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center">
-            <div className={`w-3 h-3 rounded-full mr-2 ${
-              isRunning ? 'bg-emerald-400 animate-pulse' : 'bg-gray-400'
-            }`}></div>
-            <span className="text-white font-medium text-lg">
-              {isRunning ? 'Monitoreando' : 'Detenido'}
-            </span>
-          </div>
+    <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
+      <h2 className="text-lg md:text-xl font-semibold text-white mb-4 flex items-center gap-2">
+        <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        Controles
+      </h2>
+      
+      <div className="space-y-3">
+        {/* Refresh Button */}
+        <button
+          onClick={onRefresh}
+          disabled={loading}
+          className="w-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-all duration-300 rounded-lg px-4 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span className="font-medium text-sm">
+            {loading ? 'Actualizando...' : 'Actualizar Datos'}
+          </span>
+        </button>
 
-          {/* Información de intervalo */}
-          <div 
-            className="relative"
-            onMouseEnter={() => setShowIntervalInfo(true)}
-            onMouseLeave={() => setShowIntervalInfo(false)}
-          >
-            <div className="flex items-center text-lg text-white/60 cursor-help">
-              <SignalIcon className="w-4 h-4 mr-1" />
-              Intervalo: {formatInterval(updateInterval)}
-            </div>
-            
-            {/* Tooltip de información */}
-            {showIntervalInfo && (
-              <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-black/90 text-white text-xs rounded-lg whitespace-nowrap z-10">
-                Actualización cada {formatInterval(updateInterval)}
-                <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/90"></div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Controles */}
-        <div className="flex items-center space-x-2">
-          {/* Botón de configuración */}
-          {onSettings && (
-            <button
-              onClick={onSettings}
-              className="p-2 text-lg text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors duration-200"
-              title="Configuración"
-            >
-              <CogIcon className="w-5 h-5" />
-            </button>
+        {/* Polling Toggle */}
+        <button
+          onClick={onTogglePolling}
+          disabled={loading}
+          className={`w-full border transition-all duration-300 rounded-lg px-4 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+            polling
+              ? 'bg-red-500/20 border-red-500/30 text-red-400 hover:bg-red-500/30'
+              : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30'
+          }`}
+        >
+          {polling ? (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           )}
+          <span className="font-medium text-sm">
+            {polling ? 'Pausar Actualización' : 'Iniciar Actualización'}
+          </span>
+        </button>
 
-          {/* Botón de refrescar */}
+        {/* Device Info Button */}
+        {selectedDevice && onShowDeviceInfo && (
           <button
-            onClick={onRefresh}
-            className="p-2 text-lg text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors duration-200"
-            title="Refrescar datos"
+            onClick={onShowDeviceInfo}
+            disabled={loading}
+            className="w-full bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-all duration-300 rounded-lg px-4 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <ArrowPathIcon className="w-5 h-5" />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="font-medium text-sm">Información del Dispositivo</span>
           </button>
+        )}
 
-          {/* Botón de play/pause */}
-          <button
-            onClick={isRunning ? onStop : onStart}
-            className={`px-4 py-2 text-lg rounded-lg font-medium transition-all duration-200 ${
-              isRunning
-                ? 'bg-red-500/20 text-red-400 border border-red-400/30 hover:bg-red-500/30'
-                : 'bg-emerald-500/20 text-emerald-400 border border-emerald-400/30 hover:bg-emerald-500/30'
-            }`}
-            title={isRunning ? 'Detener monitoreo' : 'Iniciar monitoreo'}
-          >
-            <div className="flex items-center">
-              {isRunning ? (
-                <>
-                  <PauseIcon className="w-4 h-4 mr-2" />
-                  Detener
-                </>
-              ) : (
-                <>
-                  <PlayIcon className="w-4 h-4 mr-2" />
-                  Iniciar
-                </>
-              )}
+        {/* Status Indicator */}
+        <div className="bg-white/10 border border-white/20 rounded-lg p-3 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-white/70">Estado:</span>
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${
+                polling ? 'bg-emerald-400 animate-pulse' : 'bg-gray-500'
+              }`} />
+              <span className={`text-sm ${
+                polling ? 'text-emerald-400' : 'text-gray-400'
+              }`}>
+                {polling ? 'Activo' : 'Inactivo'}
+              </span>
             </div>
-          </button>
-        </div>
-      </div>
-
-      {/* Información de última actualización */}
-      {lastUpdate && (
-        <div className="mt-4 pt-4 border-t border-white/10">
-          <div className="flex items-center justify-between text-lg">
-            <span className="text-white/60">Última actualización:</span>
-            <span className="text-white font-mono">
-              {formatDate(lastUpdate)}
-            </span>
           </div>
         </div>
-      )}
 
-      {/* Indicador de estado */}
-      <div className="mt-3">
-          <div className="flex items-center justify-between text-lg text-white/40">
-          <span>Estado del sistema</span>
-          <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${
-              isRunning ? 'bg-emerald-400' : 'bg-gray-400'
-            }`}></div>
-            <span>{isRunning ? 'Activo' : 'Inactivo'}</span>
-          </div>
+        {/* Info */}
+        <div className="text-xs text-white/50 text-center">
+          Los datos se actualizan automáticamente cada 30 segundos cuando está activo
         </div>
       </div>
     </div>
   );
-} 
+};
+
+export default TelemetryControls; 

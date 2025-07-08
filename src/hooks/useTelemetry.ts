@@ -1,384 +1,515 @@
-/**
- * Hook personalizado para manejar datos de telemetría en tiempo real
- */
+// ============================================================================
+// TELEMETRY HOOK
+// React hook for managing telemetry state and API calls
+// ============================================================================
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { 
-  TelemetryData, 
-  Device, 
-  Sensor, 
-  SensorStatus, 
-  SensorType, 
-  LoadingState,
-  TelemetryConfig,
-  TelemetryAlert,
-  TelemetryStats
-} from '@/types/telemetry';
-import { getTelemetryService } from '@/services/telemetryService';
-import { getMockTelemetryService } from '@/services/mockTelemetryService';
-import { RealtimeResponse } from '@/types/telemetry';
+import { telemetryService } from '../services/telemetryService';
+import {
+  DeviceInfo,
+  RealtimeData,
+  HistoricalResponse,
+  WeatherData,
+  DeviceInfoData,
+  DeviceCharacteristicsData,
+  Group,
+  TimeRange,
+  TelemetryState,
+  TelemetryFilters,
+  TelemetryStats,
+  TelemetryAlert
+} from '../types/telemetry';
 
 interface UseTelemetryOptions {
-  devices: string[]; // MAC addresses de los dispositivos
-  updateInterval?: number; // Intervalo de actualización en ms
-  autoStart?: boolean; // Si debe empezar automáticamente
-  useMock?: boolean; // Si debe usar el servicio mock
-  onError?: (error: string) => void;
-  onDataUpdate?: (data: TelemetryData) => void;
+  autoPoll?: boolean;
+  pollInterval?: number;
+  userId?: string;
+  deviceType?: string;
 }
 
-interface UseTelemetryReturn {
-  data: TelemetryData | null;
-  loadingState: LoadingState;
-  error: string | null;
-  isRunning: boolean;
-  stats: TelemetryStats;
-  alerts: TelemetryAlert[];
-  startMonitoring: () => void;
-  stopMonitoring: () => void;
-  refreshData: () => Promise<void>;
-  acknowledgeAlert: (alertId: string) => void;
-  clearError: () => void;
-}
+const DEFAULT_POLL_INTERVAL = 30000; // 30 seconds
 
-export function useTelemetry(options: UseTelemetryOptions): UseTelemetryReturn {
+export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   const {
-    devices,
-    updateInterval = 30000, // 30 segundos por defecto
-    autoStart = true,
-    useMock = false,
-    onError,
-    onDataUpdate
+    autoPoll = true,
+    pollInterval = DEFAULT_POLL_INTERVAL,
+    userId,
+    deviceType
   } = options;
 
-  // Estados
-  const [data, setData] = useState<TelemetryData | null>(null);
-  const [loadingState, setLoadingState] = useState<LoadingState>(LoadingState.IDLE);
-  const [error, setError] = useState<string | null>(null);
-  const [isRunning, setIsRunning] = useState(false);
-  const [alerts, setAlerts] = useState<TelemetryAlert[]>([]);
-  const [stats, setStats] = useState<TelemetryStats>({
-    totalReadings: 0,
-    averageResponseTime: 0,
-    errorRate: 0,
-    last24Hours: {
-      readings: 0,
-      errors: 0,
-      alerts: 0
-    }
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  const [state, setState] = useState<TelemetryState>({
+    devices: [],
+    selectedDevice: null,
+    realtimeData: null,
+    historicalData: null,
+    weatherData: null,
+    deviceInfo: null,
+    deviceCharacteristics: null,
+    groups: [],
+    selectedGroup: null,
+    loading: false,
+    error: null,
+    polling: false,
+    lastUpdate: null
   });
 
-  // Refs
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [stats, setStats] = useState<TelemetryStats>({
+    totalDevices: 0,
+    activeDevices: 0,
+    totalGroups: 0,
+    lastDataUpdate: '',
+    averageTemperature: 0,
+    averageHumidity: 0,
+    totalAlerts: 0,
+    criticalAlerts: 0
+  });
+
+  const [alerts, setAlerts] = useState<TelemetryAlert[]>([]);
+
+  // ============================================================================
+  // REFS FOR POLLING
+  // ============================================================================
+
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const lastUpdateRef = useRef<Date | null>(null);
 
-  // Función para procesar datos de sensores
-  const processSensorData = useCallback((realtimeData: RealtimeResponse): Sensor[] => {
-    const sensors: Sensor[] = [];
-    const data = realtimeData.data;
+  // ============================================================================
+  // UTILITY FUNCTIONS
+  // ============================================================================
 
-    // Procesar temperatura exterior
-    if (data.outdoor?.temperature) {
-      sensors.push({
-        id: 'outdoor_temperature',
-        name: 'Temperatura Exterior',
-        type: SensorType.TEMPERATURE,
-        status: SensorStatus.ONLINE,
-        value: parseFloat(data.outdoor.temperature),
-        unit: '°C',
-        lastUpdate: new Date(),
-        location: 'Exterior'
-      });
-    }
-
-    // Procesar humedad exterior
-    if (data.outdoor?.humidity) {
-      sensors.push({
-        id: 'outdoor_humidity',
-        name: 'Humedad Exterior',
-        type: SensorType.HUMIDITY,
-        status: SensorStatus.ONLINE,
-        value: parseFloat(data.outdoor.humidity),
-        unit: '%',
-        lastUpdate: new Date(),
-        location: 'Exterior'
-      });
-    }
-
-    // Procesar temperatura interior
-    if (data.indoor?.temperature) {
-      sensors.push({
-        id: 'indoor_temperature',
-        name: 'Temperatura Interior',
-        type: SensorType.TEMPERATURE,
-        status: SensorStatus.ONLINE,
-        value: parseFloat(data.indoor.temperature),
-        unit: '°C',
-        lastUpdate: new Date(),
-        location: 'Interior'
-      });
-    }
-
-    // Procesar humedad interior
-    if (data.indoor?.humidity) {
-      sensors.push({
-        id: 'indoor_humidity',
-        name: 'Humedad Interior',
-        type: SensorType.HUMIDITY,
-        status: SensorStatus.ONLINE,
-        value: parseFloat(data.indoor.humidity),
-        unit: '%',
-        lastUpdate: new Date(),
-        location: 'Interior'
-      });
-    }
-
-    // Procesar presión
-    if (data.pressure?.relative) {
-      sensors.push({
-        id: 'pressure',
-        name: 'Presión Atmosférica',
-        type: SensorType.PRESSURE,
-        status: SensorStatus.ONLINE,
-        value: parseFloat(data.pressure.relative),
-        unit: 'hPa',
-        lastUpdate: new Date(),
-        location: 'Exterior'
-      });
-    }
-
-    // Procesar viento
-    if (data.wind?.wind_speed) {
-      sensors.push({
-        id: 'wind_speed',
-        name: 'Velocidad del Viento',
-        type: SensorType.WIND,
-        status: SensorStatus.ONLINE,
-        value: parseFloat(data.wind.wind_speed),
-        unit: 'km/h',
-        lastUpdate: new Date(),
-        location: 'Exterior'
-      });
-    }
-
-    // Procesar lluvia
-    if (data.rainfall?.rain_rate) {
-      sensors.push({
-        id: 'rain_rate',
-        name: 'Intensidad de Lluvia',
-        type: SensorType.RAINFALL,
-        status: SensorStatus.ONLINE,
-        value: parseFloat(data.rainfall.rain_rate),
-        unit: 'mm/h',
-        lastUpdate: new Date(),
-        location: 'Exterior'
-      });
-    }
-
-    // Procesar sensores de suelo
-    for (let i = 1; i <= 16; i++) {
-      const soilKey = `soil_ch${i}` as keyof typeof data;
-      const soilData = data[soilKey];
-      
-      if (soilData?.soilmoisture) {
-        sensors.push({
-          id: `soil_moisture_${i}`,
-          name: `Humedad del Suelo ${i}`,
-          type: SensorType.SOIL,
-          status: SensorStatus.ONLINE,
-          value: parseFloat(soilData.soilmoisture),
-          unit: '%',
-          lastUpdate: new Date(),
-          location: `Suelo ${i}`
-        });
-      }
-    }
-
-    // Procesar sensores de temperatura adicionales
-    for (let i = 1; i <= 8; i++) {
-      const tempKey = `temp_ch${i}` as keyof typeof data;
-      const tempData = data[tempKey];
-      
-      if (tempData?.temperature) {
-        sensors.push({
-          id: `temperature_${i}`,
-          name: `Temperatura ${i}`,
-          type: SensorType.TEMPERATURE,
-          status: SensorStatus.ONLINE,
-          value: parseFloat(tempData.temperature),
-          unit: '°C',
-          lastUpdate: new Date(),
-          location: `Sensor ${i}`
-        });
-      }
-    }
-
-    return sensors;
+  const updateState = useCallback((updates: Partial<TelemetryState>) => {
+    setState(prev => ({ ...prev, ...updates }));
   }, []);
 
-  // Función para obtener datos de telemetría
-  const fetchTelemetryData = useCallback(async (): Promise<TelemetryData> => {
-    const startTime = Date.now();
-    const telemetryService = useMock ? getMockTelemetryService() : getTelemetryService();
+  const setLoading = useCallback((loading: boolean) => {
+    updateState({ loading, error: loading ? null : state.error });
+  }, [updateState, state.error]);
 
-    try {
-      // Obtener datos en tiempo real de todos los dispositivos
-      const realtimeResponses = await telemetryService.getMultipleDevicesRealtimeData(devices);
-      
-      // Procesar cada dispositivo
-      const processedDevices: Device[] = realtimeResponses.map((response, index) => {
-        const mac = devices[index];
-        const sensors = processSensorData(response);
-        
-        return {
-          id: mac,
-          name: `Dispositivo ${mac.slice(-6)}`, // Usar los últimos 6 caracteres del MAC
-          mac,
-          status: response.code === 0 ? SensorStatus.ONLINE : SensorStatus.OFFLINE,
-          sensors,
-          lastUpdate: new Date(),
-          location: 'Campo Principal'
-        };
-      });
+  const setError = useCallback((error: string | null) => {
+    updateState({ error, loading: false });
+  }, [updateState]);
 
-      const totalDevices = processedDevices.length;
-      const onlineDevices = processedDevices.filter(d => d.status === SensorStatus.ONLINE).length;
-      const offlineDevices = totalDevices - onlineDevices;
-
-      const telemetryData: TelemetryData = {
-        devices: processedDevices,
-        timestamp: new Date(),
-        totalDevices,
-        onlineDevices,
-        offlineDevices
-      };
-
-      // Actualizar estadísticas
-      const responseTime = Date.now() - startTime;
-      setStats(prev => ({
-        ...prev,
-        totalReadings: prev.totalReadings + 1,
-        averageResponseTime: (prev.averageResponseTime + responseTime) / 2,
-        last24Hours: {
-          ...prev.last24Hours,
-          readings: prev.last24Hours.readings + 1
-        }
-      }));
-
-      return telemetryData;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      setError(errorMessage);
-      onError?.(errorMessage);
-      
-      // Actualizar estadísticas de error
-      setStats(prev => ({
-        ...prev,
-        errorRate: (prev.errorRate + 1) / 2,
-        last24Hours: {
-          ...prev.last24Hours,
-          errors: prev.last24Hours.errors + 1
-        }
-      }));
-
-      throw error;
-    }
-  }, [devices, processSensorData, onError]);
-
-  // Función para refrescar datos
-  const refreshData = useCallback(async () => {
-    if (loadingState === LoadingState.LOADING) return;
-
-    setLoadingState(LoadingState.LOADING);
-    setError(null);
-
-    try {
-      const telemetryData = await fetchTelemetryData();
-      setData(telemetryData);
-      setLoadingState(LoadingState.SUCCESS);
-      lastUpdateRef.current = new Date();
-      onDataUpdate?.(telemetryData);
-    } catch (error) {
-      setLoadingState(LoadingState.ERROR);
-    }
-  }, [fetchTelemetryData, loadingState, onDataUpdate]);
-
-  // Función para iniciar monitoreo
-  const startMonitoring = useCallback(() => {
-    if (isRunning) return;
-
-    setIsRunning(true);
-    abortControllerRef.current = new AbortController();
-
-    // Primera carga
-    refreshData();
-
-    // Configurar intervalo
-    intervalRef.current = setInterval(() => {
-      if (abortControllerRef.current?.signal.aborted) return;
-      refreshData();
-    }, updateInterval);
-  }, [isRunning, refreshData, updateInterval]);
-
-  // Función para detener monitoreo
-  const stopMonitoring = useCallback(() => {
-    setIsRunning(false);
-    
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
-  }, []);
-
-  // Función para reconocer alerta
-  const acknowledgeAlert = useCallback((alertId: string) => {
-    setAlerts(prev => prev.map(alert => 
-      alert.id === alertId 
-        ? { ...alert, acknowledged: true }
-        : alert
-    ));
-  }, []);
-
-  // Función para limpiar error
   const clearError = useCallback(() => {
     setError(null);
+  }, [setError]);
+
+  // ============================================================================
+  // DEVICE MANAGEMENT
+  // ============================================================================
+
+  const fetchDevices = useCallback(async (filters?: TelemetryFilters) => {
+    try {
+      setLoading(true);
+      const filtersWithUser: TelemetryFilters = {
+        ...filters,
+        userId: userId || filters?.userId,
+        deviceType: deviceType || filters?.deviceType
+      };
+
+      const response = await telemetryService.getDevices(filtersWithUser);
+      
+      if (response.success && response.data) {
+        updateState({ 
+          devices: response.data,
+          error: null 
+        });
+        
+        // Update stats
+        setStats(prev => ({
+          ...prev,
+          totalDevices: response.data!.length,
+          activeDevices: response.data!.filter(d => d.status === 'active').length
+        }));
+      } else {
+        setError(
+          Array.isArray(response.error)
+            ? response.error.join('; ')
+            : response.error || 'Failed to fetch devices'
+        );
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, deviceType, setLoading, setError, updateState]);
+
+  const selectDevice = useCallback((device: DeviceInfo | null) => {
+    updateState({ selectedDevice: device });
+    
+    if (device) {
+      // Fetch device info and realtime data when selecting a device
+      fetchDeviceInfo(device.DeviceID);
+      fetchRealtimeData(device.DeviceID);
+    } else {
+      // Clear device-specific data when deselecting
+      updateState({
+        deviceInfo: null,
+        deviceCharacteristics: null,
+        realtimeData: null,
+        historicalData: null,
+        weatherData: null
+      });
+    }
+  }, [updateState]);
+
+  const fetchDeviceInfo = useCallback(async (deviceId: string) => {
+    try {
+      setLoading(true);
+      const response = await telemetryService.getDeviceInfo(deviceId);
+      
+      if (response.success && response.data) {
+        updateState({ 
+          deviceInfo: response.data,
+          error: null 
+        });
+        
+        // Fetch weather data for the device location
+        if (response.data.location) {
+          fetchWeatherData(response.data.location.latitude, response.data.location.longitude);
+        }
+      } else {
+        setError(
+          Array.isArray(response.error)
+            ? response.error.join('; ')
+            : response.error || 'Failed to fetch device info'
+        );
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  }, [setLoading, setError, updateState]);
+
+  const fetchDeviceCharacteristics = useCallback(async (deviceId: string) => {
+    try {
+      setLoading(true);
+      const response = await telemetryService.getDeviceCharacteristics(deviceId);
+      
+      if (response.success && response.data) {
+        updateState({ 
+          deviceCharacteristics: response.data,
+          error: null 
+        });
+      } else {
+        setError(
+          Array.isArray(response.error)
+            ? response.error.join('; ')
+            : response.error || 'Failed to fetch device characteristics'
+        );
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  }, [setLoading, setError, updateState]);
+
+  // ============================================================================
+  // REALTIME DATA
+  // ============================================================================
+
+  const fetchRealtimeData = useCallback(async (deviceId: string) => {
+    try {
+      const response = await telemetryService.getRealtimeData(deviceId);
+      
+      if (response.success && response.data) {
+        updateState({ 
+          realtimeData: response.data,
+          lastUpdate: new Date().toISOString(),
+          error: null 
+        });
+        
+        // Check for alerts based on realtime data
+        checkAlerts(deviceId, response.data);
+      } else {
+        setError(
+          Array.isArray(response.error)
+            ? response.error.join('; ')
+            : response.error || 'Failed to fetch realtime data'
+        );
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error');
+    }
+  }, [setError, updateState]);
+
+  const startPolling = useCallback(() => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+    }
+
+    if (autoPoll && state.selectedDevice) {
+      updateState({ polling: true });
+      
+      pollingRef.current = setInterval(() => {
+        if (state.selectedDevice) {
+          fetchRealtimeData(state.selectedDevice.DeviceID);
+        }
+      }, pollInterval);
+    }
+  }, [autoPoll, state.selectedDevice, pollInterval, updateState, fetchRealtimeData]);
+
+  const stopPolling = useCallback(() => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+    updateState({ polling: false });
+  }, [updateState]);
+
+  // ============================================================================
+  // HISTORICAL DATA
+  // ============================================================================
+
+  const fetchHistoricalData = useCallback(async (
+    deviceId: string, 
+    startTime: string, 
+    endTime: string
+  ) => {
+    try {
+      setLoading(true);
+      const response = await telemetryService.getHistoricalData(deviceId, startTime, endTime);
+      
+      if (response.success && response.data) {
+        updateState({ 
+          historicalData: response.data,
+          error: null 
+        });
+      } else {
+        setError(
+          Array.isArray(response.error)
+            ? response.error.join('; ')
+            : response.error || 'Failed to fetch historical data'
+        );
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  }, [setLoading, setError, updateState]);
+
+  // ============================================================================
+  // WEATHER DATA
+  // ============================================================================
+
+  const fetchWeatherData = useCallback(async (lat: number, lon: number) => {
+    try {
+      const response = await telemetryService.getCurrentWeather(lat, lon);
+      
+      if (response.success && response.data) {
+        updateState({ 
+          weatherData: response.data,
+          error: null 
+        });
+      } else {
+        setError(
+          Array.isArray(response.error)
+            ? response.error.join('; ')
+            : response.error || 'Failed to fetch weather data'
+        );
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error');
+    }
+  }, [setError, updateState]);
+
+  // ============================================================================
+  // GROUP MANAGEMENT
+  // ============================================================================
+
+  const fetchGroups = useCallback(async () => {
+    if (!userId) return;
+
+    try {
+      setLoading(true);
+      const response = await telemetryService.getUserGroups(userId);
+      
+      if (response.success && response.data) {
+        updateState({ 
+          groups: response.data,
+          error: null 
+        });
+        
+        // Update stats
+        setStats(prev => ({
+          ...prev,
+          totalGroups: response.data!.length
+        }));
+      } else {
+        setError(
+          Array.isArray(response.error)
+            ? response.error.join('; ')
+            : response.error || 'Failed to fetch groups'
+        );
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, setLoading, setError, updateState]);
+
+  const selectGroup = useCallback((group: Group | null) => {
+    updateState({ selectedGroup: group });
+  }, [updateState]);
+
+  // ============================================================================
+  // ALERTS MANAGEMENT
+  // ============================================================================
+
+  const checkAlerts = useCallback((deviceId: string, data: RealtimeData) => {
+    const newAlerts: TelemetryAlert[] = [];
+    
+    // Temperature alerts
+    if (data.temperature !== undefined) {
+      if (data.temperature > 35) {
+        newAlerts.push({
+          id: `temp-${Date.now()}`,
+          deviceId,
+          type: 'temperature',
+          severity: 'critical',
+          message: `Temperature is critically high: ${data.temperature}°C`,
+          value: data.temperature,
+          threshold: 35,
+          timestamp: new Date().toISOString(),
+          acknowledged: false
+        });
+      } else if (data.temperature > 30) {
+        newAlerts.push({
+          id: `temp-${Date.now()}`,
+          deviceId,
+          type: 'temperature',
+          severity: 'high',
+          message: `Temperature is high: ${data.temperature}°C`,
+          value: data.temperature,
+          threshold: 30,
+          timestamp: new Date().toISOString(),
+          acknowledged: false
+        });
+      }
+    }
+
+    // Humidity alerts
+    if (data.humidity !== undefined) {
+      if (data.humidity < 20) {
+        newAlerts.push({
+          id: `humidity-${Date.now()}`,
+          deviceId,
+          type: 'humidity',
+          severity: 'high',
+          message: `Humidity is very low: ${data.humidity}%`,
+          value: data.humidity,
+          threshold: 20,
+          timestamp: new Date().toISOString(),
+          acknowledged: false
+        });
+      }
+    }
+
+    // Add new alerts
+    if (newAlerts.length > 0) {
+      setAlerts(prev => [...prev, ...newAlerts]);
+      
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        totalAlerts: prev.totalAlerts + newAlerts.length,
+        criticalAlerts: prev.criticalAlerts + newAlerts.filter(a => a.severity === 'critical').length
+      }));
+    }
   }, []);
 
-  // Efecto para iniciar automáticamente
+  const acknowledgeAlert = useCallback((alertId: string) => {
+    setAlerts(prev => 
+      prev.map(alert => 
+        alert.id === alertId 
+          ? { ...alert, acknowledged: true }
+          : alert
+      )
+    );
+  }, []);
+
+  const clearAlerts = useCallback(() => {
+    setAlerts([]);
+    setStats(prev => ({
+      ...prev,
+      totalAlerts: 0,
+      criticalAlerts: 0
+    }));
+  }, []);
+
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
+
+  // Initialize data fetching
   useEffect(() => {
-    if (autoStart && devices.length > 0) {
-      startMonitoring();
+    fetchDevices();
+    if (userId) {
+      fetchGroups();
+    }
+  }, [fetchDevices, fetchGroups, userId]);
+
+  // Start/stop polling based on autoPoll setting
+  useEffect(() => {
+    if (autoPoll) {
+      startPolling();
+    } else {
+      stopPolling();
     }
 
     return () => {
-      stopMonitoring();
+      stopPolling();
     };
-  }, [autoStart, devices, startMonitoring, stopMonitoring]);
+  }, [autoPoll, startPolling, stopPolling]);
 
-  // Efecto para limpiar al desmontar
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      stopMonitoring();
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+      }
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
     };
-  }, [stopMonitoring]);
+  }, []);
+
+  // ============================================================================
+  // RETURN VALUES
+  // ============================================================================
 
   return {
-    data,
-    loadingState,
-    error,
-    isRunning,
+    // State
+    ...state,
     stats,
     alerts,
-    startMonitoring,
-    stopMonitoring,
-    refreshData,
+    
+    // Actions
+    fetchDevices,
+    selectDevice,
+    fetchDeviceInfo,
+    fetchDeviceCharacteristics,
+    fetchRealtimeData,
+    fetchHistoricalData,
+    fetchWeatherData,
+    fetchGroups,
+    selectGroup,
+    startPolling,
+    stopPolling,
     acknowledgeAlert,
-    clearError
+    clearAlerts,
+    clearError,
+    setLoading,
+    setError
   };
-} 
+};
+
+export default useTelemetry; 
