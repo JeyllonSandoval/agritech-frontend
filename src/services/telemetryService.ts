@@ -18,14 +18,13 @@ import {
   PaginatedResponse,
   TelemetryFilters
 } from '../types/telemetry';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+import { API_CONFIG, buildApiUrl, getRequestConfig } from '../config/api';
 
 class TelemetryService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = API_BASE_URL;
+    this.baseURL = API_CONFIG.BASE_URL;
   }
 
   // ============================================================================
@@ -66,11 +65,19 @@ class TelemetryService {
       if (filters?.deviceType) params.append('deviceType', filters.deviceType);
       if (filters?.userId) params.append('userId', filters.userId);
 
-      const response = await fetch(`${this.baseURL}/devices?${params.toString()}`);
+      const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.DEVICES}?${params.toString()}`);
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
       const data = await response.json();
 
+      // Adaptar si la respuesta es un array directo
+      if (Array.isArray(data)) {
+        return { success: true, data };
+      }
+
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch devices');
+        throw new Error(data.error || API_CONFIG.ERROR_MESSAGES.SERVER_ERROR);
       }
 
       return data;
@@ -84,7 +91,13 @@ class TelemetryService {
    */
   async getDevice(deviceId: string): Promise<ApiResponse<DeviceInfo>> {
     try {
-      const response = await fetch(`${this.baseURL}/devices/${deviceId}`);
+      const response = await fetch(`${this.baseURL}/devices/${deviceId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -102,7 +115,13 @@ class TelemetryService {
    */
   async getDeviceInfo(deviceId: string): Promise<ApiResponse<DeviceInfoData>> {
     try {
-      const response = await fetch(`${this.baseURL}/devices/${deviceId}/info`);
+      const response = await fetch(`${this.baseURL}/devices/${deviceId}/info`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -120,7 +139,10 @@ class TelemetryService {
    */
   async getDeviceCharacteristics(deviceId: string): Promise<ApiResponse<DeviceCharacteristicsData>> {
     try {
-      const response = await fetch(`${this.baseURL}/devices/${deviceId}/characteristics`);
+      const url = buildApiUrl(API_CONFIG.ENDPOINTS.DEVICE_CHARACTERISTICS(deviceId));
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
       const data = await response.json();
 
       if (!response.ok) {
@@ -130,6 +152,69 @@ class TelemetryService {
       return data;
     } catch (error) {
       throw new Error(`Error fetching device characteristics: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Diagnose device status
+   */
+  async diagnoseDevice(deviceId: string): Promise<ApiResponse<any>> {
+    try {
+      const url = buildApiUrl(API_CONFIG.ENDPOINTS.DEVICE_DIAGNOSE(deviceId));
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to diagnose device');
+      }
+
+      return data;
+    } catch (error) {
+      throw new Error(`Error diagnosing device: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Test device connectivity
+   */
+  async testDevice(deviceId: string): Promise<ApiResponse<any>> {
+    try {
+      const url = buildApiUrl(API_CONFIG.ENDPOINTS.DEVICE_TEST(deviceId));
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to test device');
+      }
+
+      return data;
+    } catch (error) {
+      throw new Error(`Error testing device: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Get devices in a group
+   */
+  async getGroupDevices(groupId: string): Promise<ApiResponse<DeviceInfo[]>> {
+    try {
+      const url = buildApiUrl(API_CONFIG.ENDPOINTS.GROUP_DEVICES(groupId));
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch group devices');
+      }
+
+      return data;
+    } catch (error) {
+      throw new Error(`Error fetching group devices: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -188,7 +273,13 @@ class TelemetryService {
    */
   async getRealtimeData(deviceId: string): Promise<ApiResponse<RealtimeData>> {
     try {
-      const response = await fetch(`${this.baseURL}/devices/${deviceId}/realtime`);
+      const response = await fetch(`${this.baseURL}/devices/${deviceId}/realtime`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -209,7 +300,13 @@ class TelemetryService {
       const params = new URLSearchParams();
       params.append('deviceIds', deviceIds.join(','));
 
-      const response = await fetch(`${this.baseURL}/devices/realtime?${params.toString()}`);
+      const response = await fetch(`${this.baseURL}/devices/realtime?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -240,7 +337,13 @@ class TelemetryService {
         endTime,
       });
 
-      const response = await fetch(`${this.baseURL}/devices/${deviceId}/history?${params.toString()}`);
+      const response = await fetch(`${this.baseURL}/devices/${deviceId}/history?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -266,7 +369,13 @@ class TelemetryService {
         rangeType,
       });
 
-      const response = await fetch(`${this.baseURL}/devices/history?${params.toString()}`);
+      const response = await fetch(`${this.baseURL}/devices/history?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -295,7 +404,10 @@ class TelemetryService {
         lang,
       });
 
-      const response = await fetch(`${this.baseURL}/weather/current?${params.toString()}`);
+      const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.WEATHER_CURRENT}?${params.toString()}`);
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
       const data = await response.json();
 
       if (!response.ok) {
@@ -418,11 +530,19 @@ class TelemetryService {
    */
   async getUserGroups(userId: string): Promise<ApiResponse<Group[]>> {
     try {
-      const response = await fetch(`${this.baseURL}/users/${userId}/groups`);
+      const url = buildApiUrl(API_CONFIG.ENDPOINTS.USER_GROUPS(userId));
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
       const data = await response.json();
 
+      // Adaptar si la respuesta es un array directo
+      if (Array.isArray(data)) {
+        return { success: true, data };
+      }
+
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch groups');
+        throw new Error(data.error || API_CONFIG.ERROR_MESSAGES.SERVER_ERROR);
       }
 
       return data;
@@ -436,11 +556,14 @@ class TelemetryService {
    */
   async getGroup(groupId: string): Promise<ApiResponse<Group>> {
     try {
-      const response = await fetch(`${this.baseURL}/groups/${groupId}`);
+      const url = buildApiUrl(API_CONFIG.ENDPOINTS.GROUP_INFO(groupId));
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Group not found');
+        throw new Error(data.error || API_CONFIG.ERROR_MESSAGES.NOT_FOUND);
       }
 
       return data;
@@ -504,7 +627,10 @@ class TelemetryService {
         rangeType,
       });
 
-      const response = await fetch(`${this.baseURL}/groups/${groupId}/history?${params.toString()}`);
+      const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.GROUP_HISTORY(groupId)}?${params.toString()}`);
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
       const data = await response.json();
 
       if (!response.ok) {
@@ -522,7 +648,10 @@ class TelemetryService {
    */
   async getGroupRealtimeData(groupId: string): Promise<ApiResponse<Record<string, RealtimeData>>> {
     try {
-      const response = await fetch(`${this.baseURL}/groups/${groupId}/realtime`);
+      const url = buildApiUrl(API_CONFIG.ENDPOINTS.GROUP_REALTIME(groupId));
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
       const data = await response.json();
 
       if (!response.ok) {
@@ -544,7 +673,10 @@ class TelemetryService {
    */
   async testConnection(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseURL}/weather/test`);
+      const url = buildApiUrl(API_CONFIG.ENDPOINTS.WEATHER_TEST);
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
       return response.ok;
     } catch (error) {
       return false;

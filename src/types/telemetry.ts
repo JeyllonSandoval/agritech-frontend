@@ -261,12 +261,13 @@ export interface WeatherAlert {
 // ============================================================================
 
 export interface Group {
-  GroupID: string;
+  DeviceGroupID: string;
   GroupName: string;
   UserID: string;
   Description?: string;
-  deviceIds: string[];
+  deviceIds?: string[];
   createdAt: string;
+  updatedAt: string;
   status: 'active' | 'inactive';
 }
 
