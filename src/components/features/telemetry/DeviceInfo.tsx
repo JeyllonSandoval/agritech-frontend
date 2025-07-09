@@ -4,6 +4,7 @@
 // ============================================================================
 
 import React from 'react';
+import { useEffect } from 'react';
 import { DeviceInfo as DeviceInfoType, DeviceInfoData, DeviceCharacteristicsData } from '../../../types/telemetry';
 
 interface DeviceInfoProps {
@@ -21,6 +22,14 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({
   onClose,
   loading
 }) => {
+  // Prevenir scroll del body cuando el modal está abierto
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('es-ES', {
       year: 'numeric',
@@ -47,6 +56,10 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({
     );
   };
 
+  // DEBUG: Verifica qué llega realmente
+  console.log('DeviceInfo - deviceCharacteristics:', deviceCharacteristics);
+  console.log('DeviceInfo - deviceCharacteristics.ecowittInfo:', deviceCharacteristics?.ecowittInfo);
+
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -61,8 +74,14 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div 
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto scrollbar"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -98,12 +117,12 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-white/70 text-sm">Nombre:</span>
-                  <span className="text-white font-medium">{device.DeviceName}</span>
+                  <span className="text-white font-medium text-sm">{device.DeviceName}</span>
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <span className="text-white/70 text-sm">Tipo:</span>
-                  <span className="text-white font-medium">{device.DeviceType}</span>
+                  <span className="text-white font-medium text-sm">{device.DeviceType}</span>
                 </div>
                 
                 <div className="flex items-center justify-between">
@@ -115,7 +134,7 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({
                   <span className="text-white/70 text-sm">Estado:</span>
                   <div className="flex items-center gap-2">
                     {getStatusIcon(device.status)}
-                    <span className={`font-medium ${getStatusColor(device.status)}`}>
+                    <span className={`font-medium text-sm ${getStatusColor(device.status)}`}>
                       {device.status === 'active' ? 'Activo' : 'Inactivo'}
                     </span>
                   </div>
@@ -158,73 +177,69 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({
               </div>
             )}
 
-            {/* EcoWitt Characteristics */}
-            {deviceCharacteristics?.ecowittInfo && (
+            {/* EcoWitt Characteristics - SIEMPRE mostrar si existe data */}
+            {deviceCharacteristics?.ecowittInfo && deviceCharacteristics.ecowittInfo.data && (
               <div className="bg-white/10 border border-white/20 rounded-xl p-6 backdrop-blur-sm">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  Características EcoWitt
+                  Información EcoWitt
                 </h3>
                 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-white/70 text-sm">Modelo:</span>
-                    <span className="text-white font-medium">{deviceCharacteristics.ecowittInfo.model}</span>
+                    <span className="text-white/70 text-sm">ID EcoWitt:</span>
+                    <span className="text-white font-medium text-sm">{deviceCharacteristics.ecowittInfo.data.id}</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-white/70 text-sm">ID del Dispositivo:</span>
-                    <span className="text-white font-medium font-mono text-sm">{deviceCharacteristics.ecowittInfo.device_id}</span>
+                    <span className="text-white/70 text-sm">Nombre EcoWitt:</span>
+                    <span className="text-white font-medium text-sm">{deviceCharacteristics.ecowittInfo.data.name}</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-white/70 text-sm">País:</span>
-                    <span className="text-white font-medium">{deviceCharacteristics.ecowittInfo.country}</span>
+                    <span className="text-white/70 text-sm">MAC:</span>
+                    <span className="text-white font-medium font-mono text-sm">{deviceCharacteristics.ecowittInfo.data.mac}</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-white/70 text-sm">Ciudad:</span>
-                    <span className="text-white font-medium">{deviceCharacteristics.ecowittInfo.city}</span>
+                    <span className="text-white/70 text-sm">Tipo:</span>
+                    <span className="text-white font-medium text-sm">{deviceCharacteristics.ecowittInfo.data.type}</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70 text-sm">Estación:</span>
+                    <span className="text-white font-medium text-sm">{deviceCharacteristics.ecowittInfo.data.stationtype}</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-white/70 text-sm">Zona Horaria:</span>
-                    <span className="text-white font-medium">{deviceCharacteristics.ecowittInfo.timezone}</span>
+                    <span className="text-white font-medium text-sm">{deviceCharacteristics.ecowittInfo.data.date_zone_id}</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-white/70 text-sm">Firmware:</span>
-                    <span className="text-white font-medium">{deviceCharacteristics.ecowittInfo.firmware_version}</span>
+                    <span className="text-white/70 text-sm">Creado:</span>
+                    <span className="text-white font-medium text-sm">{new Date(deviceCharacteristics.ecowittInfo.data.createtime * 1000).toLocaleString()}</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-white/70 text-sm">Hardware:</span>
-                    <span className="text-white font-medium">{deviceCharacteristics.ecowittInfo.hardware_version}</span>
+                    <span className="text-white/70 text-sm">Latitud:</span>
+                    <span className="text-white font-medium text-sm">{deviceCharacteristics.ecowittInfo.data.latitude}°</span>
                   </div>
                   
-                  {deviceCharacteristics.ecowittInfo.battery_level && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/70 text-sm">Batería:</span>
-                      <span className="text-white font-medium">{deviceCharacteristics.ecowittInfo.battery_level}%</span>
-                    </div>
-                  )}
-                  
-                  {deviceCharacteristics.ecowittInfo.signal_strength && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/70 text-sm">Señal:</span>
-                      <span className="text-white font-medium">{deviceCharacteristics.ecowittInfo.signal_strength} dBm</span>
-                    </div>
-                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70 text-sm">Longitud:</span>
+                    <span className="text-white font-medium text-sm">{deviceCharacteristics.ecowittInfo.data.longitude}°</span>
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Sensors and Current Data */}
-          <div className="space-y-6">
+          {/* Sensors and Current Data + EcoWitt Real-time Data */}
+          <div className="space-y-6 max-h-[90vh]">
             {/* Sensors List */}
             {deviceInfo?.sensors && deviceInfo.sensors.length > 0 && (
               <div className="bg-white/10 border border-white/20 rounded-xl p-6 backdrop-blur-sm">
@@ -281,8 +296,151 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({
               </div>
             )}
 
-            {/* No Data Available */}
-            {!deviceInfo?.sensors && !deviceInfo?.currentData && (
+            {/* EcoWitt Real-time Data - SIEMPRE mostrar si existe last_update */}
+            {deviceCharacteristics?.ecowittInfo && deviceCharacteristics.ecowittInfo.data && deviceCharacteristics.ecowittInfo.data.last_update && (
+              <div className="bg-white/10 border border-white/20 rounded-xl p-6 backdrop-blur-sm">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Datos del sensor EcoWitt 
+                </h3>
+                
+                <div className="space-y-4">
+                  {/* Indoor Sensors */}
+                  {deviceCharacteristics.ecowittInfo.data.last_update.indoor && (
+                    <div>
+                      <h4 className="text-sm font-medium text-white/80 mb-2">Sensores Interiores</h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        {deviceCharacteristics.ecowittInfo.data.last_update.indoor.temperature && (
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span className="text-white/70 text-sm">Temperatura:</span>
+                            <span className="text-white font-medium text-sm">
+                              {deviceCharacteristics.ecowittInfo.data.last_update.indoor.temperature.value} {deviceCharacteristics.ecowittInfo.data.last_update.indoor.temperature.unit}
+                            </span>
+                          </div>
+                        )}
+                        {deviceCharacteristics.ecowittInfo.data.last_update.indoor.humidity && (
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span className="text-white/70 text-sm">Humedad:</span>
+                            <span className="text-white font-medium text-sm">
+                              {deviceCharacteristics.ecowittInfo.data.last_update.indoor.humidity.value} {deviceCharacteristics.ecowittInfo.data.last_update.indoor.humidity.unit}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Pressure Sensors */}
+                  {deviceCharacteristics.ecowittInfo.data.last_update.pressure && (
+                    <div>
+                      <h4 className="text-sm font-medium text-white/80 mb-2">Sensores de Presión</h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        {deviceCharacteristics.ecowittInfo.data.last_update.pressure.relative && (
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span className="text-white/70 text-sm">Relativa:</span>
+                            <span className="text-white font-medium text-sm">
+                              {deviceCharacteristics.ecowittInfo.data.last_update.pressure.relative.value} {deviceCharacteristics.ecowittInfo.data.last_update.pressure.relative.unit}
+                            </span>
+                          </div>
+                        )}
+                        {deviceCharacteristics.ecowittInfo.data.last_update.pressure.absolute && (
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span className="text-white/70 text-sm">Absoluta:</span>
+                            <span className="text-white font-medium text-sm">
+                              {deviceCharacteristics.ecowittInfo.data.last_update.pressure.absolute.value} {deviceCharacteristics.ecowittInfo.data.last_update.pressure.absolute.unit}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Soil Sensors CH1 */}
+                  {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch1 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-white/80 mb-2">Sensor de Suelo CH1</h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch1.soilmoisture && (
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span className="text-white/70 text-sm">Humedad:</span>
+                            <span className="text-white font-medium text-sm">
+                              {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch1.soilmoisture.value} {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch1.soilmoisture.unit}
+                            </span>
+                          </div>
+                        )}
+                        {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch1.ad && (
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span className="text-white/70 text-sm">Señal AD:</span>
+                            <span className="text-white font-medium text-sm">
+                              {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch1.ad.value} {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch1.ad.unit}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Soil Sensors CH9 */}
+                  {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch9 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-white/80 mb-2">Sensor de Suelo CH9</h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch9.soilmoisture && (
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span className="text-white/70 text-sm">Humedad:</span>
+                            <span className="text-white font-medium text-sm">
+                              {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch9.soilmoisture.value} {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch9.soilmoisture.unit}
+                            </span>
+                          </div>
+                        )}
+                        {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch9.ad && (
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span className="text-white/70 text-sm">Señal AD:</span>
+                            <span className="text-white font-medium text-sm">
+                              {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch9.ad.value} {deviceCharacteristics.ecowittInfo.data.last_update.soil_ch9.ad.unit}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Battery Sensors */}
+                  {deviceCharacteristics.ecowittInfo.data.last_update.battery && (
+                    <div>
+                      <h4 className="text-sm font-medium text-white/80 mb-2">Baterías</h4>
+                      <div className="grid grid-cols-1 gap-3">
+                        {deviceCharacteristics.ecowittInfo.data.last_update.battery.soilmoisture_sensor_ch1 && (
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span className="text-white/70 text-sm">Sensor Suelo CH1:</span>
+                            <span className="text-white font-medium text-sm">
+                              {deviceCharacteristics.ecowittInfo.data.last_update.battery.soilmoisture_sensor_ch1.value} {deviceCharacteristics.ecowittInfo.data.last_update.battery.soilmoisture_sensor_ch1.unit}
+                            </span>
+                          </div>
+                        )}
+                        {deviceCharacteristics.ecowittInfo.data.last_update.battery.soilmoisture_sensor_ch9 && (
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span className="text-white/70 text-sm">Sensor Suelo CH9:</span>
+                            <span className="text-white font-medium text-sm">
+                              {deviceCharacteristics.ecowittInfo.data.last_update.battery.soilmoisture_sensor_ch9.value} {deviceCharacteristics.ecowittInfo.data.last_update.battery.soilmoisture_sensor_ch9.unit}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-4 text-xs text-white/50 text-center">
+                  Última actualización EcoWitt: {new Date(parseInt(deviceCharacteristics.ecowittInfo.time) * 1000).toLocaleString()}
+                </div>
+              </div>
+            )}
+
+            {/* No Data Available (solo si no hay nada de lo anterior) */}
+            {!deviceInfo?.sensors && !deviceInfo?.currentData && !(deviceCharacteristics?.ecowittInfo && deviceCharacteristics.ecowittInfo.data && deviceCharacteristics.ecowittInfo.data.last_update) && (
               <div className="bg-white/10 border border-white/20 rounded-xl p-6 backdrop-blur-sm">
                 <div className="text-center py-8">
                   <svg className="w-16 h-16 text-white/30 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -194,16 +194,21 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   }, [setLoading, setError, updateState]);
 
   const fetchDeviceCharacteristics = useCallback(async (deviceId: string) => {
+    console.log('🔍 useTelemetry - fetchDeviceCharacteristics iniciado para deviceId:', deviceId);
     try {
       setLoading(true);
       const response = await telemetryService.getDeviceCharacteristics(deviceId);
       
+      console.log('🔍 useTelemetry - Respuesta de getDeviceCharacteristics:', response);
+      
       if (response.success && response.data) {
+        console.log('🔍 useTelemetry - Data de características recibida:', response.data);
         updateState({ 
           deviceCharacteristics: response.data,
           error: null 
         });
       } else {
+        console.log('🔍 useTelemetry - Error en respuesta:', response.error);
         setError(
           Array.isArray(response.error)
             ? response.error.join('; ')
@@ -211,6 +216,7 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
         );
       }
     } catch (error) {
+      console.log('🔍 useTelemetry - Error en fetchDeviceCharacteristics:', error);
       setError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setLoading(false);

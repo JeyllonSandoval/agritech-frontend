@@ -57,6 +57,27 @@ export interface DeviceCharacteristics {
   sensors: DeviceSensor[];
 }
 
+// EcoWitt API response structure
+export interface EcoWittDeviceInfo {
+  id: number;
+  name: string;
+  mac: string;
+  type: number;
+  date_zone_id: string;
+  createtime: number;
+  longitude: number;
+  latitude: number;
+  stationtype: string;
+  last_update: RealtimeData;
+}
+
+export interface EcoWittResponse {
+  code: number;
+  msg: string;
+  time: string;
+  data: EcoWittDeviceInfo;
+}
+
 export interface DeviceInfoData {
   deviceId: string;
   deviceName: string;
@@ -78,17 +99,55 @@ export interface DeviceCharacteristicsData {
   deviceMac: string;
   status: string;
   createdAt: string;
-  ecowittInfo: DeviceCharacteristics;
+  ecowittInfo: EcoWittResponse;
 }
 
 // ============================================================================
 // REALTIME DATA TYPES
 // ============================================================================
 
+// Sensor data structure
+export interface SensorValue {
+  time: string;
+  unit: string;
+  value: string;
+}
+
+// Indoor sensor data
+export interface IndoorData {
+  temperature: SensorValue;
+  humidity: SensorValue;
+}
+
+// Pressure sensor data
+export interface PressureData {
+  relative: SensorValue;
+  absolute: SensorValue;
+}
+
+// Soil sensor data
+export interface SoilData {
+  soilmoisture: SensorValue;
+  ad: SensorValue;
+}
+
+// Battery sensor data
+export interface BatteryData {
+  soilmoisture_sensor_ch1: SensorValue;
+  soilmoisture_sensor_ch9?: SensorValue;
+}
+
+// Complete realtime data structure
 export interface RealtimeData {
+  indoor?: IndoorData;
+  pressure?: PressureData;
+  soil_ch1?: SoilData;
+  soil_ch9?: SoilData;
+  battery?: BatteryData;
+  // Legacy support for old format
   temperature?: number;
   humidity?: number;
-  pressure?: number;
+  pressureValue?: number; // Renamed to avoid conflict
   windSpeed?: number;
   windDirection?: number;
   rainfall?: number;
@@ -103,6 +162,14 @@ export interface RealtimeData {
   uv1?: number;
   solarradiation?: number;
   [key: string]: any; // For additional sensor data
+}
+
+// API response structure for realtime data
+export interface RealtimeApiResponse {
+  code: number;
+  msg: string;
+  time: string;
+  data: RealtimeData;
 }
 
 export interface RealtimeResponse {

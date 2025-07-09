@@ -105,7 +105,7 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
 
         {/* Info */}
         <div className="text-xs text-white/50 text-center">
-          Los datos se actualizan automáticamente cada 30 segundos cuando está activo
+          Los datos se actualizan automáticamente cada minuto cuando está activo
         </div>
       </div>
     </div>

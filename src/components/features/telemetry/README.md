@@ -29,7 +29,7 @@ The telemetry system integrates with the following backend endpoints:
 - `GET /devices/:deviceId` - Get specific device
 - `GET /devices/:deviceId/info` - Get complete device info with current data
 - `GET /devices/:deviceId/characteristics` - Get device characteristics from EcoWitt
-- `GET /devices/:deviceId/realtime` - Get real-time data
+- `GET /devices/:deviceId/realtime` - **Get real-time data** ⭐ (Updated with new structure)
 - `GET /devices/:deviceId/history` - Get historical data
 - `GET /devices/:deviceId/diagnose` - Diagnose device status
 - `GET /devices/:deviceId/test` - Test device connectivity
@@ -160,10 +160,47 @@ The system includes comprehensive error handling:
 
 The system supports automatic polling for real-time data:
 
-- Configurable poll interval (default: 30 seconds)
+- **Configurable poll interval** (default: 30 seconds)
+- **Real-time data polling**: Every minute (60,000ms) for sensor data
 - Start/stop polling controls
 - Error handling during polling
 - Automatic retry logic
+
+## New Features ⭐
+
+### Real-time Data Structure
+The system now supports the new backend response structure:
+
+```json
+{
+  "code": 0,
+  "msg": "success",
+  "time": "1752028074",
+  "data": {
+    "indoor": {
+      "temperature": { "time": "1752028063", "unit": "ºF", "value": "80.2" },
+      "humidity": { "time": "1752028063", "unit": "%", "value": "45" }
+    },
+    "pressure": {
+      "relative": { "time": "1752028063", "unit": "inHg", "value": "29.80" },
+      "absolute": { "time": "1752028063", "unit": "inHg", "value": "29.80" }
+    },
+    "soil_ch1": {
+      "soilmoisture": { "time": "1752028063", "unit": "%", "value": "34" },
+      "ad": { "time": "1752028063", "unit": "", "value": "189" }
+    },
+    "battery": {
+      "soilmoisture_sensor_ch1": { "time": "1752028063", "unit": "V", "value": "1.6" }
+    }
+  }
+}
+```
+
+### Authentication Integration
+- **Protected routes**: Telemetry requires user authentication
+- **Token-based requests**: All API calls include authorization headers
+- **Dynamic UserID**: Extracted automatically from JWT token
+- **Automatic updates**: Responds to token changes
 
 ## Alerts
 

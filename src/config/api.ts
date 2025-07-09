@@ -77,6 +77,9 @@ export const buildApiUrl = (endpoint: string): string => {
 export const getRequestConfig = (method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET', body?: any) => {
   const token = localStorage.getItem('token');
   
+  console.log('🔍 API Config - Token disponible:', !!token);
+  console.log('🔍 API Config - Token:', token ? token.substring(0, 20) + '...' : 'No token');
+  
   const config: RequestInit = {
     method,
     headers: {
@@ -88,6 +91,8 @@ export const getRequestConfig = (method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GE
   if (body && method !== 'GET') {
     config.body = JSON.stringify(body);
   }
+  
+  console.log('🔍 API Config - Headers finales:', config.headers);
   
   return config;
 };

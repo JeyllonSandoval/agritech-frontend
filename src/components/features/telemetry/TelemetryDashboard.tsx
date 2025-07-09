@@ -28,6 +28,8 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
   const [selectedDevice, setSelectedDevice] = useState<DeviceInfoType | null>(null);
   const [showDeviceInfo, setShowDeviceInfo] = useState(false);
 
+  // Elimina el estado local de deviceCharacteristics
+
   const {
     // State
     devices,
@@ -96,13 +98,15 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
   };
 
   const handleShowDeviceInfo = () => {
-    if (selectedDevice && !deviceInfo) {
-      fetchDeviceInfo(selectedDevice.DeviceID);
-    }
-    if (selectedDevice && !deviceCharacteristics) {
+    if (selectedDevice) {
+      console.log('🔍 TelemetryDashboard - Abriendo modal para dispositivo:', selectedDevice.DeviceID);
+      console.log('🔍 TelemetryDashboard - DeviceName:', selectedDevice.DeviceName);
       fetchDeviceCharacteristics(selectedDevice.DeviceID);
+      if (!deviceInfo) {
+        fetchDeviceInfo(selectedDevice.DeviceID);
+      }
+      setShowDeviceInfo(true);
     }
-    setShowDeviceInfo(true);
   };
 
   const handleHideDeviceInfo = () => {
@@ -230,10 +234,9 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
             {/* Realtime Data */}
             {selectedDevice && (
               <RealtimeDataDisplay
-                device={selectedDevice}
                 data={realtimeData}
+                deviceName={selectedDevice.DeviceName}
                 loading={loading}
-                onRefresh={() => selectedDevice && fetchRealtimeData(selectedDevice.DeviceID)}
               />
             )}
 
@@ -276,7 +279,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
           deviceInfo={deviceInfo}
           deviceCharacteristics={deviceCharacteristics}
           onClose={handleHideDeviceInfo}
-          loading={loading}
+          loading={loading || !deviceCharacteristics}
         />
       )}
     </div>

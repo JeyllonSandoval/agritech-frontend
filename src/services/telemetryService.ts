@@ -143,19 +143,38 @@ class TelemetryService {
    * Get device characteristics from EcoWitt
    */
   async getDeviceCharacteristics(deviceId: string): Promise<ApiResponse<DeviceCharacteristicsData>> {
+    console.log('🔍 telemetryService - getDeviceCharacteristics iniciado para deviceId:', deviceId);
     try {
       const url = buildApiUrl(API_CONFIG.ENDPOINTS.DEVICE_CHARACTERISTICS(deviceId));
       const config = getRequestConfig('GET');
+      
+      console.log('🔍 telemetryService - URL construida:', url);
+      console.log('🔍 telemetryService - Config de request:', config);
 
       const response = await fetch(url, config);
       const data = await response.json();
+      
+      console.log('🔍 telemetryService - Response status:', response.status);
+      console.log('🔍 telemetryService - Response data:', data);
 
       if (!response.ok) {
+        console.log('🔍 telemetryService - Error en response:', data.error);
         throw new Error(data.error || 'Failed to fetch device characteristics');
       }
 
+      // Si la respuesta no tiene la estructura esperada (success/data), la envuelve
+      if (data.success === undefined) {
+        console.log('🔍 telemetryService - Envuelviendo respuesta directa del backend');
+        return {
+          success: true,
+          data: data
+        };
+      }
+
+      console.log('🔍 telemetryService - Respuesta exitosa:', data);
       return data;
     } catch (error) {
+      console.log('🔍 telemetryService - Error en getDeviceCharacteristics:', error);
       throw new Error(`Error fetching device characteristics: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -278,22 +297,45 @@ class TelemetryService {
    */
   async getRealtimeData(deviceId: string): Promise<ApiResponse<RealtimeData>> {
     try {
-      const response = await fetch(`${this.baseURL}/devices/${deviceId}/realtime`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
+      const url = buildApiUrl(API_CONFIG.ENDPOINTS.DEVICE_REALTIME(deviceId));
+      const config = getRequestConfig();
+      
+      const response = await fetch(url, config);
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch realtime data');
+      
+      if (response.ok) {
+        // Handle both new and legacy response formats
+        if (data.code === 0 && data.data) {
+          // New format with code/msg/time structure
+          return {
+            success: true,
+            data: data.data
+          };
+        } else if (data.success !== undefined) {
+          // Legacy format with success field
+          return {
+            success: data.success,
+            data: data.data,
+            error: data.error
+          };
+        } else {
+          // Direct data format
+          return {
+            success: true,
+            data: data
+          };
+        }
+      } else {
+        return {
+          success: false,
+          error: data.message || 'Failed to fetch realtime data'
+        };
       }
-
-      return data;
     } catch (error) {
-      throw new Error(`Error fetching realtime data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
     }
   }
 
