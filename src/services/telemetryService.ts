@@ -19,6 +19,11 @@ import {
   TelemetryFilters
 } from '../types/telemetry';
 import { API_CONFIG, buildApiUrl, getRequestConfig } from '../config/api';
+import { jwtDecode } from 'jwt-decode';
+
+interface TokenPayload {
+  UserID: string;
+}
 
 class TelemetryService {
   private baseURL: string;

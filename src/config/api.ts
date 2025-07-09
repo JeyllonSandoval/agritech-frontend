@@ -73,11 +73,16 @@ export const buildApiUrl = (endpoint: string): string => {
   return `${API_CONFIG.BASE_URL}${endpoint}`;
 };
 
-// Helper function to get request configuration
+// Helper function to get request configuration with authentication
 export const getRequestConfig = (method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET', body?: any) => {
+  const token = localStorage.getItem('token');
+  
   const config: RequestInit = {
     method,
-    headers: API_CONFIG.REQUEST_CONFIG.headers,
+    headers: {
+      ...API_CONFIG.REQUEST_CONFIG.headers,
+      ...(token && { 'Authorization': `Bearer ${token}` })
+    },
   };
   
   if (body && method !== 'GET') {

@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { telemetryService } from '../services/telemetryService';
+import { useTelemetryAuth } from './useTelemetryAuth';
 import {
   DeviceInfo,
   RealtimeData,
@@ -23,7 +24,6 @@ import {
 interface UseTelemetryOptions {
   autoPoll?: boolean;
   pollInterval?: number;
-  userId?: string;
   deviceType?: string;
 }
 
@@ -33,9 +33,11 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   const {
     autoPoll = true,
     pollInterval = DEFAULT_POLL_INTERVAL,
-    userId,
     deviceType
   } = options;
+
+  // Get UserID from authentication
+  const { userId, isLoading: authLoading, error: authError } = useTelemetryAuth();
 
   // ============================================================================
   // STATE MANAGEMENT
@@ -102,11 +104,16 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   // ============================================================================
 
   const fetchDevices = useCallback(async (filters?: TelemetryFilters) => {
+    if (!userId) {
+      setError('User not authenticated');
+      return;
+    }
+
     try {
       setLoading(true);
       const filtersWithUser: TelemetryFilters = {
         ...filters,
-        userId: userId || filters?.userId,
+        userId: userId,
         deviceType: deviceType || filters?.deviceType
       };
 
@@ -325,7 +332,10 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   // ============================================================================
 
   const fetchGroups = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      setError('User not authenticated');
+      return;
+    }
 
     try {
       setLoading(true);
@@ -454,11 +464,18 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
 
   // Initialize data fetching
   useEffect(() => {
-    fetchDevices();
+    if (authLoading) return; // Wait for authentication to load
+    
+    if (authError) {
+      setError(authError);
+      return;
+    }
+    
     if (userId) {
+      fetchDevices();
       fetchGroups();
     }
-  }, [fetchDevices, fetchGroups, userId]);
+  }, [fetchDevices, fetchGroups, userId, authLoading, authError]);
 
   // Start/stop polling based on autoPoll setting
   useEffect(() => {

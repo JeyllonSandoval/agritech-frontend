@@ -5,15 +5,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTelemetry } from '../../../hooks/useTelemetry';
+import { useTelemetryAuth } from '../../../hooks/useTelemetryAuth';
 import { telemetryService } from '../../../services/telemetryService';
 
 interface TelemetryTestProps {
-  userId?: string;
+  // No props needed - UserID is extracted from token
 }
 
-const TelemetryTest: React.FC<TelemetryTestProps> = ({ userId = 'bc7a3bc4-110d-46c0-abf4-e3a58995ff4f' }) => {
+const TelemetryTest: React.FC<TelemetryTestProps> = () => {
   const [testResults, setTestResults] = useState<string[]>([]);
   const [isTesting, setIsTesting] = useState(false);
+  
+  // Get UserID from authentication
+  const { userId, isLoading: authLoading, error: authError } = useTelemetryAuth();
 
   const {
     devices,
@@ -23,7 +27,6 @@ const TelemetryTest: React.FC<TelemetryTestProps> = ({ userId = 'bc7a3bc4-110d-4
     fetchDevices,
     fetchGroups
   } = useTelemetry({
-    userId,
     autoPoll: false
   });
 
@@ -41,25 +44,33 @@ const TelemetryTest: React.FC<TelemetryTestProps> = ({ userId = 'bc7a3bc4-110d-4
       addTestResult(`🔧 API Base URL: ${baseUrl}`);
       
       // Test 1: Get devices
-      addTestResult('Testing GET /devices...');
-      try {
-        const devicesResponse = await telemetryService.getDevices({ userId });
-        if (devicesResponse.success) {
-          addTestResult(`✅ Devices test passed. Found ${devicesResponse.data?.length || 0} devices`);
-        } else {
-          addTestResult(`❌ Devices test failed: ${devicesResponse.error}`);
+      if (!userId) {
+        addTestResult('❌ User not authenticated - cannot test devices');
+      } else {
+        addTestResult('Testing GET /devices...');
+        try {
+          const devicesResponse = await telemetryService.getDevices({ userId });
+          if (devicesResponse.success) {
+            addTestResult(`✅ Devices test passed. Found ${devicesResponse.data?.length || 0} devices`);
+          } else {
+            addTestResult(`❌ Devices test failed: ${devicesResponse.error}`);
+          }
+        } catch (error) {
+          addTestResult(`❌ Devices test failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
-      } catch (error) {
-        addTestResult(`❌ Devices test failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
 
       // Test 2: Get user groups
-      addTestResult('Testing GET /users/:userId/groups...');
-      const groupsResponse = await telemetryService.getUserGroups(userId);
-      if (groupsResponse.success) {
-        addTestResult(`✅ Groups test passed. Found ${groupsResponse.data?.length || 0} groups`);
+      if (!userId) {
+        addTestResult('❌ User not authenticated - cannot test groups');
       } else {
-        addTestResult(`❌ Groups test failed: ${groupsResponse.error}`);
+        addTestResult('Testing GET /users/:userId/groups...');
+        const groupsResponse = await telemetryService.getUserGroups(userId);
+        if (groupsResponse.success) {
+          addTestResult(`✅ Groups test passed. Found ${groupsResponse.data?.length || 0} groups`);
+        } else {
+          addTestResult(`❌ Groups test failed: ${groupsResponse.error}`);
+        }
       }
 
       // Test 3: Test weather API

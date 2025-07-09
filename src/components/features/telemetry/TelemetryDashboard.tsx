@@ -15,14 +15,12 @@ import DeviceInfo from '../../../components/features/telemetry/DeviceInfo';
 import { DeviceInfo as DeviceInfoType } from '../../../types/telemetry';
 
 interface TelemetryDashboardProps {
-  userId?: string;
   deviceType?: string;
   autoPoll?: boolean;
   pollInterval?: number;
 }
 
 const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
-  userId,
   deviceType,
   autoPoll = true,
   pollInterval = 30000
@@ -63,7 +61,6 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     setLoading,
     setError
   } = useTelemetry({
-    userId,
     deviceType,
     autoPoll,
     pollInterval
