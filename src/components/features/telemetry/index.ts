@@ -10,4 +10,3 @@ export { default as WeatherDataDisplay } from './WeatherDataDisplay';
 export { default as TelemetryControls } from './TelemetryControls';
 export { default as TelemetryAlerts } from './TelemetryAlerts';
 export { default as DeviceInfo } from './DeviceInfo'; 
-export { default as TelemetryTest } from './TelemetryTest'; 
