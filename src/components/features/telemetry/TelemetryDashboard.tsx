@@ -13,6 +13,10 @@ import TelemetryControls from '../../../components/features/telemetry/TelemetryC
 import TelemetryAlerts from '../../../components/features/telemetry/TelemetryAlerts';
 import DeviceInfo from '../../../components/features/telemetry/DeviceInfo';
 import { DeviceInfo as DeviceInfoType } from '../../../types/telemetry';
+import HelpButton from '../../common/UI/buttons/HelpButton';
+import HelpModal from '../../features/modals/HelpModal';
+import { ChartBarIcon, SparklesIcon, DocumentChartBarIcon, Cog6ToothIcon, BellAlertIcon, CpuChipIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface TelemetryDashboardProps {
   deviceType?: string;
@@ -27,6 +31,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
 }) => {
   const [selectedDevice, setSelectedDevice] = useState<DeviceInfoType | null>(null);
   const [showDeviceInfo, setShowDeviceInfo] = useState(false);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   // Elimina el estado local de deviceCharacteristics
 
@@ -67,6 +72,46 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     autoPoll,
     pollInterval
   });
+
+  const { t } = useTranslation();
+  const telemetryFeatures = [
+    {
+      icon: ChartBarIcon,
+      title: t('telemetry.realTimeData'),
+      description: t('telemetry.realTimeDataDesc'),
+      details: t('telemetry.realTimeDataDetails')
+    },
+    {
+      icon: SparklesIcon,
+      title: t('telemetry.analytics'),
+      description: t('telemetry.analyticsDesc'),
+      details: t('telemetry.analyticsDetails')
+    },
+    {
+      icon: DocumentChartBarIcon,
+      title: t('telemetry.reports'),
+      description: t('telemetry.reportsDesc'),
+      details: t('telemetry.reportsDetails')
+    },
+    {
+      icon: Cog6ToothIcon,
+      title: t('telemetry.automation'),
+      description: t('telemetry.automationDesc'),
+      details: t('telemetry.automationDetails')
+    },
+    {
+      icon: BellAlertIcon,
+      title: t('telemetry.monitoring'),
+      description: t('telemetry.monitoringDesc'),
+      details: t('telemetry.monitoringDetails')
+    },
+    {
+      icon: CpuChipIcon,
+      title: t('telemetry.ai'),
+      description: t('telemetry.aiDesc'),
+      details: t('telemetry.aiDetails')
+    }
+  ];
 
   // ============================================================================
   // HANDLERS
@@ -124,34 +169,28 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
         {/* Header */}
         <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
+            <div className="flex items-center gap-3">
+              <svg className="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
               <h1 className="text-2xl md:text-3xl font-semibold text-white mb-2 flex items-center gap-3">
-                <svg className="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
                 Telemetría AgriTech
+                <HelpButton onClick={() => setIsHelpModalOpen(true)} title="Ayuda sobre Telemetría" />
               </h1>
-              <p className="text-sm md:text-base text-white/70">
-                Monitoreo en tiempo real de sensores EcoWitt y datos meteorológicos
-              </p>
             </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${polling ? 'bg-emerald-400 animate-pulse' : 'bg-gray-500'}`} />
-                <span className="text-sm text-white/70">
-                  {polling ? 'Actualizando' : 'Pausado'}
-                </span>
-              </div>
-              
-              {lastUpdate && (
-                <div className="text-sm text-white/50">
-                  Última actualización: {new Date(lastUpdate).toLocaleTimeString()}
-                </div>
-              )}
-            </div>
+            <p className="text-sm md:text-base text-white/70">
+              Monitoreo en tiempo real de sensores EcoWitt y datos meteorológicos
+            </p>
           </div>
         </div>
+        <HelpModal
+          isOpen={isHelpModalOpen}
+          onClose={() => setIsHelpModalOpen(false)}
+          namespace="telemetry"
+          features={telemetryFeatures}
+          title={t('telemetry.helpTitle')}
+          description={t('telemetry.helpDescription')}
+        />
 
         {/* Stats Overview */}
         <TelemetryStats stats={{
