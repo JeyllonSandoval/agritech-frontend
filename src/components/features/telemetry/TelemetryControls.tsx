@@ -1,10 +1,11 @@
 // ============================================================================
-// TELEMETRY CONTROLS
-// Component for telemetry control buttons and actions
+// TELEMETRY CONTROLS - Estado en header, colores de marca
 // ============================================================================
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { DeviceInfo } from '../../../types/telemetry';
+import { ArrowPathIcon, PlayCircleIcon, InformationCircleIcon, CloudIcon, PlusCircleIcon, UsersIcon, Squares2X2Icon, DocumentChartBarIcon, AdjustmentsHorizontalIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
 
 interface TelemetryControlsProps {
   polling: boolean;
@@ -15,8 +16,45 @@ interface TelemetryControlsProps {
   onShowDeviceComparison?: () => void;
   onShowGroupManager?: () => void;
   onShowReports?: () => void;
+  onShowDevices?: () => void;
+  onShowRealtimeData?: () => void;
+  onShowInfoPanel?: () => void;
+  onShowWeatherPanel?: () => void;
+  onAddDevice?: () => void;
+  onCreateGroup?: () => void;
   selectedDevice?: DeviceInfo | null;
+  deviceCount?: number;
+  hasRealtimeData?: boolean;
 }
+
+// Reusable Button estilizado
+interface ControlButtonProps {
+  onClick: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+  icon?: React.ReactNode;
+  color?: 'emerald' | 'blue' | 'purple' | 'indigo' | 'orange' | 'gray';
+  className?: string;
+}
+const colorMap = {
+  emerald: 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30',
+  blue: 'bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/30',
+  purple: 'bg-purple-500/20 border-purple-500/30 text-purple-400 hover:bg-purple-500/30',
+  indigo: 'bg-indigo-500/20 border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/30',
+  orange: 'bg-orange-500/20 border-orange-500/30 text-orange-400 hover:bg-orange-500/30',
+  gray: 'bg-white/10 border-white/20 text-white/80 hover:bg-white/20',
+};
+const ControlButton: React.FC<ControlButtonProps> = ({ onClick, disabled, children, icon, color = 'gray', className = '' }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    className={`w-full border rounded-xl px-4 py-3 text-base font-semibold flex items-center gap-3 justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm ${colorMap[color]} ${className}`}
+    style={{ minWidth: 180 }}
+  >
+    {icon && <span className="w-5 h-5 flex-shrink-0">{icon}</span>}
+    <span>{children}</span>
+  </button>
+);
 
 const TelemetryControls: React.FC<TelemetryControlsProps> = ({
   polling,
@@ -27,133 +65,75 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
   onShowDeviceComparison,
   onShowGroupManager,
   onShowReports,
-  selectedDevice
+  onShowDevices,
+  onShowRealtimeData,
+  onShowInfoPanel,
+  onShowWeatherPanel,
+  onAddDevice,
+  onCreateGroup,
 }) => {
+  const router = useRouter();
+
+  // Handlers por defecto
+  const handleAddDevice = () => onAddDevice ? onAddDevice() : router.push('/telemetry/add-device');
+  const handleShowDevices = () => onShowDevices ? onShowDevices() : router.push('/telemetry/devices');
+  const handleShowRealtimeData = () => onShowRealtimeData ? onShowRealtimeData() : router.push('/telemetry/realtime');
+  const handleShowInfoPanel = () => onShowInfoPanel ? onShowInfoPanel() : router.push('/telemetry/info');
+  const handleShowWeatherPanel = () => onShowWeatherPanel ? onShowWeatherPanel() : router.push('/telemetry/weather');
+  const handleCreateGroup = () => onCreateGroup ? onCreateGroup() : router.push('/telemetry/groups/create');
+
   return (
-    <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-      <h2 className="text-lg md:text-xl font-semibold text-white mb-4 flex items-center gap-2">
-        <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-        Controles
-      </h2>
-      
-      <div className="space-y-3">
-        {/* Refresh Button */}
-        <button
-          onClick={onRefresh}
-          disabled={loading}
-          className="w-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-all duration-300 rounded-lg px-4 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          <span className="font-medium text-sm">
-            {loading ? 'Actualizando...' : 'Actualizar Datos'}
-          </span>
-        </button>
-
-        {/* Polling Toggle */}
-        <button
-          onClick={onTogglePolling}
-          disabled={loading}
-          className={`w-full border transition-all duration-300 rounded-lg px-4 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-            polling
-              ? 'bg-red-500/20 border-red-500/30 text-red-400 hover:bg-red-500/30'
-              : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30'
-          }`}
-        >
-          {polling ? (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          )}
-          <span className="font-medium text-sm">
-            {polling ? 'Pausar Actualización' : 'Iniciar Actualización'}
-          </span>
-        </button>
-
-        {/* Device Info Button */}
-        {selectedDevice && onShowDeviceInfo && (
-          <button
-            onClick={onShowDeviceInfo}
-            disabled={loading}
-            className="w-full bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-all duration-300 rounded-lg px-4 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="font-medium text-sm">Información del Dispositivo</span>
-          </button>
-        )}
-
-        {/* Device Comparison Button */}
-        {onShowDeviceComparison && (
-          <button
-            onClick={onShowDeviceComparison}
-            disabled={loading}
-            className="w-full bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-all duration-300 rounded-lg px-4 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-            </svg>
-            <span className="font-medium text-sm">Comparar Dispositivos</span>
-          </button>
-        )}
-
-        {/* Device Group Manager Button */}
-        {onShowGroupManager && (
-          <button
-            onClick={onShowGroupManager}
-            disabled={loading}
-            className="w-full bg-orange-500/20 border border-orange-500/30 text-orange-400 hover:bg-orange-500/30 transition-all duration-300 rounded-lg px-4 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <span className="font-medium text-sm">Gestionar Grupos</span>
-          </button>
-        )}
-
-        {/* Telemetry Reports Button */}
-        {onShowReports && (
-          <button
-            onClick={onShowReports}
-            disabled={loading}
-            className="w-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/30 transition-all duration-300 rounded-lg px-4 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span className="font-medium text-sm">Generar Reportes</span>
-          </button>
-        )}
-
-        {/* Status Indicator */}
-        <div className="bg-white/10 border border-white/20 rounded-lg p-3 backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-white/70">Estado:</span>
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${
-                polling ? 'bg-emerald-400 animate-pulse' : 'bg-gray-500'
-              }`} />
-              <span className={`text-sm ${
-                polling ? 'text-emerald-400' : 'text-gray-400'
-              }`}>
-                {polling ? 'Activo' : 'Inactivo'}
-              </span>
+    <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 w-full border border-white/20 shadow-2xl">
+      {/* Header con estado */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-3">
+            <AdjustmentsHorizontalIcon className="w-7 h-7 text-emerald-400" />
+            Controles de Telemetría
+          </h2>
+        </div>
+        <div className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-4 py-2 shadow-sm">
+          <span className={`w-3 h-3 rounded-full ${polling ? 'bg-emerald-400 animate-pulse' : 'bg-gray-400'}`}></span>
+          <span className={`text-base font-semibold ${polling ? 'text-emerald-400' : 'text-gray-400'}`}>{polling ? 'Activo' : 'Inactivo'}</span>
+        </div>
+      </div>
+      {/* Panel principal */}
+      <div className="flex-1 flex flex-col gap-8">
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Sincronización */}
+          <div className="flex-1 shadow-md">
+            <h3 className="text-lg font-bold text-emerald-400 mb-4 flex items-center gap-2"><ArrowPathIcon className="w-5 h-5" /> Sincronización</h3>
+            <div className="flex flex-col gap-4">
+              <ControlButton onClick={onRefresh} disabled={loading} icon={<ArrowPathIcon className="w-5 h-5" />} color="emerald">Actualiza datos</ControlButton>
+              <ControlButton onClick={onTogglePolling} disabled={loading} icon={<PlayCircleIcon className="w-5 h-5" />} color={polling ? 'orange' : 'emerald'}>{polling ? 'Pausar Actualización' : 'Iniciar Actualización'}</ControlButton>
+            </div>
+          </div>
+          {/* Gestión de datos */}
+          <div className="flex-1 shadow-md">
+            <h3 className="text-lg font-bold text-blue-400 mb-4 flex items-center gap-2"><InformationCircleIcon className="w-5 h-5" /> Gestión de datos</h3>
+            <div className="flex flex-col gap-4">
+              <ControlButton onClick={handleShowInfoPanel} icon={<Squares2X2Icon className="w-5 h-5" />} color="blue">Panel informativo</ControlButton>
+              <ControlButton onClick={handleShowWeatherPanel} icon={<CloudIcon className="w-5 h-5" />} color="blue">Panel Climático</ControlButton>
+            </div>
+          </div>
+          {/* Acciones de dispositivos */}
+          <div className="flex-1 shadow-md">
+            <h3 className="text-lg font-bold text-purple-400 mb-4 flex items-center gap-2"><PlusCircleIcon className="w-5 h-5" /> Acciones de dispositivos</h3>
+            <div className="flex flex-col gap-4">
+              <ControlButton onClick={handleAddDevice} icon={<PlusCircleIcon className="w-5 h-5" />} color="purple">Agregar Dispositivos</ControlButton>
+              <ControlButton onClick={handleCreateGroup} icon={<UsersIcon className="w-5 h-5" />} color="purple">Crear grupo</ControlButton>
             </div>
           </div>
         </div>
-
-        {/* Info */}
-        <div className="text-xs text-white/50 text-center">
-          Los datos se actualizan automáticamente cada minuto cuando está activo
+        {/* Controles avanzados */}
+        <div className="">
+          <h3 className="text-lg font-bold text-indigo-400 mb-4 flex items-center gap-2"><AdjustmentsHorizontalIcon className="w-5 h-5" /> Controles Avanzados</h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <ControlButton onClick={onShowDeviceComparison ? onShowDeviceComparison : () => {}} icon={<DevicePhoneMobileIcon className="w-5 h-5" />} color="indigo">Comparar de dispositivos</ControlButton>
+            <ControlButton onClick={onShowReports ? onShowReports : () => {}} icon={<DocumentChartBarIcon className="w-5 h-5" />} color="indigo">Generar Reportes</ControlButton>
+            <ControlButton onClick={handleShowDevices} icon={<DevicePhoneMobileIcon className="w-5 h-5" />} color="indigo">Gestionar dispositivos</ControlButton>
+            <ControlButton onClick={onShowGroupManager ? onShowGroupManager : () => {}} icon={<UsersIcon className="w-5 h-5" />} color="indigo">Gestionar grupos</ControlButton>
+          </div>
         </div>
       </div>
     </div>

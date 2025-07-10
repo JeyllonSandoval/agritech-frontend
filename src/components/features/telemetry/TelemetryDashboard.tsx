@@ -38,6 +38,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
   const [showGroupManager, setShowGroupManager] = useState(false);
   const [showReports, setShowReports] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<null | 'info' | 'weather'>(null);
 
   // Elimina el estado local de deviceCharacteristics
 
@@ -236,6 +237,19 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
           lastUpdate: lastUpdate
         }} />
 
+
+        <TelemetryControls
+              polling={polling}
+              loading={loading}
+              onTogglePolling={handleTogglePolling}
+              onRefresh={handleRefresh}
+              onShowDeviceInfo={handleShowDeviceInfo}
+              onShowDeviceComparison={handleShowDeviceComparison}
+              onShowGroupManager={handleShowGroupManager}
+              onShowReports={handleShowReports}
+              selectedDevice={selectedDevice}
+              onShowInfoPanel={() => setActivePanel('info')}
+            />
         {/* Error Display */}
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm">
@@ -267,87 +281,76 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
           />
         )}
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Left Column - Device Selection & Info */}
-          <div className="lg:col-span-1 space-y-6">
-            
-            {/* Device Selector */}
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-              <h2 className="text-lg md:text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                Dispositivos
-              </h2>
-              <DeviceSelector
-                devices={devices}
-                groups={groups}
-                selectedDevice={selectedDevice}
-                selectedGroup={selectedGroup}
-                onDeviceSelect={handleDeviceSelect}
-                onGroupSelect={handleGroupSelect}
-                loading={loading}
-              />
-            </div>
-
-            {/* Controls */}
-            <TelemetryControls
-              polling={polling}
-              loading={loading}
-              onTogglePolling={handleTogglePolling}
-              onRefresh={handleRefresh}
-              onShowDeviceInfo={handleShowDeviceInfo}
-              onShowDeviceComparison={handleShowDeviceComparison}
-              onShowGroupManager={handleShowGroupManager}
-              onShowReports={handleShowReports}
-              selectedDevice={selectedDevice}
-            />
-          </div>
-
-          {/* Right Column - Data Displays */}
-          <div className="lg:col-span-2 space-y-6">
-            
-            {/* Realtime Data */}
-            {selectedDevice && (
-              <RealtimeDataDisplay
-                data={realtimeData}
-                deviceName={selectedDevice.DeviceName}
-                loading={loading}
-              />
-            )}
-
-            {/* Weather Data */}
-            {selectedDevice && weatherData && (
-              <WeatherDataDisplay
-                device={selectedDevice}
-                weatherData={weatherData}
-                loading={loading}
-                onRefresh={() => {
-                  if (selectedDevice && deviceInfo?.location) {
-                    fetchWeatherData(deviceInfo.location.latitude, deviceInfo.location.longitude);
-                  }
-                }}
-              />
-            )}
-
-            {/* No Device Selected */}
-            {!selectedDevice && (
-              <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-lg">
-                <div className="text-center">
-                  <svg className="w-16 h-16 text-white/30 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  <h3 className="text-lg font-semibold text-white mb-2">Selecciona un Dispositivo</h3>
-                  <p className="text-white/60 text-sm">
-                    Selecciona un dispositivo de la lista para ver sus datos en tiempo real
-                  </p>
+        {/* Main Content Grid - Panel informativo condicional */}
+        {activePanel === 'info' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - Device Selection & Info */}
+            <div className="lg:col-span-1 space-y-6">
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg md:text-xl font-semibold text-white flex items-center gap-2">
+                    <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    Dispositivos
+                  </h2>
+                  <button onClick={() => setActivePanel(null)} className="text-white/60 hover:text-red-400 transition-colors p-1 ml-2" title="Cerrar panel informativo">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
+                <DeviceSelector
+                  devices={devices}
+                  groups={groups}
+                  selectedDevice={selectedDevice}
+                  selectedGroup={selectedGroup}
+                  onDeviceSelect={handleDeviceSelect}
+                  onGroupSelect={handleGroupSelect}
+                  loading={loading}
+                />
               </div>
-            )}
+            </div>
+            {/* Right Column - Data Displays */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Realtime Data */}
+              {selectedDevice && (
+                <RealtimeDataDisplay
+                  data={realtimeData}
+                  deviceName={selectedDevice.DeviceName}
+                  loading={loading}
+                />
+              )}
+              {/* Weather Data */}
+              {selectedDevice && weatherData && (
+                <WeatherDataDisplay
+                  device={selectedDevice}
+                  weatherData={weatherData}
+                  loading={loading}
+                  onRefresh={() => {
+                    if (selectedDevice && deviceInfo?.location) {
+                      fetchWeatherData(deviceInfo.location.latitude, deviceInfo.location.longitude);
+                    }
+                  }}
+                />
+              )}
+              {/* No Device Selected */}
+              {!selectedDevice && (
+                <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-lg">
+                  <div className="text-center">
+                    <svg className="w-16 h-16 text-white/30 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <h3 className="text-lg font-semibold text-white mb-2">Selecciona un Dispositivo</h3>
+                    <p className="text-white/60 text-sm">
+                      Selecciona un dispositivo de la lista para ver sus datos en tiempo real
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Device Info Modal */}
