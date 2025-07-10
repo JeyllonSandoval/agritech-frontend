@@ -30,6 +30,10 @@ export const API_CONFIG = {
     GROUP_HISTORY: (groupId: string) => `/groups/${groupId}/history`,
     GROUP_REALTIME: (groupId: string) => `/groups/${groupId}/realtime`,
     
+    // Device Comparison endpoints
+    COMPARE_REALTIME: '/compare/realtime',
+    COMPARE_HISTORY: '/compare/history',
+    
     // Weather endpoints
     WEATHER_TEST: '/api/weather/test',
     WEATHER_DEMO: '/api/weather/demo',

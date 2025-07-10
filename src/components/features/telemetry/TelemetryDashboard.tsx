@@ -12,10 +12,13 @@ import WeatherDataDisplay from '../../../components/features/telemetry/WeatherDa
 import TelemetryControls from '../../../components/features/telemetry/TelemetryControls';
 import TelemetryAlerts from '../../../components/features/telemetry/TelemetryAlerts';
 import DeviceInfo from '../../../components/features/telemetry/DeviceInfo';
+import DeviceComparison from '../../../components/features/telemetry/DeviceComparison';
+import DeviceGroupManager from '../../../components/features/telemetry/DeviceGroupManager';
+import TelemetryReports from '../../../components/features/telemetry/TelemetryReports';
 import { DeviceInfo as DeviceInfoType } from '../../../types/telemetry';
 import HelpButton from '../../common/UI/buttons/HelpButton';
 import HelpModal from '../../features/modals/HelpModal';
-import { ChartBarIcon, SparklesIcon, DocumentChartBarIcon, Cog6ToothIcon, BellAlertIcon, CpuChipIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon, SparklesIcon, DocumentChartBarIcon, Cog6ToothIcon, BellAlertIcon, CpuChipIcon, ScaleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../../hooks/useTranslation';
 
 interface TelemetryDashboardProps {
@@ -31,6 +34,9 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
 }) => {
   const [selectedDevice, setSelectedDevice] = useState<DeviceInfoType | null>(null);
   const [showDeviceInfo, setShowDeviceInfo] = useState(false);
+  const [showDeviceComparison, setShowDeviceComparison] = useState(false);
+  const [showGroupManager, setShowGroupManager] = useState(false);
+  const [showReports, setShowReports] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   // Elimina el estado local de deviceCharacteristics
@@ -110,6 +116,12 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
       title: t('telemetry.ai'),
       description: t('telemetry.aiDesc'),
       details: t('telemetry.aiDetails')
+    },
+    {
+      icon: ScaleIcon,
+      title: t('telemetry.comparison'),
+      description: t('telemetry.comparisonDesc'),
+      details: t('telemetry.comparisonDetails')
     }
   ];
 
@@ -156,6 +168,30 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
 
   const handleHideDeviceInfo = () => {
     setShowDeviceInfo(false);
+  };
+
+  const handleShowDeviceComparison = () => {
+    setShowDeviceComparison(true);
+  };
+
+  const handleHideDeviceComparison = () => {
+    setShowDeviceComparison(false);
+  };
+
+  const handleShowGroupManager = () => {
+    setShowGroupManager(true);
+  };
+
+  const handleHideGroupManager = () => {
+    setShowGroupManager(false);
+  };
+
+  const handleShowReports = () => {
+    setShowReports(true);
+  };
+
+  const handleHideReports = () => {
+    setShowReports(false);
   };
 
   // ============================================================================
@@ -263,6 +299,9 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
               onTogglePolling={handleTogglePolling}
               onRefresh={handleRefresh}
               onShowDeviceInfo={handleShowDeviceInfo}
+              onShowDeviceComparison={handleShowDeviceComparison}
+              onShowGroupManager={handleShowGroupManager}
+              onShowReports={handleShowReports}
               selectedDevice={selectedDevice}
             />
           </div>
@@ -319,6 +358,44 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
           deviceCharacteristics={deviceCharacteristics}
           onClose={handleHideDeviceInfo}
           loading={loading || !deviceCharacteristics}
+        />
+      )}
+
+      {/* Device Comparison Modal */}
+      {showDeviceComparison && (
+        <DeviceComparison
+          devices={devices}
+          onClose={handleHideDeviceComparison}
+        />
+      )}
+
+      {/* Device Group Manager Modal */}
+      {showGroupManager && (
+        <DeviceGroupManager
+          devices={devices}
+          groups={groups}
+          onClose={handleHideGroupManager}
+          onGroupCreated={(group) => {
+            // Refresh groups after creation
+            fetchGroups();
+          }}
+          onGroupUpdated={(group) => {
+            // Refresh groups after update
+            fetchGroups();
+          }}
+          onGroupDeleted={(groupId) => {
+            // Refresh groups after deletion
+            fetchGroups();
+          }}
+        />
+      )}
+
+      {/* Telemetry Reports Modal */}
+      {showReports && (
+        <TelemetryReports
+          devices={devices}
+          selectedDevice={selectedDevice}
+          onClose={handleHideReports}
         />
       )}
     </div>

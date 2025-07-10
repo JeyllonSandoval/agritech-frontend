@@ -747,6 +747,55 @@ class TelemetryService {
       throw new Error(`Error checking API status: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
+
+  // ============================================================================
+  // DEVICE COMPARISON METHODS
+  // ============================================================================
+
+  /**
+   * Compare real-time data between multiple devices
+   */
+  async compareDevicesRealtime(deviceIds: string[]): Promise<ApiResponse<any>> {
+    try {
+      const url = buildApiUrl('/compare/realtime');
+      const config = getRequestConfig('POST', { deviceIds });
+
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to compare devices');
+      }
+
+      return data;
+    } catch (error) {
+      throw new Error(`Error comparing devices: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Compare historical data between multiple devices
+   */
+  async compareDevicesHistory(deviceIds: string[], timeRange: TimeRange): Promise<ApiResponse<any>> {
+    try {
+      const url = buildApiUrl('/compare/history');
+      const config = getRequestConfig('POST', { 
+        deviceIds,
+        timeRange 
+      });
+
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to compare historical data');
+      }
+
+      return data;
+    } catch (error) {
+      throw new Error(`Error comparing historical data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
 }
 
 // Export singleton instance
