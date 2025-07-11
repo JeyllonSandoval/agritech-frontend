@@ -2,10 +2,12 @@
 // TELEMETRY CONTROLS - Estado en header, colores de marca
 // ============================================================================
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DeviceInfo } from '../../../types/telemetry';
 import { ArrowPathIcon, PlayCircleIcon, InformationCircleIcon, CloudIcon, PlusCircleIcon, UsersIcon, Squares2X2Icon, DocumentChartBarIcon, AdjustmentsHorizontalIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
+import DeviceManager from './DeviceManager';
+import GroupManager from './GroupManager';
 
 interface TelemetryControlsProps {
   polling: boolean;
@@ -73,70 +75,85 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
   onCreateGroup,
 }) => {
   const router = useRouter();
+  const [showDeviceManager, setShowDeviceManager] = useState(false);
+  const [showGroupManager, setShowGroupManager] = useState(false);
 
   // Handlers por defecto
   const handleAddDevice = () => onAddDevice ? onAddDevice() : router.push('/telemetry/add-device');
-  const handleShowDevices = () => onShowDevices ? onShowDevices() : router.push('/telemetry/devices');
+  const handleShowDevices = () => setShowDeviceManager(true);
   const handleShowRealtimeData = () => onShowRealtimeData ? onShowRealtimeData() : router.push('/telemetry/realtime');
   const handleShowInfoPanel = () => onShowInfoPanel ? onShowInfoPanel() : router.push('/telemetry/info');
   const handleShowWeatherPanel = () => onShowWeatherPanel ? onShowWeatherPanel() : router.push('/telemetry/weather');
   const handleCreateGroup = () => onCreateGroup ? onCreateGroup() : router.push('/telemetry/create-group');
+  const handleShowGroupManager = () => setShowGroupManager(true);
 
   return (
-    <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 w-full border border-white/20 shadow-2xl">
-      {/* Header con estado */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-        <div className="flex items-center gap-4">
-          <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-3">
-            <AdjustmentsHorizontalIcon className="w-7 h-7 text-emerald-400" />
-            Controles de Telemetría
-          </h2>
+    <>
+      <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 w-full border border-white/20 shadow-2xl">
+        {/* Header con estado */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-3">
+              <AdjustmentsHorizontalIcon className="w-7 h-7 text-emerald-400" />
+              Controles de Telemetría
+            </h2>
+          </div>
+          <div className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-4 py-2 shadow-sm">
+            <span className={`w-3 h-3 rounded-full ${polling ? 'bg-emerald-400 animate-pulse' : 'bg-gray-400'}`}></span>
+            <span className={`text-base font-semibold ${polling ? 'text-emerald-400' : 'text-gray-400'}`}>{polling ? 'Activo' : 'Inactivo'}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-4 py-2 shadow-sm">
-          <span className={`w-3 h-3 rounded-full ${polling ? 'bg-emerald-400 animate-pulse' : 'bg-gray-400'}`}></span>
-          <span className={`text-base font-semibold ${polling ? 'text-emerald-400' : 'text-gray-400'}`}>{polling ? 'Activo' : 'Inactivo'}</span>
+        {/* Panel principal */}
+        <div className="flex-1 flex flex-col gap-8">
+          <div className="flex flex-col md:flex-row gap-8">
+            {/* Sincronización */}
+            <div className="flex-1 shadow-md">
+              <h3 className="text-lg font-bold text-emerald-400 mb-4 flex items-center gap-2"><ArrowPathIcon className="w-5 h-5" /> Sincronización</h3>
+              <div className="flex flex-col gap-4">
+                <ControlButton onClick={onRefresh} disabled={loading} icon={<ArrowPathIcon className="w-5 h-5" />} color="emerald">Actualiza datos</ControlButton>
+                <ControlButton onClick={onTogglePolling} disabled={loading} icon={<PlayCircleIcon className="w-5 h-5" />} color={polling ? 'orange' : 'emerald'}>{polling ? 'Pausar Actualización' : 'Iniciar Actualización'}</ControlButton>
+              </div>
+            </div>
+            {/* Gestión de datos */}
+            <div className="flex-1 shadow-md">
+              <h3 className="text-lg font-bold text-blue-400 mb-4 flex items-center gap-2"><InformationCircleIcon className="w-5 h-5" /> Gestión de datos</h3>
+              <div className="flex flex-col gap-4">
+                <ControlButton onClick={handleShowInfoPanel} icon={<Squares2X2Icon className="w-5 h-5" />} color="blue">Panel informativo</ControlButton>
+                <ControlButton onClick={handleShowWeatherPanel} icon={<CloudIcon className="w-5 h-5" />} color="blue">Panel Climático</ControlButton>
+              </div>
+            </div>
+            {/* Acciones de dispositivos */}
+            <div className="flex-1 shadow-md">
+              <h3 className="text-lg font-bold text-purple-400 mb-4 flex items-center gap-2"><PlusCircleIcon className="w-5 h-5" /> Acciones de dispositivos</h3>
+              <div className="flex flex-col gap-4">
+                <ControlButton onClick={handleAddDevice} icon={<PlusCircleIcon className="w-5 h-5" />} color="purple">Agregar Dispositivos</ControlButton>
+                <ControlButton onClick={handleCreateGroup} icon={<UsersIcon className="w-5 h-5" />} color="purple">Crear grupo</ControlButton>
+              </div>
+            </div>
+          </div>
+          {/* Controles avanzados */}
+          <div className="">
+            <h3 className="text-lg font-bold text-indigo-400 mb-4 flex items-center gap-2"><AdjustmentsHorizontalIcon className="w-5 h-5" /> Controles Avanzados</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <ControlButton onClick={onShowDeviceComparison ? onShowDeviceComparison : () => {}} icon={<DevicePhoneMobileIcon className="w-5 h-5" />} color="indigo">Comparar de dispositivos</ControlButton>
+              <ControlButton onClick={onShowReports ? onShowReports : () => {}} icon={<DocumentChartBarIcon className="w-5 h-5" />} color="indigo">Generar Reportes</ControlButton>
+              <ControlButton onClick={handleShowDevices} icon={<DevicePhoneMobileIcon className="w-5 h-5" />} color="indigo">Gestionar dispositivos</ControlButton>
+              <ControlButton onClick={handleShowGroupManager} icon={<UsersIcon className="w-5 h-5" />} color="indigo">Gestionar grupos</ControlButton>
+            </div>
+          </div>
         </div>
       </div>
-      {/* Panel principal */}
-      <div className="flex-1 flex flex-col gap-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Sincronización */}
-          <div className="flex-1 shadow-md">
-            <h3 className="text-lg font-bold text-emerald-400 mb-4 flex items-center gap-2"><ArrowPathIcon className="w-5 h-5" /> Sincronización</h3>
-            <div className="flex flex-col gap-4">
-              <ControlButton onClick={onRefresh} disabled={loading} icon={<ArrowPathIcon className="w-5 h-5" />} color="emerald">Actualiza datos</ControlButton>
-              <ControlButton onClick={onTogglePolling} disabled={loading} icon={<PlayCircleIcon className="w-5 h-5" />} color={polling ? 'orange' : 'emerald'}>{polling ? 'Pausar Actualización' : 'Iniciar Actualización'}</ControlButton>
-            </div>
-          </div>
-          {/* Gestión de datos */}
-          <div className="flex-1 shadow-md">
-            <h3 className="text-lg font-bold text-blue-400 mb-4 flex items-center gap-2"><InformationCircleIcon className="w-5 h-5" /> Gestión de datos</h3>
-            <div className="flex flex-col gap-4">
-              <ControlButton onClick={handleShowInfoPanel} icon={<Squares2X2Icon className="w-5 h-5" />} color="blue">Panel informativo</ControlButton>
-              <ControlButton onClick={handleShowWeatherPanel} icon={<CloudIcon className="w-5 h-5" />} color="blue">Panel Climático</ControlButton>
-            </div>
-          </div>
-          {/* Acciones de dispositivos */}
-          <div className="flex-1 shadow-md">
-            <h3 className="text-lg font-bold text-purple-400 mb-4 flex items-center gap-2"><PlusCircleIcon className="w-5 h-5" /> Acciones de dispositivos</h3>
-            <div className="flex flex-col gap-4">
-              <ControlButton onClick={handleAddDevice} icon={<PlusCircleIcon className="w-5 h-5" />} color="purple">Agregar Dispositivos</ControlButton>
-              <ControlButton onClick={handleCreateGroup} icon={<UsersIcon className="w-5 h-5" />} color="purple">Crear grupo</ControlButton>
-            </div>
-          </div>
-        </div>
-        {/* Controles avanzados */}
-        <div className="">
-          <h3 className="text-lg font-bold text-indigo-400 mb-4 flex items-center gap-2"><AdjustmentsHorizontalIcon className="w-5 h-5" /> Controles Avanzados</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <ControlButton onClick={onShowDeviceComparison ? onShowDeviceComparison : () => {}} icon={<DevicePhoneMobileIcon className="w-5 h-5" />} color="indigo">Comparar de dispositivos</ControlButton>
-            <ControlButton onClick={onShowReports ? onShowReports : () => {}} icon={<DocumentChartBarIcon className="w-5 h-5" />} color="indigo">Generar Reportes</ControlButton>
-            <ControlButton onClick={handleShowDevices} icon={<DevicePhoneMobileIcon className="w-5 h-5" />} color="indigo">Gestionar dispositivos</ControlButton>
-            <ControlButton onClick={onShowGroupManager ? onShowGroupManager : () => {}} icon={<UsersIcon className="w-5 h-5" />} color="indigo">Gestionar grupos</ControlButton>
-          </div>
-        </div>
-      </div>
-    </div>
+
+      {/* Device Manager Modal */}
+      {showDeviceManager && (
+        <DeviceManager onClose={() => setShowDeviceManager(false)} />
+      )}
+
+      {/* Group Manager Modal */}
+      {showGroupManager && (
+        <GroupManager onClose={() => setShowGroupManager(false)} />
+      )}
+    </>
   );
 };
 
