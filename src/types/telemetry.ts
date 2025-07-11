@@ -85,11 +85,23 @@ export interface DeviceInfoData {
   deviceMac: string;
   status: string;
   createdAt: string;
-  location: DeviceLocation;
-  model: string;
+  // Compatible con el backend - latitude y longitude directamente
+  latitude: number | null;
+  longitude: number | null;
+  elevation: number | null;
+  model: string | null;
   sensors: DeviceSensor[];
-  lastUpdate: string;
-  currentData: RealtimeData;
+  lastUpdate: string | null;
+  currentData: {
+    temperature: number | null;
+    humidity: number | null;
+    pressure: number | null;
+    windSpeed: number | null;
+    windDirection: number | null;
+    rainfall: number | null;
+    uv: number | null;
+    solarRadiation: number | null;
+  };
 }
 
 export interface DeviceCharacteristicsData {

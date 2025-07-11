@@ -479,7 +479,10 @@ class TelemetryService {
         units,
       });
 
-      const response = await fetch(`${this.baseURL}/weather/timestamp?${params.toString()}`);
+      const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.WEATHER_TIMESTAMP}?${params.toString()}`);
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
       const data = await response.json();
 
       if (!response.ok) {
@@ -505,7 +508,10 @@ class TelemetryService {
         units,
       });
 
-      const response = await fetch(`${this.baseURL}/weather/daily?${params.toString()}`);
+      const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.WEATHER_DAILY}?${params.toString()}`);
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
       const data = await response.json();
 
       if (!response.ok) {
@@ -530,7 +536,10 @@ class TelemetryService {
         lang,
       });
 
-      const response = await fetch(`${this.baseURL}/weather/overview?${params.toString()}`);
+      const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.WEATHER_OVERVIEW}?${params.toString()}`);
+      const config = getRequestConfig('GET');
+
+      const response = await fetch(url, config);
       const data = await response.json();
 
       if (!response.ok) {

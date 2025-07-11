@@ -16,10 +16,13 @@ import DeviceComparison from '../../../components/features/telemetry/DeviceCompa
 import DeviceGroupManager from '../../../components/features/telemetry/DeviceGroupManager';
 import TelemetryReports from '../../../components/features/telemetry/TelemetryReports';
 import { DeviceInfo as DeviceInfoType } from '../../../types/telemetry';
+// Auxiliar para dispositivos con ubicación
+type DeviceWithLocation = DeviceInfoType & { location: { latitude: number; longitude: number } };
 import HelpButton from '../../common/UI/buttons/HelpButton';
 import HelpModal from '../../features/modals/HelpModal';
 import { ChartBarIcon, SparklesIcon, DocumentChartBarIcon, Cog6ToothIcon, BellAlertIcon, CpuChipIcon, ScaleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../../hooks/useTranslation';
+import telemetryService from '../../../services/telemetryService';
 
 interface TelemetryDashboardProps {
   deviceType?: string;
@@ -33,12 +36,16 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
   pollInterval = 30000
 }) => {
   const [selectedDevice, setSelectedDevice] = useState<DeviceInfoType | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<any | null>(null);
   const [showDeviceInfo, setShowDeviceInfo] = useState(false);
   const [showDeviceComparison, setShowDeviceComparison] = useState(false);
   const [showGroupManager, setShowGroupManager] = useState(false);
   const [showReports, setShowReports] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<null | 'info' | 'weather'>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [weatherDataPanel, setWeatherDataPanel] = useState<any>(null);
+  const [weatherError, setWeatherError] = useState<string | null>(null);
 
   // Elimina el estado local de deviceCharacteristics
 
@@ -50,7 +57,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     deviceInfo,
     deviceCharacteristics,
     groups,
-    selectedGroup,
+    selectedGroup: globalSelectedGroup,
     loading,
     error,
     polling,
@@ -195,6 +202,82 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     setShowReports(false);
   };
 
+  // Calcular ubicación promedio de un grupo
+  const getGroupAverageLocation = (group: any) => {
+    if (!group || !group.members || group.members.length === 0) return null;
+    const validMembers = group.members.filter((m: any) => m.location && m.location.latitude && m.location.longitude);
+    if (validMembers.length === 0) return null;
+    const avgLat = validMembers.reduce((sum: number, m: any) => sum + m.location.latitude, 0) / validMembers.length;
+    const avgLon = validMembers.reduce((sum: number, m: any) => sum + m.location.longitude, 0) / validMembers.length;
+    return { latitude: avgLat, longitude: avgLon };
+  };
+
+  // Obtener datos de clima para dispositivo o grupo
+  const fetchWeatherPanelData = async (device: DeviceInfoType | null, group: any | null) => {
+    setWeatherLoading(true);
+    setWeatherError(null);
+    try {
+      let lat: number | null = null;
+      let lon: number | null = null;
+      // Adaptado para usar latitude y longitude directamente del deviceInfo
+      if (device && deviceInfo?.latitude && deviceInfo?.longitude) {
+        lat = deviceInfo.latitude;
+        lon = deviceInfo.longitude;
+      } else if (group) {
+        const avgLoc = getGroupAverageLocation(group);
+        if (avgLoc) {
+          lat = avgLoc.latitude;
+          lon = avgLoc.longitude;
+        }
+      }
+      if (lat == null || lon == null) {
+        setWeatherError('No se pudo determinar la ubicación para obtener el clima.');
+        setWeatherDataPanel(null);
+        setWeatherLoading(false);
+        return;
+      }
+      // Usar el servicio de telemetría en lugar de llamada directa
+      const response = await telemetryService.getCurrentWeather(lat, lon, 'metric', 'es');
+      if (!response.success) {
+        const errorMessage = Array.isArray(response.error) 
+          ? response.error.join('; ') 
+          : response.error || 'Error al obtener datos de clima';
+        throw new Error(errorMessage);
+      }
+      setWeatherDataPanel(response.data);
+    } catch (err: any) {
+      setWeatherError(err.message || 'Error al obtener datos de clima');
+      setWeatherDataPanel(null);
+    } finally {
+      setWeatherLoading(false);
+    }
+  };
+
+  // Handler para selección
+  const handleWeatherDeviceSelect = (device: DeviceInfoType | null) => {
+    setSelectedDevice(device);
+    setSelectedGroup(null);
+    // Llamar a selectDevice para que el hook obtenga deviceInfo y weatherData
+    selectDevice(device);
+    // También obtener deviceInfo si no está disponible
+    if (device && !deviceInfo) {
+      fetchDeviceInfo(device.DeviceID);
+    }
+    fetchWeatherPanelData(device, null);
+  };
+  
+  const handleWeatherGroupSelect = (group: any) => {
+    setSelectedGroup(group);
+    setSelectedDevice(null);
+    // Llamar a selectGroup para que el hook maneje la selección
+    selectGroup(group);
+    fetchWeatherPanelData(null, group);
+  };
+  
+  const handleWeatherRefresh = () => {
+    fetchWeatherPanelData(selectedDevice, selectedGroup);
+  };
+
   // ============================================================================
   // RENDER
   // ============================================================================
@@ -249,6 +332,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
               onShowReports={handleShowReports}
               selectedDevice={selectedDevice}
               onShowInfoPanel={() => setActivePanel('info')}
+              onShowWeatherPanel={() => setActivePanel('weather')}
             />
         {/* Error Display */}
         {error && (
@@ -328,8 +412,8 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                   weatherData={weatherData}
                   loading={loading}
                   onRefresh={() => {
-                    if (selectedDevice && deviceInfo?.location) {
-                      fetchWeatherData(deviceInfo.location.latitude, deviceInfo.location.longitude);
+                    if (selectedDevice && deviceInfo?.latitude && deviceInfo?.longitude) {
+                      fetchWeatherData(deviceInfo.latitude, deviceInfo.longitude);
                     }
                   }}
                 />
@@ -348,6 +432,105 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+        {/* Panel Climático avanzado */}
+        {activePanel === 'weather' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Selector de dispositivo/grupo */}
+            <div className="lg:col-span-1 space-y-6">
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg md:text-xl font-semibold text-white flex items-center gap-2">
+                    <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    Dispositivos
+                  </h2>
+                  <button onClick={() => setActivePanel(null)} className="text-white/60 hover:text-red-400 transition-colors p-1 ml-2" title="Cerrar panel climático">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <DeviceSelector
+                  devices={devices}
+                  groups={groups}
+                  selectedDevice={selectedDevice}
+                  selectedGroup={selectedGroup}
+                  onDeviceSelect={handleWeatherDeviceSelect}
+                  onGroupSelect={handleWeatherGroupSelect}
+                  loading={loading}
+                />
+              </div>
+            </div>
+            {/* Panel de datos climáticos */}
+            <div className="lg:col-span-2 space-y-6">
+              {weatherLoading && (
+                <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-lg flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+                  <span className="ml-3 text-white/70 text-sm">Cargando clima...</span>
+                </div>
+              )}
+              {weatherError && (
+                <div className="text-lg bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm text-red-300">
+                  {weatherError}
+                </div>
+              )}
+              {!weatherLoading && !weatherDataPanel && !weatherError && (
+                <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-lg">
+                  <div className="text-center">
+                    <svg className="w-16 h-16 text-blue-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                    </svg>
+                    <h3 className="text-lg font-semibold text-white mb-2">Selecciona un dispositivo o grupo</h3>
+                    <p className="text-white/60 text-sm">
+                      Selecciona un dispositivo o grupo de la lista para ver el pronóstico climático completo
+                    </p>
+                  </div>
+                </div>
+              )}
+              {weatherDataPanel && (() => {
+                let device: DeviceWithLocation | undefined;
+                // Adaptado para usar latitude y longitude directamente del deviceInfo
+                if (selectedDevice && deviceInfo?.latitude && deviceInfo?.longitude) {
+                  device = {
+                    DeviceID: selectedDevice.DeviceID,
+                    DeviceName: selectedDevice.DeviceName,
+                    DeviceMac: selectedDevice.DeviceMac,
+                    DeviceType: selectedDevice.DeviceType,
+                    UserID: selectedDevice.UserID,
+                    status: selectedDevice.status,
+                    createdAt: selectedDevice.createdAt,
+                    location: {
+                      latitude: deviceInfo.latitude,
+                      longitude: deviceInfo.longitude
+                    }
+                  };
+                } else if (selectedGroup) {
+                  const avgLoc = getGroupAverageLocation(selectedGroup);
+                  device = {
+                    DeviceID: 'group',
+                    DeviceName: selectedGroup.GroupName || 'Grupo',
+                    DeviceMac: '',
+                    DeviceType: 'Outdoor',
+                    UserID: '',
+                    status: 'active',
+                    createdAt: '',
+                    location: avgLoc || { latitude: 0, longitude: 0 }
+                  };
+                }
+                if (!device) return null;
+                return (
+                  <WeatherDataDisplay
+                    weatherData={weatherDataPanel}
+                    device={device}
+                    loading={weatherLoading}
+                    onRefresh={handleWeatherRefresh}
+                  />
+                );
+              })()}
             </div>
           </div>
         )}

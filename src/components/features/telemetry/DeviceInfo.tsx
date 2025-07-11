@@ -161,17 +161,17 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-white/70 text-sm">Latitud:</span>
-                    <span className="text-white font-medium">{deviceInfo.location.latitude}°</span>
+                    <span className="text-white font-medium">{deviceInfo.latitude}°</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-white/70 text-sm">Longitud:</span>
-                    <span className="text-white font-medium">{deviceInfo.location.longitude}°</span>
+                    <span className="text-white font-medium">{deviceInfo.longitude}°</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-white/70 text-sm">Elevación:</span>
-                    <span className="text-white font-medium">{deviceInfo.location.elevation} m</span>
+                    <span className="text-white font-medium">{deviceInfo.elevation} m</span>
                   </div>
                 </div>
               </div>

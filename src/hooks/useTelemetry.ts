@@ -165,6 +165,7 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   }, [updateState]);
 
   const fetchDeviceInfo = useCallback(async (deviceId: string) => {
+    console.log('🔍 useTelemetry - fetchDeviceInfo iniciado para deviceId:', deviceId);
     try {
       setLoading(true);
       const response = await telemetryService.getDeviceInfo(deviceId);
@@ -176,8 +177,9 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
         });
         
         // Fetch weather data for the device location
-        if (response.data.location) {
-          fetchWeatherData(response.data.location.latitude, response.data.location.longitude);
+        // Adaptado para usar latitude y longitude directamente del deviceInfo
+        if (response.data.latitude && response.data.longitude) {
+          fetchWeatherData(response.data.latitude, response.data.longitude);
         }
       } else {
         setError(
