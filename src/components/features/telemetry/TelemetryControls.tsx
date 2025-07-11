@@ -80,7 +80,7 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
   const handleShowRealtimeData = () => onShowRealtimeData ? onShowRealtimeData() : router.push('/telemetry/realtime');
   const handleShowInfoPanel = () => onShowInfoPanel ? onShowInfoPanel() : router.push('/telemetry/info');
   const handleShowWeatherPanel = () => onShowWeatherPanel ? onShowWeatherPanel() : router.push('/telemetry/weather');
-  const handleCreateGroup = () => onCreateGroup ? onCreateGroup() : router.push('/telemetry/groups/create');
+  const handleCreateGroup = () => onCreateGroup ? onCreateGroup() : router.push('/telemetry/create-group');
 
   return (
     <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 w-full border border-white/20 shadow-2xl">
