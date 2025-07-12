@@ -9,6 +9,8 @@ import { ArrowPathIcon, PlayCircleIcon, InformationCircleIcon, CloudIcon, PlusCi
 import DeviceManager from './DeviceManager';
 import GroupManager from './GroupManager';
 import DropdownControl from './DropdownControl';
+import DeviceComparison from './DeviceComparison';
+import TelemetryReports from './TelemetryReports';
 
 interface TelemetryControlsProps {
   polling: boolean;
@@ -28,6 +30,7 @@ interface TelemetryControlsProps {
   selectedDevice?: DeviceInfo | null;
   deviceCount?: number;
   hasRealtimeData?: boolean;
+  devices?: DeviceInfo[];
 }
 
 const TelemetryControls: React.FC<TelemetryControlsProps> = ({
@@ -45,21 +48,89 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
   onShowWeatherPanel,
   onAddDevice,
   onCreateGroup,
+  devices = [],
 }) => {
   const router = useRouter();
   const [showDeviceManager, setShowDeviceManager] = useState(false);
   const [showGroupManager, setShowGroupManager] = useState(false);
+  const [showDeviceComparison, setShowDeviceComparison] = useState(false);
+  const [showReports, setShowReports] = useState(false);
 
-  // Handlers por defecto
-  const handleAddDevice = () => (onAddDevice ? onAddDevice() : router.push('/telemetry/add-device'));
-  const handleShowDevices = () => (onShowDevices ? onShowDevices() : setShowDeviceManager(true));
-  const handleShowRealtimeData = () => (onShowRealtimeData ? onShowRealtimeData() : router.push('/telemetry/realtime'));
-  const handleShowInfoPanel = () => (onShowInfoPanel ? onShowInfoPanel() : router.push('/telemetry/info'));
-  const handleShowWeatherPanel = () => (onShowWeatherPanel ? onShowWeatherPanel() : router.push('/telemetry/weather'));
-  const handleCreateGroup = () => (onCreateGroup ? onCreateGroup() : router.push('/telemetry/create-group'));
-  const handleShowGroupManager = () => (onShowGroupManager ? onShowGroupManager() : setShowGroupManager(true));
-  const handleShowDeviceComparison = () => (onShowDeviceComparison ? onShowDeviceComparison() : null);
-  const handleShowReports = () => (onShowReports ? onShowReports() : null);
+  // Handlers mejorados con fallbacks apropiados
+  const handleAddDevice = () => {
+    if (onAddDevice) {
+      onAddDevice();
+    } else {
+      router.push('/telemetry/add-device');
+    }
+  };
+
+  const handleShowDevices = () => {
+    if (onShowDevices) {
+      onShowDevices();
+    } else {
+      setShowDeviceManager(true);
+    }
+  };
+
+  const handleShowRealtimeData = () => {
+    if (onShowRealtimeData) {
+      onShowRealtimeData();
+    } else {
+      // Mostrar panel de datos en tiempo real
+      console.log('Mostrando datos en tiempo real');
+    }
+  };
+
+  const handleShowInfoPanel = () => {
+    if (onShowInfoPanel) {
+      onShowInfoPanel();
+    } else {
+      // Mostrar panel informativo
+      console.log('Mostrando panel informativo');
+    }
+  };
+
+  const handleShowWeatherPanel = () => {
+    if (onShowWeatherPanel) {
+      onShowWeatherPanel();
+    } else {
+      // Mostrar panel climático
+      console.log('Mostrando panel climático');
+    }
+  };
+
+  const handleCreateGroup = () => {
+    if (onCreateGroup) {
+      onCreateGroup();
+    } else {
+      router.push('/telemetry/create-group');
+    }
+  };
+
+  const handleShowGroupManager = () => {
+    if (onShowGroupManager) {
+      onShowGroupManager();
+    } else {
+      setShowGroupManager(true);
+    }
+  };
+
+  const handleShowDeviceComparison = () => {
+    if (onShowDeviceComparison) {
+      onShowDeviceComparison();
+    } else {
+      setShowDeviceComparison(true);
+    }
+  };
+
+  const handleShowReports = () => {
+    if (onShowReports) {
+      onShowReports();
+    } else {
+      setShowReports(true);
+    }
+  };
 
   return (
     <>
@@ -111,7 +182,7 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
             label="Controles Avanzados"
             color="indigo"
             options={[
-              { label: 'Comparar de dispositivos', onClick: handleShowDeviceComparison, icon: <DevicePhoneMobileIcon className="w-5 h-5" /> },
+              { label: 'Comparar dispositivos', onClick: handleShowDeviceComparison, icon: <DevicePhoneMobileIcon className="w-5 h-5" /> },
               { label: 'Generar Reportes', onClick: handleShowReports, icon: <DocumentChartBarIcon className="w-5 h-5" /> },
               { label: 'Gestionar dispositivos', onClick: handleShowDevices, icon: <DevicePhoneMobileIcon className="w-5 h-5" /> },
               { label: 'Gestionar grupos', onClick: handleShowGroupManager, icon: <UsersIcon className="w-5 h-5" /> },
@@ -119,13 +190,62 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
           />
         </div>
       </div>
-      {/* Device Manager Modal */}
+      
+      {/* Modales */}
       {showDeviceManager && (
         <DeviceManager onClose={() => setShowDeviceManager(false)} />
       )}
-      {/* Group Manager Modal */}
+      
       {showGroupManager && (
         <GroupManager onClose={() => setShowGroupManager(false)} />
+      )}
+      
+      {showDeviceComparison && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">Comparación de Dispositivos</h2>
+                <button
+                  onClick={() => setShowDeviceComparison(false)}
+                  className="text-white/60 hover:text-red-400 transition-colors p-2"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <DeviceComparison 
+                devices={devices} 
+                onClose={() => setShowDeviceComparison(false)} 
+              />
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {showReports && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">Reportes de Telemetría</h2>
+                <button
+                  onClick={() => setShowReports(false)}
+                  className="text-white/60 hover:text-red-400 transition-colors p-2"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <TelemetryReports 
+                devices={devices} 
+                onClose={() => setShowReports(false)} 
+              />
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

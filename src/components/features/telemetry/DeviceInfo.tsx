@@ -148,7 +148,7 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({
             </div>
 
             {/* Location Information */}
-            {deviceInfo?.location && (
+            {deviceInfo?.latitude && deviceInfo?.longitude && (
               <div className="bg-white/10 border border-white/20 rounded-xl p-6 backdrop-blur-sm">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,10 +169,12 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({
                     <span className="text-white font-medium">{deviceInfo.longitude}°</span>
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/70 text-sm">Elevación:</span>
-                    <span className="text-white font-medium">{deviceInfo.elevation} m</span>
-                  </div>
+                  {deviceInfo.elevation && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-white/70 text-sm">Elevación:</span>
+                      <span className="text-white font-medium">{deviceInfo.elevation} m</span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

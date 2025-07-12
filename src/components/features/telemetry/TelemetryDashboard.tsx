@@ -333,6 +333,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
               selectedDevice={selectedDevice}
               onShowInfoPanel={() => setActivePanel('info')}
               onShowWeatherPanel={() => setActivePanel('weather')}
+              devices={devices}
             />
         {/* Error Display */}
         {error && (
