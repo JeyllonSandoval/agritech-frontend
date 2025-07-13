@@ -4,7 +4,25 @@
 // ============================================================================
 
 import React from 'react';
-import { RealtimeData, SensorValue } from '../../../types/telemetry';
+import { RealtimeData, SensorValue, WeatherData, DeviceInfo, DeviceInfoData, DeviceCharacteristicsData } from '../../../types/telemetry';
+import { useDeviceWeather } from '../../../hooks/useDeviceWeather';
+import { 
+  WiThermometer, 
+  WiHumidity, 
+  WiBarometer, 
+  WiRain, 
+  WiStrongWind,
+  WiDayThunderstorm,
+  WiDaySprinkle,
+  WiDayRain,
+  WiDaySnow,
+  WiFog,
+  WiDaySunny,
+  WiDayCloudy,
+} from 'react-icons/wi';
+import { CiBatteryCharging } from "react-icons/ci";
+import { MdOutlineVisibility } from "react-icons/md";
+
 
 interface RealtimeDataDisplayProps {
   data: RealtimeData | null;
@@ -12,6 +30,9 @@ interface RealtimeDataDisplayProps {
   loading?: boolean;
   error?: string | null;
   onShowDeviceInfo?: () => void;
+  device?: DeviceInfo | null;
+  deviceInfo?: DeviceInfoData | null;
+  deviceCharacteristics?: DeviceCharacteristicsData | null;
 }
 
 const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
@@ -19,8 +40,13 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
   deviceName,
   loading,
   error,
-  onShowDeviceInfo
+  onShowDeviceInfo,
+  device = null,
+  deviceInfo = null,
+  deviceCharacteristics = null
 }) => {
+  const { weatherData } = useDeviceWeather({ device, deviceInfo, deviceCharacteristics });
+
   const formatValue = (sensorValue: SensorValue) => {
     return `${sensorValue.value} ${sensorValue.unit}`;
   };
@@ -33,42 +59,44 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
   const getSensorIcon = (sensorType: string) => {
     switch (sensorType) {
       case 'temperature':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        );
+        return <WiThermometer className="w-5 h-5" />;
       case 'humidity':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-          </svg>
-        );
+        return <WiHumidity className="w-5 h-5" />;
       case 'pressure':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-          </svg>
-        );
+        return <WiBarometer className="w-5 h-5" />;
       case 'soilmoisture':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-          </svg>
-        );
+        return <WiRain className="w-5 h-5" />;
       case 'battery':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-          </svg>
-        );
+        return <CiBatteryCharging className="w-5 h-5" />;
       default:
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        );
+        return <WiThermometer className="w-5 h-5" />;
     }
+  };
+
+  const getWeatherIcon = (weatherId: number) => {
+    // Map weather IDs to appropriate Weather Icons
+    if (weatherId >= 200 && weatherId < 300) {
+      return <WiDayThunderstorm className="w-16 h-16 text-yellow-400 drop-shadow-lg" />;
+    }
+    if (weatherId >= 300 && weatherId < 400) {
+      return <WiDaySprinkle className="w-16 h-16 text-sky-400 drop-shadow-lg" />;
+    }
+    if (weatherId >= 500 && weatherId < 600) {
+      return <WiDayRain className="w-16 h-16 text-blue-400 drop-shadow-lg" />;
+    }
+    if (weatherId >= 600 && weatherId < 700) {
+      return <WiDaySnow className="w-16 h-16 text-slate-200 drop-shadow-lg" />;
+    }
+    if (weatherId >= 700 && weatherId < 800) {
+      return <WiFog className="w-16 h-16 text-gray-400 drop-shadow-lg" />;
+    }
+    if (weatherId === 800) {
+      return <WiDaySunny className="w-16 h-16 text-yellow-300 drop-shadow-lg" />;
+    }
+    if (weatherId >= 801 && weatherId < 900) {
+      return <WiDayCloudy className="w-16 h-16 text-gray-300 drop-shadow-lg" />;
+    }
+    return <WiDaySunny className="w-16 h-16 text-gray-400 drop-shadow-lg" />;
   };
 
   const getSensorColor = (sensorType: string, value: string) => {
@@ -136,6 +164,7 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
 
   return (
     <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+      {/* Información del dispositivo */}
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold text-white flex items-center gap-2">
           <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -358,7 +387,52 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
             </div>
           </div>
         )}
+        
       </div>
+      
+      {/* Tarjeta de clima básico (estilo horizontal mejorado) */}
+      {weatherData && weatherData.current && (
+        <div className="bg-gradient-to-br from-blue-900/40 to-cyan-800/30 rounded-2xl p-6 mt-4 border border-cyan-400/20 shadow-xl mb-8 flex flex-col md:flex-row items-center md:items-stretch gap-6">
+          {/* Icono y temperatura */}
+          <div className="flex flex-col items-center justify-center md:justify-between md:items-center min-w-[180px]">
+            <div>
+              {getWeatherIcon(weatherData.current.weather[0].id)}
+            </div>
+            <div className="text-4xl md:text-5xl font-extrabold text-white mb-1 drop-shadow">
+              {Math.round(weatherData.current.temp)}°C
+            </div>
+            <div className="text-lg md:text-xl text-white/80 mb-1 font-medium capitalize">
+              {weatherData.current.weather[0].description}
+            </div>
+            <div className="text-xs text-white/50">
+              {new Date(weatherData.current.dt * 1000).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
+          {/* Datos secundarios alineados horizontalmente */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mx-auto">
+            <div className="rounded-lg px-4 py-2 flex flex-col items-center">
+              <WiThermometer className="w-8 h-8 text-white/60 mb-1" />
+              <span className="text-xs text-white/60">Sensación</span>
+              <span className="text-white font-semibold text-base md:text-lg">{Math.round(weatherData.current.feels_like)}°C</span>
+            </div>
+            <div className="rounded-lg px-4 py-2 flex flex-col items-center">
+              <WiHumidity className="w-8 h-8 text-white/60 mb-1" />
+              <span className="text-xs text-white/60">Humedad</span>
+              <span className="text-white font-semibold text-base md:text-lg">{weatherData.current.humidity}%</span>
+            </div>
+            <div className="rounded-lg px-4 py-2 flex flex-col items-center">
+              <WiBarometer className="w-8 h-8 text-white/60 mb-1" />
+              <span className="text-xs text-white/60">Presión</span>
+              <span className="text-white font-semibold text-base md:text-lg">{weatherData.current.pressure} hPa</span>
+            </div>
+            <div className="rounded-lg px-4 py-2 flex flex-col items-center">
+              <MdOutlineVisibility className="w-8 h-8 text-white/60 mb-1" />
+              <span className="text-xs text-white/60">Visibilidad</span>
+              <span className="text-white font-semibold text-base md:text-lg">{(weatherData.current.visibility / 1000).toFixed(1)} km</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Last Update Info */}
       <div className="mt-6 pt-4 border-t border-white/10">

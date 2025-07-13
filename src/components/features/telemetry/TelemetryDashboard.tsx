@@ -23,6 +23,7 @@ import HelpModal from '../../features/modals/HelpModal';
 import { ChartBarIcon, SparklesIcon, DocumentChartBarIcon, Cog6ToothIcon, BellAlertIcon, CpuChipIcon, ScaleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../../hooks/useTranslation';
 import telemetryService from '../../../services/telemetryService';
+import { useDeviceWeather } from '../../../hooks/useDeviceWeather';
 
 interface TelemetryDashboardProps {
   deviceType?: string;
@@ -84,6 +85,19 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     deviceType,
     autoPoll,
     pollInterval
+  });
+
+  // Hook centralizado para clima del dispositivo seleccionado
+  const {
+    weatherData: basicWeatherData,
+    loading: weatherLoadingBasic,
+    error: weatherErrorBasic,
+    refresh: refreshWeatherBasic
+  } = useDeviceWeather({
+    device: selectedDevice,
+    deviceInfo,
+    deviceCharacteristics,
+    group: undefined
   });
 
   const { t } = useTranslation();
@@ -475,6 +489,9 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                   deviceName={selectedDevice.DeviceName}
                   loading={panelLoading}
                   onShowDeviceInfo={handleShowDeviceInfo}
+                  device={selectedDevice}
+                  deviceInfo={deviceInfo}
+                  deviceCharacteristics={deviceCharacteristics}
                 />
               )}
               {/* Weather Data */}
