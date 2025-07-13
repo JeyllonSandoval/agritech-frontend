@@ -11,13 +11,15 @@ interface RealtimeDataDisplayProps {
   deviceName?: string;
   loading?: boolean;
   error?: string | null;
+  onShowDeviceInfo?: () => void;
 }
 
 const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
   data,
   deviceName,
   loading,
-  error
+  error,
+  onShowDeviceInfo
 }) => {
   const formatValue = (sensorValue: SensorValue) => {
     return `${sensorValue.value} ${sensorValue.unit}`;
@@ -142,7 +144,21 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
           Datos en Tiempo Real
         </h3>
         {deviceName && (
-          <span className="text-sm text-white/60">{deviceName}</span>
+          <span className="text-lg text-white/60 flex items-center gap-2">
+            {deviceName}
+            {onShowDeviceInfo && (
+              <button
+                onClick={onShowDeviceInfo}
+                className="ml-2 p-1 rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                title="Ver información del dispositivo"
+                type="button"
+              >
+                <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            )}
+          </span>
         )}
       </div>
 

@@ -402,6 +402,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                   data={realtimeData}
                   deviceName={selectedDevice.DeviceName}
                   loading={loading}
+                  onShowDeviceInfo={handleShowDeviceInfo}
                 />
               )}
               {/* Weather Data */}
