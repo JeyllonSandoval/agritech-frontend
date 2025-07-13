@@ -164,8 +164,6 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
 
   const handleShowDeviceInfo = () => {
     if (selectedDevice) {
-      console.log('🔍 TelemetryDashboard - Abriendo modal para dispositivo:', selectedDevice.DeviceID);
-      console.log('🔍 TelemetryDashboard - DeviceName:', selectedDevice.DeviceName);
       fetchDeviceCharacteristics(selectedDevice.DeviceID);
       if (!deviceInfo) {
         fetchDeviceInfo(selectedDevice.DeviceID);

@@ -56,10 +56,6 @@ const DeviceInfo: React.FC<DeviceInfoProps> = ({
     );
   };
 
-  // DEBUG: Verifica qué llega realmente
-  console.log('DeviceInfo - deviceCharacteristics:', deviceCharacteristics);
-  console.log('DeviceInfo - deviceCharacteristics.ecowittInfo:', deviceCharacteristics?.ecowittInfo);
-
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">

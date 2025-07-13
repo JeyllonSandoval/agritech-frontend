@@ -6,8 +6,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DeviceInfo } from '../../../types/telemetry';
 import { ArrowPathIcon, PlayCircleIcon, InformationCircleIcon, CloudIcon, PlusCircleIcon, UsersIcon, Squares2X2Icon, DocumentChartBarIcon, AdjustmentsHorizontalIcon, DevicePhoneMobileIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
-import DeviceManager from './DeviceManager';
-import GroupManager from './GroupManager';
 import DropdownControl from './DropdownControl';
 import DeviceComparison from './DeviceComparison';
 import TelemetryReports from './TelemetryReports';
@@ -51,8 +49,6 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
   devices = [],
 }) => {
   const router = useRouter();
-  const [showDeviceManager, setShowDeviceManager] = useState(false);
-  const [showGroupManager, setShowGroupManager] = useState(false);
   const [showDeviceComparison, setShowDeviceComparison] = useState(false);
   const [showReports, setShowReports] = useState(false);
 
@@ -69,7 +65,8 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
     if (onShowDevices) {
       onShowDevices();
     } else {
-      setShowDeviceManager(true);
+      // Usar el handler del dashboard
+      console.log('Mostrando gestión de dispositivos');
     }
   };
 
@@ -112,7 +109,8 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
     if (onShowGroupManager) {
       onShowGroupManager();
     } else {
-      setShowGroupManager(true);
+      // Usar el handler del dashboard
+      console.log('Mostrando gestión de grupos');
     }
   };
 
@@ -192,14 +190,6 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
       </div>
       
       {/* Modales */}
-      {showDeviceManager && (
-        <DeviceManager onClose={() => setShowDeviceManager(false)} />
-      )}
-      
-      {showGroupManager && (
-        <GroupManager onClose={() => setShowGroupManager(false)} />
-      )}
-      
       {showDeviceComparison && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">

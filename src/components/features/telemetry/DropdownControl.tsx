@@ -27,14 +27,23 @@ interface DropdownControlProps {
 
 const DropdownControl: React.FC<DropdownControlProps> = ({ label, options, color = 'gray', className = '' }) => {
   const [open, setOpen] = useState(false);
-  const handleSelect = (option: { onClick: () => void; disabled?: boolean }) => {
+  
+  const handleSelect = (option: { label: string; onClick: () => void; disabled?: boolean }) => {
     if (!option.disabled) {
       option.onClick();
       setOpen(false);
     }
   };
+
+  const handleBlur = (e: React.FocusEvent) => {
+    // Solo cerrar si el nuevo elemento no está dentro del dropdown
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setOpen(false);
+    }
+  };
+
   return (
-    <div className={`relative ${className}`} tabIndex={0} onBlur={() => setOpen(false)}>
+    <div className={`relative ${className}`} tabIndex={0} onBlur={handleBlur}>
       <button
         type="button"
         className={`w-full border rounded-full px-6 py-3 text-lg font-medium flex items-center gap-3 justify-between transition-all duration-200 shadow-sm ${colorMap[color]} focus:outline-none`}
@@ -45,7 +54,7 @@ const DropdownControl: React.FC<DropdownControlProps> = ({ label, options, color
         <ChevronDownIcon className={`w-5 h-5 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className={`absolute left-0 mt-2 w-full ${dropdownBgMap[color]} border border-white/20 rounded-xl shadow-lg z-20 overflow-hidden animate-fade-in`}>
+        <div className={`absolute left-0 mt-2 w-full ${dropdownBgMap[color]} border border-white/20 rounded-xl shadow-lg z-50 overflow-hidden transition-all duration-200 ease-in-out`}>
           {options.map((option, idx) => (
             <button
               key={option.label}
