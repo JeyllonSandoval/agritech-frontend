@@ -58,12 +58,16 @@ const DropdownControl: React.FC<DropdownControlProps> = ({ label, options, color
           {options.map((option, idx) => (
             <button
               key={option.label}
-              className={`w-full flex items-center gap-3 px-5 py-3 text-base text-left hover:bg-white/10 transition disabled:opacity-50 ${option.disabled ? 'cursor-not-allowed text-white/50' : 'text-white'} ${idx < options.length - 1 ? 'border-b border-white/10' : ''}`}
+              className={`w-full flex items-center gap-3 px-5 py-3 text-base text-left hover:bg-white/10 transition disabled:opacity-50 ${option.disabled ? 'cursor-not-allowed text-white/50' : 'text-white'}
+                ${idx < options.length - 1 ? 'border-b border-white/10' : ''} 
+                ${option.label === 'Pausar Actualización' ? 'text-red-400 bg-red-500/60 hover:bg-red-500/80 font-bold' : ''}`}
               onClick={() => handleSelect(option)}
               disabled={option.disabled}
               type="button"
             >
-              {option.icon && <span className="w-5 h-5 flex-shrink-0 opacity-80">{option.icon}</span>}
+              {option.icon && (
+                <span className={`w-5 h-5 flex-shrink-0 opacity-80 ${option.label === 'Pausar Actualización' ? 'text-red-100' : ''}`}>{option.icon}</span>
+              )}
               {option.label}
             </button>
           ))}

@@ -137,21 +137,37 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
   // HANDLERS
   // ============================================================================
 
+  // Loading local solo para panel derecho
+  const [panelLoading, setPanelLoading] = useState(false);
+
   const handleDeviceSelect = (device: DeviceInfoType | null) => {
     setSelectedDevice(device);
     selectDevice(device);
+    // Mostrar loading en el panel derecho al seleccionar
+    if (device) {
+      setPanelLoading(true);
+      Promise.all([
+        fetchRealtimeData(device.DeviceID),
+        fetchDeviceInfo(device.DeviceID)
+      ]).finally(() => setPanelLoading(false));
+    } else {
+      setPanelLoading(false);
+    }
   };
 
   const handleGroupSelect = (group: any) => {
     selectGroup(group);
   };
 
+  // Refrescar solo datos del panel derecho
   const handleRefresh = () => {
     if (selectedDevice) {
-      fetchRealtimeData(selectedDevice.DeviceID);
-      fetchDeviceInfo(selectedDevice.DeviceID);
+      setPanelLoading(true);
+      Promise.all([
+        fetchRealtimeData(selectedDevice.DeviceID),
+        fetchDeviceInfo(selectedDevice.DeviceID)
+      ]).finally(() => setPanelLoading(false));
     }
-    fetchDevices();
   };
 
   const handleTogglePolling = () => {
@@ -217,11 +233,23 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     try {
       let lat: number | null = null;
       let lon: number | null = null;
-      // Adaptado para usar latitude y longitude directamente del deviceInfo
-      if (device && deviceInfo?.latitude && deviceInfo?.longitude) {
+      // 1. Buscar en deviceInfo
+      if (device && typeof deviceInfo?.latitude === 'number' && typeof deviceInfo?.longitude === 'number') {
         lat = deviceInfo.latitude;
         lon = deviceInfo.longitude;
-      } else if (group) {
+      }
+      // 2. Si no hay en deviceInfo, buscar en deviceCharacteristics.ecowittInfo.data
+      else if (
+        device &&
+        deviceCharacteristics?.ecowittInfo?.data &&
+        typeof deviceCharacteristics.ecowittInfo.data.latitude === 'number' &&
+        typeof deviceCharacteristics.ecowittInfo.data.longitude === 'number'
+      ) {
+        lat = deviceCharacteristics.ecowittInfo.data.latitude;
+        lon = deviceCharacteristics.ecowittInfo.data.longitude;
+      }
+      // 3. Si es un grupo, calcular promedio
+      else if (group) {
         const avgLoc = getGroupAverageLocation(group);
         if (avgLoc) {
           lat = avgLoc.latitude;
@@ -390,7 +418,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                   selectedGroup={selectedGroup}
                   onDeviceSelect={handleDeviceSelect}
                   onGroupSelect={handleGroupSelect}
-                  loading={loading}
+                  loading={false} // Nunca loading para el panel izquierdo
                 />
               </div>
             </div>
@@ -401,7 +429,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                 <RealtimeDataDisplay
                   data={realtimeData}
                   deviceName={selectedDevice.DeviceName}
-                  loading={loading}
+                  loading={panelLoading}
                   onShowDeviceInfo={handleShowDeviceInfo}
                 />
               )}
@@ -410,7 +438,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                 <WeatherDataDisplay
                   device={selectedDevice}
                   weatherData={weatherData}
-                  loading={loading}
+                  loading={panelLoading}
                   onRefresh={() => {
                     if (selectedDevice && deviceInfo?.latitude && deviceInfo?.longitude) {
                       fetchWeatherData(deviceInfo.latitude, deviceInfo.longitude);

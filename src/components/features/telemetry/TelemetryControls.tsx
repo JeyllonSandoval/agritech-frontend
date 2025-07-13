@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DeviceInfo } from '../../../types/telemetry';
-import { ArrowPathIcon, PlayCircleIcon, InformationCircleIcon, CloudIcon, PlusCircleIcon, UsersIcon, Squares2X2Icon, DocumentChartBarIcon, AdjustmentsHorizontalIcon, DevicePhoneMobileIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, PlayCircleIcon, PauseCircleIcon, InformationCircleIcon, CloudIcon, PlusCircleIcon, UsersIcon, Squares2X2Icon, DocumentChartBarIcon, AdjustmentsHorizontalIcon, DevicePhoneMobileIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import DropdownControl from './DropdownControl';
 import DeviceComparison from './DeviceComparison';
 import TelemetryReports from './TelemetryReports';
@@ -154,7 +154,7 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
             color="emerald"
             options={[
               { label: 'Actualiza datos', onClick: onRefresh, disabled: loading, icon: <ArrowPathIcon className="w-5 h-5" /> },
-              { label: polling ? 'Pausar Actualización' : 'Iniciar Actualización', onClick: onTogglePolling, disabled: loading, icon: <PlayCircleIcon className="w-5 h-5" /> },
+              { label: polling ? 'Pausar Actualización' : 'Iniciar Actualización', onClick: onTogglePolling, disabled: loading, icon: polling ? <PauseCircleIcon className="w-5 h-5" /> : <PlayCircleIcon className="w-5 h-5" /> },
             ]}
           />
           <DropdownControl

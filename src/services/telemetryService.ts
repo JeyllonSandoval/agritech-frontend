@@ -41,22 +41,64 @@ class TelemetryService {
    */
   async registerDevice(deviceData: DeviceRegistration): Promise<ApiResponse<DeviceInfo>> {
     try {
+      console.log('🔍 telemetryService - registerDevice iniciado con datos:', deviceData);
+      
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      console.log('🔍 telemetryService - URL:', `${this.baseURL}/devices`);
+      console.log('🔍 telemetryService - Headers:', headers);
+      
       const response = await fetch(`${this.baseURL}/devices`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(deviceData),
       });
 
       const data = await response.json();
       
+      console.log('🔍 telemetryService - Response status:', response.status);
+      console.log('🔍 telemetryService - Response data:', data);
+      
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to register device');
+        // Manejar diferentes tipos de errores del backend
+        let errorMessage = 'Failed to register device';
+        
+        if (data.error) {
+          if (Array.isArray(data.error)) {
+            errorMessage = data.error.join('; ');
+          } else {
+            errorMessage = data.error;
+          }
+        } else if (data.message) {
+          errorMessage = data.message;
+        } else if (data.details) {
+          errorMessage = Array.isArray(data.details) 
+            ? data.details.map((d: any) => d.message).join('; ')
+            : data.details;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      // Si la respuesta no tiene la estructura esperada, la envuelve
+      if (data.success === undefined) {
+        console.log('🔍 telemetryService - Envuelviendo respuesta directa del backend');
+        return {
+          success: true,
+          data: data
+        };
       }
 
       return data;
     } catch (error) {
+      console.error('❌ telemetryService - Error en registerDevice:', error);
       throw new Error(`Error registering device: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }

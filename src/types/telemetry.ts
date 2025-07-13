@@ -12,7 +12,7 @@ export interface DeviceRegistration {
   DeviceMac: string;
   DeviceApplicationKey: string;
   DeviceApiKey: string;
-  DeviceType: 'Outdoor' | 'Indoor' | 'Hybrid';
+  DeviceType: string;
   UserID: string;
 }
 
