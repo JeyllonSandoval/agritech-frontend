@@ -124,16 +124,23 @@ const DeviceGroupManager: React.FC<DeviceGroupManagerProps> = ({
         }
       } else {
         // Create new group
-        const groupData: GroupCreation = {
+        const groupData: any = {
           GroupName: formData.GroupName,
           Description: formData.Description,
-          deviceIds: formData.deviceIds,
+          DeviceIDs: formData.deviceIds, // array de strings UUID
           UserID: '1'
         };
 
         const response = await telemetryService.createGroup(groupData);
-        if (response.success && response.data) {
-          onGroupCreated?.(response.data);
+        // Permitir respuesta directa del backend (objeto grupo) o envuelta
+        let group: Group | undefined = undefined;
+        if (response && typeof response === 'object' && 'DeviceGroupID' in response) {
+          group = (response as unknown) as Group;
+        } else if (response && typeof response === 'object' && 'success' in response && response.success && response.data) {
+          group = response.data as Group;
+        }
+        if (group) {
+          onGroupCreated?.(group);
           setShowForm(false);
           setError(null);
         } else {
@@ -198,71 +205,65 @@ const DeviceGroupManager: React.FC<DeviceGroupManagerProps> = ({
         </div>
       )}
 
-      {!showForm ? (
-        /* Groups List */
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium text-white text-center">
-              Grupos ({groups.length})
-            </h3>
-            <button
-              onClick={handleCreateGroup}
-              className="flex items-center gap-2 px-3 py-2 text-lg bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-all"
-            >
-              <PlusIcon className="w-4 h-4" />
-              Crear Grupo
-            </button>
-          </div>
+      {/* Groups List */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-medium text-white text-center">
+            Grupos ({groups.length})
+          </h3>
+          {/* Botón de crear grupo eliminado */}
+        </div>
 
-          {groups.length === 0 ? (
-            <div className="text-center text-lg py-8 text-white/50">
-              <UserGroupIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>No hay grupos creados</p>
-              <p className="text-sm">Crea tu primer grupo para organizar tus dispositivos</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {groups.map(group => (
-                <div
-                  key={group.DeviceGroupID}
-                  className="bg-white/5 border text-lg border-white/20 rounded-lg p-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-white">{group.GroupName}</h4>
-                      {group.Description && (
-                        <p className="text-sm text-white/70 mt-1">{group.Description}</p>
-                      )}
-                      <p className="text-xs text-white/50 mt-2">
-                        {group.deviceIds?.length || 0} dispositivos
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleEditGroup(group)}
-                        className="p-2 text-blue-400 hover:text-blue-300 transition-colors"
-                      >
-                        <PencilIcon className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteGroup(group.DeviceGroupID)}
-                        disabled={loading}
-                        className="p-2 text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                      </button>
-                    </div>
+        {groups.length === 0 ? (
+          <div className="text-center text-lg py-8 text-white/50">
+            <UserGroupIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>No hay grupos creados</p>
+            <p className="text-sm">Crea tu primer grupo para organizar tus dispositivos</p>
+          </div>
+        ) :
+          <div className="space-y-3">
+            {groups.map(group => (
+              <div
+                key={group.DeviceGroupID}
+                className="bg-white/5 border text-lg border-white/20 rounded-lg p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-white">{group.GroupName}</h4>
+                    {group.Description && (
+                      <p className="text-sm text-white/70 mt-1">{group.Description}</p>
+                    )}
+                    <p className="text-xs text-white/50 mt-2">
+                      {group.deviceIds?.length || 0} dispositivos
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleEditGroup(group)}
+                      className="p-2 text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                      <PencilIcon className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteGroup(group.DeviceGroupID)}
+                      disabled={loading}
+                      className="p-2 text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ) : (
-        /* Group Form */
+              </div>
+            ))}
+          </div>
+        }
+      </div>
+
+      {/* Formulario de creación de grupo eliminado */}
+      {showForm && (
         <div className="space-y-4">
           <h3 className="text-lg font-medium text-white">
-            {editingGroup ? 'Editar Grupo' : 'Crear Nuevo Grupo'}
+            Editar Grupo
           </h3>
 
           <div className="space-y-4">
@@ -297,7 +298,7 @@ const DeviceGroupManager: React.FC<DeviceGroupManagerProps> = ({
             {/* Device Selection */}
             <div>
               <h3 className="block text-lg font-medium text-white mb-2">
-                Dispositivos ({formData.deviceIds.length} seleccionados)
+                Dispositivos
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
                 {devices.map(device => {
@@ -336,7 +337,7 @@ const DeviceGroupManager: React.FC<DeviceGroupManagerProps> = ({
                 disabled={loading || !formData.GroupName.trim() || formData.deviceIds.length === 0}
                 className="flex-1 text-lg bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2 transition-all"
               >
-                {loading ? 'Guardando...' : (editingGroup ? 'Actualizar' : 'Crear')}
+                {loading ? 'Guardando...' : 'Actualizar'}
               </button>
             </div>
           </div>

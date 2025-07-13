@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon, DevicePhoneMobileIcon, UsersIcon, CheckCircleIcon, PlusIcon } from '@heroicons/react/24/outline';
 import telemetryService from '../../../services/telemetryService';
 import { GroupCreation, DeviceInfo } from '../../../types/telemetry';
+import { showSuccessToast } from '@/components/common/SuccessToast';
 
 interface GroupFormData {
   groupName: string;
@@ -134,19 +135,24 @@ const CreateGroupPage: React.FC<CreateGroupPageProps> = () => {
       const tokenPayload = JSON.parse(atob(token.split('.')[1]));
       const userId = tokenPayload.UserID;
 
-      const groupData: GroupCreation = {
+      const groupData = {
         GroupName: formData.groupName,
         UserID: userId,
         Description: formData.description || undefined,
-        deviceIds: selectedDevices
+        deviceIds: selectedDevices // CAMBIO: deviceIds como espera la implementación del backend
       };
 
       console.log('Creando grupo:', groupData);
+      console.log('selectedDevices:', selectedDevices);
+      console.log('selectedDevices.length:', selectedDevices.length);
       
       const response = await telemetryService.createGroup(groupData);
       
-      if (response.success) {
-        console.log('Grupo creado exitosamente:', response.data);
+      if (
+        (response && typeof response === 'object' && 'DeviceGroupID' in response) ||
+        (response && typeof response === 'object' && response.success)
+      ) {
+        localStorage.setItem('showGroupCreatedToast', '1');
         router.push('/telemetry');
       } else {
         throw new Error(Array.isArray(response.error) ? response.error.join('; ') : response.error || 'Error al crear el grupo');
@@ -195,8 +201,7 @@ const CreateGroupPage: React.FC<CreateGroupPageProps> = () => {
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div>
+            <div className="flex flex-col">
                 <label className="block text-sm font-medium text-white/80 mb-2">
                   Nombre del Grupo *
                 </label>
@@ -204,12 +209,10 @@ const CreateGroupPage: React.FC<CreateGroupPageProps> = () => {
                   type="text"
                   value={formData.groupName}
                   onChange={(e) => handleInputChange('groupName', e.target.value)}
-                  className="w-full text-lg bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  className="w-full mb-4 text-lg bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   placeholder="Estaciones Campo Norte"
                 />
-              </div>
 
-              <div>
                 <label className="block text-sm font-medium text-white/80 mb-2">
                   Descripción
                 </label>
@@ -220,7 +223,6 @@ const CreateGroupPage: React.FC<CreateGroupPageProps> = () => {
                   className="w-full text-lg bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   placeholder="Describe el propósito o ubicación de este grupo de dispositivos..."
                 />
-              </div>
             </div>
           </div>
         );
@@ -245,7 +247,7 @@ const CreateGroupPage: React.FC<CreateGroupPageProps> = () => {
               <div className="flex items-center justify-center py-12">
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 border-2 text-lg border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-white/80">Cargando dispositivos...</span>
+                  <span className="text-white/80 text-lg">Cargando dispositivos...</span>
                 </div>
               </div>
             ) : devices.length === 0 ? (

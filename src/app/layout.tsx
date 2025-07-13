@@ -6,6 +6,7 @@ import ModalCreated from "@/components/features/modals/modalCreated";
 import MobileRestriccion from "@/components/features/layouts/MobileRestriccion";
 import { NavbarLateralProvider } from "@/context/navbarLateralContext";
 import { LanguageProvider } from '@/context/languageContext';
+import { Toaster } from 'react-hot-toast';
 
 export default function RootLayout({
   children,
@@ -33,6 +34,7 @@ export default function RootLayout({
                 {children}
                 <ModalCreated />
               </main>
+              <Toaster position="top-right" />
             </NavbarLateralProvider>
           </Providers>
         </LanguageProvider>

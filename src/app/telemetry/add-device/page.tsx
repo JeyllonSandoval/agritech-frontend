@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon, DevicePhoneMobileIcon, WifiIcon, CheckCircleIcon, PlayCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import telemetryService from '../../../services/telemetryService';
 import { DeviceRegistration } from '../../../types/telemetry';
+import { showSuccessToast } from '@/components/common/SuccessToast';
 
 // Tipos válidos del backend (en inglés, para enviar al backend)
 const DEVICE_TYPES = [
@@ -232,6 +233,7 @@ const AddDevicePage: React.FC = () => {
       console.log('🔍 Respuesta del servidor:', response);
       
       if (response.success) {
+        localStorage.setItem('showDeviceCreatedToast', '1');
         console.log('✅ Dispositivo registrado exitosamente:', response.data);
         router.push('/telemetry');
       } else {

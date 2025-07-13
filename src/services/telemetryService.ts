@@ -603,22 +603,44 @@ class TelemetryService {
    */
   async createGroup(groupData: GroupCreation): Promise<ApiResponse<Group>> {
     try {
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      console.log('🔍 telemetryService - createGroup - URL:', `${this.baseURL}/groups`);
+      console.log('🔍 telemetryService - Headers:', headers);
+      console.log('🔍 telemetryService - Payload:', groupData);
       const response = await fetch(`${this.baseURL}/groups`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(groupData),
       });
-
       const data = await response.json();
-
+      console.log('🔍 telemetryService - Response status:', response.status);
+      console.log('🔍 telemetryService - Response data:', data);
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create group');
+        let errorMessage = 'Failed to create group';
+        if (data.error) {
+          if (Array.isArray(data.error)) {
+            errorMessage = data.error.join('; ');
+          } else {
+            errorMessage = data.error;
+          }
+        } else if (data.message) {
+          errorMessage = data.message;
+        } else if (data.details) {
+          errorMessage = Array.isArray(data.details)
+            ? data.details.map((d: any) => d.message).join('; ')
+            : data.details;
+        }
+        throw new Error(errorMessage);
       }
-
       return data;
     } catch (error) {
+      console.error('❌ telemetryService - Error en createGroup:', error);
       throw new Error(`Error creating group: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
