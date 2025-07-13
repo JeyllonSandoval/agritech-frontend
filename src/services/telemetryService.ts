@@ -485,28 +485,7 @@ class TelemetryService {
    * Get current weather data for a location
    */
   async getCurrentWeather(lat: number, lon: number, units: string = 'metric', lang: string = 'es'): Promise<ApiResponse<WeatherData>> {
-    try {
-      const params = new URLSearchParams({
-        lat: lat.toString(),
-        lon: lon.toString(),
-        units,
-        lang,
-      });
-
-      const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.WEATHER_CURRENT}?${params.toString()}`);
-      const config = getRequestConfig('GET');
-
-      const response = await fetch(url, config);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch weather data');
-      }
-
-      return data;
-    } catch (error) {
-      throw new Error(`Error fetching weather data: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    return this.getWeatherOverview(lat, lon, units, lang);
   }
 
   /**

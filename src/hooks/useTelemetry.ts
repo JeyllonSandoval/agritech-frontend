@@ -316,8 +316,8 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
 
   const fetchWeatherData = useCallback(async (lat: number, lon: number) => {
     try {
-      const response = await telemetryService.getCurrentWeather(lat, lon);
-      
+      // Usar getWeatherOverview en vez de getCurrentWeather
+      const response = await telemetryService.getWeatherOverview(lat, lon);
       if (response.success && response.data) {
         updateState({ 
           weatherData: response.data,

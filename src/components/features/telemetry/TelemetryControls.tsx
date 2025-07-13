@@ -159,7 +159,7 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
           />
           <DropdownControl
             className="w-full"
-            label="Gestion de datos"
+            label="Gestion"
             color="blue"
             options={[
               { label: 'Panel informativo', onClick: handleShowInfoPanel, icon: <Squares2X2Icon className="w-5 h-5" /> },
@@ -168,7 +168,7 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
           />
           <DropdownControl
             className="w-full"
-            label="Acciones de dispositivos"
+            label="Creacion"
             color="purple"
             options={[
               { label: 'Agregar Dispositivos', onClick: handleAddDevice, icon: <PlusCircleIcon className="w-5 h-5" /> },
@@ -177,7 +177,7 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
           />
           <DropdownControl
             className="w-full"
-            label="Controles Avanzados"
+            label="Operaciones"
             color="indigo"
             options={[
               { label: 'Comparar dispositivos', onClick: handleShowDeviceComparison, icon: <DevicePhoneMobileIcon className="w-5 h-5" /> },
