@@ -227,7 +227,7 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
 
       {/* Error Display */}
       {error && (
-        <div className="mb-4 p-3 bg-red-500/20 border border-red-500/40 rounded-lg text-red-400">
+        <div className="mb-4 p-3 text-lg bg-red-500/20 border border-red-500/40 rounded-lg text-red-400">
           {error}
         </div>
       )}

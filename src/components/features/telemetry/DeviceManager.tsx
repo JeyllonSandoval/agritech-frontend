@@ -56,27 +56,18 @@ const DeviceManager: React.FC<DeviceManagerProps> = ({ onClose, onDeviceCreated,
   };
 
   const handleDelete = async (deviceId: string) => {
-    console.log('🔍 handleDelete - Iniciando eliminación para deviceId:', deviceId);
-    console.log('🔍 handleDelete - Tipo de deviceId:', typeof deviceId);
-    console.log('🔍 handleDelete - DeviceId válido:', deviceId && deviceId.length > 0);
-    
     // Usar ConfirmModal en lugar de confirm nativo
     openConfirmModal(
       '¿Estás seguro de que quieres eliminar este dispositivo?',
       async () => {
-        console.log('🔍 handleDelete - Usuario confirmó eliminación');
         setLoading(true);
         setError(null);
         try {
-          console.log('🔍 handleDelete - Llamando a telemetryService.deleteDevice');
           await telemetryService.deleteDevice(deviceId);
-          console.log('🔍 handleDelete - Dispositivo eliminado exitosamente');
           setDevices(devices.filter(d => d.DeviceID !== deviceId));
           onDeviceDeleted?.(deviceId);
           showSuccessToast('Dispositivo eliminado correctamente');
         } catch (e: any) {
-          console.error('❌ handleDelete - Error al eliminar dispositivo:', e);
-          console.error('❌ handleDelete - Error message:', e.message);
           setError(e.message);
         } finally {
           setLoading(false);
@@ -89,8 +80,7 @@ const DeviceManager: React.FC<DeviceManagerProps> = ({ onClose, onDeviceCreated,
     setDevices(devices.map(d => d.DeviceID === updatedDevice.DeviceID ? updatedDevice : d));
     onDeviceUpdated?.(updatedDevice);
     setEditingDevice(null);
-    // Mostrar confirmación de éxito
-    openConfirmModal('¡Dispositivo actualizado correctamente!', () => {});
+    showSuccessToast('Dispositivo actualizado correctamente');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -20,7 +20,7 @@ export interface DeviceInfo {
   DeviceID: string;
   DeviceName: string;
   DeviceMac: string;
-  DeviceType: 'Outdoor' | 'Indoor' | 'Hybrid';
+  DeviceType: string; // Updated to match backend's supported types
   UserID: string;
   status: 'active' | 'inactive';
   createdAt: string;

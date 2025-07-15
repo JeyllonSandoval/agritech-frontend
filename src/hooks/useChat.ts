@@ -124,7 +124,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
             const fileMessage = await chatService.sendFileMessage(currentChat.ChatID, file.FileID);
             setMessages(prev => {
                 const updated = [...prev, fileMessage];
-                console.log('Después de fileMessage:', updated);
+        
                 return updated;
             });
 
@@ -145,7 +145,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
                 };
                 setMessages(prev => {
                     const updated = [...prev, aiPlaceholder];
-                    console.log('Después de placeholder:', updated);
+            
                     return updated;
                 });
 
@@ -168,7 +168,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
                     const updated = prev.map(msg =>
                         msg.MessageID === placeholderId ? backendMessage : msg
                     );
-                    console.log('Después de respuesta real:', updated);
+            
                     return updated;
                 });
             }

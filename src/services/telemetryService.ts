@@ -42,8 +42,6 @@ class TelemetryService {
    */
   async registerDevice(deviceData: DeviceRegistration): Promise<ApiResponse<DeviceInfo>> {
     try {
-      console.log('🔍 telemetryService - registerDevice iniciado con datos:', deviceData);
-      
       const token = localStorage.getItem('token');
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
@@ -53,9 +51,6 @@ class TelemetryService {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
-      console.log('🔍 telemetryService - URL:', `${this.baseURL}/devices`);
-      console.log('🔍 telemetryService - Headers:', headers);
-      
       const response = await fetch(`${this.baseURL}/devices`, {
         method: 'POST',
         headers,
@@ -63,9 +58,6 @@ class TelemetryService {
       });
 
       const data = await response.json();
-      
-      console.log('🔍 telemetryService - Response status:', response.status);
-      console.log('🔍 telemetryService - Response data:', data);
       
       if (!response.ok) {
         // Manejar diferentes tipos de errores del backend
@@ -90,7 +82,6 @@ class TelemetryService {
 
       // Si la respuesta no tiene la estructura esperada, la envuelve
       if (data.success === undefined) {
-        console.log('🔍 telemetryService - Envuelviendo respuesta directa del backend');
         return {
           success: true,
           data: data
@@ -99,7 +90,6 @@ class TelemetryService {
 
       return data;
     } catch (error) {
-      console.error('❌ telemetryService - Error en registerDevice:', error);
       throw new Error(`Error registering device: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -196,38 +186,27 @@ class TelemetryService {
    * Get device characteristics from EcoWitt
    */
   async getDeviceCharacteristics(deviceId: string): Promise<ApiResponse<DeviceCharacteristicsData>> {
-    console.log('🔍 telemetryService - getDeviceCharacteristics iniciado para deviceId:', deviceId);
     try {
       const url = buildApiUrl(API_CONFIG.ENDPOINTS.DEVICE_CHARACTERISTICS(deviceId));
       const config = getRequestConfig('GET');
-      
-      console.log('🔍 telemetryService - URL construida:', url);
-      console.log('🔍 telemetryService - Config de request:', config);
 
       const response = await fetch(url, config);
       const data = await response.json();
-      
-      console.log('🔍 telemetryService - Response status:', response.status);
-      console.log('🔍 telemetryService - Response data:', data);
 
       if (!response.ok) {
-        console.log('🔍 telemetryService - Error en response:', data.error);
         throw new Error(data.error || 'Failed to fetch device characteristics');
       }
 
       // Si la respuesta no tiene la estructura esperada (success/data), la envuelve
       if (data.success === undefined) {
-        console.log('🔍 telemetryService - Envuelviendo respuesta directa del backend');
         return {
           success: true,
           data: data
         };
       }
 
-      console.log('🔍 telemetryService - Respuesta exitosa:', data);
       return data;
     } catch (error) {
-      console.log('🔍 telemetryService - Error en getDeviceCharacteristics:', error);
       throw new Error(`Error fetching device characteristics: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -318,10 +297,30 @@ class TelemetryService {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update device');
+        // Manejar diferentes tipos de errores del backend
+        let errorMessage = 'Failed to update device';
+        
+        if (data.error) {
+          if (Array.isArray(data.error)) {
+            errorMessage = data.error.join('; ');
+          } else {
+            errorMessage = data.error;
+          }
+        } else if (data.message) {
+          errorMessage = data.message;
+        } else if (data.details) {
+          errorMessage = Array.isArray(data.details) 
+            ? data.details.map((d: any) => d.message).join('; ')
+            : data.details;
+        }
+        
+        throw new Error(errorMessage);
       }
 
-      return data;
+      return {
+        success: true,
+        data: data
+      };
     } catch (error) {
       throw new Error(`Error updating device: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -332,70 +331,43 @@ class TelemetryService {
    */
   async deleteDevice(deviceId: string): Promise<ApiResponse<void>> {
     try {
-      console.log('🔍 deleteDevice - Iniciando eliminación para deviceId:', deviceId);
-      
       const token = localStorage.getItem('token');
-      console.log('🔍 deleteDevice - Token encontrado:', token ? 'Sí' : 'No');
-      
       const headers: Record<string, string> = {};
       
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
-        console.log('🔍 deleteDevice - Header Authorization agregado');
-      } else {
-        console.log('❌ deleteDevice - No se encontró token en localStorage');
       }
 
-      const url = `${this.baseURL}/devices/${deviceId}`;
-      console.log('🔍 deleteDevice - URL de la petición:', url);
-      console.log('🔍 deleteDevice - Headers completos:', headers);
-
-      const response = await fetch(url, {
+      const response = await fetch(`${this.baseURL}/devices/${deviceId}`, {
         method: 'DELETE',
         headers,
       });
 
-      console.log('🔍 deleteDevice - Response status:', response.status);
-      console.log('🔍 deleteDevice - Response headers:', Object.fromEntries(response.headers.entries()));
-
       // Verificar si la respuesta tiene contenido antes de parsear JSON
       const contentType = response.headers.get('content-type');
-      console.log('🔍 deleteDevice - Content-Type:', contentType);
-      
       let data;
       
       if (contentType && contentType.includes('application/json')) {
         const responseText = await response.text();
-        console.log('🔍 deleteDevice - Response text:', responseText);
         
         if (responseText.trim()) {
           data = JSON.parse(responseText);
-          console.log('🔍 deleteDevice - Data parseada:', data);
         } else {
           data = {};
-          console.log('🔍 deleteDevice - Response vacía, usando objeto vacío');
         }
       } else {
         data = {};
-        console.log('🔍 deleteDevice - No es JSON, usando objeto vacío');
       }
 
       if (!response.ok) {
-        console.log('❌ deleteDevice - Error en response:', {
-          status: response.status,
-          statusText: response.statusText,
-          data: data
-        });
         throw new Error(data.error || data.message || 'Failed to delete device');
       }
 
-      console.log('✅ deleteDevice - Eliminación exitosa');
       return {
         success: true,
         data: undefined
       };
     } catch (error) {
-      console.error('❌ deleteDevice - Error completo:', error);
       throw new Error(`Error deleting device: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -659,17 +631,12 @@ class TelemetryService {
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
-      console.log('🔍 telemetryService - createGroup - URL:', `${this.baseURL}/groups`);
-      console.log('🔍 telemetryService - Headers:', headers);
-      console.log('🔍 telemetryService - Payload:', groupData);
       const response = await fetch(`${this.baseURL}/groups`, {
         method: 'POST',
         headers,
         body: JSON.stringify(groupData),
       });
       const data = await response.json();
-      console.log('🔍 telemetryService - Response status:', response.status);
-      console.log('🔍 telemetryService - Response data:', data);
       if (!response.ok) {
         let errorMessage = 'Failed to create group';
         if (data.error) {
@@ -689,7 +656,6 @@ class TelemetryService {
       }
       return data;
     } catch (error) {
-      console.error('❌ telemetryService - Error en createGroup:', error);
       throw new Error(`Error creating group: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }

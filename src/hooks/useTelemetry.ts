@@ -122,10 +122,8 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
 
   // 3. Obtener datos en tiempo real de todos los dispositivos del grupo
   const fetchGroupRealtimeData = useCallback(async (groupId: string) => {
-    console.log('[TELEMETRY] Fetch realtime data for group:', groupId);
     try {
       const resp = await telemetryService.getGroupRealtimeData(groupId);
-      console.log('[TELEMETRY] Respuesta de realtime del grupo:', resp);
       if (resp && resp.success && resp.data) {
         setGroupRealtimeData(resp.data);
         return resp.data;
@@ -134,7 +132,6 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
         return {};
       }
     } catch (err) {
-      console.log('[TELEMETRY] Error al obtener datos en tiempo real del grupo:', err);
       setGroupRealtimeData({});
       return {};
     }
@@ -321,7 +318,7 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   }, [userId, setLoading, setError, updateState]);
 
   const selectGroup = useCallback((group: Group | null) => {
-    console.log('[TELEMETRY] Grupo seleccionado:', group);
+
     updateState({ selectedGroup: group });
   }, [updateState]);
 
