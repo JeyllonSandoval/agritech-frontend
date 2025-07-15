@@ -956,9 +956,14 @@ class TelemetryService {
    */
   async compareDevicesHistory(deviceIds: string[], timeRange: TimeRange): Promise<ApiResponse<any>> {
     try {
+      // Convertir timeRange a startTime y endTime como espera el backend
+      const { startTime, endTime } = this.convertTimeRangeToDates(timeRange);
+      
       const url = buildApiUrl('/compare/history');
       const config = getRequestConfig('POST', { 
         deviceIds,
+        startTime,
+        endTime,
         timeRange 
       });
 
@@ -973,6 +978,39 @@ class TelemetryService {
     } catch (error) {
       throw new Error(`Error comparing historical data: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  }
+
+  /**
+   * Convert TimeRange to start and end dates
+   */
+  private convertTimeRangeToDates(timeRange: TimeRange): { startTime: string; endTime: string } {
+    const now = new Date();
+    let startTime: Date;
+
+    switch (timeRange) {
+      case 'one_hour':
+        startTime = new Date(now.getTime() - 60 * 60 * 1000);
+        break;
+      case 'one_day':
+        startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        break;
+      case 'one_week':
+        startTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'one_month':
+        startTime = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case 'three_months':
+        startTime = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000); // Default to one day
+    }
+
+    return {
+      startTime: startTime.toISOString(),
+      endTime: now.toISOString()
+    };
   }
 }
 

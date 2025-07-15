@@ -30,10 +30,18 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
   const [viewMode, setViewMode] = useState<'realtime' | 'historical'>('realtime');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [timeRangeInfo, setTimeRangeInfo] = useState<{ startTime: string; endTime: string } | null>(null);
 
   // ============================================================================
   // HANDLERS
   // ============================================================================
+
+  // Limpiar datos cuando cambia el modo de vista
+  useEffect(() => {
+    setComparisonData([]);
+    setTimeRangeInfo(null);
+    setError(null);
+  }, [viewMode]);
 
   const handleDeviceToggle = (device: DeviceInfo) => {
     setSelectedDevices(prev => {
@@ -65,11 +73,16 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
       const response = await telemetryService.compareDevicesRealtime(deviceIds);
       
       if (response.success && response.data) {
-        const data: ComparisonData[] = selectedDevices.map(device => ({
-          deviceId: device.DeviceID,
-          deviceName: device.DeviceName,
-          realtimeData: response.data.devices.find((d: any) => d.id === device.DeviceID)?.data
-        }));
+        // El backend devuelve { timestamp, devices: [{ id, name, type, data }] }
+        const data: ComparisonData[] = selectedDevices.map(device => {
+          const deviceData = response.data.devices.find((d: any) => d.id === device.DeviceID);
+          return {
+            deviceId: device.DeviceID,
+            deviceName: device.DeviceName,
+            realtimeData: deviceData?.data || null,
+            error: deviceData ? undefined : 'No se encontraron datos para este dispositivo'
+          };
+        });
         setComparisonData(data);
       } else {
         setError('Error al obtener datos de comparación');
@@ -95,11 +108,17 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
       const response = await telemetryService.compareDevicesHistory(deviceIds, timeRange);
       
       if (response.success && response.data) {
-        const data: ComparisonData[] = selectedDevices.map(device => ({
-          deviceId: device.DeviceID,
-          deviceName: device.DeviceName,
-          historicalData: response.data.devices.find((d: any) => d.id === device.DeviceID)?.data
-        }));
+        // El backend devuelve { timeRange: { startTime, endTime }, devices: [{ id, name, type, data }] }
+        setTimeRangeInfo(response.data.timeRange);
+        const data: ComparisonData[] = selectedDevices.map(device => {
+          const deviceData = response.data.devices.find((d: any) => d.id === device.DeviceID);
+          return {
+            deviceId: device.DeviceID,
+            deviceName: device.DeviceName,
+            historicalData: deviceData?.data || null,
+            error: deviceData ? undefined : 'No se encontraron datos para este dispositivo'
+          };
+        });
         setComparisonData(data);
       } else {
         setError('Error al obtener datos históricos');
@@ -238,6 +257,11 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
           <h3 className="text-lg font-medium text-white text-center">
             Resultados de Comparación
           </h3>
+          {viewMode === 'historical' && timeRangeInfo && (
+            <div className="text-center text-sm text-white/60 bg-white/5 rounded-lg p-2">
+              Período: {new Date(timeRangeInfo.startTime).toLocaleDateString()} - {new Date(timeRangeInfo.endTime).toLocaleDateString()}
+            </div>
+          )}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {comparisonData.map((data) => (
               <div
@@ -276,8 +300,42 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
                     )}
                   </div>
                 ) : viewMode === 'historical' && data.historicalData ? (
-                  <div className="text-sm text-white/70">
-                    Datos históricos disponibles
+                  <div className="space-y-2">
+                    {data.historicalData.indoor?.temperature && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-white/70">Temp. Promedio:</span>
+                        <span className="text-white">
+                          {data.historicalData.indoor.temperature.unit}
+                        </span>
+                      </div>
+                    )}
+                    {data.historicalData.indoor?.humidity && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-white/70">Humedad Promedio:</span>
+                        <span className="text-white">
+                          {data.historicalData.indoor.humidity.unit}
+                        </span>
+                      </div>
+                    )}
+                    {data.historicalData.outdoor?.temperature && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-white/70">Temp. Exterior:</span>
+                        <span className="text-white">
+                          {data.historicalData.outdoor.temperature.unit}
+                        </span>
+                      </div>
+                    )}
+                    {data.historicalData.outdoor?.rainfall && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-white/70">Lluvia Total:</span>
+                        <span className="text-white">
+                          {data.historicalData.outdoor.rainfall.unit}
+                        </span>
+                      </div>
+                    )}
+                    <div className="text-xs text-white/50 mt-2">
+                      Datos del período seleccionado
+                    </div>
                   </div>
                 ) : (
                   <div className="text-sm text-white/50">
@@ -293,4 +351,4 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
   );
 };
 
-export default DeviceComparison; 
+export default DeviceComparison;

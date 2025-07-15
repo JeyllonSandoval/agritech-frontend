@@ -112,7 +112,7 @@ export default function ModalCreated() {
                                     onSelect={handleFileSelect}
                                 />
                             )}
-                            {type === 'createdFile' && mode === 'preview' && itemId && (
+                            {type === 'createdFile' && mode === 'preview' && contentURL && (
                                 <div className="w-full h-[50vh] sm:h-[60vh] md:h-[70vh] flex flex-col gap-2 sm:gap-4">
                                     <div className="flex-1 bg-white/5 rounded-lg overflow-hidden">
                                         <iframe

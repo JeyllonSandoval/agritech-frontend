@@ -438,6 +438,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
           onShowInfoPanel={() => setActivePanel('info')}
           onShowWeatherPanel={() => setActivePanel('weather')}
           devices={devices}
+          groups={groups}
         />
         {/* Error Display */}
         {error && (
@@ -699,7 +700,9 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
         {showReports && (
           <TelemetryReports
             devices={devices}
+            groups={groups}
             selectedDevice={selectedDevice}
+            selectedGroup={selectedGroup}
             onClose={handleHideReports}
           />
         )}

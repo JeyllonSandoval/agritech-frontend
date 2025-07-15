@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { DeviceInfo } from '../../../types/telemetry';
+import { DeviceInfo, Group } from '../../../types/telemetry';
 import { ArrowPathIcon, PlayCircleIcon, PauseCircleIcon, InformationCircleIcon, CloudIcon, PlusCircleIcon, UsersIcon, Squares2X2Icon, DocumentChartBarIcon, AdjustmentsHorizontalIcon, DevicePhoneMobileIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import DropdownControl from './DropdownControl';
 import DeviceComparison from './DeviceComparison';
@@ -29,6 +29,7 @@ interface TelemetryControlsProps {
   deviceCount?: number;
   hasRealtimeData?: boolean;
   devices?: DeviceInfo[];
+  groups?: Group[];
 }
 
 const TelemetryControls: React.FC<TelemetryControlsProps> = ({
@@ -47,6 +48,7 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
   onAddDevice,
   onCreateGroup,
   devices = [],
+  groups = [],
 }) => {
   const router = useRouter();
   const [showDeviceComparison, setShowDeviceComparison] = useState(false);
@@ -230,7 +232,8 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
                 </button>
               </div>
               <TelemetryReports 
-                devices={devices} 
+                devices={devices}
+                groups={groups}
                 onClose={() => setShowReports(false)} 
               />
             </div>
