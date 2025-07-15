@@ -142,11 +142,19 @@ const DeviceGroupManager: React.FC<DeviceGroupManagerProps> = ({
                 <div className="flex-1">
                   <h4 className="font-medium text-white text-base">{group.GroupName}</h4>
                   {group.Description && (
-                    <p className="text-xs text-white/50 mt-1">{group.Description}</p>
+                    <p className="text-xs text-white/50 mt-1 line-clamp-2">{group.Description}</p>
                   )}
-                  <p className="text-xs text-white/50 mt-1">
-                    {group.deviceIds?.length || 0} dispositivos
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-white/50">
+                      {group.deviceIds?.length || 0} dispositivos
+                    </span>
+                    {group.Description && (
+                      <span className="text-xs text-emerald-400/70">•</span>
+                    )}
+                    <span className="text-xs text-white/40">
+                      ID: {group.DeviceGroupID.slice(0, 8)}...
+                    </span>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button 
