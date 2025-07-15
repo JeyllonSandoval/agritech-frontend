@@ -1,265 +1,165 @@
-# Telemetry Implementation
+# Telemetry Components - Updated for New Backend Structure
 
-## Overview
+## 🎯 **Cambios Implementados**
 
-This directory contains the telemetry system implementation for the AgriTech frontend, which provides real-time monitoring of EcoWitt devices and weather data.
+### **1. Nuevos Tipos de Datos**
 
-## Components
-
-### Core Components
-
-- **TelemetryDashboard**: Main dashboard component that orchestrates all telemetry functionality
-- **DeviceSelector**: Component for selecting devices and groups
-- **RealtimeDataDisplay**: Displays real-time sensor data
-- **WeatherDataDisplay**: Shows weather information for device locations
-- **TelemetryStats**: Displays statistics and overview data
-- **TelemetryControls**: Controls for polling, refresh, and other actions
-- **TelemetryAlerts**: Manages and displays alerts
-- **DeviceInfo**: Shows detailed device information
-- **TelemetryTest**: Testing component for API endpoints
-
-## API Integration
-
-### Backend Endpoints
-
-The telemetry system integrates with the following backend endpoints:
-
-#### Devices
-- `GET /devices` - Get all devices for a user
-- `GET /devices/:deviceId` - Get specific device
-- `GET /devices/:deviceId/info` - Get complete device info with current data
-- `GET /devices/:deviceId/characteristics` - Get device characteristics from EcoWitt
-- `GET /devices/:deviceId/realtime` - **Get real-time data** ⭐ (Updated with new structure)
-- `GET /devices/:deviceId/history` - Get historical data
-- `GET /devices/:deviceId/diagnose` - Diagnose device status
-- `GET /devices/:deviceId/test` - Test device connectivity
-- `GET /devices/history` - Get historical data for multiple devices
-- `GET /devices/realtime` - Get real-time data for multiple devices
-
-#### Device Groups
-- `GET /users/:userId/groups` - Get all groups for a user
-- `GET /groups/:groupId` - Get specific group details
-- `GET /groups/:groupId/devices` - Get devices in a group
-- `GET /groups/:groupId/history` - Get group historical data
-- `GET /groups/:groupId/realtime` - Get group real-time data
-
-#### Weather
-- `GET /api/weather/test` - Test OpenWeather API key
-- `GET /api/weather/demo` - Get demo weather data
-- `GET /api/weather/current` - Get current weather
-- `GET /api/weather/timestamp` - Get weather for specific time
-- `GET /api/weather/daily` - Get daily weather aggregation
-- `GET /api/weather/overview` - Get weather overview with AI
-
-#### Utility
-- `GET /health` - API health check
-
-## Configuration
-
-### Environment Variables
-
-Create a `.env.local` file in the project root:
-
-```env
-# API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:4000/api
-
-# Development Settings
-NODE_ENV=development
-```
-
-### API Configuration
-
-The API configuration is centralized in `src/config/api.ts`:
-
+#### **Group Interface Actualizada**
 ```typescript
-export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api',
-  ENDPOINTS: {
-    // All endpoint definitions
-  },
-  REQUEST_CONFIG: {
-    headers: { 'Content-Type': 'application/json' },
-    timeout: 10000,
-  },
-  // ... more configuration
-};
-```
-
-## Usage
-
-### Basic Usage
-
-```typescript
-import { useTelemetry } from '@/hooks/useTelemetry';
-
-const MyComponent = () => {
-  const {
-    devices,
-    groups,
-    loading,
-    error,
-    fetchDevices,
-    fetchGroups
-  } = useTelemetry({
-    userId: 'user-id',
-    autoPoll: true,
-    pollInterval: 30000
-  });
-
-  // Use the telemetry data
-};
-```
-
-### Testing API Calls
-
-Use the `TelemetryTest` component to test API endpoints:
-
-```typescript
-import TelemetryTest from '@/components/features/telemetry/TelemetryTest';
-
-// In your component
-<TelemetryTest userId="test-user-id" />
-```
-
-## State Management
-
-The telemetry system uses React hooks for state management:
-
-### TelemetryState Interface
-
-```typescript
-interface TelemetryState {
-  devices: DeviceInfo[];
-  selectedDevice: DeviceInfo | null;
-  realtimeData: RealtimeData | null;
-  historicalData: HistoricalResponse | null;
-  weatherData: WeatherData | null;
-  deviceInfo: DeviceInfoData | null;
-  deviceCharacteristics: DeviceCharacteristicsData | null;
-  groups: Group[];
-  selectedGroup: Group | null;
-  loading: boolean;
-  error: string | null;
-  polling: boolean;
-  lastUpdate: string | null;
+export interface Group {
+  DeviceGroupID: string;
+  GroupName: string;
+  UserID: string;
+  Description?: string;
+  deviceIds?: string[];
+  deviceCount?: number; // ✅ NUEVO: Conteo automático de dispositivos
+  createdAt: string;
+  updatedAt: string;
+  status: 'active' | 'inactive';
 }
 ```
 
-## Error Handling
+#### **Nuevos Tipos para Datos Enriquecidos**
+```typescript
+// Datos enriquecidos con información del dispositivo
+export interface EnrichedRealtimeData extends RealtimeData {
+  deviceInfo?: {
+    deviceId: string;
+    deviceName: string;
+    mac: string;
+  };
+}
 
-The system includes comprehensive error handling:
+// Respuesta de datos en tiempo real de grupos
+export interface GroupRealtimeResponse {
+  [deviceName: string]: EnrichedRealtimeData;
+}
+```
 
-- Network errors
-- Timeout errors
-- Server errors
-- Authentication errors
-- Resource not found errors
+### **2. Componentes Actualizados**
 
-## Polling
+#### **DeviceSelector.tsx**
+- ✅ **Usa `deviceCount` del backend** en lugar de calcularlo manualmente
+- ✅ **Mejor pluralización** en el texto de dispositivos
+- ✅ **Compatibilidad** con estructura anterior
 
-The system supports automatic polling for real-time data:
+#### **GroupRealtimeDataDisplay.tsx**
+- ✅ **Usa nombres de dispositivos** como claves en lugar de MACs
+- ✅ **Muestra información del dispositivo** (nombre + MAC)
+- ✅ **Compatibilidad** con estructura anterior
+- ✅ **Mejor UX** con nombres descriptivos
 
-- **Configurable poll interval** (default: 30 seconds)
-- **Real-time data polling**: Every minute (60,000ms) for sensor data
-- Start/stop polling controls
-- Error handling during polling
-- Automatic retry logic
+### **3. Servicios Actualizados**
 
-## New Features ⭐
+#### **telemetryService.ts**
+- ✅ **Maneja `deviceCount`** automáticamente en `getUserGroups`
+- ✅ **Usa nuevos tipos** para datos de grupos
+- ✅ **Compatibilidad** con respuestas del backend
 
-### Real-time Data Structure
-The system now supports the new backend response structure:
+#### **useTelemetry.ts**
+- ✅ **Estado actualizado** para usar `GroupRealtimeResponse`
+- ✅ **Funciones de grupo** optimizadas
+- ✅ **Manejo de errores** mejorado
 
+### **4. Estructura de Datos**
+
+#### **Antes (con MACs):**
 ```json
 {
-  "code": 0,
-  "msg": "success",
-  "time": "1752028074",
-  "data": {
-    "indoor": {
-      "temperature": { "time": "1752028063", "unit": "ºF", "value": "80.2" },
-      "humidity": { "time": "1752028063", "unit": "%", "value": "45" }
-    },
-    "pressure": {
-      "relative": { "time": "1752028063", "unit": "inHg", "value": "29.80" },
-      "absolute": { "time": "1752028063", "unit": "inHg", "value": "29.80" }
-    },
-    "soil_ch1": {
-      "soilmoisture": { "time": "1752028063", "unit": "%", "value": "34" },
-      "ad": { "time": "1752028063", "unit": "", "value": "189" }
-    },
-    "battery": {
-      "soilmoisture_sensor_ch1": { "time": "1752028063", "unit": "V", "value": "1.6" }
+  "AA:BB:CC:DD:EE:FF": {
+    "temperature": 25.5,
+    "humidity": 60
+  }
+}
+```
+
+#### **Ahora (con nombres):**
+```json
+{
+  "Sensor de Temperatura Principal": {
+    "temperature": 25.5,
+    "humidity": 60,
+    "deviceInfo": {
+      "deviceId": "device-uuid-1",
+      "deviceName": "Sensor de Temperatura Principal", 
+      "mac": "AA:BB:CC:DD:EE:FF"
     }
   }
 }
 ```
 
-### Authentication Integration
-- **Protected routes**: Telemetry requires user authentication
-- **Token-based requests**: All API calls include authorization headers
-- **Dynamic UserID**: Extracted automatically from JWT token
-- **Automatic updates**: Responds to token changes
+## 🔧 **Funcionalidades Nuevas**
 
-## Alerts
+### **1. Conteo Automático de Dispositivos**
+- ✅ **Backend calcula** `deviceCount` automáticamente
+- ✅ **Frontend usa** el valor calculado
+- ✅ **Actualización en tiempo real** cuando se agregan/quitan dispositivos
 
-The system includes an alert system for monitoring sensor data:
+### **2. Nombres de Dispositivos en Lugar de MACs**
+- ✅ **Más legible** para usuarios
+- ✅ **Información completa** disponible
+- ✅ **Compatibilidad** con sistema anterior
 
-- Temperature alerts (critical > 35°C, warning > 30°C)
-- Humidity alerts (warning < 20%)
-- Configurable thresholds
-- Alert acknowledgment
-- Alert history
+### **3. Datos Enriquecidos**
+- ✅ **Metadatos del dispositivo** incluidos
+- ✅ **Información de MAC** disponible si es necesario
+- ✅ **Estructura extensible** para futuras mejoras
 
-## Development
+## 📊 **Beneficios**
 
-### Running Tests
+### **Para Usuarios:**
+1. **Más legible** - Nombres descriptivos en lugar de MACs
+2. **Información completa** - Acceso a metadatos del dispositivo
+3. **Mejor UX** - Conteo automático de dispositivos
 
-1. Start the backend server
-2. Navigate to `/telemetry` page
-3. Click "Show Tests" button
-4. Click "Run Tests" to test API endpoints
+### **Para Desarrolladores:**
+1. **Tipos seguros** - TypeScript actualizado
+2. **Compatibilidad** - Funciona con estructura anterior
+3. **Extensible** - Fácil agregar más información
 
-### Debugging
+### **Para el Sistema:**
+1. **Eficiencia** - Backend calcula conteos
+2. **Consistencia** - Datos siempre actualizados
+3. **Escalabilidad** - Fácil agregar más campos
 
-- Check browser console for API configuration logs
-- Use the test component to verify endpoints
-- Monitor network tab for API calls
-- Check error states in components
+## 🚀 **Uso**
 
-## Backend Requirements
-
-The backend must implement the following:
-
-1. **Authentication**: User-based access control
-2. **Device Management**: CRUD operations for devices
-3. **Group Management**: CRUD operations for groups
-4. **EcoWitt Integration**: Real-time data from EcoWitt API
-5. **Weather Integration**: OpenWeather API integration
-6. **Data Storage**: Historical data storage
-7. **Error Handling**: Proper error responses
-8. **CORS**: Cross-origin resource sharing configuration
-
-## API Response Format
-
-All API responses follow this format:
-
+### **En Componentes:**
 ```typescript
-interface ApiResponse<T> {
-  success: boolean;
-  message?: string;
-  data?: T;
-  error?: string | string[];
-}
+// Los componentes ahora reciben datos con nombres de dispositivos
+<GroupRealtimeDataDisplay
+  data={groupRealtimeData} // GroupRealtimeResponse
+  group={selectedGroup}     // Group con deviceCount
+  loading={loading}
+/>
 ```
 
-## Next Steps
+### **En Hooks:**
+```typescript
+const {
+  groups,              // Con deviceCount automático
+  groupRealtimeData,   // Con nombres de dispositivos
+  selectedGroup
+} = useTelemetry();
+```
 
-1. **Authentication**: Integrate with auth system
-2. **Real-time Updates**: Implement WebSocket connections
-3. **Data Visualization**: Add charts and graphs
-4. **Export Features**: PDF/JSON report generation
-5. **Mobile Support**: Responsive design improvements
-6. **Performance**: Optimize for large datasets
-7. **Testing**: Add unit and integration tests 
+### **En Servicios:**
+```typescript
+// El servicio maneja automáticamente los nuevos tipos
+const response = await telemetryService.getGroupRealtimeData(groupId);
+// response.data es GroupRealtimeResponse
+```
+
+## ✅ **Compatibilidad**
+
+- ✅ **Funciona con** estructura anterior de datos
+- ✅ **Maneja** casos donde `deviceCount` no está disponible
+- ✅ **Preserva** toda funcionalidad existente
+- ✅ **No rompe** componentes existentes
+
+## 🔮 **Próximos Pasos**
+
+1. **Testing** - Verificar en diferentes escenarios
+2. **Performance** - Optimizar consultas de grupos grandes
+3. **Features** - Agregar más metadatos de dispositivos
+4. **UI/UX** - Mejorar visualización de información 

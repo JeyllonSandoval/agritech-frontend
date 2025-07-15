@@ -25,7 +25,7 @@ import { MdOutlineVisibility } from "react-icons/md";
 
 
 interface RealtimeDataDisplayProps {
-  data: RealtimeData | null;
+  data: RealtimeData | Record<string, RealtimeData> | null;
   deviceName?: string;
   loading?: boolean;
   error?: string | null;
@@ -33,6 +33,7 @@ interface RealtimeDataDisplayProps {
   device?: DeviceInfo | null;
   deviceInfo?: DeviceInfoData | null;
   deviceCharacteristics?: DeviceCharacteristicsData | null;
+  isGroupData?: boolean;
 }
 
 const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
@@ -47,11 +48,18 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
 }) => {
   const { weatherData } = useDeviceWeather({ device, deviceInfo, deviceCharacteristics });
 
-  const formatValue = (sensorValue: SensorValue) => {
+  const formatValue = (sensorValue: SensorValue | number) => {
+    if (typeof sensorValue === 'number') {
+      return `${sensorValue}`;
+    }
     return `${sensorValue.value} ${sensorValue.unit}`;
   };
 
-  const formatTime = (timestamp: string) => {
+  const formatTime = (timestamp: string | number) => {
+    if (typeof timestamp === 'number') {
+      const date = new Date(timestamp * 1000);
+      return date.toLocaleTimeString();
+    }
     const date = new Date(parseInt(timestamp) * 1000);
     return date.toLocaleTimeString();
   };
@@ -99,8 +107,8 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
     return <WiDaySunny className="w-16 h-16 text-gray-400 drop-shadow-lg" />;
   };
 
-  const getSensorColor = (sensorType: string, value: string) => {
-    const numValue = parseFloat(value);
+  const getSensorColor = (sensorType: string, value: string | number) => {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
     
     switch (sensorType) {
       case 'temperature':
@@ -204,11 +212,11 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
                   <h4 className="text-sm font-medium text-white">Temperatura Interior</h4>
                 </div>
                 <div className="space-y-1">
-                  <p className={`text-lg font-semibold ${getSensorColor('temperature', data.indoor.temperature.value)}`}>
+                  <p className={`text-lg font-semibold ${getSensorColor('temperature', typeof data.indoor.temperature === 'object' ? data.indoor.temperature.value : data.indoor.temperature)}`}>
                     {formatValue(data.indoor.temperature)}
                   </p>
                   <p className="text-xs text-white/50">
-                    Actualizado: {formatTime(data.indoor.temperature.time)}
+                    Actualizado: {formatTime(typeof data.indoor.temperature === 'object' ? data.indoor.temperature.time : Date.now())}
                   </p>
                 </div>
               </div>
@@ -223,11 +231,11 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
                   <h4 className="text-sm font-medium text-white">Humedad Interior</h4>
                 </div>
                 <div className="space-y-1">
-                  <p className={`text-lg font-semibold ${getSensorColor('humidity', data.indoor.humidity.value)}`}>
+                  <p className={`text-lg font-semibold ${getSensorColor('humidity', typeof data.indoor.humidity === 'object' ? data.indoor.humidity.value : data.indoor.humidity)}`}>
                     {formatValue(data.indoor.humidity)}
                   </p>
                   <p className="text-xs text-white/50">
-                    Actualizado: {formatTime(data.indoor.humidity.time)}
+                    Actualizado: {formatTime(typeof data.indoor.humidity === 'object' ? data.indoor.humidity.time : Date.now())}
                   </p>
                 </div>
               </div>

@@ -15,6 +15,7 @@ import DeviceInfo from '../../../components/features/telemetry/DeviceInfo';
 import DeviceComparison from '../../../components/features/telemetry/DeviceComparison';
 import DeviceGroupManager from '../../../components/features/telemetry/DeviceGroupManager';
 import TelemetryReports from '../../../components/features/telemetry/TelemetryReports';
+import GroupRealtimeDataDisplay from '../../../components/features/telemetry/GroupRealtimeDataDisplay';
 import { DeviceInfo as DeviceInfoType } from '../../../types/telemetry';
 // Auxiliar para dispositivos con ubicación
 type DeviceWithLocation = DeviceInfoType & { location: { latitude: number; longitude: number } };
@@ -24,6 +25,7 @@ import { ChartBarIcon, SparklesIcon, DocumentChartBarIcon, Cog6ToothIcon, BellAl
 import { useTranslation } from '../../../hooks/useTranslation';
 import telemetryService from '../../../services/telemetryService';
 import { useDeviceWeather } from '../../../hooks/useDeviceWeather';
+import DeviceManager from './DeviceManager';
 
 interface TelemetryDashboardProps {
   deviceType?: string;
@@ -45,6 +47,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [weatherDataPanel, setWeatherDataPanel] = useState<any>(null);
   const [weatherError, setWeatherError] = useState<string | null>(null);
+  const [showDeviceManager, setShowDeviceManager] = useState(false);
 
   // Elimina el estado local de deviceCharacteristics
 
@@ -64,6 +67,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     lastUpdate,
     stats,
     alerts,
+    groupRealtimeData,
     
     // Actions
     fetchDevices,
@@ -170,6 +174,14 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
 
   const handleGroupSelect = (group: any) => {
     selectGroup(group);
+    // Mostrar loading en el panel derecho al seleccionar grupo
+    if (group) {
+      setPanelLoading(true);
+      // Los datos del grupo se cargarán automáticamente en el hook useTelemetry
+      setTimeout(() => setPanelLoading(false), 1000);
+    } else {
+      setPanelLoading(false);
+    }
   };
 
   // Refrescar solo datos del panel derecho
@@ -227,6 +239,13 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
 
   const handleHideReports = () => {
     setShowReports(false);
+  };
+
+  const handleShowDeviceManager = () => {
+    setShowDeviceManager(true);
+  };
+  const handleHideDeviceManager = () => {
+    setShowDeviceManager(false);
   };
 
   // Calcular ubicación promedio de un grupo
@@ -404,21 +423,22 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
           lastUpdate: lastUpdate
         }} />
 
-
+        {/* Panel principal de operaciones */}
         <TelemetryControls
-              polling={polling}
-              loading={loading}
-              onTogglePolling={handleTogglePolling}
-              onRefresh={handleRefresh}
-              onShowDeviceInfo={handleShowDeviceInfo}
-              onShowDeviceComparison={handleShowDeviceComparison}
-              onShowGroupManager={handleShowGroupManager}
-              onShowReports={handleShowReports}
-              selectedDevice={selectedDevice}
-              onShowInfoPanel={() => setActivePanel('info')}
-              onShowWeatherPanel={() => setActivePanel('weather')}
-              devices={devices}
-            />
+          polling={polling}
+          loading={loading}
+          onTogglePolling={handleTogglePolling}
+          onRefresh={handleRefresh}
+          onShowDeviceInfo={handleShowDeviceInfo}
+          onShowDeviceComparison={handleShowDeviceComparison}
+          onShowGroupManager={handleShowGroupManager}
+          onShowReports={handleShowReports}
+          onShowDevices={handleShowDeviceManager}
+          selectedDevice={selectedDevice}
+          onShowInfoPanel={() => setActivePanel('info')}
+          onShowWeatherPanel={() => setActivePanel('weather')}
+          devices={devices}
+        />
         {/* Error Display */}
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm">
@@ -494,6 +514,14 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                   deviceCharacteristics={deviceCharacteristics}
                 />
               )}
+              {/* Group Realtime Data */}
+              {selectedGroup && (
+                <GroupRealtimeDataDisplay
+                  data={groupRealtimeData}
+                  group={selectedGroup}
+                  loading={panelLoading}
+                />
+              )}
               {/* Weather Data */}
               {selectedDevice && weatherData && (
                 <WeatherDataDisplay
@@ -507,16 +535,16 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                   }}
                 />
               )}
-              {/* No Device Selected */}
-              {!selectedDevice && (
+              {/* No Device or Group Selected */}
+              {!selectedDevice && !selectedGroup && (
                 <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-lg">
                   <div className="text-center">
                     <svg className="w-16 h-16 text-white/30 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
-                    <h3 className="text-lg font-semibold text-white mb-2">Selecciona un Dispositivo</h3>
+                    <h3 className="text-lg font-semibold text-white mb-2">Selecciona un Dispositivo o Grupo</h3>
                     <p className="text-white/60 text-sm">
-                      Selecciona un dispositivo de la lista para ver sus datos en tiempo real
+                      Selecciona un dispositivo o grupo de la lista para ver sus datos en tiempo real
                     </p>
                   </div>
                 </div>
@@ -626,56 +654,64 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
             </div>
           </div>
         )}
+
+        {/* Device Info Modal */}
+        {showDeviceInfo && selectedDevice && (
+          <DeviceInfo
+            device={selectedDevice}
+            deviceInfo={deviceInfo}
+            deviceCharacteristics={deviceCharacteristics}
+            onClose={handleHideDeviceInfo}
+            loading={loading || !deviceCharacteristics}
+          />
+        )}
+
+        {/* Device Comparison Modal */}
+        {showDeviceComparison && (
+          <DeviceComparison
+            devices={devices}
+            onClose={handleHideDeviceComparison}
+          />
+        )}
+
+        {/* Device Group Manager Modal */}
+        {showGroupManager && (
+          <DeviceGroupManager
+            devices={devices}
+            groups={groups}
+            onClose={handleHideGroupManager}
+            onGroupCreated={(group) => {
+              // Refresh groups after creation
+              fetchGroups();
+            }}
+            onGroupUpdated={(group) => {
+              // Refresh groups after update
+              fetchGroups();
+            }}
+            onGroupDeleted={(groupId) => {
+              // Refresh groups after deletion
+              fetchGroups();
+            }}
+          />
+        )}
+
+        {/* Telemetry Reports Modal */}
+        {showReports && (
+          <TelemetryReports
+            devices={devices}
+            selectedDevice={selectedDevice}
+            onClose={handleHideReports}
+          />
+        )}
+        {showDeviceManager && (
+          <DeviceManager
+            onClose={handleHideDeviceManager}
+            onDeviceCreated={fetchDevices}
+            onDeviceUpdated={fetchDevices}
+            onDeviceDeleted={fetchDevices}
+          />
+        )}
       </div>
-
-      {/* Device Info Modal */}
-      {showDeviceInfo && selectedDevice && (
-        <DeviceInfo
-          device={selectedDevice}
-          deviceInfo={deviceInfo}
-          deviceCharacteristics={deviceCharacteristics}
-          onClose={handleHideDeviceInfo}
-          loading={loading || !deviceCharacteristics}
-        />
-      )}
-
-      {/* Device Comparison Modal */}
-      {showDeviceComparison && (
-        <DeviceComparison
-          devices={devices}
-          onClose={handleHideDeviceComparison}
-        />
-      )}
-
-      {/* Device Group Manager Modal */}
-      {showGroupManager && (
-        <DeviceGroupManager
-          devices={devices}
-          groups={groups}
-          onClose={handleHideGroupManager}
-          onGroupCreated={(group) => {
-            // Refresh groups after creation
-            fetchGroups();
-          }}
-          onGroupUpdated={(group) => {
-            // Refresh groups after update
-            fetchGroups();
-          }}
-          onGroupDeleted={(groupId) => {
-            // Refresh groups after deletion
-            fetchGroups();
-          }}
-        />
-      )}
-
-      {/* Telemetry Reports Modal */}
-      {showReports && (
-        <TelemetryReports
-          devices={devices}
-          selectedDevice={selectedDevice}
-          onClose={handleHideReports}
-        />
-      )}
     </div>
   );
 };

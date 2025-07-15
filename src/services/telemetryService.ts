@@ -16,7 +16,8 @@ import {
   TimeRange,
   ApiResponse,
   PaginatedResponse,
-  TelemetryFilters
+  TelemetryFilters,
+  GroupRealtimeResponse
 } from '../types/telemetry';
 import { API_CONFIG, buildApiUrl, getRequestConfig } from '../config/api';
 import { jwtDecode } from 'jwt-decode';
@@ -108,14 +109,24 @@ class TelemetryService {
    */
   async getDevices(filters?: TelemetryFilters): Promise<ApiResponse<DeviceInfo[]>> {
     try {
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const params = new URLSearchParams();
       if (filters?.deviceType) params.append('deviceType', filters.deviceType);
       if (filters?.userId) params.append('userId', filters.userId);
 
-      const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.DEVICES}?${params.toString()}`);
-      const config = getRequestConfig('GET');
+      const response = await fetch(`${this.baseURL}/devices?${params.toString()}`, {
+        method: 'GET',
+        headers,
+      });
 
-      const response = await fetch(url, config);
       const data = await response.json();
 
       // Adaptar si la respuesta es un array directo
@@ -289,11 +300,18 @@ class TelemetryService {
    */
   async updateDevice(deviceId: string, updateData: Partial<DeviceInfo>): Promise<ApiResponse<DeviceInfo>> {
     try {
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${this.baseURL}/devices/${deviceId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(updateData),
       });
 
@@ -314,18 +332,70 @@ class TelemetryService {
    */
   async deleteDevice(deviceId: string): Promise<ApiResponse<void>> {
     try {
-      const response = await fetch(`${this.baseURL}/devices/${deviceId}`, {
-        method: 'DELETE',
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to delete device');
+      console.log('🔍 deleteDevice - Iniciando eliminación para deviceId:', deviceId);
+      
+      const token = localStorage.getItem('token');
+      console.log('🔍 deleteDevice - Token encontrado:', token ? 'Sí' : 'No');
+      
+      const headers: Record<string, string> = {};
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        console.log('🔍 deleteDevice - Header Authorization agregado');
+      } else {
+        console.log('❌ deleteDevice - No se encontró token en localStorage');
       }
 
-      return data;
+      const url = `${this.baseURL}/devices/${deviceId}`;
+      console.log('🔍 deleteDevice - URL de la petición:', url);
+      console.log('🔍 deleteDevice - Headers completos:', headers);
+
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers,
+      });
+
+      console.log('🔍 deleteDevice - Response status:', response.status);
+      console.log('🔍 deleteDevice - Response headers:', Object.fromEntries(response.headers.entries()));
+
+      // Verificar si la respuesta tiene contenido antes de parsear JSON
+      const contentType = response.headers.get('content-type');
+      console.log('🔍 deleteDevice - Content-Type:', contentType);
+      
+      let data;
+      
+      if (contentType && contentType.includes('application/json')) {
+        const responseText = await response.text();
+        console.log('🔍 deleteDevice - Response text:', responseText);
+        
+        if (responseText.trim()) {
+          data = JSON.parse(responseText);
+          console.log('🔍 deleteDevice - Data parseada:', data);
+        } else {
+          data = {};
+          console.log('🔍 deleteDevice - Response vacía, usando objeto vacío');
+        }
+      } else {
+        data = {};
+        console.log('🔍 deleteDevice - No es JSON, usando objeto vacío');
+      }
+
+      if (!response.ok) {
+        console.log('❌ deleteDevice - Error en response:', {
+          status: response.status,
+          statusText: response.statusText,
+          data: data
+        });
+        throw new Error(data.error || data.message || 'Failed to delete device');
+      }
+
+      console.log('✅ deleteDevice - Eliminación exitosa');
+      return {
+        success: true,
+        data: undefined
+      };
     } catch (error) {
+      console.error('❌ deleteDevice - Error completo:', error);
       throw new Error(`Error deleting device: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -637,11 +707,25 @@ class TelemetryService {
 
       // Adaptar si la respuesta es un array directo
       if (Array.isArray(data)) {
-        return { success: true, data };
+        // Asegurar que cada grupo tenga el campo deviceCount
+        const groupsWithDeviceCount = data.map((group: any) => ({
+          ...group,
+          deviceCount: group.deviceCount || 0
+        }));
+        return { success: true, data: groupsWithDeviceCount };
       }
 
       if (!response.ok) {
         throw new Error(data.error || API_CONFIG.ERROR_MESSAGES.SERVER_ERROR);
+      }
+
+      // Si la respuesta tiene la estructura esperada, asegurar deviceCount
+      if (data.success && Array.isArray(data.data)) {
+        const groupsWithDeviceCount = data.data.map((group: any) => ({
+          ...group,
+          deviceCount: group.deviceCount || 0
+        }));
+        return { ...data, data: groupsWithDeviceCount };
       }
 
       return data;
@@ -663,6 +747,28 @@ class TelemetryService {
 
       if (!response.ok) {
         throw new Error(data.error || API_CONFIG.ERROR_MESSAGES.NOT_FOUND);
+      }
+
+      // Asegurar que el grupo tenga el campo deviceCount
+      if (data.success && data.data) {
+        return {
+          ...data,
+          data: {
+            ...data.data,
+            deviceCount: data.data.deviceCount || 0
+          }
+        };
+      }
+
+      // Si la respuesta es directa
+      if (data && !data.success) {
+        return {
+          success: true,
+          data: {
+            ...data,
+            deviceCount: data.deviceCount || 0
+          }
+        };
       }
 
       return data;
@@ -745,7 +851,7 @@ class TelemetryService {
   /**
    * Get realtime data for a group
    */
-  async getGroupRealtimeData(groupId: string): Promise<ApiResponse<Record<string, RealtimeData>>> {
+  async getGroupRealtimeData(groupId: string): Promise<ApiResponse<GroupRealtimeResponse>> {
     try {
       const url = buildApiUrl(API_CONFIG.ENDPOINTS.GROUP_REALTIME(groupId));
       const config = getRequestConfig('GET');

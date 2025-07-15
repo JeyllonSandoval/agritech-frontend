@@ -345,6 +345,7 @@ export interface Group {
   UserID: string;
   Description?: string;
   deviceIds?: string[];
+  deviceCount?: number; // Nuevo campo agregado por el backend
   createdAt: string;
   updatedAt: string;
   status: 'active' | 'inactive';
@@ -487,4 +488,18 @@ export interface TelemetryStats {
   averageHumidity: number;
   totalAlerts: number;
   criticalAlerts: number;
+} 
+
+// Nueva interfaz para datos enriquecidos de dispositivos en grupos
+export interface EnrichedRealtimeData extends RealtimeData {
+  deviceInfo?: {
+    deviceId: string;
+    deviceName: string;
+    mac: string;
+  };
+}
+
+// Nueva interfaz para datos de grupos en tiempo real
+export interface GroupRealtimeResponse {
+  [deviceName: string]: EnrichedRealtimeData;
 } 

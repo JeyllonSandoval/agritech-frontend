@@ -184,7 +184,7 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
               { label: 'Generar Reportes', onClick: handleShowReports, icon: <DocumentChartBarIcon className="w-5 h-5" /> },
               { label: 'Gestionar dispositivos', onClick: handleShowDevices, icon: <DevicePhoneMobileIcon className="w-5 h-5" /> },
               { label: 'Gestionar grupos', onClick: handleShowGroupManager, icon: <UsersIcon className="w-5 h-5" /> },
-            ]}
+            ].map(opt => ({ ...opt, className: 'text-base font-medium' }))}
           />
         </div>
       </div>

@@ -1,12 +1,13 @@
 // ============================================================================
-// TELEMETRY HOOK
-// React hook for managing telemetry state and API calls
+// USE TELEMETRY HOOK
+// Centralized state management for telemetry data
 // ============================================================================
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { telemetryService } from '../services/telemetryService';
 import { useTelemetryAuth } from './useTelemetryAuth';
 import {
+  TelemetryState,
   DeviceInfo,
   RealtimeData,
   HistoricalResponse,
@@ -14,11 +15,11 @@ import {
   DeviceInfoData,
   DeviceCharacteristicsData,
   Group,
-  TimeRange,
-  TelemetryState,
-  TelemetryFilters,
   TelemetryStats,
-  TelemetryAlert
+  TelemetryAlert,
+  TimeRange,
+  TelemetryFilters,
+  GroupRealtimeResponse
 } from '../types/telemetry';
 
 interface UseTelemetryOptions {
@@ -72,6 +73,73 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
 
   const [alerts, setAlerts] = useState<TelemetryAlert[]>([]);
 
+  // ===================== NUEVO ESTADO PARA GRUPOS =====================
+  const [groupDevices, setGroupDevices] = useState<string[]>([]);
+  const [groupDevicesInfo, setGroupDevicesInfo] = useState<Record<string, DeviceInfoData>>({});
+  const [groupRealtimeData, setGroupRealtimeData] = useState<GroupRealtimeResponse>({});
+
+  // ===================== FUNCIONES DE GRUPO =====================
+  // 1. Obtener DeviceIDs del grupo
+  const fetchGroupDevices = useCallback(async (groupId: string) => {
+    if (!groupId) {
+      console.warn('[TELEMETRY] Intento de obtener dispositivos con groupId vacío o undefined');
+      setGroupDevices([]);
+      return [];
+    }
+    try {
+      const resp = await telemetryService.getGroupDevices(groupId);
+      if (resp.success && Array.isArray(resp.data)) {
+        // CORREGIDO: extraer DeviceID de cada miembro
+        const ids = resp.data
+          .map((m: any) => m.DeviceID)
+          .filter((id: any) => typeof id === 'string' && id.length > 0);
+        setGroupDevices(ids);
+        return ids;
+      } else {
+        setGroupDevices([]);
+        return [];
+      }
+    } catch {
+      setGroupDevices([]);
+      return [];
+    }
+  }, []);
+
+  // 2. Obtener info de cada dispositivo
+  const fetchGroupDevicesInfo = useCallback(async (deviceIds: string[]) => {
+    const infoObj: Record<string, DeviceInfoData> = {};
+    await Promise.all(deviceIds.map(async (id) => {
+      try {
+        const resp = await telemetryService.getDeviceInfo(id);
+        if (resp.success && resp.data) {
+          infoObj[id] = resp.data;
+        }
+      } catch {}
+    }));
+    setGroupDevicesInfo(infoObj);
+    return infoObj;
+  }, []);
+
+  // 3. Obtener datos en tiempo real de todos los dispositivos del grupo
+  const fetchGroupRealtimeData = useCallback(async (groupId: string) => {
+    console.log('[TELEMETRY] Fetch realtime data for group:', groupId);
+    try {
+      const resp = await telemetryService.getGroupRealtimeData(groupId);
+      console.log('[TELEMETRY] Respuesta de realtime del grupo:', resp);
+      if (resp && resp.success && resp.data) {
+        setGroupRealtimeData(resp.data);
+        return resp.data;
+      } else {
+        setGroupRealtimeData({});
+        return {};
+      }
+    } catch (err) {
+      console.log('[TELEMETRY] Error al obtener datos en tiempo real del grupo:', err);
+      setGroupRealtimeData({});
+      return {};
+    }
+  }, []);
+
   // ============================================================================
   // REFS FOR POLLING
   // ============================================================================
@@ -80,7 +148,7 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // ============================================================================
-  // UTILITY FUNCTIONS
+  // STATE UPDATE HELPERS
   // ============================================================================
 
   const updateState = useCallback((updates: Partial<TelemetryState>) => {
@@ -88,22 +156,18 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   }, []);
 
   const setLoading = useCallback((loading: boolean) => {
-    updateState({ loading, error: loading ? null : state.error });
-  }, [updateState, state.error]);
-
-  const setError = useCallback((error: string | null) => {
-    updateState({ error, loading: false });
+    updateState({ loading });
   }, [updateState]);
 
-  const clearError = useCallback(() => {
-    setError(null);
-  }, [setError]);
+  const setError = useCallback((error: string | null) => {
+    updateState({ error });
+  }, [updateState]);
 
   // ============================================================================
   // DEVICE MANAGEMENT
   // ============================================================================
 
-  const fetchDevices = useCallback(async (filters?: TelemetryFilters) => {
+  const fetchDevices = useCallback(async () => {
     if (!userId) {
       setError('User not authenticated');
       return;
@@ -111,13 +175,10 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
 
     try {
       setLoading(true);
-      const filtersWithUser: TelemetryFilters = {
-        ...filters,
-        userId: userId,
-        deviceType: deviceType || filters?.deviceType
-      };
+      const filters: TelemetryFilters = { userId };
+      if (deviceType) filters.deviceType = deviceType;
 
-      const response = await telemetryService.getDevices(filtersWithUser);
+      const response = await telemetryService.getDevices(filters);
       
       if (response.success && response.data) {
         updateState({ 
@@ -147,193 +208,65 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
 
   const selectDevice = useCallback((device: DeviceInfo | null) => {
     updateState({ selectedDevice: device });
-    
-    if (device) {
-      // Fetch device info and realtime data when selecting a device
-      fetchDeviceInfo(device.DeviceID);
-      fetchRealtimeData(device.DeviceID);
-    } else {
-      // Clear device-specific data when deselecting
-      updateState({
-        deviceInfo: null,
-        deviceCharacteristics: null,
-        realtimeData: null,
-        historicalData: null,
-        weatherData: null
-      });
-    }
   }, [updateState]);
 
   const fetchDeviceInfo = useCallback(async (deviceId: string) => {
-    console.log('🔍 useTelemetry - fetchDeviceInfo iniciado para deviceId:', deviceId);
     try {
-      setLoading(true);
       const response = await telemetryService.getDeviceInfo(deviceId);
-      
       if (response.success && response.data) {
-        updateState({ 
-          deviceInfo: response.data,
-          error: null 
-        });
-        
-        // Fetch weather data for the device location
-        // Adaptado para usar latitude y longitude directamente del deviceInfo
-        if (response.data.latitude && response.data.longitude) {
-          fetchWeatherData(response.data.latitude, response.data.longitude);
-        }
-      } else {
-        setError(
-          Array.isArray(response.error)
-            ? response.error.join('; ')
-            : response.error || 'Failed to fetch device info'
-        );
+        updateState({ deviceInfo: response.data });
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error');
-    } finally {
-      setLoading(false);
+      console.error('Error fetching device info:', error);
     }
-  }, [setLoading, setError, updateState]);
+  }, [updateState]);
 
   const fetchDeviceCharacteristics = useCallback(async (deviceId: string) => {
-    console.log('🔍 useTelemetry - fetchDeviceCharacteristics iniciado para deviceId:', deviceId);
     try {
-      setLoading(true);
       const response = await telemetryService.getDeviceCharacteristics(deviceId);
-      
-      console.log('🔍 useTelemetry - Respuesta de getDeviceCharacteristics:', response);
-      
       if (response.success && response.data) {
-        console.log('🔍 useTelemetry - Data de características recibida:', response.data);
-        updateState({ 
-          deviceCharacteristics: response.data,
-          error: null 
-        });
-      } else {
-        console.log('🔍 useTelemetry - Error en respuesta:', response.error);
-        setError(
-          Array.isArray(response.error)
-            ? response.error.join('; ')
-            : response.error || 'Failed to fetch device characteristics'
-        );
+        updateState({ deviceCharacteristics: response.data });
       }
     } catch (error) {
-      console.log('🔍 useTelemetry - Error en fetchDeviceCharacteristics:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error');
-    } finally {
-      setLoading(false);
+      console.error('Error fetching device characteristics:', error);
     }
-  }, [setLoading, setError, updateState]);
-
-  // ============================================================================
-  // REALTIME DATA
-  // ============================================================================
+  }, [updateState]);
 
   const fetchRealtimeData = useCallback(async (deviceId: string) => {
     try {
       const response = await telemetryService.getRealtimeData(deviceId);
-      
       if (response.success && response.data) {
         updateState({ 
           realtimeData: response.data,
-          lastUpdate: new Date().toISOString(),
-          error: null 
+          lastUpdate: new Date().toISOString()
         });
-        
-        // Check for alerts based on realtime data
-        checkAlerts(deviceId, response.data);
-      } else {
-        setError(
-          Array.isArray(response.error)
-            ? response.error.join('; ')
-            : response.error || 'Failed to fetch realtime data'
-        );
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error fetching realtime data:', error);
     }
-  }, [setError, updateState]);
-
-  const startPolling = useCallback(() => {
-    if (pollingRef.current) {
-      clearInterval(pollingRef.current);
-    }
-
-    if (autoPoll && state.selectedDevice) {
-      updateState({ polling: true });
-      
-      pollingRef.current = setInterval(() => {
-        if (state.selectedDevice) {
-          fetchRealtimeData(state.selectedDevice.DeviceID);
-        }
-      }, pollInterval);
-    }
-  }, [autoPoll, state.selectedDevice, pollInterval, updateState, fetchRealtimeData]);
-
-  const stopPolling = useCallback(() => {
-    if (pollingRef.current) {
-      clearInterval(pollingRef.current);
-      pollingRef.current = null;
-    }
-    updateState({ polling: false });
   }, [updateState]);
 
-  // ============================================================================
-  // HISTORICAL DATA
-  // ============================================================================
-
-  const fetchHistoricalData = useCallback(async (
-    deviceId: string, 
-    startTime: string, 
-    endTime: string
-  ) => {
+  const fetchHistoricalData = useCallback(async (deviceId: string, startTime: string, endTime: string) => {
     try {
-      setLoading(true);
       const response = await telemetryService.getHistoricalData(deviceId, startTime, endTime);
-      
       if (response.success && response.data) {
-        updateState({ 
-          historicalData: response.data,
-          error: null 
-        });
-      } else {
-        setError(
-          Array.isArray(response.error)
-            ? response.error.join('; ')
-            : response.error || 'Failed to fetch historical data'
-        );
+        updateState({ historicalData: response.data });
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error');
-    } finally {
-      setLoading(false);
+      console.error('Error fetching historical data:', error);
     }
-  }, [setLoading, setError, updateState]);
-
-  // ============================================================================
-  // WEATHER DATA
-  // ============================================================================
+  }, [updateState]);
 
   const fetchWeatherData = useCallback(async (lat: number, lon: number) => {
     try {
-      // Usar getWeatherOverview en vez de getCurrentWeather
-      const response = await telemetryService.getWeatherOverview(lat, lon);
+      const response = await telemetryService.getCurrentWeather(lat, lon);
       if (response.success && response.data) {
-        updateState({ 
-          weatherData: response.data,
-          error: null 
-        });
-      } else {
-        setError(
-          Array.isArray(response.error)
-            ? response.error.join('; ')
-            : response.error || 'Failed to fetch weather data'
-        );
+        updateState({ weatherData: response.data });
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error fetching weather data:', error);
     }
-  }, [setError, updateState]);
+  }, [updateState]);
 
   // ============================================================================
   // GROUP MANAGEMENT
@@ -350,15 +283,28 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
       const response = await telemetryService.getUserGroups(userId);
       
       if (response.success && response.data) {
+        // Obtener la cantidad real de dispositivos y el array para cada grupo
+        const groupsWithDevices = await Promise.all(
+          response.data.map(async (group) => {
+            try {
+              const devicesResp = await telemetryService.getGroupDevices(group.DeviceGroupID);
+              const deviceArray = devicesResp.success && Array.isArray(devicesResp.data)
+                ? devicesResp.data
+                : [];
+              return { ...group, deviceArray };
+            } catch {
+              return { ...group, deviceArray: [] };
+            }
+          })
+        );
         updateState({ 
-          groups: response.data,
+          groups: groupsWithDevices,
           error: null 
         });
-        
         // Update stats
         setStats(prev => ({
           ...prev,
-          totalGroups: response.data!.length
+          totalGroups: groupsWithDevices.length
         }));
       } else {
         setError(
@@ -375,128 +321,99 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   }, [userId, setLoading, setError, updateState]);
 
   const selectGroup = useCallback((group: Group | null) => {
+    console.log('[TELEMETRY] Grupo seleccionado:', group);
     updateState({ selectedGroup: group });
   }, [updateState]);
 
   // ============================================================================
-  // ALERTS MANAGEMENT
+  // POLLING MANAGEMENT
   // ============================================================================
 
-  const checkAlerts = useCallback((deviceId: string, data: RealtimeData) => {
-    const newAlerts: TelemetryAlert[] = [];
-    
-    // Temperature alerts
-    if (data.temperature !== undefined) {
-      if (data.temperature > 35) {
-        newAlerts.push({
-          id: `temp-${Date.now()}`,
-          deviceId,
-          type: 'temperature',
-          severity: 'critical',
-          title: 'Temperatura Crítica',
-          message: `Temperature is critically high: ${data.temperature}°C`,
-          value: data.temperature,
-          threshold: 35,
-          timestamp: new Date().toISOString(),
-          acknowledged: false
-        });
-      } else if (data.temperature > 30) {
-        newAlerts.push({
-          id: `temp-${Date.now()}`,
-          deviceId,
-          type: 'temperature',
-          severity: 'warning',
-          title: 'Temperatura Alta',
-          message: `Temperature is high: ${data.temperature}°C`,
-          value: data.temperature,
-          threshold: 30,
-          timestamp: new Date().toISOString(),
-          acknowledged: false
-        });
-      }
+  const startPolling = useCallback(() => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
     }
 
-    // Humidity alerts
-    if (data.humidity !== undefined) {
-      if (data.humidity < 20) {
-        newAlerts.push({
-          id: `humidity-${Date.now()}`,
-          deviceId,
-          type: 'humidity',
-          severity: 'warning',
-          title: 'Humedad Baja',
-          message: `Humidity is very low: ${data.humidity}%`,
-          value: data.humidity,
-          threshold: 20,
-          timestamp: new Date().toISOString(),
-          acknowledged: false
-        });
+    pollingRef.current = setInterval(() => {
+      if (state.selectedDevice) {
+        fetchRealtimeData(state.selectedDevice.DeviceID);
+      } else if (state.selectedGroup) {
+        fetchGroupRealtimeData(state.selectedGroup.DeviceGroupID);
       }
-    }
+    }, pollInterval);
 
-    // Add new alerts
-    if (newAlerts.length > 0) {
-      setAlerts(prev => [...prev, ...newAlerts]);
-      
-      // Update stats
-      setStats(prev => ({
-        ...prev,
-        totalAlerts: prev.totalAlerts + newAlerts.length,
-        criticalAlerts: prev.criticalAlerts + newAlerts.filter(a => a.severity === 'critical').length
-      }));
+    updateState({ polling: true });
+  }, [pollInterval, state.selectedDevice, state.selectedGroup, fetchRealtimeData, fetchGroupRealtimeData, updateState]);
+
+  const stopPolling = useCallback(() => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
     }
-  }, []);
+    updateState({ polling: false });
+  }, [updateState]);
+
+  // ============================================================================
+  // ALERT MANAGEMENT
+  // ============================================================================
 
   const acknowledgeAlert = useCallback((alertId: string) => {
-    setAlerts(prev => 
-      prev.map(alert => 
-        alert.id === alertId 
-          ? { ...alert, acknowledged: true }
-          : alert
-      )
-    );
+    setAlerts(prev => prev.map(alert => 
+      alert.id === alertId ? { ...alert, acknowledged: true } : alert
+    ));
   }, []);
 
   const clearAlerts = useCallback(() => {
     setAlerts([]);
-    setStats(prev => ({
-      ...prev,
-      totalAlerts: 0,
-      criticalAlerts: 0
-    }));
   }, []);
+
+  const clearError = useCallback(() => {
+    setError(null);
+  }, [setError]);
 
   // ============================================================================
   // EFFECTS
   // ============================================================================
 
-  // Initialize data fetching
+  // Initial data fetch
   useEffect(() => {
-    if (authLoading) return; // Wait for authentication to load
-    
-    if (authError) {
-      setError(authError);
-      return;
-    }
-    
-    if (userId) {
+    if (userId && !authLoading) {
       fetchDevices();
       fetchGroups();
     }
-  }, [fetchDevices, fetchGroups, userId, authLoading, authError]);
+  }, [userId, authLoading, fetchDevices, fetchGroups]);
 
-  // Start/stop polling based on autoPoll setting
+  // Auto-polling
   useEffect(() => {
-    if (autoPoll) {
+    if (autoPoll && (state.selectedDevice || state.selectedGroup)) {
       startPolling();
     } else {
       stopPolling();
     }
 
     return () => {
-      stopPolling();
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+      }
     };
-  }, [autoPoll, startPolling, stopPolling]);
+  }, [autoPoll, state.selectedDevice, state.selectedGroup, startPolling, stopPolling]);
+
+  // ===================== EFECTO AL SELECCIONAR GRUPO =====================
+  useEffect(() => {
+    const loadGroupData = async () => {
+      if (state.selectedGroup && state.selectedGroup.DeviceGroupID) {
+        const ids = await fetchGroupDevices(state.selectedGroup.DeviceGroupID);
+        await fetchGroupDevicesInfo(ids);
+        await fetchGroupRealtimeData(state.selectedGroup.DeviceGroupID);
+      } else {
+        setGroupDevices([]);
+        setGroupDevicesInfo({});
+        setGroupRealtimeData({});
+      }
+    };
+    loadGroupData();
+    // eslint-disable-next-line
+  }, [state.selectedGroup]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -519,7 +436,10 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     ...state,
     stats,
     alerts,
-    
+    // NUEVO: datos de grupo
+    groupDevices,
+    groupDevicesInfo,
+    groupRealtimeData,
     // Actions
     fetchDevices,
     selectDevice,
@@ -536,8 +456,10 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     clearAlerts,
     clearError,
     setLoading,
-    setError
+    setError,
+    // NUEVO: funciones de grupo
+    fetchGroupDevices,
+    fetchGroupDevicesInfo,
+    fetchGroupRealtimeData
   };
-};
-
-export default useTelemetry; 
+}; 
