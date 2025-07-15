@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DeviceInfo, DeviceRegistration } from '../../../types/telemetry';
+import { DeviceInfo, DeviceRegistration, Group } from '../../../types/telemetry';
 import { telemetryService } from '../../../services/telemetryService';
 import { DevicePhoneMobileIcon, PlusIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CiEdit } from "react-icons/ci";
@@ -76,7 +76,8 @@ const DeviceManager: React.FC<DeviceManagerProps> = ({ onClose, onDeviceCreated,
     );
   };
 
-  const handleDeviceUpdated = (updatedDevice: DeviceInfo) => {
+  const handleDeviceUpdated = (updatedData: DeviceInfo | Group) => {
+    const updatedDevice = updatedData as DeviceInfo;
     setDevices(devices.map(d => d.DeviceID === updatedDevice.DeviceID ? updatedDevice : d));
     onDeviceUpdated?.(updatedDevice);
     setEditingDevice(null);
@@ -195,9 +196,10 @@ const DeviceManager: React.FC<DeviceManagerProps> = ({ onClose, onDeviceCreated,
       {/* Modal de edición */}
       <EditModal
         isOpen={!!editingDevice}
-        device={editingDevice}
+        type="device"
+        data={editingDevice}
         onClose={() => setEditingDevice(null)}
-        onDeviceUpdated={handleDeviceUpdated}
+        onUpdated={handleDeviceUpdated}
       />
     </div>
   );

@@ -1,23 +1,30 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { DeviceInfo } from '../../../types/telemetry';
+import { DeviceInfo, Group, DeviceInfo as DeviceInfoType } from '../../../types/telemetry';
 import { DeviceEditForm } from '../forms/deviceEditForm';
-import { DevicePhoneMobileIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import GroupEditForm from '../forms/groupEditForm';
+import { DevicePhoneMobileIcon, UserGroupIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { createPortal } from 'react-dom';
+
+type EditModalType = 'device' | 'group';
 
 interface EditModalProps {
   isOpen: boolean;
-  device: DeviceInfo | null;
+  type: EditModalType;
+  data: DeviceInfo | Group | null;
+  devices?: DeviceInfoType[]; // Solo necesario para grupos
   onClose: () => void;
-  onDeviceUpdated: (device: DeviceInfo) => void;
+  onUpdated: (updatedData: DeviceInfo | Group) => void;
 }
 
 const EditModal: React.FC<EditModalProps> = ({ 
   isOpen, 
-  device, 
+  type,
+  data, 
+  devices = [],
   onClose, 
-  onDeviceUpdated 
+  onUpdated 
 }) => {
   // Prevenir scroll del fondo cuando el modal está abierto
   useEffect(() => {
@@ -31,9 +38,52 @@ const EditModal: React.FC<EditModalProps> = ({
     };
   }, [isOpen]);
 
-  if (!isOpen || !device) return null;
+  if (!isOpen || !data) return null;
 
   if (typeof window === 'undefined' || !document.body) return null;
+
+  const getIcon = () => {
+    if (type === 'device') {
+      return <DevicePhoneMobileIcon className="w-6 h-6 text-emerald-400" />;
+    } else {
+      return <UserGroupIcon className="w-6 h-6 text-emerald-400" />;
+    }
+  };
+
+  const getTitle = () => {
+    if (type === 'device') {
+      return 'Editar Dispositivo';
+    } else {
+      return 'Editar Grupo';
+    }
+  };
+
+  const getForm = () => {
+    if (type === 'device') {
+      return (
+        <DeviceEditForm
+          device={data as DeviceInfo}
+          onSubmit={(updatedDevice) => {
+            onUpdated(updatedDevice);
+            onClose();
+          }}
+          onCancel={onClose}
+        />
+      );
+    } else {
+      return (
+                 <GroupEditForm
+           group={data as Group}
+           devices={devices}
+           onSubmit={(updatedGroup: Group) => {
+             onUpdated(updatedGroup);
+             onClose();
+           }}
+           onCancel={onClose}
+         />
+      );
+    }
+  };
 
   return createPortal(
     <div 
@@ -51,10 +101,10 @@ const EditModal: React.FC<EditModalProps> = ({
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-full bg-emerald-500/20">
-              <DevicePhoneMobileIcon className="w-6 h-6 text-emerald-400" />
+              {getIcon()}
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-white">
-              Editar Dispositivo
+              {getTitle()}
             </h2>
           </div>
           <button
@@ -69,14 +119,7 @@ const EditModal: React.FC<EditModalProps> = ({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto scrollbar scrollbar-w-2 scrollbar-thumb-emerald-400/60 scrollbar-track-white/10 scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
-          <DeviceEditForm
-            device={device}
-            onSubmit={(updatedDevice) => {
-              onDeviceUpdated(updatedDevice);
-              onClose();
-            }}
-            onCancel={onClose}
-          />
+          {getForm()}
         </div>
       </div>
     </div>,

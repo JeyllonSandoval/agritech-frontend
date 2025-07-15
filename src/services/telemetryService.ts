@@ -746,17 +746,39 @@ class TelemetryService {
   /**
    * Update a group
    */
-  async updateGroup(groupId: string, updateData: Partial<Group>): Promise<ApiResponse<Group>> {
+  async updateGroup(groupId: string, updateData: Partial<Group>): Promise<Group> {
     try {
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      console.log('🔧 updateGroup - Request details:', {
+        url: `${this.baseURL}/groups/${groupId}`,
+        method: 'PUT',
+        headers,
+        body: updateData,
+        token: token ? 'Present' : 'Missing'
+      });
+
       const response = await fetch(`${this.baseURL}/groups/${groupId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(updateData),
       });
 
+      console.log('🔧 updateGroup - Response details:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+
       const data = await response.json();
+      console.log('🔧 updateGroup - Response data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to update group');
@@ -764,6 +786,7 @@ class TelemetryService {
 
       return data;
     } catch (error) {
+      console.error('🔧 updateGroup - Error:', error);
       throw new Error(`Error updating group: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -773,18 +796,49 @@ class TelemetryService {
    */
   async deleteGroup(groupId: string): Promise<ApiResponse<void>> {
     try {
-      const response = await fetch(`${this.baseURL}/groups/${groupId}`, {
-        method: 'DELETE',
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to delete group');
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {};
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
       }
 
-      return data;
+      console.log('🔧 deleteGroup - Request details:', {
+        url: `${this.baseURL}/groups/${groupId}`,
+        method: 'DELETE',
+        headers,
+        token: token ? 'Present' : 'Missing'
+      });
+
+      const response = await fetch(`${this.baseURL}/groups/${groupId}`, {
+        method: 'DELETE',
+        headers,
+      });
+
+      console.log('🔧 deleteGroup - Response details:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+
+      // Para DELETE con status 204, no hay contenido JSON
+      if (response.status === 204) {
+        console.log('🔧 deleteGroup - Success (204 No Content)');
+        return { success: true, data: undefined };
+      }
+
+      // Solo intentar parsear JSON si hay contenido
+      if (response.ok) {
+        return { success: true, data: undefined };
+      }
+
+      // Si hay error, intentar parsear JSON
+      const data = await response.json();
+      console.log('🔧 deleteGroup - Response data:', data);
+
+      throw new Error(data.error || 'Failed to delete group');
     } catch (error) {
+      console.error('🔧 deleteGroup - Error:', error);
       throw new Error(`Error deleting group: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
