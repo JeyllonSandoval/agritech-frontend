@@ -960,13 +960,14 @@ class TelemetryService {
       const { startTime, endTime } = this.convertTimeRangeToDates(timeRange);
       
       const url = buildApiUrl('/compare/history');
-      const config = getRequestConfig('POST', { 
+      const requestBody = { 
         deviceIds,
         startTime,
         endTime,
         timeRange 
-      });
-
+      };
+      const config = getRequestConfig('POST', requestBody);
+      
       const response = await fetch(url, config);
       const data = await response.json();
 
