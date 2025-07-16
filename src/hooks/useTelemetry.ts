@@ -123,15 +123,22 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   // 3. Obtener datos en tiempo real de todos los dispositivos del grupo
   const fetchGroupRealtimeData = useCallback(async (groupId: string) => {
     try {
+      console.log('🔍 [HOOK] fetchGroupRealtimeData - Starting with groupId:', groupId);
       const resp = await telemetryService.getGroupRealtimeData(groupId);
-      if (resp && resp.success && resp.data) {
-        setGroupRealtimeData(resp.data);
-        return resp.data;
+      console.log('🔍 [HOOK] fetchGroupRealtimeData - Response:', resp);
+      
+      // El backend devuelve los datos directamente como GroupRealtimeResponse
+      if (resp && typeof resp === 'object' && Object.keys(resp).length > 0) {
+        console.log('🔍 [HOOK] fetchGroupRealtimeData - Setting group realtime data:', resp);
+        setGroupRealtimeData(resp);
+        return resp;
       } else {
+        console.log('🔍 [HOOK] fetchGroupRealtimeData - No data, setting empty object');
         setGroupRealtimeData({});
         return {};
       }
     } catch (err) {
+      console.error('❌ [HOOK] fetchGroupRealtimeData - Error:', err);
       setGroupRealtimeData({});
       return {};
     }
@@ -395,13 +402,53 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     };
   }, [autoPoll, state.selectedDevice, state.selectedGroup, startPolling, stopPolling]);
 
+  // ===================== EFECTO AL SELECCIONAR DISPOSITIVO =====================
+  useEffect(() => {
+    const loadDeviceData = async () => {
+      if (state.selectedDevice && state.selectedDevice.DeviceID) {
+        // Mostrar loading mientras se cargan los datos del dispositivo
+        setLoading(true);
+        try {
+          await Promise.all([
+            fetchRealtimeData(state.selectedDevice.DeviceID),
+            fetchDeviceInfo(state.selectedDevice.DeviceID),
+            fetchDeviceCharacteristics(state.selectedDevice.DeviceID)
+          ]);
+        } catch (error) {
+          console.error('Error loading device data:', error);
+          setError('Error al cargar datos del dispositivo');
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        // Limpiar datos cuando no hay dispositivo seleccionado
+        updateState({ 
+          realtimeData: null,
+          deviceInfo: null,
+          deviceCharacteristics: null
+        });
+      }
+    };
+    loadDeviceData();
+    // eslint-disable-next-line
+  }, [state.selectedDevice]);
+
   // ===================== EFECTO AL SELECCIONAR GRUPO =====================
   useEffect(() => {
     const loadGroupData = async () => {
       if (state.selectedGroup && state.selectedGroup.DeviceGroupID) {
-        const ids = await fetchGroupDevices(state.selectedGroup.DeviceGroupID);
-        await fetchGroupDevicesInfo(ids);
-        await fetchGroupRealtimeData(state.selectedGroup.DeviceGroupID);
+        // Mostrar loading mientras se cargan los datos del grupo
+        setLoading(true);
+        try {
+          const ids = await fetchGroupDevices(state.selectedGroup.DeviceGroupID);
+          await fetchGroupDevicesInfo(ids);
+          await fetchGroupRealtimeData(state.selectedGroup.DeviceGroupID);
+        } catch (error) {
+          console.error('Error loading group data:', error);
+          setError('Error al cargar datos del grupo');
+        } finally {
+          setLoading(false);
+        }
       } else {
         setGroupDevices([]);
         setGroupDevicesInfo({});

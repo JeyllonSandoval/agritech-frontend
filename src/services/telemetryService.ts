@@ -139,11 +139,18 @@ class TelemetryService {
    */
   async getDevice(deviceId: string): Promise<ApiResponse<DeviceInfo>> {
     try {
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${this.baseURL}/devices/${deviceId}`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       const data = await response.json();
@@ -163,11 +170,18 @@ class TelemetryService {
    */
   async getDeviceInfo(deviceId: string): Promise<ApiResponse<DeviceInfoData>> {
     try {
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${this.baseURL}/devices/${deviceId}/info`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       const data = await response.json();
@@ -428,14 +442,21 @@ class TelemetryService {
    */
   async getMultipleRealtimeData(deviceIds: string[]): Promise<ApiResponse<Record<string, RealtimeData>>> {
     try {
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const params = new URLSearchParams();
       params.append('deviceIds', deviceIds.join(','));
 
       const response = await fetch(`${this.baseURL}/devices/realtime?${params.toString()}`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       const data = await response.json();
@@ -463,6 +484,15 @@ class TelemetryService {
     endTime: string
   ): Promise<ApiResponse<HistoricalResponse>> {
     try {
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const params = new URLSearchParams({
         startTime,
         endTime,
@@ -470,9 +500,7 @@ class TelemetryService {
 
       const response = await fetch(`${this.baseURL}/devices/${deviceId}/history?${params.toString()}`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       const data = await response.json();
@@ -495,6 +523,15 @@ class TelemetryService {
     rangeType: TimeRange
   ): Promise<ApiResponse<Record<string, HistoricalResponse>>> {
     try {
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const params = new URLSearchParams({
         deviceIds: deviceIds.join(','),
         rangeType,
@@ -502,9 +539,7 @@ class TelemetryService {
 
       const response = await fetch(`${this.baseURL}/devices/history?${params.toString()}`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       const data = await response.json();
@@ -871,13 +906,22 @@ class TelemetryService {
   /**
    * Get realtime data for a group
    */
-  async getGroupRealtimeData(groupId: string): Promise<ApiResponse<GroupRealtimeResponse>> {
+  async getGroupRealtimeData(groupId: string): Promise<GroupRealtimeResponse> {
     try {
       const url = buildApiUrl(API_CONFIG.ENDPOINTS.GROUP_REALTIME(groupId));
       const config = getRequestConfig('GET');
 
+      console.log('🔍 [SERVICE] getGroupRealtimeData - URL:', url);
+      console.log('🔍 [SERVICE] getGroupRealtimeData - Config:', {
+        method: config.method,
+        headers: config.headers
+      });
+
       const response = await fetch(url, config);
       const data = await response.json();
+
+      console.log('🔍 [SERVICE] getGroupRealtimeData - Response status:', response.status);
+      console.log('🔍 [SERVICE] getGroupRealtimeData - Response data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to fetch group realtime data');
@@ -885,6 +929,7 @@ class TelemetryService {
 
       return data;
     } catch (error) {
+      console.error('❌ [SERVICE] getGroupRealtimeData - Error:', error);
       throw new Error(`Error fetching group realtime data: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }

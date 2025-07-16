@@ -102,7 +102,7 @@ const DeviceSelector: React.FC<DeviceSelectorProps> = ({
 
       {/* Content */}
       {activeTab === 'devices' ? (
-        <div className="space-y-3">
+        <div className="space-y-3 text-lg">
           {devices.length === 0 ? (
             <div className="text-center py-8 text-white/50">
               <svg className="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">

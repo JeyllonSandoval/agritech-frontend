@@ -162,11 +162,9 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     // Mostrar loading en el panel derecho al seleccionar
     if (device) {
       setPanelLoading(true);
-      Promise.all([
-        fetchRealtimeData(device.DeviceID),
-        fetchDeviceInfo(device.DeviceID),
-        fetchDeviceCharacteristics(device.DeviceID)
-      ]).finally(() => setPanelLoading(false));
+      // Los datos se cargarán automáticamente en el hook useTelemetry
+      // Solo necesitamos un timeout corto para el panel loading
+      setTimeout(() => setPanelLoading(false), 500);
     } else {
       setPanelLoading(false);
     }
@@ -178,7 +176,8 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     if (group) {
       setPanelLoading(true);
       // Los datos del grupo se cargarán automáticamente en el hook useTelemetry
-      setTimeout(() => setPanelLoading(false), 1000);
+      // El loading se manejará en el hook, así que solo necesitamos un timeout corto
+      setTimeout(() => setPanelLoading(false), 500);
     } else {
       setPanelLoading(false);
     }
@@ -472,7 +471,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
         )}
 
         {/* Main Content Grid - Panel informativo condicional */}
-        {activePanel === 'info' && (
+        {(activePanel === 'info' || activePanel === null) && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Device Selection & Info */}
             <div className="lg:col-span-1 space-y-6">
@@ -508,7 +507,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                 <RealtimeDataDisplay
                   data={realtimeData}
                   deviceName={selectedDevice.DeviceName}
-                  loading={panelLoading}
+                  loading={loading || panelLoading}
                   onShowDeviceInfo={handleShowDeviceInfo}
                   device={selectedDevice}
                   deviceInfo={deviceInfo}
@@ -520,7 +519,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                 <GroupRealtimeDataDisplay
                   data={groupRealtimeData}
                   group={selectedGroup}
-                  loading={panelLoading}
+                  loading={loading || panelLoading}
                 />
               )}
               {/* Weather Data */}
