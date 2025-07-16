@@ -6,22 +6,15 @@
 import React from 'react';
 import { RealtimeData, SensorValue, WeatherData, DeviceInfo, DeviceInfoData, DeviceCharacteristicsData } from '../../../types/telemetry';
 import { useDeviceWeather } from '../../../hooks/useDeviceWeather';
+import SimpleWeatherDisplay from './SimpleWeatherDisplay';
 import { 
   WiThermometer, 
   WiHumidity, 
   WiBarometer, 
   WiRain, 
   WiStrongWind,
-  WiDayThunderstorm,
-  WiDaySprinkle,
-  WiDayRain,
-  WiDaySnow,
-  WiFog,
-  WiDaySunny,
-  WiDayCloudy,
 } from 'react-icons/wi';
 import { CiBatteryCharging } from "react-icons/ci";
-import { MdOutlineVisibility } from "react-icons/md";
 
 
 interface RealtimeDataDisplayProps {
@@ -46,7 +39,7 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
   deviceInfo = null,
   deviceCharacteristics = null
 }) => {
-  const { weatherData } = useDeviceWeather({ device, deviceInfo, deviceCharacteristics });
+  const { weatherData, loading: weatherLoading, error: weatherError } = useDeviceWeather({ device, deviceInfo, deviceCharacteristics });
 
   const formatValue = (sensorValue: SensorValue | number) => {
     if (typeof sensorValue === 'number') {
@@ -81,31 +74,7 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
     }
   };
 
-  const getWeatherIcon = (weatherId: number) => {
-    // Map weather IDs to appropriate Weather Icons
-    if (weatherId >= 200 && weatherId < 300) {
-      return <WiDayThunderstorm className="w-16 h-16 text-yellow-400 drop-shadow-lg" />;
-    }
-    if (weatherId >= 300 && weatherId < 400) {
-      return <WiDaySprinkle className="w-16 h-16 text-sky-400 drop-shadow-lg" />;
-    }
-    if (weatherId >= 500 && weatherId < 600) {
-      return <WiDayRain className="w-16 h-16 text-blue-400 drop-shadow-lg" />;
-    }
-    if (weatherId >= 600 && weatherId < 700) {
-      return <WiDaySnow className="w-16 h-16 text-slate-200 drop-shadow-lg" />;
-    }
-    if (weatherId >= 700 && weatherId < 800) {
-      return <WiFog className="w-16 h-16 text-gray-400 drop-shadow-lg" />;
-    }
-    if (weatherId === 800) {
-      return <WiDaySunny className="w-16 h-16 text-yellow-300 drop-shadow-lg" />;
-    }
-    if (weatherId >= 801 && weatherId < 900) {
-      return <WiDayCloudy className="w-16 h-16 text-gray-300 drop-shadow-lg" />;
-    }
-    return <WiDaySunny className="w-16 h-16 text-gray-400 drop-shadow-lg" />;
-  };
+
 
   const getSensorColor = (sensorType: string, value: string | number) => {
     const numValue = typeof value === 'string' ? parseFloat(value) : value;
@@ -398,47 +367,19 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
         
       </div>
       
-      {/* Tarjeta de clima básico (estilo horizontal mejorado) */}
+      {/* Tarjeta de clima básico usando SimpleWeatherDisplay */}
       {weatherData && weatherData.current && (
-        <div className="bg-gradient-to-br from-blue-900/40 to-cyan-800/30 rounded-2xl p-6 mt-4 border border-cyan-400/20 shadow-xl mb-8 flex flex-col md:flex-row items-center md:items-stretch gap-6">
-          {/* Icono y temperatura */}
-          <div className="flex flex-col items-center justify-center md:justify-between md:items-center min-w-[180px]">
-            <div>
-              {getWeatherIcon(weatherData.current.weather[0].id)}
-            </div>
-            <div className="text-4xl md:text-5xl font-extrabold text-white mb-1 drop-shadow">
-              {Math.round(weatherData.current.temp)}°C
-            </div>
-            <div className="text-lg md:text-xl text-white/80 mb-1 font-medium capitalize">
-              {weatherData.current.weather[0].description}
-            </div>
-            <div className="text-xs text-white/50">
-              {new Date(weatherData.current.dt * 1000).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-            </div>
-          </div>
-          {/* Datos secundarios alineados horizontalmente */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg mx-auto">
-            <div className="rounded-lg px-4 py-2 flex flex-col items-center">
-              <WiThermometer className="w-8 h-8 text-white/60 mb-1" />
-              <span className="text-xs text-white/60">Sensación</span>
-              <span className="text-white font-semibold text-base md:text-lg">{Math.round(weatherData.current.feels_like)}°C</span>
-            </div>
-            <div className="rounded-lg px-4 py-2 flex flex-col items-center">
-              <WiHumidity className="w-8 h-8 text-white/60 mb-1" />
-              <span className="text-xs text-white/60">Humedad</span>
-              <span className="text-white font-semibold text-base md:text-lg">{weatherData.current.humidity}%</span>
-            </div>
-            <div className="rounded-lg px-4 py-2 flex flex-col items-center">
-              <WiBarometer className="w-8 h-8 text-white/60 mb-1" />
-              <span className="text-xs text-white/60">Presión</span>
-              <span className="text-white font-semibold text-base md:text-lg">{weatherData.current.pressure} hPa</span>
-            </div>
-            <div className="rounded-lg px-4 py-2 flex flex-col items-center">
-              <MdOutlineVisibility className="w-8 h-8 text-white/60 mb-1" />
-              <span className="text-xs text-white/60">Visibilidad</span>
-              <span className="text-white font-semibold text-base md:text-lg">{(weatherData.current.visibility / 1000).toFixed(1)} km</span>
-            </div>
-          </div>
+        <SimpleWeatherDisplay
+          weatherData={weatherData}
+          variant="realtime"
+          className=""
+        />
+      )}
+      
+      {/* Mostrar error de clima solo si no está cargando */}
+      {weatherError && !weatherLoading && (
+        <div className="mt-4 bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm">
+          <p className="text-red-400 text-sm">{weatherError}</p>
         </div>
       )}
 

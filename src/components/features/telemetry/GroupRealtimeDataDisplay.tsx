@@ -4,37 +4,65 @@
 // ============================================================================
 
 import React from 'react';
-import { GroupRealtimeResponse, Group } from '../../../types/telemetry';
+import { GroupRealtimeResponse, Group, WeatherData, DeviceCharacteristicsData } from '../../../types/telemetry';
+import { useDeviceWeather } from '../../../hooks/useDeviceWeather';
+import SimpleWeatherDisplay from './SimpleWeatherDisplay';
 import { 
   WiThermometer, 
   WiHumidity, 
   WiBarometer, 
   WiRain, 
   WiStrongWind,
-  WiDayThunderstorm,
-  WiDaySprinkle,
-  WiDayRain,
-  WiDaySnow,
-  WiFog,
-  WiDaySunny,
-  WiDayCloudy,
 } from 'react-icons/wi';
 import { CiBatteryCharging } from "react-icons/ci";
-import { MdOutlineVisibility } from "react-icons/md";
 
 interface GroupRealtimeDataDisplayProps {
   data: GroupRealtimeResponse | null;
   group: Group;
   loading?: boolean;
   error?: string | null;
+  weatherData?: WeatherData | null; // Keep for backward compatibility
+  groupDevicesCharacteristics?: Record<string, DeviceCharacteristicsData>;
 }
 
 const GroupRealtimeDataDisplay: React.FC<GroupRealtimeDataDisplayProps> = ({
   data,
   group,
   loading,
-  error
+  error,
+  weatherData: propWeatherData, // Rename to avoid conflict
+  groupDevicesCharacteristics
 }) => {
+  // Use the useDeviceWeather hook to get weather data for the group
+  const { weatherData: hookWeatherData } = useDeviceWeather({ 
+    device: null, 
+    deviceInfo: null, 
+    deviceCharacteristics: null,
+    group,
+    groupDevicesCharacteristics
+  });
+
+  // Use hook weather data if available, otherwise fall back to prop
+  const weatherData = hookWeatherData || propWeatherData;
+
+  // Console logs para debuggear
+  console.log('🔍 [GroupRealtimeDataDisplay] Props recibidas:', {
+    groupName: group?.GroupName,
+    dataKeys: data ? Object.keys(data) : [],
+    weatherData: weatherData ? 'Presente' : 'Ausente',
+    weatherCurrent: weatherData?.current ? 'Presente' : 'Ausente',
+    hookWeatherData: hookWeatherData ? 'Presente' : 'Ausente',
+    propWeatherData: propWeatherData ? 'Presente' : 'Ausente'
+  });
+
+  if (weatherData?.current) {
+    console.log('🔍 [GroupRealtimeDataDisplay] Datos de clima disponibles:', {
+      temperatura: weatherData.current.temp,
+      humedad: weatherData.current.humidity,
+      descripcion: weatherData.current.weather[0]?.description,
+      ubicacion: { lat: weatherData.lat, lon: weatherData.lon }
+    });
+  }
   const formatValue = (sensorValue: any) => {
     if (typeof sensorValue === 'number') {
       return `${sensorValue}`;
@@ -284,6 +312,15 @@ const GroupRealtimeDataDisplay: React.FC<GroupRealtimeDataDisplayProps> = ({
           );
         })}
       </div>
+      
+      {/* Tarjeta de clima básico usando SimpleWeatherDisplay */}
+      {weatherData && weatherData.current && (
+        <SimpleWeatherDisplay
+          weatherData={weatherData}
+          variant="realtime"
+          className=""
+        />
+      )}
     </div>
   );
 };

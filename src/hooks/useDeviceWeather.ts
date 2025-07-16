@@ -7,32 +7,93 @@ interface UseDeviceWeatherOptions {
   deviceInfo: DeviceInfoData | null;
   deviceCharacteristics: DeviceCharacteristicsData | null;
   group?: Group | null;
+  groupDevicesCharacteristics?: Record<string, DeviceCharacteristicsData>;
 }
 
-export function useDeviceWeather({ device, deviceInfo, deviceCharacteristics, group }: UseDeviceWeatherOptions) {
+export function useDeviceWeather({ 
+  device, 
+  deviceInfo, 
+  deviceCharacteristics, 
+  group,
+  groupDevicesCharacteristics 
+}: UseDeviceWeatherOptions) {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getGroupAverageLocation = (group: Group | null) => {
-    if (!group || !(group as any).members || (group as any).members.length === 0) return null;
-    const validMembers = (group as any).members.filter((m: any) => m.location && m.location.latitude && m.location.longitude);
-    if (validMembers.length === 0) return null;
-    const avgLat = validMembers.reduce((sum: number, m: any) => sum + m.location.latitude, 0) / validMembers.length;
-    const avgLon = validMembers.reduce((sum: number, m: any) => sum + m.location.longitude, 0) / validMembers.length;
+  const getGroupAverageLocation = (group: Group | null, devicesCharacteristics?: Record<string, DeviceCharacteristicsData>) => {
+    if (!group || !devicesCharacteristics || Object.keys(devicesCharacteristics).length === 0) {
+      console.log('🔍 [useDeviceWeather] No group or devices characteristics available');
+      return null;
+    }
+
+    const validLocations: Array<{lat: number, lon: number}> = [];
+
+    // Buscar ubicaciones en deviceCharacteristics.ecowittInfo.data
+    Object.values(devicesCharacteristics).forEach((characteristics: DeviceCharacteristicsData) => {
+      const ecoWittData = characteristics?.ecowittInfo?.data;
+      console.log('🔍 [useDeviceWeather] Checking characteristics:', characteristics.deviceId, 'ecowittData:', ecoWittData);
+      if (ecoWittData?.latitude && ecoWittData?.longitude && 
+          typeof ecoWittData.latitude === 'number' && typeof ecoWittData.longitude === 'number' &&
+          !isNaN(ecoWittData.latitude) && !isNaN(ecoWittData.longitude)) {
+        validLocations.push({ 
+          lat: ecoWittData.latitude, 
+          lon: ecoWittData.longitude 
+        });
+        console.log('🔍 [useDeviceWeather] Added location from characteristics:', { lat: ecoWittData.latitude, lon: ecoWittData.longitude });
+      }
+    });
+
+    if (validLocations.length === 0) {
+      console.log('🔍 [useDeviceWeather] No valid locations found in characteristics');
+      return null;
+    }
+
+    const avgLat = validLocations.reduce((sum, loc) => sum + loc.lat, 0) / validLocations.length;
+    const avgLon = validLocations.reduce((sum, loc) => sum + loc.lon, 0) / validLocations.length;
+
+    console.log('🔍 [useDeviceWeather] Average location calculated:', { avgLat, avgLon });
+    console.log('🔍 [useDeviceWeather] Valid locations found:', validLocations.length);
+
     return { latitude: avgLat, longitude: avgLon };
   };
 
   const fetchWeather = useCallback(async () => {
+    // No hacer nada si no hay dispositivo o grupo seleccionado
+    if (!device && !group) {
+      setWeatherData(null);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    // Para dispositivos individuales, esperar a que deviceInfo o deviceCharacteristics estén disponibles
+    if (device && !deviceInfo && !deviceCharacteristics) {
+      console.log('🔍 [useDeviceWeather] Waiting for device info or characteristics to load...');
+      setLoading(true);
+      setError(null);
+      return;
+    }
+
+    // Para grupos, esperar a que groupDevicesCharacteristics esté disponible
+    if (group && (!groupDevicesCharacteristics || Object.keys(groupDevicesCharacteristics).length === 0)) {
+      console.log('🔍 [useDeviceWeather] Waiting for group devices characteristics to load...');
+      setLoading(true);
+      setError(null);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
       let lat: number | null = null;
       let lon: number | null = null;
+      
       // 1. Buscar en deviceInfo
       if (device && typeof deviceInfo?.latitude === 'number' && typeof deviceInfo?.longitude === 'number') {
         lat = deviceInfo.latitude;
         lon = deviceInfo.longitude;
+        console.log('🔍 [useDeviceWeather] Using location from deviceInfo:', { lat, lon });
       }
       // 2. Si no hay en deviceInfo, buscar en deviceCharacteristics.ecowittInfo.data
       else if (
@@ -43,6 +104,7 @@ export function useDeviceWeather({ device, deviceInfo, deviceCharacteristics, gr
       ) {
         lat = deviceCharacteristics.ecowittInfo.data.latitude;
         lon = deviceCharacteristics.ecowittInfo.data.longitude;
+        console.log('🔍 [useDeviceWeather] Using location from deviceCharacteristics:', { lat, lon });
       }
       // 3. Si deviceInfo existe pero lat/lon es null o no es número, intentar fallback a deviceCharacteristics
       else if (
@@ -55,21 +117,27 @@ export function useDeviceWeather({ device, deviceInfo, deviceCharacteristics, gr
       ) {
         lat = deviceCharacteristics.ecowittInfo.data.latitude;
         lon = deviceCharacteristics.ecowittInfo.data.longitude;
+        console.log('🔍 [useDeviceWeather] Using fallback location from deviceCharacteristics:', { lat, lon });
       }
-      // 4. Si es un grupo, calcular promedio
-      else if (group) {
-        const avgLoc = getGroupAverageLocation(group);
+      // 4. Si es un grupo, calcular promedio usando groupDevicesCharacteristics
+      else if (group && groupDevicesCharacteristics) {
+        const avgLoc = getGroupAverageLocation(group, groupDevicesCharacteristics);
         if (avgLoc) {
           lat = avgLoc.latitude;
           lon = avgLoc.longitude;
+          console.log('🔍 [useDeviceWeather] Using average location from group:', { lat, lon });
         }
       }
+      
       if (lat == null || lon == null) {
+        console.log('🔍 [useDeviceWeather] No location found, showing error');
         setError('No se pudo determinar la ubicación para obtener el clima.');
         setWeatherData(null);
         setLoading(false);
         return;
       }
+      
+      console.log('🔍 [useDeviceWeather] Fetching weather data for location:', { lat, lon });
       const response = await telemetryService.getWeatherOverview(lat, lon, 'metric', 'es');
       if (!response.success) {
         const errorMessage = Array.isArray(response.error) 
@@ -78,13 +146,15 @@ export function useDeviceWeather({ device, deviceInfo, deviceCharacteristics, gr
         throw new Error(errorMessage);
       }
       setWeatherData(response.data || null);
+      console.log('🔍 [useDeviceWeather] Weather data loaded successfully');
     } catch (err: any) {
+      console.error('🔍 [useDeviceWeather] Error fetching weather:', err);
       setError(err.message || 'Error al obtener datos de clima');
       setWeatherData(null);
     } finally {
       setLoading(false);
     }
-  }, [device, deviceInfo, deviceCharacteristics, group]);
+  }, [device, deviceInfo, deviceCharacteristics, group, groupDevicesCharacteristics]);
 
   useEffect(() => {
     fetchWeather();

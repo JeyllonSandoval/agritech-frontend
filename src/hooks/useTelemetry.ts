@@ -76,6 +76,7 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   // ===================== NUEVO ESTADO PARA GRUPOS =====================
   const [groupDevices, setGroupDevices] = useState<string[]>([]);
   const [groupDevicesInfo, setGroupDevicesInfo] = useState<Record<string, DeviceInfoData>>({});
+  const [groupDevicesCharacteristics, setGroupDevicesCharacteristics] = useState<Record<string, DeviceCharacteristicsData>>({});
   const [groupRealtimeData, setGroupRealtimeData] = useState<GroupRealtimeResponse>({});
 
   // ===================== FUNCIONES DE GRUPO =====================
@@ -87,19 +88,51 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
       return [];
     }
     try {
+      console.log('🔍 [HOOK] fetchGroupDevices - Calling API for groupId:', groupId);
       const resp = await telemetryService.getGroupDevices(groupId);
+      console.log('🔍 [HOOK] fetchGroupDevices - API Response:', resp);
+      
+      console.log('🔍 [HOOK] fetchGroupDevices - Response structure:', {
+        success: resp.success,
+        dataType: typeof resp.data,
+        isArray: Array.isArray(resp.data),
+        dataLength: resp.data?.length,
+        firstItem: resp.data?.[0]
+      });
+      
+      // Manejar diferentes formatos de respuesta
+      let deviceArray: any[] = [];
+      
       if (resp.success && Array.isArray(resp.data)) {
-        // CORREGIDO: extraer DeviceID de cada miembro
-        const ids = resp.data
-          .map((m: any) => m.DeviceID)
+        deviceArray = resp.data;
+      } else if (Array.isArray(resp)) {
+        // Si la respuesta es directamente un array
+        deviceArray = resp;
+      } else if (resp.data && Array.isArray(resp.data)) {
+        // Si la respuesta tiene data como array
+        deviceArray = resp.data;
+      } else if (resp && Array.isArray(resp)) {
+        // Si la respuesta es directamente un array sin estructura
+        deviceArray = resp;
+      }
+      
+      console.log('🔍 [HOOK] fetchGroupDevices - Device array extracted:', deviceArray);
+      
+      if (deviceArray.length > 0) {
+        // Extraer DeviceID de cada miembro
+        const ids = deviceArray
+          .map((m: any) => m.DeviceID || m.deviceId || m.id)
           .filter((id: any) => typeof id === 'string' && id.length > 0);
+        console.log('🔍 [HOOK] fetchGroupDevices - Extracted device IDs:', ids);
         setGroupDevices(ids);
         return ids;
       } else {
+        console.log('🔍 [HOOK] fetchGroupDevices - No valid data in response:', resp);
         setGroupDevices([]);
         return [];
       }
-    } catch {
+    } catch (error) {
+      console.error('❌ [HOOK] fetchGroupDevices - Error:', error);
       setGroupDevices([]);
       return [];
     }
@@ -113,11 +146,46 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
         const resp = await telemetryService.getDeviceInfo(id);
         if (resp.success && resp.data) {
           infoObj[id] = resp.data;
+          console.log('🔍 [HOOK] fetchGroupDevicesInfo - Device info loaded:', id, {
+            deviceId: resp.data.deviceId,
+            deviceName: resp.data.deviceName,
+            latitude: resp.data.latitude,
+            longitude: resp.data.longitude
+          });
         }
-      } catch {}
+      } catch (error) {
+        console.error('❌ [HOOK] fetchGroupDevicesInfo - Error loading device info for:', id, error);
+      }
     }));
     setGroupDevicesInfo(infoObj);
+    console.log('🔍 [HOOK] fetchGroupDevicesInfo - All devices info loaded:', infoObj);
     return infoObj;
+  }, []);
+
+  // 2.1. Obtener características de cada dispositivo del grupo
+  const fetchGroupDevicesCharacteristics = useCallback(async (deviceIds: string[]) => {
+    const characteristicsObj: Record<string, DeviceCharacteristicsData> = {};
+    await Promise.all(deviceIds.map(async (id) => {
+      try {
+        const resp = await telemetryService.getDeviceCharacteristics(id);
+        if (resp.success && resp.data) {
+          characteristicsObj[id] = resp.data;
+          console.log('🔍 [HOOK] fetchGroupDevicesCharacteristics - Device characteristics loaded:', id, {
+            deviceId: resp.data.deviceId,
+            deviceName: resp.data.deviceName,
+            ecowittInfo: resp.data.ecowittInfo ? {
+              latitude: resp.data.ecowittInfo.data?.latitude,
+              longitude: resp.data.ecowittInfo.data?.longitude
+            } : 'No ecowittInfo'
+          });
+        }
+      } catch (error) {
+        console.error('❌ [HOOK] fetchGroupDevicesCharacteristics - Error loading characteristics for:', id, error);
+      }
+    }));
+    setGroupDevicesCharacteristics(characteristicsObj);
+    console.log('🔍 [HOOK] fetchGroupDevicesCharacteristics - All devices characteristics loaded:', characteristicsObj);
+    return characteristicsObj;
   }, []);
 
   // 3. Obtener datos en tiempo real de todos los dispositivos del grupo
@@ -143,6 +211,8 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
       return {};
     }
   }, []);
+
+
 
   // ============================================================================
   // REFS FOR POLLING
@@ -271,6 +341,59 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
       console.error('Error fetching weather data:', error);
     }
   }, [updateState]);
+
+  // Obtener datos de clima para un grupo basándose en la ubicación promedio
+  const fetchGroupWeatherData = useCallback(async (groupId: string, deviceIds?: string[]) => {
+    try {
+      // Usar los deviceIds pasados como parámetro o los del estado
+      const ids = deviceIds || groupDevices;
+      console.log('🔍 [HOOK] fetchGroupWeatherData - Using device IDs:', ids);
+      
+      if (ids.length === 0) {
+        console.log('🔍 [HOOK] fetchGroupWeatherData - No devices in group');
+        return;
+      }
+
+      // Usar SOLO las características ya cargadas (NO deviceInfo)
+      const devicesCharacteristics = groupDevicesCharacteristics;
+      
+      console.log('🔍 [HOOK] fetchGroupWeatherData - Devices characteristics:', devicesCharacteristics);
+      
+      // Calcular ubicación promedio usando SOLO deviceCharacteristics
+      const validLocations: Array<{lat: number, lon: number}> = [];
+
+      // Buscar ubicaciones SOLO en deviceCharacteristics.ecowittInfo.data
+      Object.values(devicesCharacteristics).forEach((characteristics: DeviceCharacteristicsData) => {
+        const ecoWittData = characteristics?.ecowittInfo?.data;
+        console.log('🔍 [HOOK] fetchGroupWeatherData - Checking characteristics:', characteristics.deviceId, 'ecowittData:', ecoWittData);
+        if (ecoWittData?.latitude && ecoWittData?.longitude && 
+            typeof ecoWittData.latitude === 'number' && typeof ecoWittData.longitude === 'number' &&
+            !isNaN(ecoWittData.latitude) && !isNaN(ecoWittData.longitude)) {
+          validLocations.push({ 
+            lat: ecoWittData.latitude, 
+            lon: ecoWittData.longitude 
+          });
+          console.log('🔍 [HOOK] fetchGroupWeatherData - Added location from characteristics:', { lat: ecoWittData.latitude, lon: ecoWittData.longitude });
+        }
+      });
+
+      if (validLocations.length === 0) {
+        console.log('🔍 [HOOK] fetchGroupWeatherData - No devices with location data in characteristics');
+        return;
+      }
+
+      const avgLat = validLocations.reduce((sum, loc) => sum + loc.lat, 0) / validLocations.length;
+      const avgLon = validLocations.reduce((sum, loc) => sum + loc.lon, 0) / validLocations.length;
+
+      console.log('🔍 [HOOK] fetchGroupWeatherData - Average location:', { avgLat, avgLon });
+      console.log('🔍 [HOOK] fetchGroupWeatherData - Valid locations found:', validLocations.length);
+
+      // Obtener datos de clima para la ubicación promedio
+      await fetchWeatherData(avgLat, avgLon);
+    } catch (err) {
+      console.error('❌ [HOOK] fetchGroupWeatherData - Error:', err);
+    }
+  }, [groupDevices, groupDevicesCharacteristics, fetchWeatherData]);
 
   // ============================================================================
   // GROUP MANAGEMENT
@@ -436,13 +559,33 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   // ===================== EFECTO AL SELECCIONAR GRUPO =====================
   useEffect(() => {
     const loadGroupData = async () => {
+      console.log('🔍 [HOOK] Group selection effect triggered:', {
+        selectedGroup: state.selectedGroup?.GroupName,
+        groupId: state.selectedGroup?.DeviceGroupID
+      });
+      
       if (state.selectedGroup && state.selectedGroup.DeviceGroupID) {
         // Mostrar loading mientras se cargan los datos del grupo
         setLoading(true);
         try {
+          console.log('🔍 [HOOK] Loading group data for:', state.selectedGroup.GroupName);
           const ids = await fetchGroupDevices(state.selectedGroup.DeviceGroupID);
-          await fetchGroupDevicesInfo(ids);
-          await fetchGroupRealtimeData(state.selectedGroup.DeviceGroupID);
+          console.log('🔍 [HOOK] Group devices loaded:', ids);
+          
+          // Primero cargar la información de dispositivos y características
+          console.log('🔍 [HOOK] Loading device info and characteristics...');
+          await Promise.all([
+            fetchGroupDevicesInfo(ids),
+            fetchGroupDevicesCharacteristics(ids)
+          ]);
+          
+          // Luego cargar datos en tiempo real y clima (que dependen de la info de dispositivos)
+          console.log('🔍 [HOOK] Loading realtime data and weather...');
+          await Promise.all([
+            fetchGroupRealtimeData(state.selectedGroup.DeviceGroupID),
+            fetchGroupWeatherData(state.selectedGroup.DeviceGroupID, ids)
+          ]);
+          console.log('🔍 [HOOK] Group data loading completed');
         } catch (error) {
           console.error('Error loading group data:', error);
           setError('Error al cargar datos del grupo');
@@ -450,9 +593,12 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
           setLoading(false);
         }
       } else {
+        console.log('🔍 [HOOK] No group selected, clearing data');
         setGroupDevices([]);
         setGroupDevicesInfo({});
+        setGroupDevicesCharacteristics({});
         setGroupRealtimeData({});
+        updateState({ weatherData: null });
       }
     };
     loadGroupData();
@@ -483,6 +629,7 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     // NUEVO: datos de grupo
     groupDevices,
     groupDevicesInfo,
+    groupDevicesCharacteristics,
     groupRealtimeData,
     // Actions
     fetchDevices,
@@ -504,6 +651,8 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     // NUEVO: funciones de grupo
     fetchGroupDevices,
     fetchGroupDevicesInfo,
-    fetchGroupRealtimeData
+    fetchGroupDevicesCharacteristics,
+    fetchGroupRealtimeData,
+    fetchGroupWeatherData
   };
 }; 

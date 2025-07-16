@@ -16,6 +16,7 @@ import DeviceComparison from '../../../components/features/telemetry/DeviceCompa
 import DeviceGroupManager from '../../../components/features/telemetry/DeviceGroupManager';
 import TelemetryReports from '../../../components/features/telemetry/TelemetryReports';
 import GroupRealtimeDataDisplay from '../../../components/features/telemetry/GroupRealtimeDataDisplay';
+import SimpleWeatherDisplay from '../../../components/features/telemetry/SimpleWeatherDisplay';
 import { DeviceInfo as DeviceInfoType } from '../../../types/telemetry';
 // Auxiliar para dispositivos con ubicación
 type DeviceWithLocation = DeviceInfoType & { location: { latitude: number; longitude: number } };
@@ -44,11 +45,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
   const [showReports, setShowReports] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<null | 'info' | 'weather'>(null);
-  const [weatherLoading, setWeatherLoading] = useState(false);
-  const [weatherDataPanel, setWeatherDataPanel] = useState<any>(null);
-  const [weatherError, setWeatherError] = useState<string | null>(null);
-  const [weatherDataReady, setWeatherDataReady] = useState(false);
-  const [weatherRequestId, setWeatherRequestId] = useState<number>(0);
+  // Removed unused weather panel state variables since we're using hooks now
   const [showDeviceManager, setShowDeviceManager] = useState(false);
 
   // Elimina el estado local de deviceCharacteristics
@@ -70,6 +67,8 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     stats,
     alerts,
     groupRealtimeData,
+    groupDevicesInfo,
+    groupDevicesCharacteristics,
     
     // Actions
     fetchDevices,
@@ -80,6 +79,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     fetchWeatherData,
     fetchGroups,
     selectGroup,
+    fetchGroupWeatherData,
     startPolling,
     stopPolling,
     acknowledgeAlert,
@@ -104,6 +104,20 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     deviceInfo,
     deviceCharacteristics,
     group: undefined
+  });
+
+  // Hook centralizado para clima del grupo seleccionado
+  const {
+    weatherData: groupWeatherData,
+    loading: groupWeatherLoading,
+    error: groupWeatherError,
+    refresh: refreshGroupWeather
+  } = useDeviceWeather({
+    device: null,
+    deviceInfo: null,
+    deviceCharacteristics: null,
+    group: selectedGroup,
+    groupDevicesCharacteristics
   });
 
   const { t } = useTranslation();
@@ -251,120 +265,45 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
 
   // Calcular ubicación promedio de un grupo
   const getGroupAverageLocation = (group: any) => {
-    if (!group || !group.members || group.members.length === 0) return null;
-    const validMembers = group.members.filter((m: any) => m.location && m.location.latitude && m.location.longitude);
-    if (validMembers.length === 0) return null;
-    const avgLat = validMembers.reduce((sum: number, m: any) => sum + m.location.latitude, 0) / validMembers.length;
-    const avgLon = validMembers.reduce((sum: number, m: any) => sum + m.location.longitude, 0) / validMembers.length;
+    console.log('🔍 [TelemetryDashboard] getGroupAverageLocation called for group:', group?.GroupName);
+    console.log('🔍 [TelemetryDashboard] groupDevicesCharacteristics:', groupDevicesCharacteristics);
+    
+    if (!group) return null;
+    
+    const validLocations: Array<{lat: number, lon: number}> = [];
+
+    // Buscar ubicaciones SOLO en groupDevicesCharacteristics
+    Object.values(groupDevicesCharacteristics).forEach((characteristics: any) => {
+      const ecoWittData = characteristics?.ecowittInfo?.data;
+      console.log('🔍 [TelemetryDashboard] Checking characteristics:', characteristics.deviceId, 'ecowittData:', ecoWittData);
+      if (ecoWittData?.latitude && ecoWittData?.longitude && 
+          typeof ecoWittData.latitude === 'number' && typeof ecoWittData.longitude === 'number' &&
+          !isNaN(ecoWittData.latitude) && !isNaN(ecoWittData.longitude)) {
+        validLocations.push({ 
+          lat: ecoWittData.latitude, 
+          lon: ecoWittData.longitude 
+        });
+        console.log('🔍 [TelemetryDashboard] Added location from characteristics:', { lat: ecoWittData.latitude, lon: ecoWittData.longitude });
+      }
+    });
+
+    if (validLocations.length === 0) {
+      console.log('🔍 [TelemetryDashboard] No valid locations found in characteristics');
+      return null;
+    }
+
+    const avgLat = validLocations.reduce((sum, loc) => sum + loc.lat, 0) / validLocations.length;
+    const avgLon = validLocations.reduce((sum, loc) => sum + loc.lon, 0) / validLocations.length;
+
+    console.log('🔍 [TelemetryDashboard] Average location calculated:', { avgLat, avgLon });
+    console.log('🔍 [TelemetryDashboard] Valid locations found:', validLocations.length);
+
     return { latitude: avgLat, longitude: avgLon };
   };
 
-  // Obtener datos de clima para dispositivo o grupo
-  const fetchWeatherPanelData = async (device: DeviceInfoType | null, group: any | null, requestId: number) => {
-    setWeatherLoading(true);
-    setWeatherError(null);
-    setWeatherDataReady(false);
-    
-    try {
-      let lat: number | null = null;
-      let lon: number | null = null;
-      // 1. Buscar en deviceInfo
-      if (device && typeof deviceInfo?.latitude === 'number' && typeof deviceInfo?.longitude === 'number') {
-        lat = deviceInfo.latitude;
-        lon = deviceInfo.longitude;
-        console.log('[Telemetry] Usando lat/lon de deviceInfo:', lat, lon);
-      }
-      // 2. Si no hay en deviceInfo, buscar en deviceCharacteristics.ecowittInfo.data
-      else if (
-        device &&
-        deviceCharacteristics?.ecowittInfo?.data &&
-        typeof deviceCharacteristics.ecowittInfo.data.latitude === 'number' &&
-        typeof deviceCharacteristics.ecowittInfo.data.longitude === 'number'
-      ) {
-        lat = deviceCharacteristics.ecowittInfo.data.latitude;
-        lon = deviceCharacteristics.ecowittInfo.data.longitude;
-        console.log('[Telemetry] Usando lat/lon de deviceCharacteristics:', lat, lon);
-      }
-      // 3. Si deviceInfo existe pero lat/lon es null o no es número, intentar fallback a deviceCharacteristics
-      else if (
-        device &&
-        deviceInfo &&
-        (deviceInfo.latitude == null || isNaN(deviceInfo.latitude) || deviceInfo.longitude == null || isNaN(deviceInfo.longitude)) &&
-        deviceCharacteristics?.ecowittInfo?.data &&
-        typeof deviceCharacteristics.ecowittInfo.data.latitude === 'number' &&
-        typeof deviceCharacteristics.ecowittInfo.data.longitude === 'number'
-      ) {
-        lat = deviceCharacteristics.ecowittInfo.data.latitude;
-        lon = deviceCharacteristics.ecowittInfo.data.longitude;
-        console.log('[Telemetry] Fallback a lat/lon de deviceCharacteristics:', lat, lon);
-      }
-      // 4. Si es un grupo, calcular promedio
-      else if (group) {
-        const avgLoc = getGroupAverageLocation(group);
-        if (avgLoc) {
-          lat = avgLoc.latitude;
-          lon = avgLoc.longitude;
-          console.log('[Telemetry] Usando lat/lon promedio de grupo:', lat, lon);
-        }
-      }
-      if (lat == null || lon == null) {
-        console.warn('[Telemetry] No se pudo determinar lat/lon para el clima', { deviceInfo, deviceCharacteristics });
-        setWeatherError('No se pudo determinar la ubicación para obtener el clima.');
-        setWeatherDataPanel(null);
-        setWeatherLoading(false);
-        setWeatherDataReady(false);
-        return;
-      }
-      
-      // Verificar si la solicitud sigue siendo válida
-      if (requestId !== weatherRequestId) {
-        console.log('[Telemetry] Solicitud obsoleta, cancelando');
-        return;
-      }
-      
-      // Usar el servicio de telemetría en lugar de llamada directa
-      const response = await telemetryService.getWeatherOverview(lat, lon, 'metric', 'es');
-      console.log('[Telemetry] Respuesta del backend al pedir clima:', response);
-      
-      // Verificar nuevamente si la solicitud sigue siendo válida
-      if (requestId !== weatherRequestId) {
-        console.log('[Telemetry] Solicitud obsoleta después de la respuesta, descartando datos');
-        return;
-      }
-      
-      if (!response.success) {
-        const errorMessage = Array.isArray(response.error) 
-          ? response.error.join('; ') 
-          : response.error || 'Error al obtener datos de clima';
-        throw new Error(errorMessage);
-      }
-      setWeatherDataPanel(response.data); // response.data ya tiene la estructura correcta
-      setWeatherDataReady(true);
-      console.log('[Telemetry] Datos de clima seteados:', response.data);
-    } catch (err: any) {
-      setWeatherError(err.message || 'Error al obtener datos de clima');
-      setWeatherDataPanel(null);
-      setWeatherDataReady(false);
-      console.error('[Telemetry] Error al obtener datos de clima:', err);
-    } finally {
-      setWeatherLoading(false);
-    }
-  };
-
-  // Handler para selección
+  // Simplified weather panel handlers using hooks
   const handleWeatherDeviceSelect = (device: DeviceInfoType | null) => {
-    // Limpiar datos anteriores inmediatamente para evitar parpadeo
-    setWeatherDataPanel(null);
-    setWeatherError(null);
-    setWeatherLoading(true);
-    setWeatherDataReady(false);
-    
-    // Incrementar el ID de solicitud para cancelar cargas anteriores
-    const newRequestId = weatherRequestId + 1;
-    setWeatherRequestId(newRequestId);
-    
     selectDevice(device);
-    // Llamar a selectDevice para que el hook obtenga deviceInfo y weatherData
     if (device && !deviceInfo) {
       fetchDeviceInfo(device.DeviceID);
     }
@@ -374,54 +313,8 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
   };
   
   const handleWeatherGroupSelect = (group: any) => {
-    // Limpiar datos anteriores inmediatamente para evitar parpadeo
-    setWeatherDataPanel(null);
-    setWeatherError(null);
-    setWeatherLoading(true);
-    setWeatherDataReady(false);
-    
-    // Incrementar el ID de solicitud para cancelar cargas anteriores
-    const newRequestId = weatherRequestId + 1;
-    setWeatherRequestId(newRequestId);
-    
     selectGroup(group);
-    // Quitar llamada directa a fetchWeatherPanelData
   };
-  
-  const handleWeatherRefresh = () => {
-    const newRequestId = weatherRequestId + 1;
-    setWeatherRequestId(newRequestId);
-    fetchWeatherPanelData(selectedDevice, selectedGroup, newRequestId);
-  };
-
-  // Consulta clima cuando deviceInfo tiene lat/lon válidos
-  useEffect(() => {
-    console.log('[DEBUG] useEffect deviceInfo', { selectedDevice, deviceInfo });
-    if (
-      selectedDevice && // <-- AÑADIDO: solo si hay dispositivo seleccionado
-      deviceInfo &&
-      typeof deviceInfo.latitude === 'number' &&
-      typeof deviceInfo.longitude === 'number'
-    ) {
-      fetchWeatherPanelData(selectedDevice, null, weatherRequestId);
-    }
-    // eslint-disable-next-line
-  }, [deviceInfo, selectedDevice, weatherRequestId]);
-
-  // Consulta clima cuando deviceCharacteristics tiene lat/lon válidos y deviceInfo no los tiene
-  useEffect(() => {
-    console.log('[DEBUG] useEffect deviceCharacteristics', { selectedDevice, deviceCharacteristics });
-    if (
-      selectedDevice && // <-- AÑADIDO: solo si hay dispositivo seleccionado
-      (!deviceInfo || deviceInfo.latitude == null || deviceInfo.longitude == null) &&
-      deviceCharacteristics?.ecowittInfo?.data &&
-      typeof deviceCharacteristics.ecowittInfo.data.latitude === 'number' &&
-      typeof deviceCharacteristics.ecowittInfo.data.longitude === 'number'
-    ) {
-      fetchWeatherPanelData(selectedDevice, null, weatherRequestId);
-    }
-    // eslint-disable-next-line
-  }, [deviceCharacteristics, selectedDevice, weatherRequestId]);
 
   // ============================================================================
   // RENDER
@@ -563,9 +456,11 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                   data={groupRealtimeData}
                   group={selectedGroup}
                   loading={loading || panelLoading}
+                  weatherData={weatherData}
+                  groupDevicesCharacteristics={groupDevicesCharacteristics}
                 />
               )}
-              {/* Weather Data */}
+              {/* Weather Data for Individual Devices */}
               {selectedDevice && weatherData && (
                 <WeatherDataDisplay
                   device={selectedDevice}
@@ -574,6 +469,19 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                   onRefresh={() => {
                     if (selectedDevice && deviceInfo?.latitude && deviceInfo?.longitude) {
                       fetchWeatherData(deviceInfo.latitude, deviceInfo.longitude);
+                    }
+                  }}
+                />
+              )}
+              {/* Simple Weather Display for Groups */}
+              {selectedGroup && weatherData && (
+                <SimpleWeatherDisplay
+                  weatherData={weatherData}
+                  variant="realtime"
+                  className="mt-6"
+                  onRefresh={() => {
+                    if (selectedGroup) {
+                      fetchGroupWeatherData(selectedGroup.DeviceGroupID);
                     }
                   }}
                 />
@@ -670,26 +578,24 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                   </div>
                 </div>
               )}
-              {weatherLoading && (
+              {/* Loading state */}
+              {(weatherLoadingBasic || groupWeatherLoading) && (
                 <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-lg flex items-center justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
                   <span className="ml-3 text-white/70 text-sm">Cargando clima...</span>
                 </div>
               )}
-              {weatherError && !selectedDevice && (
+
+              {/* Error state - only show when not loading */}
+              {(weatherErrorBasic || groupWeatherError) && !weatherLoadingBasic && !groupWeatherLoading && (
                 <div className="text-lg bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm text-red-300">
-                  {weatherError}
+                  {weatherErrorBasic || groupWeatherError}
                 </div>
               )}
-              {selectedDevice && !weatherLoading && !weatherDataReady && !weatherError && (
-                <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-lg flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
-                  <span className="ml-3 text-white/70 text-sm">Cargando ubicación del dispositivo...</span>
-                </div>
-              )}
-              {weatherDataPanel && weatherDataReady && (() => {
-                let device: DeviceWithLocation | undefined;
-                if (selectedDevice) {
+
+              {/* Weather data for individual device */}
+              {selectedDevice && basicWeatherData && !weatherLoadingBasic && (
+                (() => {
                   let latitude = deviceInfo?.latitude;
                   let longitude = deviceInfo?.longitude;
                   // Si no hay en deviceInfo, usa deviceCharacteristics
@@ -702,8 +608,9 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                     latitude = deviceCharacteristics.ecowittInfo.data.latitude;
                     longitude = deviceCharacteristics.ecowittInfo.data.longitude;
                   }
+                  
                   if (latitude != null && longitude != null) {
-                    device = {
+                    const device: DeviceWithLocation = {
                       DeviceID: selectedDevice.DeviceID,
                       DeviceName: selectedDevice.DeviceName,
                       DeviceMac: selectedDevice.DeviceMac,
@@ -713,30 +620,48 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                       createdAt: selectedDevice.createdAt,
                       location: { latitude, longitude }
                     };
+                    
+                    return (
+                      <WeatherDataDisplay
+                        weatherData={basicWeatherData}
+                        device={device}
+                        loading={weatherLoadingBasic}
+                        onRefresh={refreshWeatherBasic}
+                      />
+                    );
                   }
-                } else if (selectedGroup) {
+                  return null;
+                })()
+              )}
+
+              {/* Weather data for group */}
+              {selectedGroup && groupWeatherData && !groupWeatherLoading && (
+                (() => {
                   const avgLoc = getGroupAverageLocation(selectedGroup);
-                  device = {
-                    DeviceID: 'group',
-                    DeviceName: selectedGroup.GroupName || 'Grupo',
-                    DeviceMac: '',
-                    DeviceType: 'Outdoor',
-                    UserID: '',
-                    status: 'active',
-                    createdAt: '',
-                    location: avgLoc || { latitude: 0, longitude: 0 }
-                  };
-                }
-                if (!device) return null;
-                return (
-                  <WeatherDataDisplay
-                    weatherData={weatherDataPanel}
-                    device={device}
-                    loading={weatherLoading}
-                    onRefresh={handleWeatherRefresh}
-                  />
-                );
-              })()}
+                  if (avgLoc) {
+                    const device: DeviceWithLocation = {
+                      DeviceID: 'group',
+                      DeviceName: selectedGroup.GroupName || 'Grupo',
+                      DeviceMac: '',
+                      DeviceType: 'Outdoor',
+                      UserID: '',
+                      status: 'active',
+                      createdAt: '',
+                      location: avgLoc
+                    };
+                    
+                    return (
+                      <WeatherDataDisplay
+                        weatherData={groupWeatherData}
+                        device={device}
+                        loading={groupWeatherLoading}
+                        onRefresh={refreshGroupWeather}
+                      />
+                    );
+                  }
+                  return null;
+                })()
+              )}
             </div>
           </div>
         )}
