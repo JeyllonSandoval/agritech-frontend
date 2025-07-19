@@ -395,6 +395,12 @@ export interface TelemetryState {
   error: string | null;
   polling: boolean;
   lastUpdate: string | null;
+  // NUEVO: Datos precargados para evitar pantallas de carga
+  precachedData?: {
+    realtimeData: Record<string, RealtimeData>;
+    deviceInfo: Record<string, DeviceInfoData>;
+    deviceCharacteristics: Record<string, DeviceCharacteristicsData>;
+  };
 }
 
 export interface TelemetryFilters {

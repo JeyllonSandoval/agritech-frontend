@@ -22,10 +22,13 @@ import {
   WiRefresh
 } from 'react-icons/wi';
 
+import WeatherErrorHandler from './WeatherErrorHandler';
+
 interface WeatherDataDisplayProps {
-  weatherData: WeatherData;
+  weatherData: WeatherData | null;
   device: DeviceInfo;
   loading: boolean;
+  error?: string | null;
   onRefresh?: () => void;
 }
 
@@ -33,6 +36,7 @@ const WeatherDataDisplay: React.FC<WeatherDataDisplayProps> = ({
   weatherData,
   device,
   loading,
+  error,
   onRefresh
 }) => {
   const getWeatherIcon = (weatherId: number) => {
@@ -119,6 +123,18 @@ const WeatherDataDisplay: React.FC<WeatherDataDisplayProps> = ({
     });
   };
 
+  // Mostrar error si existe
+  if (error) {
+    return (
+      <WeatherErrorHandler
+        error={error}
+        onRetry={onRefresh || (() => {})}
+        isLoading={loading}
+      />
+    );
+  }
+
+  // Mostrar loading
   if (loading) {
     return (
       <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
@@ -127,6 +143,17 @@ const WeatherDataDisplay: React.FC<WeatherDataDisplayProps> = ({
           <span className="ml-3 text-white/70 text-sm">Actualizando clima...</span>
         </div>
       </div>
+    );
+  }
+
+  // Mostrar error si no hay datos
+  if (!weatherData) {
+    return (
+      <WeatherErrorHandler
+        error="No se pudieron cargar los datos del clima"
+        onRetry={onRefresh || (() => {})}
+        isLoading={loading}
+      />
     );
   }
 

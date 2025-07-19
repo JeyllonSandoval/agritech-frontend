@@ -24,14 +24,13 @@ export const DeviceEditForm: React.FC<DeviceEditFormProps> = ({
     DeviceApplicationKey: '',
     DeviceApiKey: '',
     DeviceType: device.DeviceType,
-    UserID: device.UserID,
+    UserID: device.UserID, // Mantener para el backend pero no mostrar en UI
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validations, setValidations] = useState({
     name: false,
-    mac: false,
-    userId: false
+    mac: false
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingUpdateData, setPendingUpdateData] = useState<any>(null);
@@ -41,8 +40,7 @@ export const DeviceEditForm: React.FC<DeviceEditFormProps> = ({
   useEffect(() => {
     setValidations({
       name: formData.DeviceName.length >= 3 && formData.DeviceName.length <= 50,
-      mac: /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(formData.DeviceMac),
-      userId: formData.UserID.length > 0
+      mac: /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(formData.DeviceMac)
     });
   }, [formData]);
 
@@ -50,7 +48,7 @@ export const DeviceEditForm: React.FC<DeviceEditFormProps> = ({
     firstInputRef.current?.focus();
   }, []);
 
-  const isFormValid = validations.name && validations.mac && validations.userId;
+  const isFormValid = validations.name && validations.mac;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,9 +66,7 @@ export const DeviceEditForm: React.FC<DeviceEditFormProps> = ({
     if (formData.DeviceType !== device.DeviceType) {
       updateData.DeviceType = formData.DeviceType;
     }
-    if (formData.UserID !== device.UserID) {
-      updateData.UserID = formData.UserID;
-    }
+    // NO incluir UserID en los datos de actualización - se mantiene del dispositivo original
     if (formData.DeviceApplicationKey && formData.DeviceApplicationKey.trim() !== '') {
       updateData.DeviceApplicationKey = formData.DeviceApplicationKey;
     }
@@ -198,22 +194,15 @@ export const DeviceEditForm: React.FC<DeviceEditFormProps> = ({
               </select>
             </div>
 
+            {/* Información del propietario (solo lectura) */}
             <div>
-              <label className="block text-sm text-white mb-1">User ID</label>
-              <input 
-                type="text" 
-                name="UserID" 
-                value={formData.UserID} 
-                onChange={handleChange} 
-                className="w-full px-3 py-2 rounded-lg bg-white/5 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-base" 
-                required 
-                disabled={loading}
-              />
-              {!validations.userId && formData.UserID.length === 0 && (
-                <div className="text-red-400 text-xs mt-1">
-                  User ID es requerido
-                </div>
-              )}
+              <label className="block text-sm text-white mb-1">Propietario</label>
+              <div className="w-full px-3 py-2 rounded-lg bg-white/10 text-white/70 border border-white/20 text-base">
+                {device.UserID}
+              </div>
+              <p className="text-xs text-white/50 mt-1">
+                El propietario no se puede cambiar
+              </p>
             </div>
           </div>
         </div>
@@ -251,7 +240,7 @@ export const DeviceEditForm: React.FC<DeviceEditFormProps> = ({
         </div>
         
         {/* Botones de acción */}
-        <div className="flex gap-2 pt-4 border-t border-white/10 justify-end">
+        <div className="flex gap-3 pt-4">
           <button 
             type="button" 
             onClick={onCancel} 

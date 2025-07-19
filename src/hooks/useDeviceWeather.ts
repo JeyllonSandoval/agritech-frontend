@@ -139,17 +139,37 @@ export function useDeviceWeather({
       
       console.log('🔍 [useDeviceWeather] Fetching weather data for location:', { lat, lon });
       const response = await telemetryService.getWeatherOverview(lat, lon, 'metric', 'es');
+      
       if (!response.success) {
         const errorMessage = Array.isArray(response.error) 
           ? response.error.join('; ') 
           : response.error || 'Error al obtener datos de clima';
-        throw new Error(errorMessage);
+        
+        // Manejar específicamente errores de timeout
+        if (errorMessage.toLowerCase().includes('timeout')) {
+          console.warn('🔍 [useDeviceWeather] Weather API timeout detected');
+          setError('Request timeout - OpenWeather API is not responding');
+        } else {
+          setError(errorMessage);
+        }
+        setWeatherData(null);
+        setLoading(false);
+        return;
       }
+      
       setWeatherData(response.data || null);
+      setError(null); // Limpiar errores previos si la carga fue exitosa
       console.log('🔍 [useDeviceWeather] Weather data loaded successfully');
     } catch (err: any) {
       console.error('🔍 [useDeviceWeather] Error fetching weather:', err);
-      setError(err.message || 'Error al obtener datos de clima');
+      
+      // Manejar específicamente errores de timeout
+      const errorMessage = err.message || 'Error al obtener datos de clima';
+      if (errorMessage.toLowerCase().includes('timeout')) {
+        setError('Request timeout - OpenWeather API is not responding');
+      } else {
+        setError(errorMessage);
+      }
       setWeatherData(null);
     } finally {
       setLoading(false);

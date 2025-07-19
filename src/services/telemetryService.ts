@@ -566,10 +566,14 @@ class TelemetryService {
   }
 
   /**
-   * Get weather data for a specific timestamp
+   * Get weather data for a specific timestamp - Enhanced with timeout handling
    */
   async getWeatherByTimestamp(lat: number, lon: number, dt: number, units: string = 'metric'): Promise<ApiResponse<WeatherData>> {
+    const timeoutMs = 10000; // 10 segundos de timeout
+    
     try {
+      console.log(`🌤️ [WEATHER] Fetching weather by timestamp for lat:${lat}, lon:${lon}, dt:${dt}`);
+      
       const params = new URLSearchParams({
         lat: lat.toString(),
         lon: lon.toString(),
@@ -580,24 +584,51 @@ class TelemetryService {
       const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.WEATHER_TIMESTAMP}?${params.toString()}`);
       const config = getRequestConfig('GET');
 
-      const response = await fetch(url, config);
-      const data = await response.json();
+      // Crear AbortController para timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch weather data');
+      try {
+        const response = await fetch(url, {
+          ...config,
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to fetch weather data');
+        }
+
+        return data;
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          throw new Error('Request timeout - Weather API is not responding');
+        }
+        throw fetchError;
       }
-
-      return data;
     } catch (error) {
-      throw new Error(`Error fetching weather data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error(`🌤️ [WEATHER] Error fetching weather by timestamp:`, error);
+      return {
+        success: false,
+        message: "Error retrieving weather data",
+        error: error instanceof Error ? error.message : "Unknown error"
+      };
     }
   }
 
   /**
-   * Get daily weather aggregation
+   * Get daily weather aggregation - Enhanced with timeout handling
    */
   async getDailyWeather(lat: number, lon: number, start: number, end: number, units: string = 'metric'): Promise<ApiResponse<WeatherData>> {
+    const timeoutMs = 12000; // 12 segundos de timeout para datos históricos
+    
     try {
+      console.log(`🌤️ [WEATHER] Fetching daily weather for lat:${lat}, lon:${lon}, start:${start}, end:${end}`);
+      
       const params = new URLSearchParams({
         lat: lat.toString(),
         lon: lon.toString(),
@@ -609,45 +640,128 @@ class TelemetryService {
       const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.WEATHER_DAILY}?${params.toString()}`);
       const config = getRequestConfig('GET');
 
-      const response = await fetch(url, config);
-      const data = await response.json();
+      // Crear AbortController para timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch weather data');
+      try {
+        const response = await fetch(url, {
+          ...config,
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to fetch weather data');
+        }
+
+        return data;
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          throw new Error('Request timeout - Weather API is not responding');
+        }
+        throw fetchError;
       }
-
-      return data;
     } catch (error) {
-      throw new Error(`Error fetching weather data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error(`🌤️ [WEATHER] Error fetching daily weather:`, error);
+      return {
+        success: false,
+        message: "Error retrieving daily weather data",
+        error: error instanceof Error ? error.message : "Unknown error"
+      };
     }
   }
 
   /**
-   * Get weather overview with AI
+   * Get weather overview with AI - Enhanced with timeout and retry logic
    */
   async getWeatherOverview(lat: number, lon: number, units: string = 'metric', lang: string = 'es'): Promise<ApiResponse<WeatherData>> {
-    try {
-      const params = new URLSearchParams({
-        lat: lat.toString(),
-        lon: lon.toString(),
-        units,
-        lang,
-      });
+    const maxRetries = 3;
+    const timeoutMs = 15000; // 15 segundos de timeout
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`🌤️ [WEATHER] Attempt ${attempt}/${maxRetries} - Fetching weather for lat:${lat}, lon:${lon}`);
+        
+        const params = new URLSearchParams({
+          lat: lat.toString(),
+          lon: lon.toString(),
+          units,
+          lang,
+        });
 
-      const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.WEATHER_OVERVIEW}?${params.toString()}`);
-      const config = getRequestConfig('GET');
+        const url = buildApiUrl(`${API_CONFIG.ENDPOINTS.WEATHER_OVERVIEW}?${params.toString()}`);
+        const config = getRequestConfig('GET');
 
-      const response = await fetch(url, config);
-      const data = await response.json();
+        // Crear AbortController para timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch weather overview');
+        try {
+          const response = await fetch(url, {
+            ...config,
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          const data = await response.json();
+
+          if (!response.ok) {
+            // Si es un error de timeout del backend, intentar de nuevo
+            if (data.error && data.error.includes('timeout')) {
+              console.warn(`🌤️ [WEATHER] Timeout on attempt ${attempt}, retrying...`);
+              if (attempt < maxRetries) {
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Backoff exponencial
+                continue;
+              }
+            }
+            throw new Error(data.error || 'Failed to fetch weather overview');
+          }
+
+          console.log(`🌤️ [WEATHER] Success on attempt ${attempt}`);
+          return data;
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          
+          if (fetchError instanceof Error) {
+            if (fetchError.name === 'AbortError') {
+              console.warn(`🌤️ [WEATHER] Request timeout on attempt ${attempt}`);
+              if (attempt < maxRetries) {
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                continue;
+              }
+              throw new Error('Request timeout - OpenWeather API is not responding');
+            }
+          }
+          throw fetchError;
+        }
+      } catch (error) {
+        console.error(`🌤️ [WEATHER] Error on attempt ${attempt}:`, error);
+        
+        if (attempt === maxRetries) {
+          // En el último intento, devolver un error más amigable
+          return {
+            success: false,
+            message: "Error retrieving weather overview",
+            error: error instanceof Error ? error.message : "Unknown error"
+          };
+        }
+        
+        // Esperar antes del siguiente intento
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
       }
-
-      return data;
-    } catch (error) {
-      throw new Error(`Error fetching weather overview: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+    
+    // Fallback en caso de que todos los intentos fallen
+    return {
+      success: false,
+      message: "Error retrieving weather overview",
+      error: "Request timeout - OpenWeather API is not responding"
+    };
   }
 
   // ============================================================================

@@ -1,31 +1,31 @@
 // ============================================================================
 // ADD DEVICE PAGE
-// Three-step process for adding new telemetry devices
+// Three-step process for adding new telemetry devices with improved clarity
 // ============================================================================
 
 'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeftIcon, DevicePhoneMobileIcon, WifiIcon, CheckCircleIcon, PlayCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, DevicePhoneMobileIcon, WifiIcon, CheckCircleIcon, PlayCircleIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import telemetryService from '../../../services/telemetryService';
 import { DeviceRegistration } from '../../../types/telemetry';
 import { showSuccessToast } from '@/components/common/SuccessToast';
 
 // Tipos válidos del backend (en inglés, para enviar al backend)
 const DEVICE_TYPES = [
-  { value: 'Controlled environments', label: 'Ambientes controlados' },
-  { value: 'Plants', label: 'Plantas' },
-  { value: 'Soil', label: 'Suelo' },
-  { value: 'Climate', label: 'Clima' },
-  { value: 'Large-scale farming', label: 'Agricultura a gran escala' },
-  { value: 'home gardens', label: 'Jardines domésticos' },
-  { value: 'Manual', label: 'Manual' },
-  { value: 'Automated', label: 'Automatizado' },
-  { value: 'Delicate', label: 'Delicado' },
-  { value: 'Tough', label: 'Resistente' },
-  { value: 'Outdoor', label: 'Exterior' },
-  { value: 'Indoor', label: 'Interior' },
+  { value: 'Controlled environments', label: 'Ambientes controlados', description: 'Invernaderos, cultivos protegidos' },
+  { value: 'Plants', label: 'Plantas', description: 'Monitoreo de cultivos específicos' },
+  { value: 'Soil', label: 'Suelo', description: 'Análisis de condiciones del terreno' },
+  { value: 'Climate', label: 'Clima', description: 'Estaciones meteorológicas' },
+  { value: 'Large-scale farming', label: 'Agricultura a gran escala', description: 'Cultivos extensivos' },
+  { value: 'home gardens', label: 'Jardines domésticos', description: 'Huertos caseros' },
+  { value: 'Manual', label: 'Manual', description: 'Configuración manual' },
+  { value: 'Automated', label: 'Automatizado', description: 'Sistemas automáticos' },
+  { value: 'Delicate', label: 'Delicado', description: 'Cultivos sensibles' },
+  { value: 'Tough', label: 'Resistente', description: 'Cultivos robustos' },
+  { value: 'Outdoor', label: 'Exterior', description: 'Cultivos al aire libre' },
+  { value: 'Indoor', label: 'Interior', description: 'Cultivos en interiores' },
 ];
 
 interface DeviceFormData {
@@ -38,15 +38,10 @@ interface DeviceFormData {
 
 interface ValidationErrors {
   deviceName?: string;
+  deviceType?: string;
   deviceMac?: string;
   deviceApplicationKey?: string;
   deviceApiKey?: string;
-}
-
-interface ChecklistItem {
-  id: string;
-  text: string;
-  completed: boolean;
 }
 
 const AddDevicePage: React.FC = () => {
@@ -86,46 +81,34 @@ const AddDevicePage: React.FC = () => {
     }
   ];
 
-  // Checklist basado en el video de EcoWitt
-  const setupChecklist: ChecklistItem[] = [
+  const checklist = [
     {
       id: '1',
-      text: 'He descargado la aplicación WS View Plus en mi dispositivo móvil',
+      text: 'Descargar la aplicación EcoWitt en tu dispositivo móvil',
       completed: false
     },
     {
       id: '2',
-      text: 'He creado una cuenta en la aplicación WS View Plus',
+      text: 'Crear una cuenta en EcoWitt.net',
       completed: false
     },
     {
       id: '3',
-      text: 'He conectado mi dispositivo EcoWitt a la red WiFi',
+      text: 'Conectar tu dispositivo EcoWitt a la aplicación',
       completed: false
     },
     {
       id: '4',
-      text: 'He configurado mi dispositivo en la aplicación WS View Plus',
-      completed: false
-    },
-    {
-      id: '5',
-      text: 'He obtenido mi Application Key desde la aplicación',
-      completed: false
-    },
-    {
-      id: '6',
-      text: 'He obtenido mi API Key desde la aplicación',
-      completed: false
-    },
-    {
-      id: '7',
-      text: 'He verificado que mi dispositivo está enviando datos correctamente',
+      text: 'Obtener las credenciales de API desde tu cuenta EcoWitt',
       completed: false
     }
   ];
 
-  const [checklist, setChecklist] = useState<ChecklistItem[]>(setupChecklist);
+  const [checklist, setChecklist] = useState(checklist);
+
+  // ============================================================================
+  // VALIDATION FUNCTIONS
+  // ============================================================================
 
   const validateField = (field: keyof DeviceFormData, value: string): string | undefined => {
     switch (field) {
@@ -159,6 +142,25 @@ const AddDevicePage: React.FC = () => {
         return undefined;
     }
   };
+
+  const validateForm = (): boolean => {
+    const errors: ValidationErrors = {};
+    
+    Object.keys(formData).forEach((key) => {
+      const field = key as keyof DeviceFormData;
+      const error = validateField(field, formData[field]);
+      if (error) {
+        errors[field] = error;
+      }
+    });
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
 
   const handleInputChange = (field: keyof DeviceFormData, value: string) => {
     setFormData(prev => ({
@@ -204,6 +206,11 @@ const AddDevicePage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    if (!validateForm()) {
+      setError('Por favor, corrige los errores en el formulario');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     
@@ -232,46 +239,15 @@ const AddDevicePage: React.FC = () => {
       
       console.log('🔍 Respuesta del servidor:', response);
       
-      if (response.success) {
+      if (response.success && response.data) {
         localStorage.setItem('showDeviceCreatedToast', '1');
-        console.log('✅ Dispositivo registrado exitosamente:', response.data);
         router.push('/telemetry');
       } else {
-        // Manejar diferentes tipos de errores
-        let errorMessage = 'Error al registrar el dispositivo';
-        
-        if (response.error) {
-          if (Array.isArray(response.error)) {
-            errorMessage = response.error.join('; ');
-          } else {
-            errorMessage = response.error;
-          }
-        } else if (response.message) {
-          errorMessage = response.message;
-        }
-        
-        throw new Error(errorMessage);
+        throw new Error(Array.isArray(response.error) ? response.error.join('; ') : response.error || 'Error al crear el dispositivo');
       }
     } catch (error) {
-      console.error('❌ Error al agregar dispositivo:', error);
-      
-      let errorMessage = 'Error desconocido al agregar dispositivo';
-      
-      if (error instanceof Error) {
-        errorMessage = error.message;
-        
-        // Manejar errores específicos del backend
-        if (error.message.includes('MAC address already exists')) {
-          errorMessage = 'Ya existe un dispositivo con esta dirección MAC';
-        } else if (error.message.includes('Application Key already exists')) {
-          errorMessage = 'Ya existe un dispositivo con esta Application Key';
-        } else if (error.message.includes('Validation error')) {
-          errorMessage = 'Los datos del dispositivo no son válidos. Revisa la información ingresada.';
-        } else if (error.message.includes('Network error') || error.message.includes('fetch')) {
-          errorMessage = 'Error de conexión. Verifica tu conexión a internet.';
-        }
-      }
-      
+      console.error('Error al crear dispositivo:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido al crear el dispositivo';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -283,13 +259,11 @@ const AddDevicePage: React.FC = () => {
       case 1:
         return checklist.every(item => item.completed);
       case 2:
-        return formData.deviceName && 
+        return Object.keys(validationErrors).length === 0 && 
+               formData.deviceName && 
                formData.deviceMac && 
                formData.deviceApplicationKey && 
-               formData.deviceApiKey && 
-               formData.deviceType &&
-               !Object.values(validationErrors).some(error => error) &&
-               isValidMacAddress(formData.deviceMac);
+               formData.deviceApiKey;
       case 3:
         return true;
       default:
@@ -297,98 +271,78 @@ const AddDevicePage: React.FC = () => {
     }
   };
 
-  const isValidMacAddress = (mac: string) => {
-    const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
-    return macRegex.test(mac);
-  };
+  // ============================================================================
+  // RENDER HELPERS
+  // ============================================================================
 
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
         return (
           <div className="space-y-6">
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-6">
-              <div className="flex items-start gap-3 mb-4">
-                <PlayCircleIcon className="w-6 h-6 text-blue-400 mt-1 flex-shrink-0" />
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-2">Configuración de Dispositivo EcoWitt</h3>
-                  <p className="text-white/80 text-sm">
-                    Antes de agregar tu dispositivo, necesitas configurarlo siguiendo estos pasos. 
-                    Te recomendamos ver el video tutorial para una guía visual completa.
+            {/* Video Section */}
+            <div className="bg-white/10 rounded-lg p-6">
+              <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+                <PlayCircleIcon className="w-5 h-5 text-emerald-400" />
+                Configuración de EcoWitt
+              </h3>
+              <p className="text-white/70 mb-4">
+                Antes de continuar, asegúrate de tener tu dispositivo EcoWitt configurado correctamente.
+              </p>
+              <button
+                onClick={() => setShowVideo(!showVideo)}
+                className="px-4 py-2 bg-emerald-500/80 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+              >
+                {showVideo ? 'Ocultar Video' : 'Ver Video Tutorial'}
+              </button>
+              {showVideo && (
+                <div className="mt-4 p-4 bg-white/5 rounded-lg">
+                  <p className="text-white/70 text-sm">
+                    Video tutorial de configuración de EcoWitt (implementar cuando esté disponible)
                   </p>
                 </div>
-              </div>
-
-              <div className="mb-6">
-                <button
-                  onClick={() => setShowVideo(!showVideo)}
-                  className="flex items-center gap-2 text-lg px-4 py-2 bg-blue-500/20 border border-blue-500/30 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all duration-300"
-                >
-                  <PlayCircleIcon className="w-5 h-5" />
-                  {showVideo ? 'Ocultar Video Tutorial' : 'Ver Video Tutorial'}
-                </button>
-              </div>
-
-              {showVideo && (
-                <div className="mb-6">
-                  <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                    <iframe
-                      src="https://www.youtube.com/embed/gIf-sgLexV8"
-                      title="Configuración de Dispositivo EcoWitt"
-                      className="w-full h-full"
-                      allowFullScreen
-                    />
-                  </div>
-                </div>
               )}
-
-              <div className="bg-white/10 border border-white/20 rounded-lg p-4 mb-4">
-                <h4 className="text-sm font-medium text-white mb-3">Resumen del Video:</h4>
-                <div className="text-sm text-white/80 space-y-2">
-                  <p>• Descarga la aplicación <strong>WS View Plus</strong> en tu dispositivo móvil</p>
-                  <p>• Crea una cuenta en la aplicación</p>
-                  <p>• Conecta tu dispositivo EcoWitt a la red WiFi</p>
-                  <p>• Configura el dispositivo en la aplicación</p>
-                  <p>• Obtén tu <strong>Application Key</strong> y <strong>API Key</strong></p>
-                  <p>• Verifica que el dispositivo esté enviando datos</p>
-                </div>
-              </div>
             </div>
 
-            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Checklist de Configuración</h3>
-              <p className="text-white/80 text-sm mb-4">
-                Marca cada paso como completado una vez que lo hayas realizado:
-              </p>
-              
-              <div className="flex items-center mb-4 gap-4">
-                <h4 className="text-white font-medium text-lg">Lista de Verificación</h4>
+            {/* Checklist */}
+            <div className="bg-white/10 rounded-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-white">Lista de Verificación</h3>
                 <button
                   onClick={handleSelectAllChecks}
-                  className="px-3 py-1 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/20 transition-all duration-300 text-sm"
+                  className="text-sm text-emerald-400 hover:text-emerald-300"
                 >
-                  {checklist.every(item => item.completed) ? 'Deseleccionar Todo' : 'Seleccionar Todo'}
+                  {checklist.every(item => item.completed) ? 'Desmarcar Todo' : 'Marcar Todo'}
                 </button>
               </div>
-
               <div className="space-y-3">
                 {checklist.map((item) => (
-                  <label key={item.id} className="flex items-start gap-3 cursor-pointer group">
+                  <label key={item.id} className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={item.completed}
                       onChange={(e) => handleChecklistChange(item.id, e.target.checked)}
-                      className="mt-1 w-4 h-4 text-emerald-500 bg-white/10 border-white/20 rounded focus:ring-emerald-500/50 focus:ring-2"
+                      className="w-4 h-4 text-emerald-500 bg-white/10 border-white/20 rounded focus:ring-emerald-400"
                     />
-                    <span className={`text-sm transition-colors duration-200 ${
-                      item.completed 
-                        ? 'text-emerald-400 line-through' 
-                        : 'text-white/80 group-hover:text-white'
-                    }`}>
+                    <span className={`text-sm ${item.completed ? 'text-white/50 line-through' : 'text-white'}`}>
                       {item.text}
                     </span>
                   </label>
                 ))}
+              </div>
+            </div>
+
+            {/* Information Box */}
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <InformationCircleIcon className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="text-sm font-medium text-blue-400 mb-1">Información Importante</h4>
+                  <p className="text-sm text-white/70">
+                    Asegúrate de completar todos los pasos de la lista de verificación antes de continuar. 
+                    Esto garantizará que tu dispositivo funcione correctamente con nuestro sistema.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -397,116 +351,119 @@ const AddDevicePage: React.FC = () => {
       case 2:
         return (
           <div className="space-y-6">
-            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <ExclamationTriangleIcon className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-white/80">
-                  <p className="font-medium text-emerald-400 mb-1">Información Importante</p>
-                  <p>
-                    Asegúrate de tener a mano la dirección MAC, Application Key y API Key de tu dispositivo EcoWitt.
-                    Estos datos los puedes encontrar en la aplicación WS View Plus.
+            {/* Device Information Form */}
+            <div className="bg-white/10 rounded-lg p-6">
+              <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+                <DevicePhoneMobileIcon className="w-5 h-5 text-emerald-400" />
+                Información del Dispositivo
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Device Name */}
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Nombre del Dispositivo *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.deviceName}
+                    onChange={(e) => handleInputChange('deviceName', e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-white/5 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                    placeholder="Ej: Estación del Jardín"
+                  />
+                  {validationErrors.deviceName && (
+                    <p className="text-red-400 text-xs mt-1">{validationErrors.deviceName}</p>
+                  )}
+                </div>
+
+                {/* Device Type */}
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Tipo de Dispositivo *
+                  </label>
+                  <select
+                    value={formData.deviceType}
+                    onChange={(e) => handleInputChange('deviceType', e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-white/5 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  >
+                    {DEVICE_TYPES.map((type) => (
+                      <option key={type.value} value={type.value} className="bg-gray-800 text-white">
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-white/50 mt-1">
+                    {DEVICE_TYPES.find(t => t.value === formData.deviceType)?.description}
                   </p>
+                </div>
+
+                {/* MAC Address */}
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Dirección MAC *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.deviceMac}
+                    onChange={(e) => handleInputChange('deviceMac', e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-white/5 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                    placeholder="AA:BB:CC:DD:EE:FF"
+                  />
+                  {validationErrors.deviceMac && (
+                    <p className="text-red-400 text-xs mt-1">{validationErrors.deviceMac}</p>
+                  )}
+                </div>
+
+                {/* Application Key */}
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Application Key *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.deviceApplicationKey}
+                    onChange={(e) => handleInputChange('deviceApplicationKey', e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-white/5 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                    placeholder="Tu Application Key de EcoWitt"
+                  />
+                  {validationErrors.deviceApplicationKey && (
+                    <p className="text-red-400 text-xs mt-1">{validationErrors.deviceApplicationKey}</p>
+                  )}
+                </div>
+
+                {/* API Key */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-white mb-2">
+                    API Key *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.deviceApiKey}
+                    onChange={(e) => handleInputChange('deviceApiKey', e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-white/5 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                    placeholder="Tu API Key de EcoWitt"
+                  />
+                  {validationErrors.deviceApiKey && (
+                    <p className="text-red-400 text-xs mt-1">{validationErrors.deviceApiKey}</p>
+                  )}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-col md:grid-col gap-4">
-            
-                <label className="block text-sm font-medium text-white/80 mb-2">
-                  Nombre del Dispositivo *
-                </label>
-                <input
-                  type="text"
-                  value={formData.deviceName}
-                  onChange={(e) => handleInputChange('deviceName', e.target.value)}
-                  className={`w-full text-lg bg-white/10 border rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 transition-all duration-200 ${
-                    validationErrors.deviceName 
-                      ? 'border-red-400 focus:ring-red-400/50' 
-                      : 'border-white/20 focus:ring-emerald-500/50'
-                  }`}
-                  placeholder="Estación Central Campo Norte"
-                />
-                {validationErrors.deviceName && (
-                  <p className="text-red-400 text-sm mt-1">{validationErrors.deviceName}</p>
-                )}
-              
-
-              
-                <label className="block text-sm font-medium text-white/80 mb-2">
-                  Tipo de Dispositivo *
-                </label>
-                <select
-                  value={formData.deviceType}
-                  onChange={(e) => handleInputChange('deviceType', e.target.value)}
-                  className="w-full text-lg bg-[#232d25] border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 appearance-none"
-                  style={{ backgroundColor: '#232d25' }}
-                >
-                  {DEVICE_TYPES.map(type => (
-                    <option key={type.value} value={type.value} className="bg-[#232d25] text-white">
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-              
-
-            
-                <label className="block text-sm font-medium text-white/80 mb-2">
-                  Dirección MAC *
-                </label>
-                <input
-                  type="text"
-                  value={formData.deviceMac}
-                  onChange={(e) => handleInputChange('deviceMac', e.target.value)}
-                  className={`w-full text-lg bg-white/10 border rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 transition-all duration-200 ${
-                    validationErrors.deviceMac 
-                      ? 'border-red-400 focus:ring-red-400/50' 
-                      : 'border-white/20 focus:ring-emerald-500/50'
-                  }`}
-                  placeholder="AA:BB:CC:DD:EE:FF"
-                />
-                {validationErrors.deviceMac && (
-                  <p className="text-red-400 text-sm mt-1">{validationErrors.deviceMac}</p>
-                )}
-              
-
-            
-                <label className="block text-sm font-medium text-white/80 mb-2">
-                  Application Key *
-                </label>
-                <input
-                  type="password"
-                  value={formData.deviceApplicationKey}
-                  onChange={(e) => handleInputChange('deviceApplicationKey', e.target.value)}
-                  className={`w-full text-lg bg-white/10 border rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 transition-all duration-200 ${
-                    validationErrors.deviceApplicationKey 
-                      ? 'border-red-400 focus:ring-red-400/50' 
-                      : 'border-white/20 focus:ring-emerald-500/50'
-                  }`}
-                  placeholder="Ingresa tu Application Key"
-                />
-                {validationErrors.deviceApplicationKey && (
-                  <p className="text-red-400 text-sm mt-1">{validationErrors.deviceApplicationKey}</p>
-                )}
-              
-
-                <label className="block text-sm font-medium text-white/80 mb-2">
-                  API Key *
-                </label>
-                <input
-                  type="password"
-                  value={formData.deviceApiKey}
-                  onChange={(e) => handleInputChange('deviceApiKey', e.target.value)}
-                  className={`w-full text-lg bg-white/10 border rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 transition-all duration-200 ${
-                    validationErrors.deviceApiKey 
-                      ? 'border-red-400 focus:ring-red-400/50' 
-                      : 'border-white/20 focus:ring-emerald-500/50'
-                  }`}
-                  placeholder="Ingresa tu API Key"
-                />
-                {validationErrors.deviceApiKey && (
-                  <p className="text-red-400 text-sm mt-1">{validationErrors.deviceApiKey}</p>
-                )}
-              
+            {/* Help Section */}
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <ExclamationTriangleIcon className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="text-sm font-medium text-yellow-400 mb-1">¿Dónde encontrar las credenciales?</h4>
+                  <ul className="text-sm text-white/70 space-y-1">
+                    <li>• Inicia sesión en tu cuenta de EcoWitt.net</li>
+                    <li>• Ve a "Settings" → "API Settings"</li>
+                    <li>• Copia tu Application Key y API Key</li>
+                    <li>• La dirección MAC está impresa en tu dispositivo</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         );
@@ -514,74 +471,63 @@ const AddDevicePage: React.FC = () => {
       case 3:
         return (
           <div className="space-y-6">
-            {/* Checklist de configuración */}
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Verificación de Configuración</h3>
-              <div className="space-y-2">
-                {checklist.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3">
-                    {item.completed ? (
-                      <CheckCircleIcon className="w-5 h-5 text-emerald-400" />
-                    ) : (
-                      <div className="w-5 h-5 border-2 border-red-400 rounded-full" />
-                    )}
-                    <span className={`text-sm ${item.completed ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {item.text}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Datos del dispositivo */}
-            <div className="bg-white/10 border border-white/20 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Datos del Dispositivo</h3>
+            {/* Confirmation Summary */}
+            <div className="bg-white/10 rounded-lg p-6">
+              <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+                <CheckCircleIcon className="w-5 h-5 text-emerald-400" />
+                Resumen de Configuración
+              </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="text-sm font-medium text-white/60 mb-2">Información Básica</h4>
+                  <h4 className="text-sm font-medium text-white/80 mb-2">Información del Dispositivo</h4>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-white/70">Nombre:</span>
-                      <span className="text-white">{formData.deviceName}</span>
+                    <div>
+                      <span className="text-white/50">Nombre:</span>
+                      <span className="text-white ml-2">{formData.deviceName}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-white/70">Tipo:</span>
-                      <span className="text-white">
+                    <div>
+                      <span className="text-white/50">Tipo:</span>
+                      <span className="text-white ml-2">
                         {DEVICE_TYPES.find(t => t.value === formData.deviceType)?.label}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-white/50">MAC:</span>
+                      <span className="text-white ml-2 font-mono">{formData.deviceMac}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium text-white/80 mb-2">Credenciales</h4>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="text-white/50">Application Key:</span>
+                      <span className="text-white ml-2 font-mono text-xs">
+                        {formData.deviceApplicationKey.substring(0, 8)}...
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-white/50">API Key:</span>
+                      <span className="text-white ml-2 font-mono text-xs">
+                        {formData.deviceApiKey.substring(0, 8)}...
                       </span>
                     </div>
                   </div>
                 </div>
-
-                <div>
-                  <h4 className="text-sm font-medium text-white/60 mb-2">Configuración</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-white/70">MAC:</span>
-                      <span className="text-white font-mono">{formData.deviceMac}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-white/70">Application Key:</span>
-                      <span className="text-white font-mono">••••••••</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-white/70">API Key:</span>
-                      <span className="text-white font-mono">••••••••</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
-            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4">
+            {/* Final Warning */}
+            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <CheckCircleIcon className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-white/80">
-                  <p className="font-medium text-emerald-400 mb-1">Listo para Agregar</p>
-                  <p>
-                    El dispositivo será agregado a tu cuenta y comenzará a enviar datos 
-                    una vez que se complete la configuración inicial.
+                <CheckCircleIcon className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="text-sm font-medium text-green-400 mb-1">¡Listo para Registrar!</h4>
+                  <p className="text-sm text-white/70">
+                    Tu dispositivo será registrado en el sistema y comenzará a enviar datos automáticamente. 
+                    Podrás ver los datos en tiempo real en el dashboard de telemetría.
                   </p>
                 </div>
               </div>
@@ -594,124 +540,106 @@ const AddDevicePage: React.FC = () => {
     }
   };
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
-    <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+      <div className="max-w-4xl mx-auto p-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <button
             onClick={() => router.back()}
-            className="p-2 bg-white/10 rounded-lg text-white/70 hover:text-white hover:bg-white/20 transition-all duration-300"
+            className="p-2 text-white/70 hover:text-white transition-colors"
           >
-            <ArrowLeftIcon className="w-5 h-5" />
+            <ArrowLeftIcon className="w-6 h-6" />
           </button>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white">
-              Agregar Nuevo Dispositivo
-            </h1>
-            <p className="text-white/60 text-sm">
-              Configura un nuevo dispositivo de telemetría paso a paso
-            </p>
+            <h1 className="text-2xl font-bold text-white">Agregar Dispositivo</h1>
+            <p className="text-white/70">Configura tu dispositivo EcoWitt para telemetría</p>
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          {/* Progress Steps */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
-              {steps.map((step, index) => (
-                <div key={step.id} className="flex items-center">
-                  <div className="flex items-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      currentStep >= step.id
-                        ? 'bg-emerald-500 text-white'
-                        : 'bg-white/20 text-white/50'
-                    }`}>
-                      {currentStep > step.id ? (
-                        <CheckCircleIcon className="w-5 h-5" />
-                      ) : (
-                        <step.icon className="w-5 h-5" />
-                      )}
-                    </div>
-                    <div className="ml-3 hidden md:block">
-                      <div className={`text-sm font-medium ${
-                        currentStep >= step.id ? 'text-white' : 'text-white/50'
-                      }`}>
-                        {step.title}
-                      </div>
-                      <div className="text-xs text-white/60">
-                        {step.description}
-                      </div>
-                    </div>
-                  </div>
-                  {index < steps.length - 1 && (
-                    <div className={`w-16 h-0.5 mx-4 ${
-                      currentStep > step.id ? 'bg-emerald-500' : 'bg-white/20'
-                    }`} />
-                  )}
+        {/* Progress Steps */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            {steps.map((step, index) => (
+              <div key={step.id} className="flex items-center">
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                  currentStep >= step.id
+                    ? 'bg-emerald-500 border-emerald-500 text-white'
+                    : 'border-white/20 text-white/50'
+                }`}>
+                  <step.icon className="w-5 h-5" />
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Form Content */}
-          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-lg">
-
-            {renderStepContent()}
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-4 mt-4">
-                <p className="text-red-400 text-sm">{error}</p>
-              </div>
-            )}
-
-            {/* Navigation Buttons */}
-            <div className="flex flex-col md:flex-row items-center justify-between mt-4 gap-4 md:gap-0 pt-6 border-t border-white/20">
-              <button
-                onClick={handlePrevious}
-                disabled={currentStep === 1}
-                className="px-6 py-3 text-lg bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Anterior
-              </button>
-
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => router.push('/telemetry')}
-                  className="px-6 py-3 text-lg bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/30 transition-all duration-300"
-                >
-                  Cancelar
-                </button>
-
-                {currentStep < steps.length ? (
-                  <button
-                    onClick={handleNext}
-                    disabled={!isStepValid(currentStep)}
-                    className="px-6 py-3 text-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Siguiente
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleSubmit}
-                    disabled={loading || !isStepValid(currentStep)}
-                    className="px-6 py-3 text-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                  >
-                    {loading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
-                        Agregando...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircleIcon className="w-4 h-4" />
-                        Agregar Dispositivo
-                      </>
-                    )}
-                  </button>
+                {index < steps.length - 1 && (
+                  <div className={`w-16 h-0.5 mx-4 ${
+                    currentStep > step.id ? 'bg-emerald-500' : 'bg-white/20'
+                  }`} />
                 )}
               </div>
-            </div>
+            ))}
           </div>
+          <div className="flex justify-between mt-4">
+            {steps.map((step) => (
+              <div key={step.id} className={`text-center ${currentStep >= step.id ? 'text-white' : 'text-white/50'}`}>
+                <h3 className="text-sm font-medium">{step.title}</h3>
+                <p className="text-xs">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/40 rounded-lg">
+            <p className="text-red-400">{error}</p>
+          </div>
+        )}
+
+        {/* Step Content */}
+        <div className="mb-8">
+          {renderStepContent()}
+        </div>
+
+        {/* Navigation */}
+        <div className="flex justify-between">
+          <button
+            onClick={handlePrevious}
+            disabled={currentStep === 1}
+            className="px-6 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Anterior
+          </button>
+
+          {currentStep < steps.length ? (
+            <button
+              onClick={handleNext}
+              disabled={!isStepValid(currentStep)}
+              className="px-6 py-2 bg-emerald-500/80 text-white rounded-lg hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Siguiente
+            </button>
+          ) : (
+            <button
+              onClick={handleSubmit}
+              disabled={!isStepValid(currentStep) || loading}
+              className="px-6 py-2 bg-emerald-500/80 text-white rounded-lg hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Registrando...
+                </>
+              ) : (
+                <>
+                  <WifiIcon className="w-4 h-4" />
+                  Registrar Dispositivo
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

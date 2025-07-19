@@ -79,6 +79,198 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   const [groupDevicesCharacteristics, setGroupDevicesCharacteristics] = useState<Record<string, DeviceCharacteristicsData>>({});
   const [groupRealtimeData, setGroupRealtimeData] = useState<GroupRealtimeResponse>({});
 
+  // ===================== NUEVO: ESTADO PARA CARGA AUTOMÁTICA =====================
+  const [autoLoadComplete, setAutoLoadComplete] = useState(false);
+  const [autoLoadProgress, setAutoLoadProgress] = useState({
+    devices: false,
+    groups: false,
+    initialData: false
+  });
+
+  // ============================================================================
+  // REFS FOR POLLING
+  // ============================================================================
+
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // ============================================================================
+  // STATE UPDATE HELPERS
+  // ============================================================================
+
+  const updateState = useCallback((updates: Partial<TelemetryState>) => {
+    setState(prev => ({ ...prev, ...updates }));
+  }, []);
+
+  const setLoading = useCallback((loading: boolean) => {
+    updateState({ loading });
+  }, [updateState]);
+
+  const setError = useCallback((error: string | null) => {
+    updateState({ error });
+  }, [updateState]);
+
+  // ============================================================================
+  // DEVICE MANAGEMENT
+  // ============================================================================
+
+  const fetchDevices = useCallback(async () => {
+    if (!userId) {
+      setError('User not authenticated');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const filters: TelemetryFilters = { userId };
+      if (deviceType) filters.deviceType = deviceType;
+
+      const response = await telemetryService.getDevices(filters);
+      
+      if (response.success && response.data) {
+        updateState({ 
+          devices: response.data,
+          error: null 
+        });
+        
+        // Update stats
+        setStats(prev => ({
+          ...prev,
+          totalDevices: response.data!.length,
+          activeDevices: response.data!.filter(d => d.status === 'active').length
+        }));
+      } else {
+        setError(
+          Array.isArray(response.error)
+            ? response.error.join('; ')
+            : response.error || 'Failed to fetch devices'
+        );
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, deviceType, setLoading, setError, updateState]);
+
+  const selectDevice = useCallback((device: DeviceInfo | null) => {
+    updateState({ selectedDevice: device });
+  }, [updateState]);
+
+  const fetchDeviceInfo = useCallback(async (deviceId: string) => {
+    try {
+      const response = await telemetryService.getDeviceInfo(deviceId);
+      if (response.success && response.data) {
+        updateState({ deviceInfo: response.data });
+      }
+    } catch (error) {
+      console.error('Error fetching device info:', error);
+    }
+  }, [updateState]);
+
+  const fetchDeviceCharacteristics = useCallback(async (deviceId: string) => {
+    try {
+      const response = await telemetryService.getDeviceCharacteristics(deviceId);
+      if (response.success && response.data) {
+        updateState({ deviceCharacteristics: response.data });
+      }
+    } catch (error) {
+      console.error('Error fetching device characteristics:', error);
+    }
+  }, [updateState]);
+
+  const fetchRealtimeData = useCallback(async (deviceId: string) => {
+    try {
+      const response = await telemetryService.getRealtimeData(deviceId);
+      if (response.success && response.data) {
+        updateState({ 
+          realtimeData: response.data,
+          lastUpdate: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching realtime data:', error);
+    }
+  }, [updateState]);
+
+  const fetchHistoricalData = useCallback(async (deviceId: string, startTime: string, endTime: string) => {
+    try {
+      const response = await telemetryService.getHistoricalData(deviceId, startTime, endTime);
+      if (response.success && response.data) {
+        updateState({ historicalData: response.data });
+      }
+    } catch (error) {
+      console.error('Error fetching historical data:', error);
+    }
+  }, [updateState]);
+
+  const fetchWeatherData = useCallback(async (lat: number, lon: number) => {
+    try {
+      const response = await telemetryService.getCurrentWeather(lat, lon);
+      if (response.success && response.data) {
+        updateState({ weatherData: response.data });
+      }
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+    }
+  }, [updateState]);
+
+  // ============================================================================
+  // GROUP MANAGEMENT
+  // ============================================================================
+
+  const fetchGroups = useCallback(async () => {
+    if (!userId) {
+      setError('User not authenticated');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await telemetryService.getUserGroups(userId);
+      
+      if (response.success && response.data) {
+        // Obtener la cantidad real de dispositivos y el array para cada grupo
+        const groupsWithDevices = await Promise.all(
+          response.data.map(async (group) => {
+            try {
+              const devicesResp = await telemetryService.getGroupDevices(group.DeviceGroupID);
+              const deviceArray = devicesResp.success && Array.isArray(devicesResp.data)
+                ? devicesResp.data
+                : [];
+              return { ...group, deviceArray };
+            } catch {
+              return { ...group, deviceArray: [] };
+            }
+          })
+        );
+        updateState({ 
+          groups: groupsWithDevices,
+          error: null 
+        });
+        // Update stats
+        setStats(prev => ({
+          ...prev,
+          totalGroups: groupsWithDevices.length
+        }));
+      } else {
+        setError(
+          Array.isArray(response.error)
+            ? response.error.join('; ')
+            : response.error || 'Failed to fetch groups'
+        );
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, setLoading, setError, updateState]);
+
+  const selectGroup = useCallback((group: Group | null) => {
+    updateState({ selectedGroup: group });
+  }, [updateState]);
+
   // ===================== FUNCIONES DE GRUPO =====================
   // 1. Obtener DeviceIDs del grupo
   const fetchGroupDevices = useCallback(async (groupId: string) => {
@@ -212,136 +404,6 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     }
   }, []);
 
-
-
-  // ============================================================================
-  // REFS FOR POLLING
-  // ============================================================================
-
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  // ============================================================================
-  // STATE UPDATE HELPERS
-  // ============================================================================
-
-  const updateState = useCallback((updates: Partial<TelemetryState>) => {
-    setState(prev => ({ ...prev, ...updates }));
-  }, []);
-
-  const setLoading = useCallback((loading: boolean) => {
-    updateState({ loading });
-  }, [updateState]);
-
-  const setError = useCallback((error: string | null) => {
-    updateState({ error });
-  }, [updateState]);
-
-  // ============================================================================
-  // DEVICE MANAGEMENT
-  // ============================================================================
-
-  const fetchDevices = useCallback(async () => {
-    if (!userId) {
-      setError('User not authenticated');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const filters: TelemetryFilters = { userId };
-      if (deviceType) filters.deviceType = deviceType;
-
-      const response = await telemetryService.getDevices(filters);
-      
-      if (response.success && response.data) {
-        updateState({ 
-          devices: response.data,
-          error: null 
-        });
-        
-        // Update stats
-        setStats(prev => ({
-          ...prev,
-          totalDevices: response.data!.length,
-          activeDevices: response.data!.filter(d => d.status === 'active').length
-        }));
-      } else {
-        setError(
-          Array.isArray(response.error)
-            ? response.error.join('; ')
-            : response.error || 'Failed to fetch devices'
-        );
-      }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error');
-    } finally {
-      setLoading(false);
-    }
-  }, [userId, deviceType, setLoading, setError, updateState]);
-
-  const selectDevice = useCallback((device: DeviceInfo | null) => {
-    updateState({ selectedDevice: device });
-  }, [updateState]);
-
-  const fetchDeviceInfo = useCallback(async (deviceId: string) => {
-    try {
-      const response = await telemetryService.getDeviceInfo(deviceId);
-      if (response.success && response.data) {
-        updateState({ deviceInfo: response.data });
-      }
-    } catch (error) {
-      console.error('Error fetching device info:', error);
-    }
-  }, [updateState]);
-
-  const fetchDeviceCharacteristics = useCallback(async (deviceId: string) => {
-    try {
-      const response = await telemetryService.getDeviceCharacteristics(deviceId);
-      if (response.success && response.data) {
-        updateState({ deviceCharacteristics: response.data });
-      }
-    } catch (error) {
-      console.error('Error fetching device characteristics:', error);
-    }
-  }, [updateState]);
-
-  const fetchRealtimeData = useCallback(async (deviceId: string) => {
-    try {
-      const response = await telemetryService.getRealtimeData(deviceId);
-      if (response.success && response.data) {
-        updateState({ 
-          realtimeData: response.data,
-          lastUpdate: new Date().toISOString()
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching realtime data:', error);
-    }
-  }, [updateState]);
-
-  const fetchHistoricalData = useCallback(async (deviceId: string, startTime: string, endTime: string) => {
-    try {
-      const response = await telemetryService.getHistoricalData(deviceId, startTime, endTime);
-      if (response.success && response.data) {
-        updateState({ historicalData: response.data });
-      }
-    } catch (error) {
-      console.error('Error fetching historical data:', error);
-    }
-  }, [updateState]);
-
-  const fetchWeatherData = useCallback(async (lat: number, lon: number) => {
-    try {
-      const response = await telemetryService.getCurrentWeather(lat, lon);
-      if (response.success && response.data) {
-        updateState({ weatherData: response.data });
-      }
-    } catch (error) {
-      console.error('Error fetching weather data:', error);
-    }
-  }, [updateState]);
-
   // Obtener datos de clima para un grupo basándose en la ubicación promedio
   const fetchGroupWeatherData = useCallback(async (groupId: string, deviceIds?: string[]) => {
     try {
@@ -377,80 +439,22 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
         }
       });
 
-      if (validLocations.length === 0) {
-        console.log('🔍 [HOOK] fetchGroupWeatherData - No devices with location data in characteristics');
-        return;
-      }
-
-      const avgLat = validLocations.reduce((sum, loc) => sum + loc.lat, 0) / validLocations.length;
-      const avgLon = validLocations.reduce((sum, loc) => sum + loc.lon, 0) / validLocations.length;
-
-      console.log('🔍 [HOOK] fetchGroupWeatherData - Average location:', { avgLat, avgLon });
-      console.log('🔍 [HOOK] fetchGroupWeatherData - Valid locations found:', validLocations.length);
-
-      // Obtener datos de clima para la ubicación promedio
-      await fetchWeatherData(avgLat, avgLon);
-    } catch (err) {
-      console.error('❌ [HOOK] fetchGroupWeatherData - Error:', err);
-    }
-  }, [groupDevices, groupDevicesCharacteristics, fetchWeatherData]);
-
-  // ============================================================================
-  // GROUP MANAGEMENT
-  // ============================================================================
-
-  const fetchGroups = useCallback(async () => {
-    if (!userId) {
-      setError('User not authenticated');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await telemetryService.getUserGroups(userId);
-      
-      if (response.success && response.data) {
-        // Obtener la cantidad real de dispositivos y el array para cada grupo
-        const groupsWithDevices = await Promise.all(
-          response.data.map(async (group) => {
-            try {
-              const devicesResp = await telemetryService.getGroupDevices(group.DeviceGroupID);
-              const deviceArray = devicesResp.success && Array.isArray(devicesResp.data)
-                ? devicesResp.data
-                : [];
-              return { ...group, deviceArray };
-            } catch {
-              return { ...group, deviceArray: [] };
-            }
-          })
-        );
-        updateState({ 
-          groups: groupsWithDevices,
-          error: null 
-        });
-        // Update stats
-        setStats(prev => ({
-          ...prev,
-          totalGroups: groupsWithDevices.length
-        }));
+      if (validLocations.length > 0) {
+        // Calcular promedio de ubicaciones
+        const avgLat = validLocations.reduce((sum, loc) => sum + loc.lat, 0) / validLocations.length;
+        const avgLon = validLocations.reduce((sum, loc) => sum + loc.lon, 0) / validLocations.length;
+        
+        console.log('🔍 [HOOK] fetchGroupWeatherData - Average location:', { lat: avgLat, lon: avgLon });
+        
+        // Obtener datos de clima para la ubicación promedio
+        await fetchWeatherData(avgLat, avgLon);
       } else {
-        setError(
-          Array.isArray(response.error)
-            ? response.error.join('; ')
-            : response.error || 'Failed to fetch groups'
-        );
+        console.log('🔍 [HOOK] fetchGroupWeatherData - No valid locations found');
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error');
-    } finally {
-      setLoading(false);
+      console.error('❌ [HOOK] fetchGroupWeatherData - Error:', error);
     }
-  }, [userId, setLoading, setError, updateState]);
-
-  const selectGroup = useCallback((group: Group | null) => {
-
-    updateState({ selectedGroup: group });
-  }, [updateState]);
+  }, [groupDevices, groupDevicesCharacteristics, fetchWeatherData]);
 
   // ============================================================================
   // POLLING MANAGEMENT
@@ -498,19 +502,253 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     setError(null);
   }, [setError]);
 
+  // ===================== NUEVA FUNCIÓN: CARGA AUTOMÁTICA COMPLETA =====================
+  const performAutoLoad = useCallback(async () => {
+    if (!userId || authLoading) return;
+
+    console.log('🚀 [HOOK] Iniciando carga automática de datos...');
+    setAutoLoadProgress({
+      devices: false,
+      groups: false,
+      initialData: false
+    });
+
+    try {
+      // 1. Cargar dispositivos y grupos en paralelo
+      console.log('📡 [HOOK] Cargando dispositivos y grupos...');
+      await Promise.all([
+        fetchDevices(),
+        fetchGroups()
+      ]);
+
+      setAutoLoadProgress(prev => ({ ...prev, devices: true, groups: true }));
+
+      // 2. PRECARGAR DATOS DE TODOS LOS DISPOSITIVOS
+      if (state.devices.length > 0) {
+        console.log('📡 [HOOK] Precargando datos de todos los dispositivos...');
+        
+        // Precargar datos de todos los dispositivos en paralelo
+        const deviceDataPromises = state.devices.map(async (device) => {
+          try {
+            const [realtimeData, deviceInfo, deviceCharacteristics] = await Promise.all([
+              telemetryService.getRealtimeData(device.DeviceID),
+              telemetryService.getDeviceInfo(device.DeviceID),
+              telemetryService.getDeviceCharacteristics(device.DeviceID)
+            ]);
+
+            return {
+              deviceId: device.DeviceID,
+              realtimeData: realtimeData.success ? realtimeData.data : null,
+              deviceInfo: deviceInfo.success ? deviceInfo.data : null,
+              deviceCharacteristics: deviceCharacteristics.success ? deviceCharacteristics.data : null
+            };
+          } catch (error) {
+            console.error(`Error precargando datos del dispositivo ${device.DeviceID}:`, error);
+            return {
+              deviceId: device.DeviceID,
+              realtimeData: null,
+              deviceInfo: null,
+              deviceCharacteristics: null
+            };
+          }
+        });
+
+        const deviceDataResults = await Promise.all(deviceDataPromises);
+        
+        // Almacenar datos precargados en el estado
+        const precachedData = {
+          realtimeData: {},
+          deviceInfo: {},
+          deviceCharacteristics: {}
+        };
+
+        deviceDataResults.forEach(result => {
+          if (result.realtimeData) precachedData.realtimeData[result.deviceId] = result.realtimeData;
+          if (result.deviceInfo) precachedData.deviceInfo[result.deviceId] = result.deviceInfo;
+          if (result.deviceCharacteristics) precachedData.deviceCharacteristics[result.deviceId] = result.deviceCharacteristics;
+        });
+
+        // Guardar datos precargados en el estado
+        updateState({
+          precachedData,
+          lastUpdate: new Date().toISOString()
+        });
+
+        // Seleccionar automáticamente el primer dispositivo
+        const firstDevice = state.devices[0];
+        selectDevice(firstDevice);
+        
+        // Cargar datos del primer dispositivo desde el caché
+        updateState({
+          realtimeData: precachedData.realtimeData[firstDevice.DeviceID] || null,
+          deviceInfo: precachedData.deviceInfo[firstDevice.DeviceID] || null,
+          deviceCharacteristics: precachedData.deviceCharacteristics[firstDevice.DeviceID] || null
+        });
+      }
+
+      // 3. PRECARGAR DATOS DE TODOS LOS GRUPOS
+      if (state.groups.length > 0) {
+        console.log('📡 [HOOK] Precargando datos de todos los grupos...');
+        
+        const groupDataPromises = state.groups.map(async (group) => {
+          try {
+            // Obtener dispositivos del grupo
+            const devicesResp = await telemetryService.getGroupDevices(group.DeviceGroupID);
+            const deviceIds = devicesResp.success && Array.isArray(devicesResp.data)
+              ? devicesResp.data.map((d: any) => d.DeviceID || d.deviceId || d.id).filter(Boolean)
+              : [];
+
+            if (deviceIds.length > 0) {
+              // Precargar datos de todos los dispositivos del grupo
+              const groupDevicePromises = deviceIds.map(async (deviceId) => {
+                try {
+                  const [deviceInfo, deviceCharacteristics] = await Promise.all([
+                    telemetryService.getDeviceInfo(deviceId),
+                    telemetryService.getDeviceCharacteristics(deviceId)
+                  ]);
+
+                  return {
+                    deviceId,
+                    deviceInfo: deviceInfo.success ? deviceInfo.data : null,
+                    deviceCharacteristics: deviceCharacteristics.success ? deviceCharacteristics.data : null
+                  };
+                } catch (error) {
+                  console.error(`Error precargando datos del dispositivo ${deviceId} del grupo:`, error);
+                  return { deviceId, deviceInfo: null, deviceCharacteristics: null };
+                }
+              });
+
+              const groupDeviceResults = await Promise.all(groupDevicePromises);
+              
+              // Obtener datos en tiempo real del grupo
+              const groupRealtimeResp = await telemetryService.getGroupRealtimeData(group.DeviceGroupID);
+              const groupRealtimeData = groupRealtimeResp && typeof groupRealtimeResp === 'object' 
+                ? groupRealtimeResp 
+                : {};
+
+              return {
+                groupId: group.DeviceGroupID,
+                deviceIds,
+                deviceInfo: groupDeviceResults.reduce((acc, result) => {
+                  if (result.deviceInfo) acc[result.deviceId] = result.deviceInfo;
+                  return acc;
+                }, {}),
+                deviceCharacteristics: groupDeviceResults.reduce((acc, result) => {
+                  if (result.deviceCharacteristics) acc[result.deviceId] = result.deviceCharacteristics;
+                  return acc;
+                }, {}),
+                realtimeData: groupRealtimeData
+              };
+            }
+            return null;
+          } catch (error) {
+            console.error(`Error precargando datos del grupo ${group.DeviceGroupID}:`, error);
+            return null;
+          }
+        });
+
+        const groupDataResults = await Promise.all(groupDataPromises);
+        
+        // Almacenar datos precargados de grupos
+        const precachedGroupData = {
+          groupDevices: {},
+          groupDevicesInfo: {},
+          groupDevicesCharacteristics: {},
+          groupRealtimeData: {}
+        };
+
+        groupDataResults.forEach(result => {
+          if (result) {
+            precachedGroupData.groupDevices[result.groupId] = result.deviceIds;
+            precachedGroupData.groupDevicesInfo[result.groupId] = result.deviceInfo;
+            precachedGroupData.groupDevicesCharacteristics[result.groupId] = result.deviceCharacteristics;
+            precachedGroupData.groupRealtimeData[result.groupId] = result.realtimeData;
+          }
+        });
+
+        // Guardar datos precargados de grupos
+        setGroupDevices(precachedGroupData.groupDevices[state.groups[0]?.DeviceGroupID] || []);
+        setGroupDevicesInfo(precachedGroupData.groupDevicesInfo[state.groups[0]?.DeviceGroupID] || {});
+        setGroupDevicesCharacteristics(precachedGroupData.groupDevicesCharacteristics[state.groups[0]?.DeviceGroupID] || {});
+        setGroupRealtimeData(precachedGroupData.groupRealtimeData[state.groups[0]?.DeviceGroupID] || {});
+
+        // Si no hay dispositivos pero sí grupos, seleccionar el primer grupo
+        if (state.devices.length === 0 && state.groups.length > 0) {
+          const firstGroup = state.groups[0];
+          selectGroup(firstGroup);
+        }
+      }
+
+      setAutoLoadProgress(prev => ({ ...prev, initialData: true }));
+      setAutoLoadComplete(true);
+      console.log('✅ [HOOK] Carga automática completada - Todos los datos precargados');
+    } catch (error) {
+      console.error('❌ [HOOK] Error en carga automática:', error);
+      setError('Error al cargar datos automáticamente');
+    }
+  }, [userId, authLoading, state.devices, state.groups, fetchDevices, fetchGroups, selectDevice, selectGroup, updateState, setError]);
+
+  // ============================================================================
+  // FUNCIONES OPTIMIZADAS PARA USAR DATOS PRECARGADOS
+  // ============================================================================
+
+  // Función optimizada para seleccionar dispositivo usando datos precargados
+  const selectDeviceOptimized = useCallback((device: DeviceInfo | null) => {
+    if (!device) {
+      updateState({ 
+        selectedDevice: null,
+        realtimeData: null,
+        deviceInfo: null,
+        deviceCharacteristics: null
+      });
+      return;
+    }
+
+    // Usar datos precargados si están disponibles
+    const precachedData = state.precachedData;
+    if (precachedData && precachedData.realtimeData[device.DeviceID]) {
+      console.log('🚀 [HOOK] Usando datos precargados para dispositivo:', device.DeviceName);
+      updateState({
+        selectedDevice: device,
+        realtimeData: precachedData.realtimeData[device.DeviceID],
+        deviceInfo: precachedData.deviceInfo[device.DeviceID] || null,
+        deviceCharacteristics: precachedData.deviceCharacteristics[device.DeviceID] || null
+      });
+    } else {
+      // Fallback a carga tradicional si no hay datos precargados
+      console.log('📡 [HOOK] Cargando datos del dispositivo:', device.DeviceName);
+      selectDevice(device);
+    }
+  }, [state.precachedData, updateState, selectDevice]);
+
+  // Función optimizada para seleccionar grupo usando datos precargados
+  const selectGroupOptimized = useCallback((group: Group | null) => {
+    if (!group) {
+      updateState({ selectedGroup: null });
+      setGroupDevices([]);
+      setGroupDevicesInfo({});
+      setGroupDevicesCharacteristics({});
+      setGroupRealtimeData({});
+      return;
+    }
+
+    // Los datos de grupos ya están precargados en el estado
+    console.log('🚀 [HOOK] Seleccionando grupo con datos precargados:', group.GroupName);
+    updateState({ selectedGroup: group });
+  }, [updateState]);
+
   // ============================================================================
   // EFFECTS
   // ============================================================================
 
-  // Initial data fetch
+  // NUEVO: Carga automática al inicializar
   useEffect(() => {
-    if (userId && !authLoading) {
-      fetchDevices();
-      fetchGroups();
+    if (userId && !authLoading && !autoLoadComplete) {
+      performAutoLoad();
     }
-  }, [userId, authLoading, fetchDevices, fetchGroups]);
+  }, [userId, authLoading, autoLoadComplete, performAutoLoad]);
 
-  // Auto-polling
+  // Auto-polling optimizado
   useEffect(() => {
     if (autoPoll && (state.selectedDevice || state.selectedGroup)) {
       startPolling();
@@ -525,85 +763,56 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     };
   }, [autoPoll, state.selectedDevice, state.selectedGroup, startPolling, stopPolling]);
 
-  // ===================== EFECTO AL SELECCIONAR DISPOSITIVO =====================
+  // ===================== EFECTO AL SELECCIONAR DISPOSITIVO (OPTIMIZADO) =====================
   useEffect(() => {
-    const loadDeviceData = async () => {
-      if (state.selectedDevice && state.selectedDevice.DeviceID) {
-        // Mostrar loading mientras se cargan los datos del dispositivo
-        setLoading(true);
-        try {
-          await Promise.all([
-            fetchRealtimeData(state.selectedDevice.DeviceID),
-            fetchDeviceInfo(state.selectedDevice.DeviceID),
-            fetchDeviceCharacteristics(state.selectedDevice.DeviceID)
-          ]);
-        } catch (error) {
-          console.error('Error loading device data:', error);
-          setError('Error al cargar datos del dispositivo');
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        // Limpiar datos cuando no hay dispositivo seleccionado
-        updateState({ 
-          realtimeData: null,
-          deviceInfo: null,
-          deviceCharacteristics: null
-        });
-      }
-    };
-    loadDeviceData();
-    // eslint-disable-next-line
-  }, [state.selectedDevice]);
-
-  // ===================== EFECTO AL SELECCIONAR GRUPO =====================
-  useEffect(() => {
-    const loadGroupData = async () => {
-      console.log('🔍 [HOOK] Group selection effect triggered:', {
-        selectedGroup: state.selectedGroup?.GroupName,
-        groupId: state.selectedGroup?.DeviceGroupID
-      });
+    // Solo cargar datos si no están precargados
+    if (state.selectedDevice && state.selectedDevice.DeviceID) {
+      const precachedData = state.precachedData;
+      const deviceId = state.selectedDevice.DeviceID;
       
-      if (state.selectedGroup && state.selectedGroup.DeviceGroupID) {
-        // Mostrar loading mientras se cargan los datos del grupo
+      // Si no hay datos precargados, cargar normalmente
+      if (!precachedData || !precachedData.realtimeData[deviceId]) {
+        console.log('📡 [HOOK] Cargando datos del dispositivo (no precargados):', state.selectedDevice.DeviceName);
         setLoading(true);
-        try {
-          console.log('🔍 [HOOK] Loading group data for:', state.selectedGroup.GroupName);
-          const ids = await fetchGroupDevices(state.selectedGroup.DeviceGroupID);
-          console.log('🔍 [HOOK] Group devices loaded:', ids);
-          
-          // Primero cargar la información de dispositivos y características
-          console.log('🔍 [HOOK] Loading device info and characteristics...');
-          await Promise.all([
-            fetchGroupDevicesInfo(ids),
-            fetchGroupDevicesCharacteristics(ids)
-          ]);
-          
-          // Luego cargar datos en tiempo real y clima (que dependen de la info de dispositivos)
-          console.log('🔍 [HOOK] Loading realtime data and weather...');
-          await Promise.all([
-            fetchGroupRealtimeData(state.selectedGroup.DeviceGroupID),
-            fetchGroupWeatherData(state.selectedGroup.DeviceGroupID, ids)
-          ]);
-          console.log('🔍 [HOOK] Group data loading completed');
-        } catch (error) {
-          console.error('Error loading group data:', error);
-          setError('Error al cargar datos del grupo');
-        } finally {
+        
+        Promise.all([
+          fetchRealtimeData(deviceId),
+          fetchDeviceInfo(deviceId),
+          fetchDeviceCharacteristics(deviceId)
+        ]).finally(() => {
           setLoading(false);
-        }
+        });
       } else {
-        console.log('🔍 [HOOK] No group selected, clearing data');
-        setGroupDevices([]);
-        setGroupDevicesInfo({});
-        setGroupDevicesCharacteristics({});
-        setGroupRealtimeData({});
-        updateState({ weatherData: null });
+        console.log('🚀 [HOOK] Usando datos precargados para:', state.selectedDevice.DeviceName);
+        setLoading(false);
       }
-    };
-    loadGroupData();
-    // eslint-disable-next-line
-  }, [state.selectedGroup]);
+    } else {
+      // Limpiar datos cuando no hay dispositivo seleccionado
+      updateState({ 
+        realtimeData: null,
+        deviceInfo: null,
+        deviceCharacteristics: null
+      });
+    }
+  }, [state.selectedDevice, state.precachedData, fetchRealtimeData, fetchDeviceInfo, fetchDeviceCharacteristics, updateState, setLoading]);
+
+  // ===================== EFECTO AL SELECCIONAR GRUPO (OPTIMIZADO) =====================
+  useEffect(() => {
+    if (state.selectedGroup && state.selectedGroup.DeviceGroupID) {
+      const groupId = state.selectedGroup.DeviceGroupID;
+      console.log('🚀 [HOOK] Seleccionando grupo con datos precargados:', state.selectedGroup.GroupName);
+      
+      // Los datos ya están precargados, no necesitamos cargar
+      setLoading(false);
+    } else {
+      console.log('🔍 [HOOK] No group selected, clearing data');
+      setGroupDevices([]);
+      setGroupDevicesInfo({});
+      setGroupDevicesCharacteristics({});
+      setGroupRealtimeData({});
+      updateState({ weatherData: null });
+    }
+  }, [state.selectedGroup, updateState, setLoading]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -631,16 +840,19 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     groupDevicesInfo,
     groupDevicesCharacteristics,
     groupRealtimeData,
+    // NUEVO: estado de carga automática
+    autoLoadComplete,
+    autoLoadProgress,
     // Actions
     fetchDevices,
-    selectDevice,
+    selectDevice: selectDeviceOptimized, // Usar versión optimizada
     fetchDeviceInfo,
     fetchDeviceCharacteristics,
     fetchRealtimeData,
     fetchHistoricalData,
     fetchWeatherData,
     fetchGroups,
-    selectGroup,
+    selectGroup: selectGroupOptimized, // Usar versión optimizada
     startPolling,
     stopPolling,
     acknowledgeAlert,
@@ -653,6 +865,8 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     fetchGroupDevicesInfo,
     fetchGroupDevicesCharacteristics,
     fetchGroupRealtimeData,
-    fetchGroupWeatherData
+    fetchGroupWeatherData,
+    // NUEVO: función de carga automática
+    performAutoLoad
   };
 }; 
