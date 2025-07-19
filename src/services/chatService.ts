@@ -18,7 +18,13 @@ export const chatService = {
             sendertype: 'user',
             status: 'active'
         };
-        if (fileId) body.FileID = fileId;
+        
+        // Si hay un fileId, incluirlo en el body para que el backend procese el contenido
+        if (fileId) {
+            body.FileID = fileId;
+            // También incluir un indicador de que este mensaje está relacionado con un archivo
+            body.contentFile = 'file_attached';
+        }
 
         const response = await fetch(`${API_URL}/message`, {
             method: 'POST',
@@ -37,7 +43,8 @@ export const chatService = {
             ChatID: msg.chatId,
             FileID: msg.fileId,
             sendertype: msg.senderType,
-            contentResponse: msg.content,
+            contentAsk: msg.senderType === 'user' ? msg.content : undefined,
+            contentResponse: msg.senderType === 'ai' ? msg.content : undefined,
             createdAt: msg.createdAt,
             status: msg.status
         };

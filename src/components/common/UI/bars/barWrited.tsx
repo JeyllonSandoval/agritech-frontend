@@ -1,4 +1,4 @@
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, useRef } from 'react';
 import ButtonAdjunt from '@/components/common/UI/CompleButtons/ButtonAdjunt';
 import ButtonSend from '@/components/common/UI/CompleButtons/ButtonSend';
 import { FileProps } from '@/hooks/getFiles';
@@ -24,17 +24,33 @@ export default function BarWrited({
     const { t, loadTranslations } = useTranslation();
     const { language } = useLanguage();
     const [isLoaded, setIsLoaded] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         setIsLoaded(false);
         loadTranslations('bars').then(() => setIsLoaded(true));
     }, [language]);
 
+    // Enfocar el input cuando se carga el componente
+    useEffect(() => {
+        if (isLoaded && !isLoading) {
+            const timeoutId = setTimeout(() => {
+                inputRef.current?.focus();
+            }, 200);
+            
+            return () => clearTimeout(timeoutId);
+        }
+    }, [isLoaded, isLoading]);
+
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         if (message.trim() && !isLoading) {
             onSendMessage(message.trim());
             setMessage('');
+            // Enfocar el input después de enviar el mensaje
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 100);
         }
     };
 
@@ -45,7 +61,9 @@ export default function BarWrited({
     };
 
     const handleOpenFileSelect = () => {
-        openModal('createdFile', 'select', '', undefined, undefined, handleFileSelect);
+        if (!isLoading) {
+            openModal('createdFile', 'select', '', undefined, undefined, handleFileSelect);
+        }
     };
 
     if (!isLoaded) return null;
@@ -65,6 +83,7 @@ export default function BarWrited({
                 )}
                 <div className="relative w-full">
                     <input
+                        ref={inputRef}
                         type="text"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}

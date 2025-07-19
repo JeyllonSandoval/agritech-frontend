@@ -2,31 +2,31 @@
     "hero": {
         "image": "/icon/AgriTech-Logo-_transparent_.webp",
         "title": "AgriTech",
-        "subtitle": "Innovating Agriculture for a Sustainable Future",
-        "description": "An innovative platform that combines artificial intelligence with agricultural knowledge to enhance your field development",
-        "buttonPlayground": "Go to Playground"
+        "subtitle": "Your intelligent assistant for modern agriculture",
+        "description": "Combines the power of artificial intelligence with expert agricultural knowledge to optimize your crops, analyze documents and make informed decisions.",
+        "buttonPlayground": "Get Started"
     },
     "features": {
         "title": "Features",
         "items": [
         {
-            "title": "Document Analysis",
-            "description": "Process and analyze agricultural technical documents to obtain relevant information quickly",
+            "title": "Intelligent Analysis",
+            "description": "Upload PDF documents and get automatic summaries and detailed analysis of agricultural content",
             "icon": "document"
         },
         {
-            "title": "Smart Chat",
-            "description": "Interact with an AI specialized in agriculture that answers your questions and provides recommendations",
+            "title": "Specialized Chat",
+            "description": "Converse with AI expert in agriculture that understands your context and provides personalized recommendations",
             "icon": "chat"
         },
         {
-            "title": "File Management",
-            "description": "Organize and access your technical documents efficiently",
+            "title": "Real-time Monitoring",
+            "description": "Connect IoT sensors and get temperature, humidity and other critical parameter data",
             "icon": "folder"
         },
         {
-            "title": "Continuous Learning",
-            "description": "The platform learns and improves constantly with each interaction",
+            "title": "Informed Decisions",
+            "description": "Receive data-driven insights and recommendations to optimize your crops",
             "icon": "learn"
         }
         ]

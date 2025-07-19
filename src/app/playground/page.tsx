@@ -13,7 +13,8 @@ import {
     ChatBubbleLeftRightIcon,
     FolderIcon,
     UserGroupIcon,
-    CpuChipIcon
+    CpuChipIcon,
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import HelpButton from '@/components/common/UI/buttons/HelpButton';
@@ -39,6 +40,8 @@ const getIcon = (iconName: string) => {
             return <ChatBubbleLeftRightIcon className="w-5 h-5" />;
         case 'sparkles':
             return <SparklesIcon className="w-5 h-5" />;
+        case 'document':
+            return <DocumentTextIcon className="w-5 h-5" />;
         default:
             return null;
     }
@@ -70,41 +73,31 @@ export default function Playground() {
                             <HelpButton onClick={() => setIsHelpModalOpen(true)} />
                         </div>
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                            <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 sm:p-5 md:p-6 border border-white/10 hover:border-emerald-400/30 transition-all duration-500 hover:bg-white/10">
-                                <h3 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-3 sm:mb-4">
-                                    {playgroundData.sections.quickGuide.title}
-                                </h3>
-                                <ul className="space-y-2 sm:space-y-3 text-sm sm:text-base text-white/70">
-                                    {playgroundData.sections.quickGuide.items.map((item: any, index: number) => (
-                                        <li key={index} className="flex items-start group">
-                                            <span className="mr-2 text-emerald-400 group-hover:text-emerald-300 transition-colors">
-                                                {getIcon(item.icon)}
+                        <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 sm:p-8 border border-white/10 hover:border-emerald-400/30 transition-all duration-500 hover:bg-white/10">
+                            <h3 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-4 sm:mb-6">
+                                {playgroundData.sections.welcome.title}
+                            </h3>
+                            <div className="space-y-4 sm:space-y-6">
+                                <p className="text-sm sm:text-base text-white/70 leading-relaxed">
+                                    {playgroundData.sections.welcome.description}
+                                </p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {playgroundData.sections.welcome.features.map((feature: any, index: number) => (
+                                        <div key={index} className="flex items-start group">
+                                            <span className="mr-3 text-emerald-400 group-hover:text-emerald-300 transition-colors">
+                                                {getIcon(feature.icon)}
                                             </span>
-                                            <span className="group-hover:text-white/90 transition-colors">
-                                                {item.text}
-                                            </span>
-                                        </li>
+                                            <div>
+                                                <h4 className="text-sm sm:text-base font-medium text-white/90 group-hover:text-white transition-colors">
+                                                    {feature.title}
+                                                </h4>
+                                                <p className="text-xs sm:text-sm text-white/60 group-hover:text-white/80 transition-colors">
+                                                    {feature.description}
+                                                </p>
+                                            </div>
+                                        </div>
                                     ))}
-                                </ul>
-                            </div>
-
-                            <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 sm:p-5 md:p-6 border border-white/10 hover:border-emerald-400/30 transition-all duration-500 hover:bg-white/10">
-                                <h3 className="text-lg sm:text-xl font-semibold text-emerald-400 mb-3 sm:mb-4">
-                                    {playgroundData.sections.nextSteps.title}
-                                </h3>
-                                <ul className="space-y-2 sm:space-y-3 text-sm sm:text-base text-white/70">
-                                    {playgroundData.sections.nextSteps.items.map((item: any, index: number) => (
-                                        <li key={index} className="flex items-start group">
-                                            <span className="mr-2 text-emerald-400 group-hover:text-emerald-300 transition-colors">
-                                                {getIcon(item.icon)}
-                                            </span>
-                                            <span className="group-hover:text-white/90 transition-colors">
-                                                {item.text}
-                                            </span>
-                                        </li>
-                                    ))}
-                                </ul>
+                                </div>
                             </div>
                         </div>
                     </div>

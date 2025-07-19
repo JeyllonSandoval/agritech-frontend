@@ -1,5 +1,13 @@
 {
   "selectChat": "Please select a chat to start",
   "startAnalysis": "Start your analysis by selecting a document to analyze. Our system will process the information and be ready to answer your questions.",
-  "fileSelected": "File selected"
+  "fileSelected": "File selected",
+  "startConversation": "Start conversation",
+  "welcomeMessage": "Hello! I'm your agriculture assistant. How can I help you today?",
+  "features": {
+    "documentAnalysis": "Document analysis",
+    "expertRecommendations": "Expert recommendations",
+    "cultivationTips": "Cultivation tips",
+    "problemSolving": "Problem solving"
+  }
 } 

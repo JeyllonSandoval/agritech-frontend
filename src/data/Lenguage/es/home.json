@@ -2,31 +2,31 @@
     "hero": {
         "image": "/icon/AgriTech-Logo-_transparent_.webp",
         "title": "AgriTech",
-        "subtitle": "Innovando la agricultura para un futuro sostenible",
-        "description": "Una plataforma innovadora que combina inteligencia artificial con conocimientos agrícolas para mejorar el desarrollo de tu campo",
-        "buttonPlayground": "Ir al Playground"
+        "subtitle": "Tu asistente inteligente para la agricultura moderna",
+        "description": "Combina el poder de la inteligencia artificial con conocimientos agrícolas expertos para optimizar tus cultivos, analizar documentos y tomar decisiones informadas.",
+        "buttonPlayground": "Comenzar ahora"
     },
     "features": {
         "title": "Características",
         "items": [
         {
-            "title": "Análisis de documentos",
-            "description": "Procesa y analiza documentos técnicos agrícolas para obtener información relevante rápidamente",
+            "title": "Análisis Inteligente",
+            "description": "Sube documentos PDF y obtén resúmenes automáticos y análisis detallados de contenido agrícola",
             "icon": "document"
         },
         {
-            "title": "Chat inteligente",
-            "description": "Interactúa con un IA especializada en agricultura que responde a tus preguntas y proporciona recomendaciones",
+            "title": "Chat Especializado",
+            "description": "Conversa con IA experta en agricultura que entiende tu contexto y proporciona recomendaciones personalizadas",
             "icon": "chat"
         },
         {
-            "title": "Gestión de archivos",
-            "description": "Organiza y accede a tus documentos técnicos de manera eficiente",
+            "title": "Monitoreo en Tiempo Real",
+            "description": "Conecta sensores IoT y obtén datos de temperatura, humedad y otros parámetros críticos",
             "icon": "folder"
         },
         {
-            "title": "Aprendizaje continuo",
-            "description": "La plataforma aprende y mejora constantemente con cada interacción",
+            "title": "Decisiones Informadas",
+            "description": "Recibe insights basados en datos y recomendaciones para optimizar tus cultivos",
             "icon": "learn"
         }
         ]

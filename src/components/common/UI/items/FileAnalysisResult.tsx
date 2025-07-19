@@ -1,6 +1,7 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/context/languageContext';
 import { useState, useEffect } from 'react';
+import MarkdownMessage from './MarkdownMessage';
 
 interface FileAnalysisResultProps {
     question: string;
@@ -69,9 +70,10 @@ export default function FileAnalysisResult({
                             <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDuration: '1s', animationDelay: '0.4s' }} />
                         </div>
                     ) : (
-                        <p className="text-white/80 whitespace-pre-wrap text-xs sm:text-sm leading-relaxed break-words">
-                            {answer && answer.trim() !== '' ? answer : t('waiting System')}
-                        </p>
+                        <MarkdownMessage 
+                            content={answer && answer.trim() !== '' ? answer : t('waiting System')}
+                            className="text-xs sm:text-sm"
+                        />
                     )}
                 </div>
             </div>

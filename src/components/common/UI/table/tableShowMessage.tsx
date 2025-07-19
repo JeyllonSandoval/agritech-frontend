@@ -19,12 +19,51 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
     const translations = tableTranslations;
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'end',
+                inline: 'nearest'
+            });
+        }
+    };
+
+    const scrollToBottomImmediate = () => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ 
+                behavior: 'auto', 
+                block: 'end',
+                inline: 'nearest'
+            });
+        }
     };
 
     useEffect(() => {
-        scrollToBottom();
+        // Scroll inmediato cuando se agregan nuevos mensajes
+        const timeoutId = setTimeout(() => {
+            scrollToBottom();
+        }, 50); // Delay más corto para respuesta más rápida
+
+        return () => clearTimeout(timeoutId);
     }, [messages, isLoading]);
+
+    // Scroll adicional cuando se envía un mensaje específicamente
+    useEffect(() => {
+        if (messages.length > 0) {
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage.sendertype === 'user') {
+                // Scroll inmediato para mensajes del usuario
+                scrollToBottomImmediate();
+            } else if (lastMessage.isLoading) {
+                // Scroll suave para respuestas de AI
+                const timeoutId = setTimeout(() => {
+                    scrollToBottom();
+                }, 10);
+                
+                return () => clearTimeout(timeoutId);
+            }
+        }
+    }, [messages]);
 
     const getFileName = (fileId: string | undefined) => {
         if (!fileId || !files) return null;
@@ -33,9 +72,19 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
     };
 
     const getMessageContent = (message: Message): string => {
-        if (message.sendertype === 'user' && message.contentAsk) return message.contentAsk;
-        if (message.sendertype === 'ai' && message.contentResponse) return message.contentResponse;
-        if (message.contentFile) return message.contentFile;
+        // Para mensajes de usuario
+        if (message.sendertype === 'user') {
+            if (message.contentAsk) return message.contentAsk;
+            if (message.contentFile) return message.contentFile;
+            return '';
+        }
+        
+        // Para mensajes de AI
+        if (message.sendertype === 'ai') {
+            if (message.contentResponse) return message.contentResponse;
+            return '';
+        }
+        
         return '';
     };
 

@@ -3,7 +3,7 @@ import { useChatStore } from '@/store/chatStore';
 import { Message } from '@/types/message';
 import { FileProps } from '@/hooks/getFiles';
 import { jwtDecode } from 'jwt-decode';
-import predefinedQuestions from '@/data/Lenguage/en/predefinedQuestions.json';
+
 import { chatService } from '@/services/chatService';
 
 interface TokenPayload {
@@ -92,12 +92,16 @@ export const useChat = ({ ChatID }: UseChatProps) => {
 
             setMessages(prev => [...prev, userMessage, aiPlaceholder]);
 
-            // 3. Enviar al backend y obtener respuesta
-            const backendResponse = await chatService.sendMessage(currentChat.ChatID, content);
+            // 3. Enviar al backend y obtener respuesta - Incluir FileID si hay archivo seleccionado
+            const fileId = selectedFile?.FileID;
+            const backendResponse = await chatService.sendMessage(currentChat.ChatID, content, fileId);
             const backendMessage: Message = {
                 ...backendResponse,
                 createdAt: new Date().toISOString(),
-                isLoading: false
+                isLoading: false,
+                // Asegurar que el tipo de contenido sea correcto
+                contentAsk: backendResponse.sendertype === 'user' ? backendResponse.contentAsk : undefined,
+                contentResponse: backendResponse.sendertype === 'ai' ? backendResponse.contentResponse : undefined
             };
 
             // 4. Reemplazar el placeholder por la respuesta real usando MessageID
@@ -128,50 +132,47 @@ export const useChat = ({ ChatID }: UseChatProps) => {
                 return updated;
             });
 
-            // 2. Procesar preguntas predefinidas
-            for (const [questionIndex, question] of predefinedQuestions.questions.entries()) {
-                // 1. Placeholder
-                const placeholderId = `loading-fileq-${questionIndex}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-                const aiPlaceholder: Message = {
-                    ChatID: currentChat.ChatID,
-                    FileID: file.FileID,
-                    sendertype: 'ai',
-                    status: 'loading',
-                    createdAt: new Date().toISOString(),
-                    isLoading: true,
-                    MessageID: placeholderId,
-                    contentAsk: question.question,
-                    questionIndex
-                };
-                setMessages(prev => {
-                    const updated = [...prev, aiPlaceholder];
-            
-                    return updated;
-                });
+            // 2. Generar resumen automático del PDF con el FileID incluido
+            const summaryPlaceholderId = `loading-summary-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            const summaryPlaceholder: Message = {
+                ChatID: currentChat.ChatID,
+                FileID: file.FileID,
+                sendertype: 'ai',
+                status: 'loading',
+                createdAt: new Date().toISOString(),
+                isLoading: true,
+                MessageID: summaryPlaceholderId,
+                contentAsk: 'Genera un resumen ejecutivo del documento',
+                questionIndex: 0
+            };
+            setMessages(prev => {
+                const updated = [...prev, summaryPlaceholder];
+        
+                return updated;
+            });
 
-                // 2. Espera respuesta real
-                const questionResponse = await chatService.sendMessage(
-                    currentChat.ChatID,
-                    question.question,
-                    file.FileID
+            // 3. Espera respuesta real del resumen - Asegurar que se pase el FileID
+            const summaryResponse = await chatService.sendMessage(
+                currentChat.ChatID,
+                'Genera un resumen ejecutivo del documento',
+                file.FileID // Pasar el FileID para que el backend procese el contenido
+            );
+            const summaryMessage: Message = {
+                ...summaryResponse,
+                FileID: file.FileID,
+                contentAsk: 'Resumen ejecutivo del documento',
+                questionIndex: 0,
+                isLoading: false
+            };
+
+            // 4. Reemplaza el placeholder por la respuesta real
+            setMessages(prev => {
+                const updated = prev.map(msg =>
+                    msg.MessageID === summaryPlaceholderId ? summaryMessage : msg
                 );
-                const backendMessage: Message = {
-                    ...questionResponse,
-                    FileID: file.FileID,
-                    contentAsk: question.question,
-                    questionIndex,
-                    isLoading: false
-                };
-
-                // 3. Reemplaza el placeholder por la respuesta real
-                setMessages(prev => {
-                    const updated = prev.map(msg =>
-                        msg.MessageID === placeholderId ? backendMessage : msg
-                    );
-            
-                    return updated;
-                });
-            }
+        
+                return updated;
+            });
         } catch (err) {
             console.error('Error handling file:', err);
             setError(err instanceof Error ? err.message : 'Error handling file');
