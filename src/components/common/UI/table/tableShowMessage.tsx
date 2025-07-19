@@ -66,7 +66,13 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
     }, [messages]);
 
     const getFileName = (fileId: string | undefined) => {
-        if (!fileId || !files) return null;
+        if (!fileId) return null;
+        
+        // Si no hay archivos cargados, retornar null para que se muestre el estado de carga
+        if (!files || files.length === 0) {
+            return null;
+        }
+        
         const file = files.find(f => f.FileID === fileId);
         return file?.FileName;
     };
@@ -129,10 +135,11 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                                 fileInfo={(() => {
                                     const name = getFileName(message.FileID);
                                     if (name) return { FileName: name };
-                                    if (files.length === 0) return { FileName: translations.loadingFile };
+                                    // Si no hay archivos cargados, mostrar estado de carga
+                                    if (!files || files.length === 0) return { FileName: translations.loadingFile };
                                     return { FileName: translations.fileNotFound };
                                 })()}
-                                isLoading={message.isLoading}
+                                isLoading={!files || files.length === 0}
                             />
                         </div>
                     );
@@ -182,10 +189,11 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                             fileInfo={message.FileID ? (() => {
                                 const name = getFileName(message.FileID);
                                 if (name) return { FileName: name };
-                                if (files.length === 0) return { FileName: translations.loadingFile };
+                                // Si no hay archivos cargados, mostrar estado de carga
+                                if (!files || files.length === 0) return { FileName: translations.loadingFile };
                                 return { FileName: translations.fileNotFound };
                             })() : undefined}
-                            isLoading={message.isLoading}
+                            isLoading={message.isLoading || (message.FileID && (!files || files.length === 0))}
                         />
                     </div>
                 );

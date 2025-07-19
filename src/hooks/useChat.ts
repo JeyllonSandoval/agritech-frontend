@@ -26,6 +26,8 @@ export const useChat = ({ ChatID }: UseChatProps) => {
     // Cargar historial inicial
     useEffect(() => {
         if (currentChat?.ChatID) {
+            // Resetear el archivo seleccionado cuando se carga un nuevo chat
+            setSelectedFile(null);
             loadChatHistory(currentChat.ChatID);
         }
     }, [currentChat]);

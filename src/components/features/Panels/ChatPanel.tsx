@@ -33,7 +33,7 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
         setMessages
     } = useChat({ ChatID });
 
-    const { files } = useFileStore();
+    const { files, fetchFiles } = useFileStore();
     const { openModal } = useModal();
     const { language } = useLanguage();
     const { t, loadTranslations } = useTranslation();
@@ -51,6 +51,8 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
     useEffect(() => {
         if (currentChat?.ChatID) {
             loadChatHistory(currentChat.ChatID);
+            // Cargar archivos cuando se carga un chat
+            fetchFiles();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentChat]);
