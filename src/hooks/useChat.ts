@@ -3,6 +3,8 @@ import { useChatStore } from '@/store/chatStore';
 import { Message } from '@/types/message';
 import { FileProps } from '@/hooks/getFiles';
 import { jwtDecode } from 'jwt-decode';
+import { useLanguage } from '@/context/languageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 import { chatService } from '@/services/chatService';
 
@@ -22,6 +24,8 @@ export const useChat = ({ ChatID }: UseChatProps) => {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const { language } = useLanguage();
+    const { t } = useTranslation();
 
     // Cargar historial inicial
     useEffect(() => {
@@ -37,7 +41,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
             setIsLoading(true);
             const allMessages = await chatService.getMessages(chatId);
             
-            // Asegurar que todos los mensajes tengan la hora del cliente y los campos correctos para FileAnalysisResult
+            // Asegurar que todos los mensajes tengan la hora del cliente
             const messagesWithClientTime = allMessages.map((message: Message) => {
                 let transformed = {
                     ...message,
@@ -49,7 +53,6 @@ export const useChat = ({ ChatID }: UseChatProps) => {
                         ...transformed,
                         contentAsk: message.contentAsk || message.question || '',
                         contentResponse: message.contentResponse || message.content || message.answer || '',
-                        questionIndex: message.questionIndex || 0,
                         isLoading: false
                     };
                 }
@@ -96,6 +99,8 @@ export const useChat = ({ ChatID }: UseChatProps) => {
 
             // 3. Enviar al backend y obtener respuesta - Incluir FileID si hay archivo seleccionado
             const fileId = selectedFile?.FileID;
+            console.log(`Enviando mensaje con content: "${content}", fileId: ${fileId}`);
+            
             const backendResponse = await chatService.sendMessage(currentChat.ChatID, content, fileId);
             const backendMessage: Message = {
                 ...backendResponse,
@@ -144,8 +149,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
                 createdAt: new Date().toISOString(),
                 isLoading: true,
                 MessageID: summaryPlaceholderId,
-                contentAsk: 'Genera un resumen ejecutivo del documento',
-                questionIndex: 0
+                contentAsk: language === 'es' ? 'Genera un resumen ejecutivo del documento' : 'Generate an executive summary of the document'
             };
             setMessages(prev => {
                 const updated = [...prev, summaryPlaceholder];
@@ -156,14 +160,13 @@ export const useChat = ({ ChatID }: UseChatProps) => {
             // 3. Espera respuesta real del resumen - Asegurar que se pase el FileID
             const summaryResponse = await chatService.sendMessage(
                 currentChat.ChatID,
-                'Genera un resumen ejecutivo del documento',
+                language === 'es' ? 'Genera un resumen ejecutivo del documento' : 'Generate an executive summary of the document',
                 file.FileID // Pasar el FileID para que el backend procese el contenido
             );
             const summaryMessage: Message = {
                 ...summaryResponse,
                 FileID: file.FileID,
-                contentAsk: 'Resumen ejecutivo del documento',
-                questionIndex: 0,
+                contentAsk: language === 'es' ? 'Resumen ejecutivo del documento' : 'Executive summary of the document',
                 isLoading: false
             };
 

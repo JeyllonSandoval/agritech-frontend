@@ -3,7 +3,6 @@ import { Message } from '@/types/message';
 import ItemMessage from '@/components/common/UI/items/itemMessages';
 import FileAnalysisResult from '@/components/common/UI/items/FileAnalysisResult';
 import { FileProps } from '@/hooks/getFiles';
-import predefinedQuestions from '@/data/Lenguage/en/predefinedQuestions.json';
 import { useLanguage } from '@/context/languageContext';
 import tableTranslations from '@/data/Lenguage/en/table.json';
 
@@ -153,14 +152,12 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                     !processedFileAnalysisIds.has(message.MessageID || '')
                 ) {
                     processedFileAnalysisIds.add(message.MessageID || '');
-                    const questionIndex = message.questionIndex || 0;
-                    const question = predefinedQuestions.questions[questionIndex]?.question || message.contentAsk;
                     
                     return (
                         <div key={`analysis-${message.MessageID || 'temp'}-${index}`} className="w-full">
                             <FileAnalysisResult
-                                question={question}
-                                description={predefinedQuestions.questions[questionIndex]?.description || ''}
+                                question={message.contentAsk}
+                                description=""
                                 answer={message.contentResponse}
                                 isLoading={message.isLoading || isLoading}
                             />

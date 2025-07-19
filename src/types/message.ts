@@ -11,7 +11,5 @@ export interface Message {
     answer?: string;
     createdAt: string;
     status: string;
-    isPredefinedQuestion?: boolean;
     isLoading?: boolean;
-    questionIndex?: number;
 } 

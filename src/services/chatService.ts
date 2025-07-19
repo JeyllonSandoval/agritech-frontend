@@ -9,9 +9,14 @@ const getToken = () => {
     return token;
 };
 
+const getUserLanguage = () => {
+    return localStorage.getItem('language') || 'en';
+};
+
 export const chatService = {
     async sendMessage(chatId: string, content: string, fileId?: string): Promise<Message> {
         const token = getToken();
+        const userLanguage = getUserLanguage();
         const body: any = {
             ChatID: chatId,
             contentAsk: content,
@@ -24,19 +29,27 @@ export const chatService = {
             body.FileID = fileId;
             // También incluir un indicador de que este mensaje está relacionado con un archivo
             body.contentFile = 'file_attached';
+            console.log(`ChatService - Enviando mensaje con archivo: FileID=${fileId}`);
+        } else {
+            console.log(`ChatService - Enviando mensaje sin archivo`);
         }
+
+        console.log(`ChatService - Body enviado:`, body);
 
         const response = await fetch(`${API_URL}/message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'user-language': userLanguage
             },
             body: JSON.stringify(body)
         });
 
         if (!response.ok) throw new Error('Failed to send message');
         const backendResponse = await response.json();
+        console.log(`ChatService - Respuesta del backend:`, backendResponse);
+        
         const msg = backendResponse.message;
         return {
             MessageID: msg.id,
@@ -68,11 +81,13 @@ export const chatService = {
 
     async sendFileMessage(chatId: string, fileId: string): Promise<Message> {
         const token = getToken();
+        const userLanguage = getUserLanguage();
         const response = await fetch(`${API_URL}/message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'user-language': userLanguage
             },
             body: JSON.stringify({
                 ChatID: chatId,
