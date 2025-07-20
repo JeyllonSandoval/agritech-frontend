@@ -14,6 +14,7 @@ export interface ReportRequest {
     type: 'hour' | 'day' | 'week' | 'month' | '3months';
   };
   format?: 'pdf' | 'json';
+  createChat?: boolean; // Nueva funcionalidad para crear chat automático
 }
 
 export interface ReportResponse {
@@ -23,7 +24,7 @@ export interface ReportResponse {
     fileID: string;
     fileName: string;
     fileURL: string;
-    format: 'pdf' | 'json';
+    format: string;
     report: {
       deviceId?: string;
       deviceName?: string;
@@ -32,7 +33,7 @@ export interface ReportResponse {
       location?: {
         latitude: number;
         longitude: number;
-        elevation: number;
+        elevation?: number;
       };
       timestamp: string;
       includeHistory?: boolean;
@@ -42,28 +43,41 @@ export interface ReportResponse {
       timeRange?: {
         start: string;
         end: string;
-        description: string;
+        description?: string;
       };
       // Para reportes de grupo
       totalDevices?: number;
+      successfulReports?: number;
+      failedReports?: number;
       devicesWithHistoricalData?: number;
-      devicesWithDiagnostic?: number;
-      historicalDataSuccessRate?: number;
-      diagnosticSuccessRate?: number;
+    };
+    // Nueva información del chat automático
+    chat?: {
+      chatID: string;
+      chatName: string;
+      fileID: string;
+      fileName: string;
+      fileURL: string;
     };
   };
 }
 
 export interface UserReportsResponse {
   success: boolean;
+  message: string;
   data: Array<{
     FileID: string;
+    UserID: string;
     FileName: string;
     contentURL: string;
     createdAt: string;
     status: string;
   }>;
 }
+
+// ============================================================================
+// REPORT SERVICE CLASS
+// ============================================================================
 
 class ReportService {
   private baseURL: string;
@@ -168,50 +182,6 @@ class ReportService {
   }
 
   /**
-   * Test report generation
-   */
-  async testReportGeneration(params: {
-    deviceId: string;
-    userId: string;
-    includeHistory?: string;
-    historyRange?: string;
-    format?: string;
-  }): Promise<any> {
-    try {
-      const token = localStorage.getItem('token');
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const queryParams = new URLSearchParams();
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          queryParams.append(key, value);
-        }
-      });
-
-      const response = await fetch(`${this.baseURL}/api/reports/test?${queryParams.toString()}`, {
-        method: 'GET',
-        headers,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || data.error || 'Error testing report generation');
-      }
-
-      return data;
-    } catch (error) {
-      throw new Error(`Error testing report generation: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  }
-
-  /**
    * Download report file
    */
   async downloadReport(fileURL: string, fileName: string): Promise<void> {
@@ -230,6 +200,21 @@ class ReportService {
       throw new Error(`Error downloading report: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
+
+  /**
+   * View report in new tab
+   */
+  async viewReport(fileURL: string): Promise<void> {
+    try {
+      window.open(fileURL, '_blank');
+    } catch (error) {
+      throw new Error(`Error viewing report: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
 }
+
+// ============================================================================
+// EXPORT SINGLETON INSTANCE
+// ============================================================================
 
 export const reportService = new ReportService(); 

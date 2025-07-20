@@ -10,7 +10,7 @@ import { useReports } from '../../../hooks/useReports';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { useModal } from '../../../context/modalContext';
 import { useRouter } from 'next/navigation';
-import { DocumentChartBarIcon, CalendarIcon, ChartBarIcon, ClockIcon, XMarkIcon, DocumentArrowDownIcon, UserGroupIcon, DevicePhoneMobileIcon, FolderIcon } from '@heroicons/react/24/outline';
+import { DocumentChartBarIcon, CalendarIcon, ChartBarIcon, ClockIcon, XMarkIcon, DocumentArrowDownIcon, UserGroupIcon, DevicePhoneMobileIcon, FolderIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 
 interface TelemetryReportsProps {
   devices: DeviceInfo[];
@@ -20,320 +20,294 @@ interface TelemetryReportsProps {
   onClose?: () => void;
 }
 
-interface ReportOption {
-  id: string;
-  name: string;
-  type: 'device' | 'group';
-  description: string;
-}
-
 // ============================================================================
-// SUBCOMPONENTS
+// REPORT TYPE SELECTOR
 // ============================================================================
 
-/**
- * Custom Switch Component
- */
-const Switch: React.FC<{
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  label?: string;
-  className?: string;
-}> = ({ checked, onChange, label, className = "" }) => (
-  <div className={`flex items-center gap-3 p-3  ${className}`}>
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-        checked ? 'bg-emerald-500' : 'bg-gray-600'
-      }`}
-    >
-      <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-          checked ? 'translate-x-6' : 'translate-x-1'
-        }`}
-      />
-    </button>
-    {label && (
-      <span className="text-white text-lg font-medium">{label}</span>
-    )}
-  </div>
-);
-
-/**
- * Header component for the reports modal
- */
-const ReportHeader: React.FC<{ onClose?: () => void }> = ({ onClose }) => (
-  <div className="flex items-center justify-between mb-6">
-    <div className="flex items-center gap-3">
-      <DocumentChartBarIcon className="w-6 h-6 text-emerald-400" />
-      <h2 className="text-xl font-semibold text-white">
-        Generar Reportes
-      </h2>
-    </div>
-    {onClose && (
-      <button
-        onClick={onClose}
-        className="text-white/70 hover:text-white transition-colors"
-      >
-        <XMarkIcon className="w-6 h-6" />
-      </button>
-    )}
-  </div>
-);
-
-/**
- * Alert component for displaying success and error messages
- */
-const AlertMessage: React.FC<{
-  type: 'success' | 'error';
-  message: string;
-  onClose: () => void;
-}> = ({ type, message, onClose }) => {
-  const styles = {
-    success: 'bg-green-500/20 border-green-500/40 text-green-400',
-    error: 'bg-red-500/20 border-red-500/40 text-red-400'
-  };
-
-  const hoverStyles = {
-    success: 'text-green-400 hover:text-green-300',
-    error: 'text-red-400 hover:text-red-300'
-  };
+const ReportTypeSelector: React.FC<{
+  reportType: 'device' | 'group';
+  onTypeChange: (type: 'device' | 'group') => void;
+}> = ({ reportType, onTypeChange }) => {
+  const { t } = useTranslation();
 
   return (
-    <div className={`mb-4 p-3 border rounded-lg ${styles[type]}`}>
-      <div className="flex items-center justify-between">
-        <span>{message}</span>
-        <button onClick={onClose} className={hoverStyles[type]}>
-          <XMarkIcon className="w-4 h-4" />
+    <div className="mb-6">
+      <label className="block text-sm font-medium text-white mb-3">
+        {t('reports.type')}
+      </label>
+      <div className="flex gap-3">
+        <button
+          onClick={() => onTypeChange('device')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+            reportType === 'device'
+              ? 'bg-emerald-500 text-white shadow-lg'
+              : 'bg-white/10 text-white/70 hover:bg-white/20'
+          }`}
+        >
+          <DevicePhoneMobileIcon className="w-5 h-5" />
+          {t('reports.device')}
+        </button>
+        <button
+          onClick={() => onTypeChange('group')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+            reportType === 'group'
+              ? 'bg-emerald-500 text-white shadow-lg'
+              : 'bg-white/10 text-white/70 hover:bg-white/20'
+          }`}
+        >
+          <UserGroupIcon className="w-5 h-5" />
+          {t('reports.group')}
         </button>
       </div>
     </div>
   );
 };
 
-/**
- * Report type selection component
- */
-const ReportTypeSelector: React.FC<{
-  reportType: 'device' | 'group';
-  onTypeChange: (type: 'device' | 'group') => void;
-}> = ({ reportType, onTypeChange }) => (
-  <div>
-    <h3 className="text-lg font-medium text-white mb-3">
-      Tipo de Reporte
-    </h3>
-    <div className="flex gap-2">
-      <button
-        onClick={() => onTypeChange('device')}
-        className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
-          reportType === 'device'
-            ? 'bg-emerald-400/20 text-emerald-400 border border-emerald-400/40'
-            : 'bg-white/5 text-white/70 border border-white/20 hover:bg-white/10'
-        }`}
-      >
-        <DevicePhoneMobileIcon className="w-5 h-5" />
-        Dispositivo Individual
-      </button>
-      <button
-        onClick={() => onTypeChange('group')}
-        className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
-          reportType === 'group'
-            ? 'bg-emerald-400/20 text-emerald-400 border border-emerald-400/40'
-            : 'bg-white/5 text-white/70 border border-white/20 hover:bg-white/10'
-        }`}
-      >
-        <UserGroupIcon className="w-5 h-5" />
-        Grupo de Dispositivos
-      </button>
-    </div>
-  </div>
-);
+// ============================================================================
+// TARGET SELECTOR
+// ============================================================================
 
-/**
- * Target selection component (devices or groups)
- */
 const TargetSelector: React.FC<{
   reportType: 'device' | 'group';
   devices: DeviceInfo[];
   groups: Group[];
   selectedTarget: string;
-  onTargetSelect: (targetId: string) => void;
-}> = ({ reportType, devices, groups, selectedTarget, onTargetSelect }) => (
-  <div>
-    <h3 className="text-lg font-medium text-white mb-3">
-      {reportType === 'device' ? 'Seleccionar Dispositivo' : 'Seleccionar Grupo'}
-    </h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
-      {reportType === 'device' ? (
-        devices.map(device => (
-          <button
-            key={device.DeviceID}
-            onClick={() => onTargetSelect(device.DeviceID)}
-            className={`p-3 rounded-lg border text-left transition-all ${
-              selectedTarget === device.DeviceID
-                ? 'border-emerald-400 bg-emerald-400/10 text-emerald-400'
-                : 'border-white/20 bg-white/5 text-white/70 hover:border-white/40 hover:text-white'
-            }`}
-          >
-            <div>
-              <h4 className="font-medium text-sm">{device.DeviceName}</h4>
-              <p className="text-xs opacity-70">{device.DeviceType}</p>
-            </div>
-          </button>
-        ))
-      ) : (
-        groups.map(group => (
-          <button
-            key={group.DeviceGroupID}
-            onClick={() => onTargetSelect(group.DeviceGroupID)}
-            className={`p-3 rounded-lg border text-left transition-all ${
-              selectedTarget === group.DeviceGroupID
-                ? 'border-emerald-400 bg-emerald-400/10 text-emerald-400'
-                : 'border-white/20 bg-white/5 text-white/70 hover:border-white/40 hover:text-white'
-            }`}
-          >
-            <div>
-              <h4 className="font-medium text-sm">{group.GroupName}</h4>
-              <p className="text-xs opacity-70">{group.Description}</p>
-            </div>
-          </button>
-        ))
-      )}
-    </div>
-  </div>
-);
+  onTargetChange: (target: string) => void;
+}> = ({ reportType, devices, groups, selectedTarget, onTargetChange }) => {
+  const { t } = useTranslation();
 
-/**
- * History options component with improved layout
- */
+  const options = reportType === 'device' ? devices : groups;
+
+  // Helper function to get ID and name for both DeviceInfo and Group
+  const getOptionId = (option: DeviceInfo | Group): string => {
+    if ('DeviceID' in option) return option.DeviceID;
+    if ('DeviceGroupID' in option) return option.DeviceGroupID;
+    return '';
+  };
+
+  const getOptionName = (option: DeviceInfo | Group): string => {
+    if ('DeviceName' in option) return option.DeviceName;
+    if ('GroupName' in option) return option.GroupName;
+    return '';
+  };
+
+  return (
+    <div className="mb-6">
+      <label className="block text-sm font-medium text-white mb-3">
+        {reportType === 'device' ? t('reports.selectDevice') : t('reports.selectGroup')}
+      </label>
+      <select
+        value={selectedTarget}
+        onChange={(e) => onTargetChange(e.target.value)}
+        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+      >
+        <option value="">{t('reports.selectOption')}</option>
+        {options.map((option) => (
+          <option key={getOptionId(option)} value={getOptionId(option)}>
+            {getOptionName(option)}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
+
+// ============================================================================
+// HISTORY OPTIONS
+// ============================================================================
+
 const HistoryOptions: React.FC<{
   includeHistory: boolean;
-  historyRange: 'hour' | 'day' | 'week' | 'month' | '3months';
   onIncludeHistoryChange: (include: boolean) => void;
+  historyRange: 'hour' | 'day' | 'week' | 'month' | '3months';
   onHistoryRangeChange: (range: 'hour' | 'day' | 'week' | 'month' | '3months') => void;
-}> = ({ includeHistory, historyRange, onIncludeHistoryChange, onHistoryRangeChange }) => (
-  <div>
-    <h3 className="text-lg font-medium text-white mb-3">
-      Opciones de Datos Históricos
-    </h3>
-    <div className="flex items-center gap-4">
-      <Switch
-        checked={includeHistory}
-        onChange={onIncludeHistoryChange}
-        label="Incluir datos históricos"
-        className="text-lg"
-      />
-      
+}> = ({ includeHistory, onIncludeHistoryChange, historyRange, onHistoryRangeChange }) => {
+  const { t } = useTranslation();
+
+  const rangeOptions = [
+    { value: 'hour', label: t('reports.hour'), icon: ClockIcon },
+    { value: 'day', label: t('reports.day'), icon: CalendarIcon },
+    { value: 'week', label: t('reports.week'), icon: ChartBarIcon },
+    { value: 'month', label: t('reports.month'), icon: DocumentChartBarIcon },
+    { value: '3months', label: t('reports.3months'), icon: FolderIcon },
+  ];
+
+  return (
+    <div className="mb-6">
+      <div className="flex items-center gap-3 mb-4">
+        <input
+          type="checkbox"
+          id="includeHistory"
+          checked={includeHistory}
+          onChange={(e) => onIncludeHistoryChange(e.target.checked)}
+          className="w-4 h-4 text-emerald-500 bg-white/10 border-white/20 rounded focus:ring-emerald-500 focus:ring-2"
+        />
+        <label htmlFor="includeHistory" className="text-sm font-medium text-white">
+          {t('reports.includeHistory')}
+        </label>
+      </div>
+
       {includeHistory && (
-        <div className="flex items-center gap-2 text-lg">
-          <label className="font-medium text-white">
-            Rango:
+        <div>
+          <label className="block text-sm font-medium text-white mb-3">
+            {t('reports.historyRange')}
           </label>
-          <select
-            value={historyRange}
-            onChange={(e) => onHistoryRangeChange(e.target.value as any)}
-            className="px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="hour" className="bg-black text-emerald-600">1 Hora</option>
-            <option value="day" className="bg-black text-emerald-600">1 Día</option>
-            <option value="week" className="bg-black text-emerald-600">1 Semana</option>
-            <option value="month" className="bg-black text-emerald-600">1 Mes</option>
-            <option value="3months" className="bg-black text-emerald-600">3 Meses</option>
-          </select>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+            {rangeOptions.map((option) => {
+              const Icon = option.icon;
+              return (
+                <button
+                  key={option.value}
+                  onClick={() => onHistoryRangeChange(option.value as any)}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-lg transition-all ${
+                    historyRange === option.value
+                      ? 'bg-emerald-500 text-white shadow-lg'
+                      : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="text-xs">{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
-  </div>
-);
+  );
+};
 
-/**
- * Format selection component
- */
-const FormatSelector: React.FC<{
+// ============================================================================
+// FORMAT OPTIONS
+// ============================================================================
+
+const FormatOptions: React.FC<{
   format: 'pdf' | 'json';
   onFormatChange: (format: 'pdf' | 'json') => void;
-}> = ({ format, onFormatChange }) => (
-  <div>
-    <label className="block text-sm font-medium text-white mb-2">
-      Formato del Reporte
-    </label>
-    <div className="flex gap-2">
-      <button
-        onClick={() => onFormatChange('pdf')}
-        className={`px-3 py-2 rounded-lg transition-all ${
-          format === 'pdf'
-            ? 'bg-emerald-400/20 text-emerald-400 border border-emerald-400/40'
-            : 'bg-white/5 text-white/70 border border-white/20 hover:bg-white/10'
-        }`}
-      >
-        PDF
-      </button>
-    </div>
-  </div>
-);
+}> = ({ format, onFormatChange }) => {
+  const { t } = useTranslation();
 
-/**
- * Generated report display component with modal integration
- */
-const GeneratedReportDisplay: React.FC<{
-  report: any;
-  onView: () => void;
-  onDownload: () => void;
-  onNavigateToFiles: () => void;
-}> = ({ report, onView, onDownload, onNavigateToFiles }) => (
-  <div className="mt-6 p-4 bg-white/5 border border-white/20 rounded-lg">
-    <div className="flex items-center justify-between mb-4">
-      <h3 className="text-lg font-medium text-white">
-        Reporte Generado
-      </h3>
-      <div className="flex gap-2">
+  return (
+    <div className="mb-6">
+      <label className="block text-sm font-medium text-white mb-3">
+        {t('reports.format')}
+      </label>
+      <div className="flex gap-3">
         <button
-          onClick={onView}
-          className="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-all flex items-center gap-2 shadow-sm shadow-emerald-500/20"
+          onClick={() => onFormatChange('pdf')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+            format === 'pdf'
+              ? 'bg-emerald-500 text-white shadow-lg'
+              : 'bg-white/10 text-white/70 hover:bg-white/20'
+          }`}
         >
-          <DocumentChartBarIcon className="w-4 h-4" />
-          Ver
+          <DocumentChartBarIcon className="w-5 h-5" />
+          PDF
         </button>
         <button
-          onClick={onDownload}
-          className="px-3 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 rounded-lg transition-all flex items-center gap-2"
+          onClick={() => onFormatChange('json')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+            format === 'json'
+              ? 'bg-emerald-500 text-white shadow-lg'
+              : 'bg-white/10 text-white/70 hover:bg-white/20'
+          }`}
         >
-          <DocumentArrowDownIcon className="w-4 h-4" />
-          Descargar
-        </button>
-        <button
-          onClick={onNavigateToFiles}
-          className="px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/40 rounded-lg transition-all flex items-center gap-2"
-        >
-          <FolderIcon className="w-4 h-4" />
-          Ver en Archivos
+          <DocumentArrowDownIcon className="w-5 h-5" />
+          JSON
         </button>
       </div>
     </div>
-    
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-      <div>
-        <p className="text-white/70">Archivo:</p>
-        <p className="text-white font-medium">{report.data.fileName}</p>
+  );
+};
+
+// ============================================================================
+// CHAT OPTIONS
+// ============================================================================
+
+const ChatOptions: React.FC<{
+  createChat: boolean;
+  onCreateChatChange: (create: boolean) => void;
+}> = ({ createChat, onCreateChatChange }) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="mb-6">
+      <div className="flex items-center gap-3">
+        <input
+          type="checkbox"
+          id="createChat"
+          checked={createChat}
+          onChange={(e) => onCreateChatChange(e.target.checked)}
+          className="w-4 h-4 text-emerald-500 bg-white/10 border-white/20 rounded focus:ring-emerald-500 focus:ring-2"
+        />
+        <label htmlFor="createChat" className="text-sm font-medium text-white">
+          {t('reports.createChat')}
+        </label>
       </div>
-      <div>
-        <p className="text-white/70">Formato:</p>
-        <p className="text-white font-medium">{report.data.format.toUpperCase()}</p>
-      </div>
-      {report.data.report.hasHistoricalData !== undefined && (
-        <div>
-          <p className="text-white/70">Datos históricos:</p>
-          <p className="text-white font-medium">
-            {report.data.report.hasHistoricalData ? 'Incluidos' : 'No disponibles'}
-          </p>
+      <p className="text-xs text-white/60 mt-2">
+        {t('reports.createChatDescription')}
+      </p>
+    </div>
+  );
+};
+
+// ============================================================================
+// SUCCESS MESSAGE
+// ============================================================================
+
+const SuccessMessage: React.FC<{
+  success: string;
+  generatedReport: any;
+  onNavigateToChat: (chatID: string) => void;
+  onViewReport: (fileURL: string) => void;
+  onDownloadReport: (fileURL: string, fileName: string) => void;
+}> = ({ success, generatedReport, onNavigateToChat, onViewReport, onDownloadReport }) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="bg-emerald-500/20 border border-emerald-500/30 rounded-lg p-4 mb-6">
+      <div className="flex items-start gap-3">
+        <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
         </div>
-      )}
+        <div className="flex-1">
+          <h3 className="text-emerald-400 font-medium mb-2">{t('reports.success')}</h3>
+          <p className="text-white/90 text-sm mb-4">{success}</p>
+          
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => onViewReport(generatedReport.data.fileURL)}
+              className="flex items-center gap-2 px-3 py-2 bg-emerald-500 text-white rounded-lg text-sm hover:bg-emerald-600 transition-colors"
+            >
+              <DocumentChartBarIcon className="w-4 h-4" />
+              {t('reports.viewReport')}
+            </button>
+            
+            <button
+              onClick={() => onDownloadReport(generatedReport.data.fileURL, generatedReport.data.fileName)}
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 text-white rounded-lg text-sm hover:bg-white/20 transition-colors"
+            >
+              <DocumentArrowDownIcon className="w-4 h-4" />
+              {t('reports.downloadReport')}
+            </button>
+            
+            {generatedReport.data.chat && (
+              <button
+                onClick={() => onNavigateToChat(generatedReport.data.chat.chatID)}
+                className="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+              >
+                <ChatBubbleLeftRightIcon className="w-4 h-4" />
+                {t('reports.openChat')}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ============================================================================
 // MAIN COMPONENT
@@ -354,6 +328,7 @@ const TelemetryReports: React.FC<TelemetryReportsProps> = ({
   const [includeHistory, setIncludeHistory] = useState(false);
   const [historyRange, setHistoryRange] = useState<'hour' | 'day' | 'week' | 'month' | '3months'>('day');
   const [format, setFormat] = useState<'pdf' | 'json'>('pdf');
+  const [createChat, setCreateChat] = useState(true);
   
   const {
     loading,
@@ -366,7 +341,8 @@ const TelemetryReports: React.FC<TelemetryReportsProps> = ({
     viewReport,
     clearError,
     clearSuccess,
-    clearReport
+    clearReport,
+    navigateToChat
   } = useReports();
 
   // Obtener el userId del token
@@ -401,6 +377,7 @@ const TelemetryReports: React.FC<TelemetryReportsProps> = ({
       userId,
       includeHistory,
       format,
+      createChat, // Nueva funcionalidad
       ...(includeHistory && { historyRange: { type: historyRange } })
     };
 
@@ -413,37 +390,11 @@ const TelemetryReports: React.FC<TelemetryReportsProps> = ({
     }
   };
 
-  const handleDownloadReport = async () => {
-    if (!generatedReport) return;
-    await downloadReport(generatedReport.data.fileURL, generatedReport.data.fileName);
-  };
-
-  const handleViewReport = () => {
-    if (!generatedReport) return;
-    // Open the report in a modal using the existing modal system
-    openModal(
-      'createdFile', 
-      'preview', 
-      generatedReport.data.fileName, 
-      undefined, 
-      undefined, 
-      undefined, 
-      generatedReport.data.fileURL
-    );
-  };
-
-  const handleNavigateToFiles = () => {
-    // Navigate to the files section
-    router.push('/playground/files');
-  };
-
-  const handleReportTypeChange = (type: 'device' | 'group') => {
-    setReportType(type);
-    setSelectedTarget('');
-  };
-
-  const handleTargetSelect = (targetId: string) => {
-    setSelectedTarget(targetId);
+  const handleClose = () => {
+    clearError();
+    clearSuccess();
+    clearReport();
+    onClose?.();
   };
 
   // ============================================================================
@@ -451,78 +402,107 @@ const TelemetryReports: React.FC<TelemetryReportsProps> = ({
   // ============================================================================
 
   return (
-    <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg mt-10 text-lg">
-      {/* Header */}
-      <ReportHeader onClose={onClose} />
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center text-lg z-50">
+      <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto scrollbar">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <DocumentChartBarIcon className="w-8 h-8 text-emerald-400" />
+            <h2 className="text-xl md:text-2xl font-semibold text-white">{t('reports.title')}</h2>
+          </div>
+          
+          <button
+            onClick={handleClose}
+            className="text-white/70 hover:text-white transition-colors p-2"
+          >
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+        </div>
 
-      {/* Alert Messages */}
-      {error && (
-        <AlertMessage
-          type="error"
-          message={error}
-          onClose={clearError}
-        />
-      )}
+        {/* Success Message */}
+        {success && generatedReport && (
+          <SuccessMessage
+            success={success}
+            generatedReport={generatedReport}
+            onNavigateToChat={navigateToChat}
+            onViewReport={viewReport}
+            onDownloadReport={downloadReport}
+          />
+        )}
 
-      {success && (
-        <AlertMessage
-          type="success"
-          message={success}
-          onClose={clearSuccess}
-        />
-      )}
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-red-400 font-medium mb-2">{t('reports.error')}</h3>
+                <p className="text-white/90 text-sm">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
-      {/* Configuration */}
-      <div className="space-y-6">
-        {/* Report Type Selection */}
-        <ReportTypeSelector
-          reportType={reportType}
-          onTypeChange={handleReportTypeChange}
-        />
+        {/* Form */}
+        <form onSubmit={(e) => { e.preventDefault(); handleGenerateReport(); }}>
+          <ReportTypeSelector
+            reportType={reportType}
+            onTypeChange={setReportType}
+          />
 
-        {/* Target Selection */}
-        <TargetSelector
-          reportType={reportType}
-          devices={devices}
-          groups={groups}
-          selectedTarget={selectedTarget}
-          onTargetSelect={handleTargetSelect}
-        />
+          <TargetSelector
+            reportType={reportType}
+            devices={devices}
+            groups={groups}
+            selectedTarget={selectedTarget}
+            onTargetChange={setSelectedTarget}
+          />
 
-        {/* History Options */}
-        <HistoryOptions
-          includeHistory={includeHistory}
-          historyRange={historyRange}
-          onIncludeHistoryChange={setIncludeHistory}
-          onHistoryRangeChange={setHistoryRange}
-        />
+          <HistoryOptions
+            includeHistory={includeHistory}
+            onIncludeHistoryChange={setIncludeHistory}
+            historyRange={historyRange}
+            onHistoryRangeChange={setHistoryRange}
+          />
 
-        {/* Format Selection */}
-        <FormatSelector
-          format={format}
-          onFormatChange={setFormat}
-        />
+          <FormatOptions
+            format={format}
+            onFormatChange={setFormat}
+          />
 
-        {/* Generate Button */}
-        <button
-          onClick={handleGenerateReport}
-          disabled={loading || !selectedTarget}
-          className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-white rounded-lg px-4 py-3 flex items-center justify-center gap-2 transition-all"
-        >
-          <ChartBarIcon className="w-5 h-5" />
-          {loading ? 'Generando...' : 'Generar Reporte'}
-        </button>
+          <ChatOptions
+            createChat={createChat}
+            onCreateChatChange={setCreateChat}
+          />
+
+          {/* Generate Button */}
+          <button
+            type="submit"
+            disabled={loading || !selectedTarget}
+            className="w-full bg-emerald-500 text-white py-3 px-6 rounded-lg font-medium hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {t('reports.generating')}
+              </>
+            ) : (
+              <>
+                <DocumentChartBarIcon className="w-5 h-5" />
+                {t('reports.generate')}
+              </>
+            )}
+          </button>
+        </form>
       </div>
-
-      {/* Generated Report */}
-      {generatedReport && (
-        <GeneratedReportDisplay
-          report={generatedReport}
-          onView={handleViewReport}
-          onDownload={handleDownloadReport}
-          onNavigateToFiles={handleNavigateToFiles}
-        />
-      )}
     </div>
   );
 };

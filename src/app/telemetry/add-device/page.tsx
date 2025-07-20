@@ -44,6 +44,14 @@ interface ValidationErrors {
   deviceApiKey?: string;
 }
 
+interface TouchedFields {
+  deviceName: boolean;
+  deviceType: boolean;
+  deviceMac: boolean;
+  deviceApplicationKey: boolean;
+  deviceApiKey: boolean;
+}
+
 const AddDevicePage: React.FC = () => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -59,22 +67,16 @@ const AddDevicePage: React.FC = () => {
   });
 
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [touchedFields, setTouchedFields] = useState<TouchedFields>({
+    deviceName: false,
+    deviceType: false,
+    deviceMac: false,
+    deviceApplicationKey: false,
+    deviceApiKey: false
+  });
 
-  // Validar automáticamente el formulario cuando se está en el paso 2
-  useEffect(() => {
-    if (currentStep === 2) {
-      // Validar todos los campos cuando se está en el paso 2
-      const errors: ValidationErrors = {};
-      Object.keys(formData).forEach((key) => {
-        const field = key as keyof DeviceFormData;
-        const error = validateField(field, formData[field]);
-        if (error) {
-          errors[field] = error;
-        }
-      });
-      setValidationErrors(errors);
-    }
-  }, [currentStep, formData]);
+  // Remover el useEffect que validaba automáticamente en el paso 2
+  // Las validaciones ahora solo se mostrarán cuando el usuario toque un campo
 
   const steps = [
     {
@@ -193,8 +195,19 @@ const AddDevicePage: React.FC = () => {
       [field]: value
     }));
     
-    // Validar el campo en tiempo real
-    const error = validateField(field, value);
+    // Limpiar error general si hay un error específico
+    setError(null);
+  };
+
+  const handleInputBlur = (field: keyof DeviceFormData) => {
+    // Marcar el campo como tocado
+    setTouchedFields(prev => ({
+      ...prev,
+      [field]: true
+    }));
+    
+    // Validar el campo solo cuando el usuario sale del campo
+    const error = validateField(field, formData[field]);
     setValidationErrors(prev => {
       const newErrors = { ...prev };
       if (error) {
@@ -205,11 +218,6 @@ const AddDevicePage: React.FC = () => {
       }
       return newErrors;
     });
-    
-    // Limpiar error general si hay un error específico
-    if (error) {
-      setError(null);
-    }
   };
 
   const handleChecklistChange = (id: string, completed: boolean) => {
@@ -298,12 +306,16 @@ const AddDevicePage: React.FC = () => {
         return checklist.every(item => item.completed);
       case 2:
         // Verificar que todos los campos requeridos estén llenos y sin errores de validación
+        // Solo considerar errores de validación para campos que han sido tocados
+        const hasValidationErrors = Object.keys(validationErrors).some(field => 
+          touchedFields[field as keyof TouchedFields]
+        );
         return formData.deviceName.trim() && 
                formData.deviceMac.trim() && 
                formData.deviceApplicationKey.trim() && 
                formData.deviceApiKey.trim() &&
                formData.deviceType.trim() &&
-               Object.keys(validationErrors).length === 0;
+               !hasValidationErrors;
       case 3:
         return true;
       default:
@@ -478,10 +490,11 @@ const AddDevicePage: React.FC = () => {
                     type="text"
                     value={formData.deviceName}
                     onChange={(e) => handleInputChange('deviceName', e.target.value)}
+                    onBlur={() => handleInputBlur('deviceName')}
                     className="w-full px-3 py-2 rounded-lg bg-white/5 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                     placeholder="Ej: Estación del Jardín"
                   />
-                  {validationErrors.deviceName && (
+                  {touchedFields.deviceName && validationErrors.deviceName && (
                     <p className="text-red-400 text-xs mt-1">{validationErrors.deviceName}</p>
                   )}
                 </div>
@@ -494,6 +507,7 @@ const AddDevicePage: React.FC = () => {
                   <select
                     value={formData.deviceType}
                     onChange={(e) => handleInputChange('deviceType', e.target.value)}
+                    onBlur={() => handleInputBlur('deviceType')}
                     className="w-full px-3 py-2 rounded-lg bg-white/5 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                   >
                     {DEVICE_TYPES.map((type) => (
@@ -505,6 +519,9 @@ const AddDevicePage: React.FC = () => {
                   <p className="text-xs text-white/50 mt-1">
                     {DEVICE_TYPES.find(t => t.value === formData.deviceType)?.description}
                   </p>
+                  {touchedFields.deviceType && validationErrors.deviceType && (
+                    <p className="text-red-400 text-xs mt-1">{validationErrors.deviceType}</p>
+                  )}
                 </div>
 
                 {/* MAC Address */}
@@ -516,10 +533,11 @@ const AddDevicePage: React.FC = () => {
                     type="text"
                     value={formData.deviceMac}
                     onChange={(e) => handleInputChange('deviceMac', e.target.value)}
+                    onBlur={() => handleInputBlur('deviceMac')}
                     className="w-full px-3 py-2 rounded-lg bg-white/5 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                     placeholder="AA:BB:CC:DD:EE:FF"
                   />
-                  {validationErrors.deviceMac && (
+                  {touchedFields.deviceMac && validationErrors.deviceMac && (
                     <p className="text-red-400 text-xs mt-1">{validationErrors.deviceMac}</p>
                   )}
                 </div>
@@ -533,10 +551,11 @@ const AddDevicePage: React.FC = () => {
                     type="text"
                     value={formData.deviceApplicationKey}
                     onChange={(e) => handleInputChange('deviceApplicationKey', e.target.value)}
+                    onBlur={() => handleInputBlur('deviceApplicationKey')}
                     className="w-full px-3 py-2 rounded-lg bg-white/5 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                     placeholder="Tu Application Key de EcoWitt"
                   />
-                  {validationErrors.deviceApplicationKey && (
+                  {touchedFields.deviceApplicationKey && validationErrors.deviceApplicationKey && (
                     <p className="text-red-400 text-xs mt-1">{validationErrors.deviceApplicationKey}</p>
                   )}
                 </div>
@@ -550,10 +569,11 @@ const AddDevicePage: React.FC = () => {
                     type="text"
                     value={formData.deviceApiKey}
                     onChange={(e) => handleInputChange('deviceApiKey', e.target.value)}
+                    onBlur={() => handleInputBlur('deviceApiKey')}
                     className="w-full px-3 py-2 rounded-lg bg-white/5 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                     placeholder="Tu API Key de EcoWitt"
                   />
-                  {validationErrors.deviceApiKey && (
+                  {touchedFields.deviceApiKey && validationErrors.deviceApiKey && (
                     <p className="text-red-400 text-xs mt-1">{validationErrors.deviceApiKey}</p>
                   )}
                 </div>
@@ -561,17 +581,72 @@ const AddDevicePage: React.FC = () => {
             </div>
 
             {/* Help Section */}
-            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <ExclamationTriangleIcon className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h4 className="text-sm font-medium text-yellow-400 mb-1">¿Dónde encontrar las credenciales?</h4>
-                  <ul className="text-sm text-white/70 space-y-1">
-                    <li>• Inicia sesión en tu cuenta de EcoWitt.net</li>
-                    <li>• Ve a "Settings" → "API Settings"</li>
-                    <li>• Copia tu Application Key y API Key</li>
-                    <li>• La dirección MAC está impresa en tu dispositivo</li>
-                  </ul>
+            <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/5 border border-yellow-500/20 rounded-lg p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-3">
+                    <ExclamationTriangleIcon className="w-5 h-5 text-yellow-400" />
+                    <h4 className="text-lg font-semibold text-yellow-400">¿Dónde encontrar las credenciales?</h4>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Credenciales API */}
+                    <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                        <h5 className="text-sm font-medium text-emerald-400">Credenciales API</h5>
+                      </div>
+                      <ol className="text-sm text-white/70 space-y-2">
+                        <li className="flex items-start gap-2">
+                          <span className="flex-shrink-0 w-5 h-5 bg-emerald-500/20 rounded-full flex items-center justify-center text-xs font-medium text-emerald-400">1</span>
+                          <span>Inicia sesión en tu cuenta de <a href="https://www.ecowitt.net/home/login" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 underline transition-colors">EcoWitt.net</a></span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="flex-shrink-0 w-5 h-5 bg-emerald-500/20 rounded-full flex items-center justify-center text-xs font-medium text-emerald-400">2</span>
+                          <span>Ve a <strong>"Parte superior derecha"</strong> → <strong>"User Profile"</strong></span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="flex-shrink-0 w-5 h-5 bg-emerald-500/20 rounded-full flex items-center justify-center text-xs font-medium text-emerald-400">3</span>
+                          <span>Genera una nueva <strong>API Key</strong> y <strong>Application Key</strong></span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="flex-shrink-0 w-5 h-5 bg-emerald-500/20 rounded-full flex items-center justify-center text-xs font-medium text-emerald-400">4</span>
+                          <span>Copia ambas credenciales para usarlas aquí</span>
+                        </li>
+                      </ol>
+                    </div>
+
+                    {/* Dirección MAC */}
+                    <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                        <h5 className="text-sm font-medium text-blue-400">Dirección MAC</h5>
+                      </div>
+                      <div className="text-sm text-white/70 space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="flex-shrink-0 w-5 h-5 bg-blue-500/20 rounded-full flex items-center justify-center text-xs font-medium text-blue-400">1</span>
+                          <span>Busca en tu dispositivo físico la dirección MAC impresa</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="flex-shrink-0 w-5 h-5 bg-blue-500/20 rounded-full flex items-center justify-center text-xs font-medium text-blue-400">2</span>
+                          <span>O consulta en <a href="https://www.ecowitt.net/home/manage" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline transition-colors">EcoWitt/Manage</a></span>
+                        </div>
+                        <div className="mt-3 p-2 bg-white/5 rounded border border-white/10">
+                          <p className="text-xs text-white/50 mb-1">Formato esperado:</p>
+                          <code className="text-xs text-emerald-400 font-mono">AA:BB:CC:DD:EE:FF</code>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tips adicionales */}
+                  <div className="mt-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></div>
+                      <p className="text-xs text-emerald-300">
+                        <strong>Tip:</strong> Guarda tus credenciales en un lugar seguro. Las necesitarás cada vez que agregues un nuevo dispositivo.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -673,31 +748,50 @@ const AddDevicePage: React.FC = () => {
 
         {/* Progress Steps */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                  currentStep >= step.id
-                    ? 'bg-emerald-500 border-emerald-500 text-white'
-                    : 'border-white/20 text-white/50'
-                }`}>
-                  <step.icon className="w-5 h-5" />
-                </div>
-                {index < steps.length - 1 && (
-                  <div className={`w-16 h-0.5 mx-4 ${
-                    currentStep > step.id ? 'bg-emerald-500' : 'bg-white/20'
-                  }`} />
-                )}
+          <div className="relative">
+            {/* Progress Bar with Integrated Steps */}
+            <div className="relative mb-8">
+              {/* Progress Bar Background */}
+              <div className="absolute top-5 left-0 right-0 h-0.5 bg-white/20 rounded-full"></div>
+              
+              {/* Progress Bar Fill */}
+              <div 
+                className="absolute top-5 left-0 h-0.5 bg-emerald-500 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${(currentStep / steps.length) * 100}%` }}
+              ></div>
+              
+              {/* Steps Integrated in Progress Bar */}
+              <div className="relative flex items-center justify-between">
+                {steps.map((step, index) => (
+                  <div key={step.id} className="flex flex-col items-center">
+                    {/* Step Circle Integrated in Progress Bar */}
+                    <div className={`
+                      relative flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 z-10
+                      ${currentStep >= step.id 
+                        ? 'bg-emerald-500 border-emerald-500 text-white' 
+                        : 'bg-gray-900 border-white/30 text-white/50'
+                      }
+                    `}>
+                      <step.icon className="w-5 h-5" />
+                    </div>
+                    
+                    {/* Step Label */}
+                    <div className="mt-4 text-center">
+                      <h3 className={`text-sm font-medium transition-all duration-300 ${
+                        currentStep >= step.id ? 'text-white' : 'text-white/50'
+                      }`}>
+                        {step.title}
+                      </h3>
+                      <p className={`text-xs mt-1 transition-all duration-300 ${
+                        currentStep >= step.id ? 'text-white/70' : 'text-white/40'
+                      }`}>
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="flex justify-between mt-4">
-            {steps.map((step) => (
-              <div key={step.id} className={`text-center ${currentStep >= step.id ? 'text-white' : 'text-white/50'}`}>
-                <h3 className="text-sm font-medium">{step.title}</h3>
-                <p className="text-xs">{step.description}</p>
-              </div>
-            ))}
+            </div>
           </div>
         </div>
 

@@ -1,28 +1,28 @@
 // ============================================================================
 // USE REPORTS HOOK
-// Custom hook for managing report generation
+// Manages report generation state and operations
 // ============================================================================
 
 import { useState, useCallback } from 'react';
 import { reportService, ReportRequest, ReportResponse, UserReportsResponse } from '../services/reportService';
+import { useRouter } from 'next/navigation';
 
-interface UseReportsReturn {
-  // State
+export interface UseReportsReturn {
   loading: boolean;
   error: string | null;
   success: string | null;
   generatedReport: ReportResponse | null;
   userReports: UserReportsResponse['data'];
-  
-  // Actions
   generateDeviceReport: (request: Omit<ReportRequest, 'groupId'>) => Promise<void>;
   generateGroupReport: (request: Omit<ReportRequest, 'deviceId'>) => Promise<void>;
   getUserReports: (userId: string) => Promise<void>;
   downloadReport: (fileURL: string, fileName: string) => Promise<void>;
-  viewReport: (fileURL: string) => void;
+  viewReport: (fileURL: string) => Promise<void>;
   clearError: () => void;
   clearSuccess: () => void;
   clearReport: () => void;
+  // Nueva funcionalidad para navegar al chat creado
+  navigateToChat: (chatID: string) => void;
 }
 
 export const useReports = (): UseReportsReturn => {
@@ -31,6 +31,7 @@ export const useReports = (): UseReportsReturn => {
   const [success, setSuccess] = useState<string | null>(null);
   const [generatedReport, setGeneratedReport] = useState<ReportResponse | null>(null);
   const [userReports, setUserReports] = useState<UserReportsResponse['data']>([]);
+  const router = useRouter();
 
   const generateDeviceReport = useCallback(async (request: Omit<ReportRequest, 'groupId'>) => {
     setLoading(true);
@@ -42,6 +43,11 @@ export const useReports = (): UseReportsReturn => {
       const response = await reportService.generateDeviceReport(request);
       setGeneratedReport(response);
       setSuccess(response.message);
+      
+      // Si se creó un chat automático, mostrar información adicional
+      if (response.data.chat) {
+        setSuccess(prev => prev + ' Se ha creado un chat automático para analizar el reporte.');
+      }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al generar reporte de dispositivo');
     } finally {
@@ -59,6 +65,11 @@ export const useReports = (): UseReportsReturn => {
       const response = await reportService.generateGroupReport(request);
       setGeneratedReport(response);
       setSuccess(response.message);
+      
+      // Si se creó un chat automático, mostrar información adicional
+      if (response.data.chat) {
+        setSuccess(prev => prev + ' Se ha creado un chat automático para analizar el reporte.');
+      }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al generar reporte de grupo');
     } finally {
@@ -84,12 +95,16 @@ export const useReports = (): UseReportsReturn => {
     try {
       await reportService.downloadReport(fileURL, fileName);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error al descargar reporte');
+      setError(error instanceof Error ? error.message : 'Error al descargar el reporte');
     }
   }, []);
 
-  const viewReport = useCallback((fileURL: string) => {
-    window.open(fileURL, '_blank');
+  const viewReport = useCallback(async (fileURL: string) => {
+    try {
+      await reportService.viewReport(fileURL);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Error al visualizar el reporte');
+    }
   }, []);
 
   const clearError = useCallback(() => {
@@ -104,15 +119,17 @@ export const useReports = (): UseReportsReturn => {
     setGeneratedReport(null);
   }, []);
 
+  // Nueva funcionalidad para navegar al chat creado automáticamente
+  const navigateToChat = useCallback((chatID: string) => {
+    router.push(`/playground/chat/${chatID}`);
+  }, [router]);
+
   return {
-    // State
     loading,
     error,
     success,
     generatedReport,
     userReports,
-    
-    // Actions
     generateDeviceReport,
     generateGroupReport,
     getUserReports,
@@ -121,5 +138,6 @@ export const useReports = (): UseReportsReturn => {
     clearError,
     clearSuccess,
     clearReport,
+    navigateToChat
   };
 }; 
