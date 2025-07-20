@@ -343,7 +343,7 @@ const DeviceSelector: React.FC<DeviceSelectorProps> = ({
                 <div
                   key={group.DeviceGroupID}
                   onClick={() => handleGroupClick(group)}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:scale-105 ${
+                  className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
                     selectedGroup?.DeviceGroupID === group.DeviceGroupID
                       ? 'bg-emerald-500/20 border-emerald-500/30 shadow-lg'
                       : 'bg-white/10 border-white/20 hover:bg-white/20'

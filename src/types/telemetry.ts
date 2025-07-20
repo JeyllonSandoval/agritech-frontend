@@ -401,6 +401,13 @@ export interface TelemetryState {
     deviceInfo: Record<string, DeviceInfoData>;
     deviceCharacteristics: Record<string, DeviceCharacteristicsData>;
   };
+  // NUEVO: Datos precargados de grupos
+  precachedGroupData?: {
+    groupDevices: Record<string, string[]>;
+    groupDevicesInfo: Record<string, Record<string, DeviceInfoData>>;
+    groupDevicesCharacteristics: Record<string, Record<string, DeviceCharacteristicsData>>;
+    groupRealtimeData: Record<string, GroupRealtimeResponse>;
+  };
 }
 
 export interface TelemetryFilters {

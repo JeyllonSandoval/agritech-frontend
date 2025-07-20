@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon, DevicePhoneMobileIcon, WifiIcon, CheckCircleIcon, PlayCircleIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import telemetryService from '../../../services/telemetryService';
@@ -60,6 +60,22 @@ const AddDevicePage: React.FC = () => {
 
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
+  // Validar automáticamente el formulario cuando se está en el paso 2
+  useEffect(() => {
+    if (currentStep === 2) {
+      // Validar todos los campos cuando se está en el paso 2
+      const errors: ValidationErrors = {};
+      Object.keys(formData).forEach((key) => {
+        const field = key as keyof DeviceFormData;
+        const error = validateField(field, formData[field]);
+        if (error) {
+          errors[field] = error;
+        }
+      });
+      setValidationErrors(errors);
+    }
+  }, [currentStep, formData]);
+
   const steps = [
     {
       id: 1,
@@ -81,7 +97,7 @@ const AddDevicePage: React.FC = () => {
     }
   ];
 
-  const checklist = [
+  const checklistData = [
     {
       id: '1',
       text: 'Descargar la aplicación EcoWitt en tu dispositivo móvil',
@@ -104,7 +120,7 @@ const AddDevicePage: React.FC = () => {
     }
   ];
 
-  const [checklist, setChecklist] = useState(checklist);
+  const [checklist, setChecklist] = useState(checklistData);
 
   // ============================================================================
   // VALIDATION FUNCTIONS
@@ -128,14 +144,23 @@ const AddDevicePage: React.FC = () => {
       
       case 'deviceApplicationKey':
         if (!value.trim()) return 'La Application Key es requerida';
-        if (value.length < 10) return 'La Application Key debe tener al menos 10 caracteres';
-        if (!/^[a-zA-Z0-9]+$/.test(value)) return 'La Application Key solo puede contener letras y números';
+        if (value.length < 5) return 'La Application Key debe tener al menos 5 caracteres';
+        // Permitir cualquier string con caracteres alfanuméricos, guiones, guiones bajos y dos puntos
+        if (!/^[a-zA-Z0-9:_-]+$/.test(value)) return 'La Application Key solo puede contener letras, números, guiones, guiones bajos y dos puntos';
         return undefined;
       
       case 'deviceApiKey':
         if (!value.trim()) return 'La API Key es requerida';
-        if (value.length < 10) return 'La API Key debe tener al menos 10 caracteres';
-        // Permitir cualquier string, sin más reglas
+        if (value.length < 5) return 'La API Key debe tener al menos 5 caracteres';
+        // Permitir cualquier string con caracteres alfanuméricos, guiones, guiones bajos y dos puntos
+        if (!/^[a-zA-Z0-9:_-]+$/.test(value)) return 'La API Key solo puede contener letras, números, guiones, guiones bajos y dos puntos';
+        return undefined;
+      
+      case 'deviceType':
+        if (!value.trim()) return 'El tipo de dispositivo es requerido';
+        // Validar que el tipo esté en la lista de tipos válidos
+        const validTypes = DEVICE_TYPES.map(t => t.value);
+        if (!validTypes.includes(value)) return 'Tipo de dispositivo inválido';
         return undefined;
       
       default:
@@ -170,12 +195,21 @@ const AddDevicePage: React.FC = () => {
     
     // Validar el campo en tiempo real
     const error = validateField(field, value);
-    setValidationErrors(prev => ({
-      ...prev,
-      [field]: error
-    }));
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      if (error) {
+        newErrors[field] = error;
+      } else {
+        // Limpiar el error si el campo es válido
+        delete newErrors[field];
+      }
+      return newErrors;
+    });
     
-    if (error) setError(null);
+    // Limpiar error general si hay un error específico
+    if (error) {
+      setError(null);
+    }
   };
 
   const handleChecklistChange = (id: string, completed: boolean) => {
@@ -195,12 +229,16 @@ const AddDevicePage: React.FC = () => {
 
   const handleNext = () => {
     if (currentStep < steps.length) {
+      // Limpiar errores al avanzar
+      setError(null);
       setCurrentStep(currentStep + 1);
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 1) {
+      // Limpiar errores al retroceder
+      setError(null);
       setCurrentStep(currentStep - 1);
     }
   };
@@ -259,11 +297,13 @@ const AddDevicePage: React.FC = () => {
       case 1:
         return checklist.every(item => item.completed);
       case 2:
-        return Object.keys(validationErrors).length === 0 && 
-               formData.deviceName && 
-               formData.deviceMac && 
-               formData.deviceApplicationKey && 
-               formData.deviceApiKey;
+        // Verificar que todos los campos requeridos estén llenos y sin errores de validación
+        return formData.deviceName.trim() && 
+               formData.deviceMac.trim() && 
+               formData.deviceApplicationKey.trim() && 
+               formData.deviceApiKey.trim() &&
+               formData.deviceType.trim() &&
+               Object.keys(validationErrors).length === 0;
       case 3:
         return true;
       default:
@@ -279,7 +319,7 @@ const AddDevicePage: React.FC = () => {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-6">
+          <div className="space-y-6 text-lg">
             {/* Video Section */}
             <div className="bg-white/10 rounded-lg p-6">
               <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
@@ -297,8 +337,18 @@ const AddDevicePage: React.FC = () => {
               </button>
               {showVideo && (
                 <div className="mt-4 p-4 bg-white/5 rounded-lg">
-                  <p className="text-white/70 text-sm">
-                    Video tutorial de configuración de EcoWitt (implementar cuando esté disponible)
+                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      src="https://www.youtube.com/embed/gIf-sgLexV8"
+                      title="Tutorial de Configuración EcoWitt"
+                      className="absolute top-0 left-0 w-full h-full rounded-lg"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                  <p className="text-white/70 text-sm mt-3">
+                    Video tutorial oficial de EcoWitt para configurar tu dispositivo correctamente.
                   </p>
                 </div>
               )}
@@ -310,25 +360,85 @@ const AddDevicePage: React.FC = () => {
                 <h3 className="text-lg font-medium text-white">Lista de Verificación</h3>
                 <button
                   onClick={handleSelectAllChecks}
-                  className="text-sm text-emerald-400 hover:text-emerald-300"
+                  className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
                 >
                   {checklist.every(item => item.completed) ? 'Desmarcar Todo' : 'Marcar Todo'}
                 </button>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {checklist.map((item) => (
-                  <label key={item.id} className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={item.completed}
-                      onChange={(e) => handleChecklistChange(item.id, e.target.checked)}
-                      className="w-4 h-4 text-emerald-500 bg-white/10 border-white/20 rounded focus:ring-emerald-400"
-                    />
-                    <span className={`text-sm ${item.completed ? 'text-white/50 line-through' : 'text-white'}`}>
-                      {item.text}
-                    </span>
+                  <label key={item.id} className="flex items-start gap-4 cursor-pointer group">
+                    {/* Custom Checkbox */}
+                    <div className="relative flex-shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={item.completed}
+                        onChange={(e) => handleChecklistChange(item.id, e.target.checked)}
+                        className="sr-only"
+                      />
+                      <div className={`
+                        w-6 h-6 rounded-lg border-2 transition-all duration-200 flex items-center justify-center
+                        ${item.completed 
+                          ? 'bg-emerald-500 border-emerald-500 shadow-lg shadow-emerald-500/25' 
+                          : 'bg-white/5 border-white/30 group-hover:border-emerald-400 group-hover:bg-white/10'
+                        }
+                      `}>
+                        {item.completed && (
+                          <svg 
+                            className="w-4 h-4 text-white" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path 
+                              strokeLinecap="round" 
+                              strokeLinejoin="round" 
+                              strokeWidth={3} 
+                              d="M5 13l4 4L19 7" 
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Text Content */}
+                    <div className="flex-1 pt-0.5">
+                      <span className={`
+                        text-base leading-relaxed transition-all duration-200
+                        ${item.completed 
+                          ? 'text-white/60 line-through' 
+                          : 'text-white group-hover:text-white/90'
+                        }
+                      `}>
+                        {item.text}
+                      </span>
+                      
+                      {/* Progress indicator */}
+                      {item.completed && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                          <span className="text-xs text-emerald-400 font-medium">Completado</span>
+                        </div>
+                      )}
+                    </div>
                   </label>
                 ))}
+              </div>
+              
+              {/* Progress Bar */}
+              <div className="mt-6">
+                <div className="flex items-center justify-between text-sm text-white/60 mb-2">
+                  <span>Progreso</span>
+                  <span>{checklist.filter(item => item.completed).length} de {checklist.length}</span>
+                </div>
+                <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500 ease-out"
+                    style={{ 
+                      width: `${(checklist.filter(item => item.completed).length / checklist.length) * 100}%` 
+                    }}
+                  ></div>
+                </div>
               </div>
             </div>
 
@@ -350,7 +460,7 @@ const AddDevicePage: React.FC = () => {
 
       case 2:
         return (
-          <div className="space-y-6">
+          <div className="space-y-6 text-lg">
             {/* Device Information Form */}
             <div className="bg-white/10 rounded-lg p-6">
               <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
@@ -470,7 +580,7 @@ const AddDevicePage: React.FC = () => {
 
       case 3:
         return (
-          <div className="space-y-6">
+          <div className="space-y-6 text-lg">
             {/* Confirmation Summary */}
             <div className="bg-white/10 rounded-lg p-6">
               <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
@@ -545,7 +655,7 @@ const AddDevicePage: React.FC = () => {
   // ============================================================================
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+    <div className="min-h-screen text-lg">
       <div className="max-w-4xl mx-auto p-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
@@ -602,6 +712,8 @@ const AddDevicePage: React.FC = () => {
         <div className="mb-8">
           {renderStepContent()}
         </div>
+
+
 
         {/* Navigation */}
         <div className="flex justify-between">

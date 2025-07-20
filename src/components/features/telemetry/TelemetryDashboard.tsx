@@ -44,91 +44,7 @@ interface TelemetryDashboardProps {
   pollInterval?: number;
 }
 
-// ============================================================================
-// AUTO LOAD PROGRESS COMPONENT
-// ============================================================================
 
-const AutoLoadProgress: React.FC<{
-  autoLoadProgress: {
-    devices: boolean;
-    groups: boolean;
-    initialData: boolean;
-  };
-  autoLoadComplete: boolean;
-}> = ({ autoLoadProgress, autoLoadComplete }) => {
-  if (autoLoadComplete) return null;
-
-  const progressSteps = [
-    { key: 'devices', label: 'Cargando dispositivos...', completed: autoLoadProgress.devices },
-    { key: 'groups', label: 'Cargando grupos...', completed: autoLoadProgress.groups },
-    { key: 'initialData', label: 'Precargando datos...', completed: autoLoadProgress.initialData }
-  ];
-
-  const completedSteps = progressSteps.filter(step => step.completed).length;
-  const totalSteps = progressSteps.length;
-  const progressPercentage = (completedSteps / totalSteps) * 100;
-
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-gradient-to-br from-emerald-900/90 to-blue-900/90 backdrop-blur-xl rounded-3xl p-8 border border-emerald-400/30 shadow-2xl max-w-md w-full mx-4">
-        <div className="text-center">
-          {/* Animated Icon */}
-          <div className="relative mb-6">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-emerald-400/30 mx-auto">
-              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-emerald-400 animate-spin"></div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <svg className="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-          </div>
-          
-          <h3 className="text-xl font-semibold text-white mb-2">Cargando datos automáticamente</h3>
-          <p className="text-emerald-200/80 text-sm mb-6">Preparando todo para una experiencia fluida</p>
-          
-          {/* Progress Bar */}
-          <div className="w-full bg-white/10 rounded-full h-3 mb-6 overflow-hidden">
-            <div 
-              className="bg-gradient-to-r from-emerald-400 to-blue-400 h-3 rounded-full transition-all duration-700 ease-out"
-              style={{ width: `${progressPercentage}%` }}
-            ></div>
-          </div>
-
-          {/* Progress Steps */}
-          <div className="space-y-3">
-            {progressSteps.map((step, index) => (
-              <div key={step.key} className="flex items-center gap-3">
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                  step.completed 
-                    ? 'bg-emerald-400 border-emerald-400 scale-110' 
-                    : 'border-white/40'
-                }`}>
-                  {step.completed && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <span className={`text-sm transition-all duration-300 ${
-                  step.completed ? 'text-emerald-200' : 'text-white/60'
-                }`}>
-                  {step.label}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-white/10">
-            <p className="text-xs text-white/50">
-              Esto solo ocurre la primera vez para optimizar tu experiencia
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
   deviceType,
@@ -198,7 +114,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     pollInterval
   });
 
-  // Hook centralizado para clima del dispositivo seleccionado
+  // Hook centralizado para clima - solo activo según la selección
   const {
     weatherData: basicWeatherData,
     loading: weatherLoadingBasic,
@@ -211,7 +127,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     group: undefined
   });
 
-  // Hook centralizado para clima del grupo seleccionado
+  // Hook centralizado para clima del grupo - solo activo cuando no hay dispositivo seleccionado
   const {
     weatherData: groupWeatherData,
     loading: groupWeatherLoading,
@@ -221,7 +137,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     device: null,
     deviceInfo: null,
     deviceCharacteristics: null,
-    group: selectedGroup,
+    group: selectedGroup && !selectedDevice ? selectedGroup : null, // Solo activo si no hay dispositivo seleccionado
     groupDevicesCharacteristics
   });
 
@@ -434,12 +350,6 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
 
   return (
     <>
-      {/* Auto Load Progress Overlay */}
-      <AutoLoadProgress 
-        autoLoadProgress={autoLoadProgress}
-        autoLoadComplete={autoLoadComplete}
-      />
-
       <div className=" p-4">
         <div className="max-w-7xl mx-auto space-y-6">
           
@@ -684,37 +594,23 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
               </div>
               {/* Panel de datos climáticos */}
               <div className="lg:col-span-2 space-y-6">
-                {/* No Device or Group Selected */}
+                {/* Mensaje cuando no hay dispositivo seleccionado */}
                 {!selectedDevice && !selectedGroup && (
                   <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-lg">
                     <div className="text-center">
-                      <svg className="w-16 h-16 text-blue-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                      <svg className="w-16 h-16 text-blue-400/30 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" />
                       </svg>
                       <h3 className="text-lg font-semibold text-white mb-2">Selecciona un Dispositivo o Grupo</h3>
                       <p className="text-white/60 text-sm">
-                        Selecciona un dispositivo o grupo de la lista para ver sus datos climáticos
+                        Selecciona un dispositivo o grupo de la lista para ver los datos climáticos
                       </p>
                     </div>
                   </div>
                 )}
-                {/* Loading state */}
-                {(weatherLoadingBasic || groupWeatherLoading) && (
-                  <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-lg flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
-                    <span className="ml-3 text-white/70 text-sm">Cargando clima...</span>
-                  </div>
-                )}
-
-                {/* Error state - only show when not loading */}
-                {(weatherErrorBasic || groupWeatherError) && !weatherLoadingBasic && !groupWeatherLoading && (
-                  <div className="text-lg bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm text-red-300">
-                    {weatherErrorBasic || groupWeatherError}
-                  </div>
-                )}
 
                 {/* Weather data for individual device */}
-                {selectedDevice && basicWeatherData && !weatherLoadingBasic && (
+                {selectedDevice && !selectedGroup && basicWeatherData && !weatherLoadingBasic && (
                   (() => {
                     let latitude = deviceInfo?.latitude;
                     let longitude = deviceInfo?.longitude;
@@ -755,7 +651,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                 )}
 
                 {/* Weather data for group */}
-                {selectedGroup && groupWeatherData && !groupWeatherLoading && (
+                {selectedGroup && !selectedDevice && groupWeatherData && !groupWeatherLoading && (
                   (() => {
                     const avgLoc = getGroupAverageLocation(selectedGroup);
                     if (avgLoc) {

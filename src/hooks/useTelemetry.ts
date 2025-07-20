@@ -556,7 +556,11 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
         const deviceDataResults = await Promise.all(deviceDataPromises);
         
         // Almacenar datos precargados en el estado
-        const precachedData = {
+        const precachedData: {
+          realtimeData: Record<string, RealtimeData>;
+          deviceInfo: Record<string, DeviceInfoData>;
+          deviceCharacteristics: Record<string, DeviceCharacteristicsData>;
+        } = {
           realtimeData: {},
           deviceInfo: {},
           deviceCharacteristics: {}
@@ -629,11 +633,11 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
               return {
                 groupId: group.DeviceGroupID,
                 deviceIds,
-                deviceInfo: groupDeviceResults.reduce((acc, result) => {
+                deviceInfo: groupDeviceResults.reduce<Record<string, DeviceInfoData>>((acc, result) => {
                   if (result.deviceInfo) acc[result.deviceId] = result.deviceInfo;
                   return acc;
                 }, {}),
-                deviceCharacteristics: groupDeviceResults.reduce((acc, result) => {
+                deviceCharacteristics: groupDeviceResults.reduce<Record<string, DeviceCharacteristicsData>>((acc, result) => {
                   if (result.deviceCharacteristics) acc[result.deviceId] = result.deviceCharacteristics;
                   return acc;
                 }, {}),
@@ -650,7 +654,12 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
         const groupDataResults = await Promise.all(groupDataPromises);
         
         // Almacenar datos precargados de grupos
-        const precachedGroupData = {
+        const precachedGroupData: {
+          groupDevices: Record<string, string[]>;
+          groupDevicesInfo: Record<string, Record<string, DeviceInfoData>>;
+          groupDevicesCharacteristics: Record<string, Record<string, DeviceCharacteristicsData>>;
+          groupRealtimeData: Record<string, GroupRealtimeResponse>;
+        } = {
           groupDevices: {},
           groupDevicesInfo: {},
           groupDevicesCharacteristics: {},
@@ -666,16 +675,21 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
           }
         });
 
-        // Guardar datos precargados de grupos
-        setGroupDevices(precachedGroupData.groupDevices[state.groups[0]?.DeviceGroupID] || []);
-        setGroupDevicesInfo(precachedGroupData.groupDevicesInfo[state.groups[0]?.DeviceGroupID] || {});
-        setGroupDevicesCharacteristics(precachedGroupData.groupDevicesCharacteristics[state.groups[0]?.DeviceGroupID] || {});
-        setGroupRealtimeData(precachedGroupData.groupRealtimeData[state.groups[0]?.DeviceGroupID] || {});
+        // Guardar datos precargados de grupos en el estado global
+        updateState({
+          precachedGroupData: precachedGroupData
+        });
 
         // Si no hay dispositivos pero sí grupos, seleccionar el primer grupo
         if (state.devices.length === 0 && state.groups.length > 0) {
           const firstGroup = state.groups[0];
           selectGroup(firstGroup);
+          
+          // Cargar datos del primer grupo desde el caché
+          setGroupDevices(precachedGroupData.groupDevices[firstGroup.DeviceGroupID] || []);
+          setGroupDevicesInfo(precachedGroupData.groupDevicesInfo[firstGroup.DeviceGroupID] || {});
+          setGroupDevicesCharacteristics(precachedGroupData.groupDevicesCharacteristics[firstGroup.DeviceGroupID] || {});
+          setGroupRealtimeData(precachedGroupData.groupRealtimeData[firstGroup.DeviceGroupID] || {});
         }
       }
 
@@ -732,10 +746,23 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
       return;
     }
 
-    // Los datos de grupos ya están precargados en el estado
-    console.log('🚀 [HOOK] Seleccionando grupo con datos precargados:', group.GroupName);
-    updateState({ selectedGroup: group });
-  }, [updateState]);
+    // Usar datos precargados si están disponibles
+    const precachedGroupData = state.precachedGroupData;
+    if (precachedGroupData && precachedGroupData.groupDevices[group.DeviceGroupID]) {
+      console.log('🚀 [HOOK] Usando datos precargados para grupo:', group.GroupName);
+      updateState({ selectedGroup: group });
+      
+      // Cargar datos del grupo desde el caché
+      setGroupDevices(precachedGroupData.groupDevices[group.DeviceGroupID] || []);
+      setGroupDevicesInfo(precachedGroupData.groupDevicesInfo[group.DeviceGroupID] || {});
+      setGroupDevicesCharacteristics(precachedGroupData.groupDevicesCharacteristics[group.DeviceGroupID] || {});
+      setGroupRealtimeData(precachedGroupData.groupRealtimeData[group.DeviceGroupID] || {});
+    } else {
+      // Fallback a carga tradicional si no hay datos precargados
+      console.log('📡 [HOOK] Cargando datos del grupo:', group.GroupName);
+      updateState({ selectedGroup: group });
+    }
+  }, [state.precachedGroupData, updateState]);
 
   // ============================================================================
   // EFFECTS
@@ -800,10 +827,30 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   useEffect(() => {
     if (state.selectedGroup && state.selectedGroup.DeviceGroupID) {
       const groupId = state.selectedGroup.DeviceGroupID;
-      console.log('🚀 [HOOK] Seleccionando grupo con datos precargados:', state.selectedGroup.GroupName);
+      const precachedGroupData = state.precachedGroupData;
       
-      // Los datos ya están precargados, no necesitamos cargar
-      setLoading(false);
+      // Si no hay datos precargados, cargar normalmente
+      if (!precachedGroupData || !precachedGroupData.groupDevices[groupId]) {
+        console.log('📡 [HOOK] Cargando datos del grupo (no precargados):', state.selectedGroup.GroupName);
+        setLoading(true);
+        
+        Promise.all([
+          fetchGroupDevices(groupId),
+          fetchGroupRealtimeData(groupId)
+        ]).then(async ([deviceIds]) => {
+          if (deviceIds.length > 0) {
+            await Promise.all([
+              fetchGroupDevicesInfo(deviceIds),
+              fetchGroupDevicesCharacteristics(deviceIds)
+            ]);
+          }
+        }).finally(() => {
+          setLoading(false);
+        });
+      } else {
+        console.log('🚀 [HOOK] Usando datos precargados para grupo:', state.selectedGroup.GroupName);
+        setLoading(false);
+      }
     } else {
       console.log('🔍 [HOOK] No group selected, clearing data');
       setGroupDevices([]);
@@ -812,7 +859,7 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
       setGroupRealtimeData({});
       updateState({ weatherData: null });
     }
-  }, [state.selectedGroup, updateState, setLoading]);
+  }, [state.selectedGroup, state.precachedGroupData, fetchGroupDevices, fetchGroupDevicesInfo, fetchGroupDevicesCharacteristics, fetchGroupRealtimeData, updateState, setLoading]);
 
   // Cleanup on unmount
   useEffect(() => {

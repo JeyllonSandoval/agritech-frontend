@@ -190,7 +190,7 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                                 if (!files || files.length === 0) return { FileName: translations.loadingFile };
                                 return { FileName: translations.fileNotFound };
                             })() : undefined}
-                            isLoading={message.isLoading || (message.FileID && (!files || files.length === 0))}
+                            isLoading={message.isLoading || Boolean(message.FileID && (!files || files.length === 0))}
                         />
                     </div>
                 );

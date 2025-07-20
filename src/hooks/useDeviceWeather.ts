@@ -85,8 +85,18 @@ export function useDeviceWeather({
 
     setLoading(true);
     setError(null);
-    try {
-      let lat: number | null = null;
+
+    // Bucle de reintentos para obtener datos del clima
+    let attempts = 0;
+    const maxAttempts = 5;
+    const retryDelay = 2000; // 2 segundos entre intentos
+
+    while (attempts < maxAttempts) {
+      attempts++;
+      console.log(`🔍 [useDeviceWeather] Attempt ${attempts}/${maxAttempts} to fetch weather data`);
+      
+      try {
+        let lat: number | null = null;
       let lon: number | null = null;
       
       // 1. Buscar en deviceInfo
@@ -130,50 +140,60 @@ export function useDeviceWeather({
       }
       
       if (lat == null || lon == null) {
-        console.log('🔍 [useDeviceWeather] No location found, showing error');
-        setError('No se pudo determinar la ubicación para obtener el clima.');
+        console.log('🔍 [useDeviceWeather] No location found, silently failing');
+        setError(null); // No mostrar error al usuario
         setWeatherData(null);
         setLoading(false);
         return;
       }
       
-      console.log('🔍 [useDeviceWeather] Fetching weather data for location:', { lat, lon });
-      const response = await telemetryService.getWeatherOverview(lat, lon, 'metric', 'es');
-      
-      if (!response.success) {
-        const errorMessage = Array.isArray(response.error) 
-          ? response.error.join('; ') 
-          : response.error || 'Error al obtener datos de clima';
+        console.log('🔍 [useDeviceWeather] Fetching weather data for location:', { lat, lon });
+        const response = await telemetryService.getWeatherOverview(lat, lon, 'metric', 'es');
         
-        // Manejar específicamente errores de timeout
-        if (errorMessage.toLowerCase().includes('timeout')) {
-          console.warn('🔍 [useDeviceWeather] Weather API timeout detected');
-          setError('Request timeout - OpenWeather API is not responding');
+        if (response.success && response.data) {
+          setWeatherData(response.data);
+          setError(null);
+          console.log('🔍 [useDeviceWeather] Weather data loaded successfully on attempt', attempts);
+          setLoading(false);
+          return; // Salir del bucle si fue exitoso
         } else {
-          setError(errorMessage);
+          const errorMessage = Array.isArray(response.error) 
+            ? response.error.join('; ') 
+            : response.error || 'Error al obtener datos de clima';
+          
+          console.warn(`🔍 [useDeviceWeather] Attempt ${attempts} failed:`, errorMessage);
+          
+          // Si es el último intento, no establecer error visible, solo logging
+          if (attempts === maxAttempts) {
+            console.warn('🔍 [useDeviceWeather] All attempts failed, but not showing error to user');
+            setError(null); // No mostrar error al usuario
+            setWeatherData(null);
+            setLoading(false);
+            return;
+          }
+          
+          // Esperar antes del siguiente intento
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
         }
-        setWeatherData(null);
-        setLoading(false);
-        return;
+      } catch (err: any) {
+        console.error(`🔍 [useDeviceWeather] Error on attempt ${attempts}:`, err);
+        
+        // Si es el último intento, no establecer error visible, solo logging
+        if (attempts === maxAttempts) {
+          console.warn('🔍 [useDeviceWeather] All attempts failed due to exception, but not showing error to user');
+          setError(null); // No mostrar error al usuario
+          setWeatherData(null);
+          setLoading(false);
+          return;
+        }
+        
+        // Esperar antes del siguiente intento
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
       }
-      
-      setWeatherData(response.data || null);
-      setError(null); // Limpiar errores previos si la carga fue exitosa
-      console.log('🔍 [useDeviceWeather] Weather data loaded successfully');
-    } catch (err: any) {
-      console.error('🔍 [useDeviceWeather] Error fetching weather:', err);
-      
-      // Manejar específicamente errores de timeout
-      const errorMessage = err.message || 'Error al obtener datos de clima';
-      if (errorMessage.toLowerCase().includes('timeout')) {
-        setError('Request timeout - OpenWeather API is not responding');
-      } else {
-        setError(errorMessage);
-      }
-      setWeatherData(null);
-    } finally {
-      setLoading(false);
     }
+    
+    // Si llegamos aquí, todos los intentos fallaron
+    setLoading(false);
   }, [device, deviceInfo, deviceCharacteristics, group, groupDevicesCharacteristics]);
 
   useEffect(() => {

@@ -193,17 +193,6 @@ export const DeviceEditForm: React.FC<DeviceEditFormProps> = ({
                 <option value="Indoor" className="bg-gray-800 text-white">Interior</option>
               </select>
             </div>
-
-            {/* Información del propietario (solo lectura) */}
-            <div>
-              <label className="block text-sm text-white mb-1">Propietario</label>
-              <div className="w-full px-3 py-2 rounded-lg bg-white/10 text-white/70 border border-white/20 text-base">
-                {device.UserID}
-              </div>
-              <p className="text-xs text-white/50 mt-1">
-                El propietario no se puede cambiar
-              </p>
-            </div>
           </div>
         </div>
 

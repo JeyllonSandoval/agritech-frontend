@@ -123,41 +123,25 @@ const WeatherDataDisplay: React.FC<WeatherDataDisplayProps> = ({
     });
   };
 
-  // Mostrar error si existe
-  if (error) {
-    return (
-      <WeatherErrorHandler
-        error={error}
-        onRetry={onRefresh || (() => {})}
-        isLoading={loading}
-      />
-    );
-  }
-
-  // Mostrar loading
-  if (loading) {
+  // No mostrar errores, solo loading mientras se intenta obtener datos
+  if (error && loading) {
     return (
       <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400"></div>
-          <span className="ml-3 text-white/70 text-sm">Actualizando clima...</span>
+          <span className="ml-3 text-white/70 text-sm">Obteniendo datos del clima...</span>
         </div>
       </div>
     );
   }
 
-  // Mostrar error si no hay datos
-  if (!weatherData) {
-    return (
-      <WeatherErrorHandler
-        error="No se pudieron cargar los datos del clima"
-        onRetry={onRefresh || (() => {})}
-        isLoading={loading}
-      />
-    );
+
+  // No mostrar nada si está cargando o no hay datos
+  if (loading || !weatherData) {
+    return null;
   }
 
-  const current = weatherData.current;
+  const current = weatherData!.current;
   const weather = current.weather[0];
   const uvInfo = getUVLevel(current.uvi);
 
@@ -283,11 +267,11 @@ const WeatherDataDisplay: React.FC<WeatherDataDisplayProps> = ({
         </div>
 
         {/* Hourly Forecast */}
-        {weatherData.hourly && weatherData.hourly.length > 0 && (
+        {weatherData!.hourly && weatherData!.hourly.length > 0 && (
           <div className="bg-white/10 border border-white/20 rounded-xl p-6 backdrop-blur-sm">
             <h4 className="text-lg font-semibold text-white mb-4">Pronóstico por Horas</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {weatherData.hourly.slice(0, 12).map((hour, index) => {
+              {weatherData!.hourly.slice(0, 12).map((hour, index) => {
                 // Icono dinámico según el clima
                 const hourWeatherId = hour.weather[0].id;
                 let HourIcon = null;
@@ -335,11 +319,11 @@ const WeatherDataDisplay: React.FC<WeatherDataDisplayProps> = ({
         )}
 
         {/* Daily Forecast */}
-        {weatherData.daily && weatherData.daily.length > 0 && (
+        {weatherData!.daily && weatherData!.daily.length > 0 && (
           <div className="bg-white/10 border border-white/20 rounded-xl p-6 backdrop-blur-sm">
             <h4 className="text-lg font-semibold text-white mb-4">Pronóstico de 7 Días</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
-              {weatherData.daily.slice(0, 7).map((day, index) => {
+              {weatherData!.daily.slice(0, 7).map((day, index) => {
                 // Icono dinámico igual que en el pronóstico por horas
                 const dayWeatherId = day.weather[0].id;
                 let DayIcon = null;
