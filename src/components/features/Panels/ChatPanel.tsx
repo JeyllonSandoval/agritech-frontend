@@ -84,7 +84,14 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
     const handleDeviceDataSend = (deviceData: string) => {
         if (!currentChat) return;
         
-        // Enviar como mensaje normal de usuario para que se guarde en la DB
+        console.log('🔍 [ChatPanel] handleDeviceDataSend llamado con:', {
+            deviceDataLength: deviceData.length,
+            containsDeviceData: deviceData.includes('Datos del Dispositivo:'),
+            currentChatId: currentChat.ChatID
+        });
+        
+        // Enviar como mensaje normal de usuario SIN FileID para que se guarde en la DB
+        // No pasar FileID para que no se asocie con un archivo
         sendMessage(deviceData);
     };
 

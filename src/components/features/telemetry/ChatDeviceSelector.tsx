@@ -190,6 +190,14 @@ const ChatDeviceSelector: React.FC<ChatDeviceSelectorProps> = ({
       
       console.log('🔍 [ChatDeviceSelector] Datos formateados para enviar:', deviceData);
       
+      // Test: Verificar que los datos se envían correctamente
+      console.log('🔍 [ChatDeviceSelector] Enviando datos del dispositivo:', {
+        deviceName: device.DeviceName,
+        dataLength: deviceData.length,
+        containsDeviceData: deviceData.includes('Datos del Dispositivo:'),
+        containsRealtimeData: deviceData.includes('Datos en Tiempo Real:')
+      });
+      
       onDeviceDataSend(deviceData);
       
       // No cerrar el selector automáticamente para permitir selecciones adicionales
@@ -207,18 +215,124 @@ const ChatDeviceSelector: React.FC<ChatDeviceSelectorProps> = ({
   const handleGroupSelect = async (group: Group) => {
     setSelectedGroup(group);
     setSelectedDevice(null);
+    setIsLoadingData(true);
     
     try {
-      // Para grupos, enviar información básica del grupo
-      const groupData = formatGroupDataForChat(group);
+      console.log('🔍 [ChatDeviceSelector] Seleccionando grupo:', group.GroupName);
+      
+      // 1. Obtener dispositivos del grupo
+      const groupDevicesResponse = await telemetryService.getGroupDevices(group.DeviceGroupID);
+      
+      console.log('🔍 [ChatDeviceSelector] Respuesta de dispositivos del grupo:', {
+        groupName: group.GroupName,
+        success: groupDevicesResponse.success,
+        hasData: !!groupDevicesResponse.data,
+        dataType: Array.isArray(groupDevicesResponse.data) ? 'array' : typeof groupDevicesResponse.data,
+        dataLength: Array.isArray(groupDevicesResponse.data) ? groupDevicesResponse.data.length : 'N/A',
+        rawData: groupDevicesResponse.data
+      });
+      
+      // Manejar diferentes formatos de respuesta como en useTelemetry
+      let deviceArray: any[] = [];
+      
+      if (groupDevicesResponse.success && Array.isArray(groupDevicesResponse.data)) {
+        deviceArray = groupDevicesResponse.data;
+      } else if (Array.isArray(groupDevicesResponse)) {
+        // Si la respuesta es directamente un array
+        deviceArray = groupDevicesResponse;
+      } else if (groupDevicesResponse.data && Array.isArray(groupDevicesResponse.data)) {
+        // Si la respuesta tiene data como array
+        deviceArray = groupDevicesResponse.data;
+      } else if (groupDevicesResponse && Array.isArray(groupDevicesResponse)) {
+        // Si la respuesta es directamente un array sin estructura
+        deviceArray = groupDevicesResponse;
+      }
+      
+      console.log('🔍 [ChatDeviceSelector] Array de dispositivos extraído:', deviceArray);
+      
+      const deviceIds = deviceArray.length > 0
+        ? deviceArray.map((d: any) => d.DeviceID || d.deviceId || d.id).filter(Boolean)
+        : [];
+
+      console.log('🔍 [ChatDeviceSelector] Dispositivos del grupo:', {
+        groupName: group.GroupName,
+        deviceIds: deviceIds,
+        deviceCount: deviceIds.length
+      });
+
+      if (deviceIds.length === 0) {
+        console.warn('🔍 [ChatDeviceSelector] No hay dispositivos en el grupo');
+        const basicGroupData = formatBasicGroupData(group);
+        onDeviceDataSend(basicGroupData);
+        return;
+      }
+
+      // 2. Obtener información, características y datos en tiempo real de cada dispositivo
+      const deviceInfoPromises = deviceIds.map(async (deviceId) => {
+        try {
+          const [deviceInfoResponse, deviceCharacteristicsResponse, realtimeDataResponse] = await Promise.all([
+            telemetryService.getDeviceInfo(deviceId),
+            telemetryService.getDeviceCharacteristics(deviceId),
+            telemetryService.getRealtimeData(deviceId) // Obtener datos en tiempo real individuales
+          ]);
+
+          return {
+            deviceId,
+            deviceInfo: deviceInfoResponse.success ? deviceInfoResponse.data : null,
+            deviceCharacteristics: deviceCharacteristicsResponse.success ? deviceCharacteristicsResponse.data : null,
+            realtimeData: realtimeDataResponse.success ? realtimeDataResponse.data : null
+          };
+        } catch (error) {
+          console.error(`Error obteniendo datos del dispositivo ${deviceId}:`, error);
+          return {
+            deviceId,
+            deviceInfo: null,
+            deviceCharacteristics: null,
+            realtimeData: null
+          };
+        }
+      });
+
+      const deviceDataResults = await Promise.all(deviceInfoPromises);
+
+      console.log('🔍 [ChatDeviceSelector] Datos de dispositivos del grupo:', {
+        groupName: group.GroupName,
+        devicesWithData: deviceDataResults.filter(d => d.deviceInfo || d.deviceCharacteristics || d.realtimeData).length,
+        totalDevices: deviceDataResults.length
+      });
+
+      // 4. Formatear los datos del grupo para enviar al chat
+      console.log('🔍 [ChatDeviceSelector] Datos que se pasan a formatGroupDataForChat:', {
+        groupName: group.GroupName,
+        deviceDataResults: deviceDataResults.map(d => ({
+          deviceId: d.deviceId,
+          hasDeviceInfo: !!d.deviceInfo,
+          hasDeviceCharacteristics: !!d.deviceCharacteristics,
+          hasRealtimeData: !!d.realtimeData,
+          realtimeDataKeys: d.realtimeData ? Object.keys(d.realtimeData) : []
+        }))
+      });
+      
+      const groupData = formatGroupDataForChat(group, deviceDataResults);
+      
+      console.log('🔍 [ChatDeviceSelector] Datos del grupo formateados para enviar:', {
+        groupName: group.GroupName,
+        dataLength: groupData.length,
+        containsGroupData: groupData.includes('Datos del Grupo:'),
+        containsRealtimeData: groupData.includes('Datos en Tiempo Real:'),
+        dataPreview: groupData.substring(0, 200) + '...'
+      });
+      
       onDeviceDataSend(groupData);
       
       // No cerrar el selector automáticamente para permitir selecciones adicionales
       // onClose();
     } catch (error) {
-      console.error('Error formatting group data:', error);
+      console.error('Error obteniendo datos del grupo:', error);
       const basicGroupData = formatBasicGroupData(group);
       onDeviceDataSend(basicGroupData);
+    } finally {
+      setIsLoadingData(false);
     }
   };
 
@@ -356,59 +470,147 @@ const ChatDeviceSelector: React.FC<ChatDeviceSelectorProps> = ({
       data += `\n`;
     }
 
-    // Información de características si está disponible
-    if (deviceCharacteristics?.ecowittInfo?.data) {
-      const ecoData = deviceCharacteristics.ecowittInfo.data;
-      data += `Características:\n`;
-      if (ecoData.model) data += `- Modelo: ${ecoData.model}\n`;
-      if (ecoData.firmware_version) data += `- Firmware: ${ecoData.firmware_version}\n`;
-      if (ecoData.city && ecoData.country) data += `- Ubicación: ${ecoData.city}, ${ecoData.country}\n`;
-      if (ecoData.last_seen) data += `- Última Conexión: ${new Date(ecoData.last_seen).toLocaleString()}\n`;
-      data += `\n`;
-    }
+
 
     return data;
   };
 
   const formatBasicDeviceData = (device: DeviceInfo) => {
-    return `**📊 Datos del Dispositivo: ${device.DeviceName}**\n\n` +
-           `**Información Básica:**\n` +
-           `- **ID:** ${device.DeviceID}\n` +
-           `- **Nombre:** ${device.DeviceName}\n` +
-           `- **Tipo:** ${device.DeviceType}\n` +
-           `- **MAC:** ${device.DeviceMac}\n` +
-           `- **Estado:** ${device.status}\n\n` +
-           `*Nota: Los datos en tiempo real no están disponibles en este momento.*\n\n` +
-           `**💡 Puedes preguntarme sobre:**\n` +
+    return `Datos del Dispositivo: ${device.DeviceName}\n\n` +
+           `Información General:\n` +
+           `- Nombre: ${device.DeviceName}\n` +
+           `- Tipo: ${device.DeviceType}\n` +
+           `- Estado: ${device.status}\n\n` +
+           `Nota: Los datos en tiempo real no están disponibles en este momento.\n\n` +
+           `Puedes preguntarme sobre:\n` +
            `- Información general del dispositivo\n` +
            `- Configuración y características\n` +
            `- Estado y conectividad\n`;
   };
 
-  const formatGroupDataForChat = (group: Group) => {
-    return `**📊 Datos del Grupo: ${group.GroupName}**\n\n` +
-           `**Información del Grupo:**\n` +
-           `- **ID:** ${group.DeviceGroupID}\n` +
-           `- **Nombre:** ${group.GroupName}\n` +
-           `- **Descripción:** ${group.Description || 'Sin descripción'}\n` +
-           `- **Estado:** ${group.status}\n` +
-           `- **Creado:** ${new Date(group.createdAt).toLocaleDateString()}\n\n` +
-           `**💡 Puedes preguntarme sobre:**\n` +
-           `- Dispositivos en el grupo\n` +
-           `- Análisis comparativo entre dispositivos\n` +
-           `- Patrones climáticos en diferentes ubicaciones\n` +
-           `- Recomendaciones de optimización\n`;
+  const formatGroupDataForChat = (group: Group, deviceDataResults?: any[]) => {
+    let data = `Datos del Grupo: ${group.GroupName}\n\n`;
+    
+    // Información básica del grupo
+    data += `Información General:\n`;
+    data += `- Nombre: ${group.GroupName}\n`;
+    data += `- Descripción: ${group.Description || 'Sin descripción'}\n`;
+    data += `- Estado: ${group.status}\n`;
+    data += `- Creado: ${new Date(group.createdAt).toLocaleDateString()}\n\n`;
+
+    // Información de dispositivos en el grupo
+    if (deviceDataResults && deviceDataResults.length > 0) {
+      data += `Dispositivos en el Grupo:\n`;
+      deviceDataResults.forEach((deviceData, index) => {
+        const deviceName = deviceData.deviceInfo?.deviceName || 
+                          deviceData.deviceCharacteristics?.deviceName || 
+                          `Dispositivo ${index + 1}`;
+        data += `- ${deviceName}\n`;
+      });
+      data += `\n`;
+    }
+
+    // Datos en tiempo real del grupo
+    if (deviceDataResults && deviceDataResults.length > 0) {
+      data += `Datos en Tiempo Real del Grupo:\n`;
+      
+      deviceDataResults.forEach((deviceData) => {
+        const deviceName = deviceData.deviceInfo?.deviceName || 
+                          deviceData.deviceCharacteristics?.deviceName || 
+                          `Dispositivo ${deviceData.deviceId}`;
+        
+        data += `\n${deviceName}:\n`;
+        
+        console.log('🔍 [ChatDeviceSelector] Formateando datos para dispositivo:', {
+          deviceId: deviceData.deviceId,
+          deviceName,
+          hasRealtimeData: !!deviceData.realtimeData,
+          hasIndoor: !!deviceData.realtimeData?.indoor,
+          hasPressure: !!deviceData.realtimeData?.pressure,
+          hasSoil: !!deviceData.realtimeData?.soil_ch1,
+          hasBattery: !!deviceData.realtimeData?.battery,
+          realtimeDataKeys: deviceData.realtimeData ? Object.keys(deviceData.realtimeData) : []
+        });
+        
+        if (deviceData.realtimeData) {
+          // Sensores interiores
+          if (deviceData.realtimeData.indoor) {
+            if (deviceData.realtimeData.indoor.temperature) {
+              const temp = deviceData.realtimeData.indoor.temperature;
+              const value = typeof temp === 'object' ? temp.value : temp;
+              const time = typeof temp === 'object' ? temp.time : Date.now();
+              data += `  - Temperatura Interior: ${value}°C (${new Date(time * 1000).toLocaleTimeString()})\n`;
+            }
+            if (deviceData.realtimeData.indoor.humidity) {
+              const hum = deviceData.realtimeData.indoor.humidity;
+              const value = typeof hum === 'object' ? hum.value : hum;
+              const time = typeof hum === 'object' ? hum.time : Date.now();
+              data += `  - Humedad Interior: ${value}% (${new Date(time * 1000).toLocaleTimeString()})\n`;
+            }
+          }
+
+          // Sensores de presión
+          if (deviceData.realtimeData.pressure) {
+            if (deviceData.realtimeData.pressure.relative) {
+              const rel = deviceData.realtimeData.pressure.relative;
+              data += `  - Presión Relativa: ${rel.value} ${rel.unit} (${new Date(rel.time * 1000).toLocaleTimeString()})\n`;
+            }
+            if (deviceData.realtimeData.pressure.absolute) {
+              const abs = deviceData.realtimeData.pressure.absolute;
+              data += `  - Presión Absoluta: ${abs.value} ${abs.unit} (${new Date(abs.time * 1000).toLocaleTimeString()})\n`;
+            }
+          }
+
+          // Sensores de suelo CH1
+          if (deviceData.realtimeData.soil_ch1) {
+            if (deviceData.realtimeData.soil_ch1.soilmoisture) {
+              const soil = deviceData.realtimeData.soil_ch1.soilmoisture;
+              data += `  - Humedad del Suelo CH1: ${soil.value} ${soil.unit} (${new Date(soil.time * 1000).toLocaleTimeString()})\n`;
+            }
+            if (deviceData.realtimeData.soil_ch1.ad) {
+              const ad = deviceData.realtimeData.soil_ch1.ad;
+              data += `  - Señal Analógica CH1: ${ad.value} ${ad.unit} (${new Date(ad.time * 1000).toLocaleTimeString()})\n`;
+            }
+          }
+
+          // Sensores de batería
+          if (deviceData.realtimeData.battery && deviceData.realtimeData.battery.soilmoisture_sensor_ch1) {
+            const battery = deviceData.realtimeData.battery.soilmoisture_sensor_ch1;
+            data += `  - Batería Sensor Suelo: ${battery.value} ${battery.unit} (${new Date(battery.time * 1000).toLocaleTimeString()})\n`;
+          }
+
+          // Datos legacy
+          if (deviceData.realtimeData.temperature || deviceData.realtimeData.tempf || deviceData.realtimeData.tempc) {
+            const temp = deviceData.realtimeData.temperature || deviceData.realtimeData.tempf || deviceData.realtimeData.tempc;
+            data += `  - Temperatura: ${temp}°C\n`;
+          }
+          if (deviceData.realtimeData.humidity) {
+            data += `  - Humedad: ${deviceData.realtimeData.humidity}%\n`;
+          }
+          if (deviceData.realtimeData.pressure || deviceData.realtimeData.baromrelin || deviceData.realtimeData.baromabsin) {
+            const pressure = deviceData.realtimeData.pressure || deviceData.realtimeData.baromrelin || deviceData.realtimeData.baromabsin;
+            data += `  - Presión: ${pressure} hPa\n`;
+          }
+        }
+      });
+      
+      data += `\n`;
+    }
+
+
+
+    return data;
   };
 
   const formatBasicGroupData = (group: Group) => {
-    return `**📊 Datos del Grupo: ${group.GroupName}**\n\n` +
-           `**Información Básica:**\n` +
-           `- **ID:** ${group.DeviceGroupID}\n` +
-           `- **Nombre:** ${group.GroupName}\n` +
-           `- **Descripción:** ${group.Description || 'Sin descripción'}\n` +
-           `- **Estado:** ${group.status}\n\n` +
-           `*Nota: Los datos detallados del grupo no están disponibles en este momento.*\n\n` +
-           `**💡 Puedes preguntarme sobre:**\n` +
+    return `Datos del Grupo: ${group.GroupName}\n\n` +
+           `Información General:\n` +
+           `- Nombre: ${group.GroupName}\n` +
+           `- Descripción: ${group.Description || 'Sin descripción'}\n` +
+           `- Estado: ${group.status}\n` +
+           `- Creado: ${new Date(group.createdAt).toLocaleDateString()}\n\n` +
+           `Nota: Los datos detallados del grupo no están disponibles en este momento.\n\n` +
+           `Puedes preguntarme sobre:\n` +
            `- Información general del grupo\n` +
            `- Configuración y estructura\n` +
            `- Estado y gestión\n`;

@@ -95,14 +95,32 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
     };
 
     const isDeviceDataMessage = (message: Message): boolean => {
-        const content = message.content || message.contentAsk || message.contentFile || '';
-        return content.includes('Datos del Dispositivo:');
+        // Buscar en todos los campos de contenido posibles
+        const content = message.content || message.contentAsk || message.contentFile || message.question || '';
+        // Verificar que sea un mensaje de usuario y contenga datos de dispositivo o grupo
+        return message.sendertype === 'user' && (
+            content.includes('Datos del Dispositivo:') || 
+            content.includes('Datos del Grupo:')
+        );
     };
 
     const getDeviceNameFromMessage = (message: Message): string => {
-        const content = message.content || message.contentAsk || message.contentFile || '';
+        // Buscar en todos los campos de contenido posibles
+        const content = message.content || message.contentAsk || message.contentFile || message.question || '';
+        
+        // Buscar nombre de dispositivo
         const deviceNameMatch = content.match(/Datos del Dispositivo: (.+?)\n/);
-        return deviceNameMatch ? deviceNameMatch[1].trim() : 'Dispositivo';
+        if (deviceNameMatch) {
+            return deviceNameMatch[1].trim();
+        }
+        
+        // Buscar nombre de grupo
+        const groupNameMatch = content.match(/Datos del Grupo: (.+?)\n/);
+        if (groupNameMatch) {
+            return groupNameMatch[1].trim();
+        }
+        
+        return 'Dispositivo';
     };
 
 
@@ -130,6 +148,42 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
     return (
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-1 sm:p-3 space-y-2 sm:space-y-3 md:p-4 scrollbar z-0">
             {messages.map((message, index) => {
+                // Debug logging para todos los mensajes de usuario
+                if (message.sendertype === 'user') {
+                    const content = message.content || message.contentAsk || message.contentFile || message.question || '';
+                    console.log('🔍 [TableShowMessage] Mensaje de usuario:', {
+                        messageId: message.MessageID,
+                        contentPreview: content.substring(0, 50) + '...',
+                        contentAsk: message.contentAsk,
+                        content: message.content,
+                        contentFile: message.contentFile,
+                        question: message.question
+                    });
+                    
+                    if (content.includes('Datos del Dispositivo:')) {
+                        console.log('🔍 [TableShowMessage] ¡DETECTADO MENSAJE DE DISPOSITIVO!');
+                    }
+                    if (content.includes('Datos del Grupo:')) {
+                        console.log('🔍 [TableShowMessage] ¡DETECTADO MENSAJE DE GRUPO!');
+                    }
+                }
+
+                // Mensajes de datos de dispositivo o grupo - DEBE IR PRIMERO para tener prioridad
+                if (message.sendertype === 'user' && isDeviceDataMessage(message)) {
+                    console.log('🔍 [TableShowMessage] Renderizando mensaje de dispositivo/grupo');
+                    return (
+                        <div className='w-full flex justify-end items-center'>
+                            <div key={`device-${message.MessageID || 'temp'}-${index}`} className="w-full lg:w-1/2">
+                                <DeviceDataMessage
+                                    deviceName={getDeviceNameFromMessage(message)}
+                                    deviceData={message.content || message.contentAsk || message.contentFile || message.question || ''}
+                                    timestamp={message.createdAt}
+                                />
+                            </div>
+                        </div>
+                    );
+                }
+
                 // Mostrar mensaje de archivo solo si NO hay mensajes de usuario o análisis para ese FileID
                 if (
                     message.FileID &&
@@ -187,23 +241,6 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                     lastUserFileID = message.FileID;
                 } else if (message.sendertype === 'user') {
                     lastUserFileID = null;
-                }
-
-
-
-                // Mensajes de datos de dispositivo
-                if (message.sendertype === 'user' && isDeviceDataMessage(message)) {
-                    return (
-                        <div className='w-full flex justify-end items-center'>
-                            <div key={`device-${message.MessageID || 'temp'}-${index}`} className="w-full lg:w-1/2">
-                                <DeviceDataMessage
-                                    deviceName={getDeviceNameFromMessage(message)}
-                                    deviceData={message.content || message.contentAsk || message.contentFile || ''}
-                                    timestamp={message.createdAt}
-                                />
-                            </div>
-                        </div>
-                    );
                 }
 
                 // Mensajes normales

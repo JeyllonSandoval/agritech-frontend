@@ -36,11 +36,8 @@ export default function FileAnalysisResult({
             >
                 <div className="flex-1 min-w-0">
                     <h3 className="text-base sm:text-lg font-medium text-white/90 group-hover:text-white transition-colors duration-200 break-words whitespace-normal">
-                        {question}
+                        Resumen del análisis
                     </h3>
-                    <p className="text-xs sm:text-sm text-white/50 group-hover:text-white/70 transition-colors duration-200 break-words whitespace-normal">
-                        {description}
-                    </p>
                 </div>
                 <div className="flex items-center gap-2 mt-2 sm:mt-0">
                     <span className="text-xs text-white/40">

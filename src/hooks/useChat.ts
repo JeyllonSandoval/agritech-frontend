@@ -97,9 +97,10 @@ export const useChat = ({ ChatID }: UseChatProps) => {
 
             setMessages(prev => [...prev, userMessage, aiPlaceholder]);
 
-            // 3. Enviar al backend y obtener respuesta - Incluir FileID si hay archivo seleccionado
-            const fileId = selectedFile?.FileID;
-            console.log(`Enviando mensaje con content: "${content}", fileId: ${fileId}`);
+            // 3. Enviar al backend y obtener respuesta - Incluir FileID solo si NO son datos de dispositivo
+            const isDeviceData = content.includes('Datos del Dispositivo:');
+            const fileId = isDeviceData ? undefined : selectedFile?.FileID;
+            console.log(`Enviando mensaje con content: "${content}", fileId: ${fileId}, isDeviceData: ${isDeviceData}`);
             
             const backendResponse = await chatService.sendMessage(currentChat.ChatID, content, fileId);
             const backendMessage: Message = {
