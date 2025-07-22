@@ -1,5 +1,6 @@
 import { useState, FormEvent, useEffect, useRef } from 'react';
 import ButtonAdjunt from '@/components/common/UI/CompleButtons/ButtonAdjunt';
+import ButtonDevice from '@/components/common/UI/CompleButtons/ButtonDevice';
 import ButtonSend from '@/components/common/UI/CompleButtons/ButtonSend';
 import { FileProps } from '@/hooks/getFiles';
 import { useModal } from '@/context/modalContext';
@@ -11,13 +12,17 @@ interface BarWritedProps {
     isLoading?: boolean;
     onFileSelect?: (file: FileProps) => void;
     selectedFile?: FileProps | null;
+    onDeviceSelect?: () => void;
+    isDeviceSelectorActive?: boolean;
 }
 
 export default function BarWrited({ 
     onSendMessage, 
     isLoading = false, 
     onFileSelect,
-    selectedFile 
+    selectedFile,
+    onDeviceSelect,
+    isDeviceSelectorActive = false
 }: BarWritedProps) {
     const [message, setMessage] = useState('');
     const { openModal } = useModal();
@@ -99,6 +104,13 @@ export default function BarWrited({
                     />
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 sm:gap-2">
                         <ButtonAdjunt onClick={handleOpenFileSelect} disabled={isLoading} />
+                        {onDeviceSelect && (
+                            <ButtonDevice 
+                                onClick={onDeviceSelect} 
+                                disabled={isLoading} 
+                                isActive={isDeviceSelectorActive}
+                            />
+                        )}
                         <ButtonSend 
                             isLoading={isLoading}
                             disabled={!message.trim() || isLoading}

@@ -48,8 +48,12 @@ export const useReports = (): UseReportsReturn => {
       if (response.data.chat) {
         setSuccess(prev => prev + ' Se ha creado un chat automático para analizar el reporte.');
       }
+      
+      // Retornar el response para que el componente pueda manejar el éxito
+      return response;
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al generar reporte de dispositivo');
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -70,8 +74,12 @@ export const useReports = (): UseReportsReturn => {
       if (response.data.chat) {
         setSuccess(prev => prev + ' Se ha creado un chat automático para analizar el reporte.');
       }
+      
+      // Retornar el response para que el componente pueda manejar el éxito
+      return response;
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al generar reporte de grupo');
+      throw error;
     } finally {
       setLoading(false);
     }

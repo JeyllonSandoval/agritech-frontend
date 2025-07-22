@@ -4,12 +4,15 @@ import ModalCreated from '../modals/modalCreated';
 import ButtonSelectFile from '@/components/common/UI/buttons/buttonSelectFile';
 import TableShowMessage from '@/components/common/UI/table/tableShowMessage';
 import BarWrited from '@/components/common/UI/bars/barWrited';
+import DeviceDataMessage from '@/components/common/UI/items/DeviceDataMessage';
 import { useModal } from '@/context/modalContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/languageContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useProfile } from '@/hooks/useProfile';
 import { Message } from '@/types/message';
+import ChatDeviceSelector from '../telemetry/ChatDeviceSelector';
+import { DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
 
 interface ChatPanelProps {
     onPanelChange: (panel: 'welcome' | 'files' | 'chat', ChatID?: string) => void;
@@ -17,6 +20,8 @@ interface ChatPanelProps {
 }
 
 export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
+    const [showDeviceSelector, setShowDeviceSelector] = useState(false);
+    
     const { 
         currentChat,
         messages,
@@ -74,6 +79,21 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
         openModal('createdFile', 'select', '', undefined, undefined, (file) => {
             handleFileSelect(file);
         });
+    };
+
+    const handleDeviceDataSend = (deviceData: string) => {
+        if (!currentChat) return;
+        
+        // Enviar como mensaje normal de usuario para que se guarde en la DB
+        sendMessage(deviceData);
+    };
+
+    const handleShowDeviceSelector = () => {
+        setShowDeviceSelector(true);
+    };
+
+    const handleCloseDeviceSelector = () => {
+        setShowDeviceSelector(false);
     };
 
     if (!currentChat) {
@@ -150,10 +170,26 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
             </div>
 
             <div className="flex flex-col gap-4">
-                <ButtonSelectFile 
-                    setIsModalOpen={handleOpenFileSelect} 
-                    isFileSelected={!!selectedFile}
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <ButtonSelectFile 
+                        setIsModalOpen={handleOpenFileSelect} 
+                        isFileSelected={!!selectedFile}
+                    />
+                    
+                    {/* Botón para seleccionar dispositivo */}
+                    <button
+                        onClick={handleShowDeviceSelector}
+                        className="w-full px-6 py-3 text-sm font-medium
+                            bg-emerald-500/20 backdrop-blur-sm rounded-xl
+                            border border-emerald-400/30 text-emerald-400
+                            hover:bg-emerald-500/30 hover:text-emerald-300
+                            transition-all duration-300
+                            flex items-center justify-center gap-2"
+                    >
+                        <DevicePhoneMobileIcon className="w-5 h-5" />
+                        Seleccionar Dispositivo
+                    </button>
+                </div>
                 
                 {/* Botón para comenzar sin archivo */}
                 <button
@@ -202,34 +238,48 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
     );
 
     return (
-        <div className="fixed left-0 right-0 top-[80px] h-[calc(100vh-80px)] flex flex-col items-center justify-center">
-            <div className="w-full lg:w-[60vw] h-full flex flex-col px-4 sm:px-6 md:px-8">
-                {messages.length > 0 ? (
-                    <>
-                        <div className="flex-1 overflow-y-auto pb-4">
-                            <TableShowMessage 
-                                messages={messages}
-                                isLoading={isLoading || isAnalyzing}
-                                files={files}
-                            />
+        <>
+            <div className="fixed left-0 right-0 top-[80px] h-[calc(100vh-80px)] flex flex-col items-center justify-center">
+                <div className="w-full lg:w-[60vw] h-full flex flex-col px-4 sm:px-6 md:px-8">
+                    {messages.length > 0 ? (
+                        <>
+                            <div className="flex-1 overflow-y-auto pb-4">
+                                <TableShowMessage 
+                                    messages={messages}
+                                    isLoading={isLoading || isAnalyzing}
+                                    files={files}
+                                />
+                            </div>
+                            <div className="sticky bottom-0">
+                                <BarWrited 
+                                    onSendMessage={handleSendMessage}
+                                    isLoading={isLoading || isAnalyzing}
+                                    onFileSelect={handleFileSelect}
+                                    selectedFile={selectedFile}
+                                    onDeviceSelect={handleShowDeviceSelector}
+                                    isDeviceSelectorActive={showDeviceSelector}
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
+                            {welcomeContent}
                         </div>
-                        <div className="sticky bottom-0">
-                            <BarWrited 
-                                onSendMessage={handleSendMessage}
-                                isLoading={isLoading || isAnalyzing}
-                                onFileSelect={handleFileSelect}
-                                selectedFile={selectedFile}
-                            />
-                        </div>
-                    </>
-                ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
-                        {welcomeContent}
-                    </div>
-                )}
+                    )}
 
-                <ModalCreated />
+                    <ModalCreated />
+                </div>
             </div>
-        </div>
+
+            {/* Chat Device Selector - Siempre visible cuando está activado */}
+            {showDeviceSelector && (
+                <div className="fixed right-2 top-20 z-50">
+                    <ChatDeviceSelector
+                        onDeviceDataSend={handleDeviceDataSend}
+                        onClose={handleCloseDeviceSelector}
+                    />
+                </div>
+            )}
+        </>
     );
 }

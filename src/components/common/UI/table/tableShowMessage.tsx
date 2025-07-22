@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Message } from '@/types/message';
 import ItemMessage from '@/components/common/UI/items/itemMessages';
 import FileAnalysisResult from '@/components/common/UI/items/FileAnalysisResult';
+import DeviceDataMessage from '@/components/common/UI/items/DeviceDataMessage';
 import { FileProps } from '@/hooks/getFiles';
 import { useLanguage } from '@/context/languageContext';
 import tableTranslations from '@/data/Lenguage/en/table.json';
@@ -93,6 +94,19 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
         return '';
     };
 
+    const isDeviceDataMessage = (message: Message): boolean => {
+        const content = message.content || message.contentAsk || message.contentFile || '';
+        return content.includes('Datos del Dispositivo:');
+    };
+
+    const getDeviceNameFromMessage = (message: Message): string => {
+        const content = message.content || message.contentAsk || message.contentFile || '';
+        const deviceNameMatch = content.match(/Datos del Dispositivo: (.+?)\n/);
+        return deviceNameMatch ? deviceNameMatch[1].trim() : 'Dispositivo';
+    };
+
+
+
     // Nuevo Set para evitar duplicados de mensajes de usuario por FileID
     //
     // Para evitar duplicados, primero identificamos los FileID que tienen mensajes de usuario o análisis
@@ -173,6 +187,23 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                     lastUserFileID = message.FileID;
                 } else if (message.sendertype === 'user') {
                     lastUserFileID = null;
+                }
+
+
+
+                // Mensajes de datos de dispositivo
+                if (message.sendertype === 'user' && isDeviceDataMessage(message)) {
+                    return (
+                        <div className='w-full flex justify-end items-center'>
+                            <div key={`device-${message.MessageID || 'temp'}-${index}`} className="w-full lg:w-1/2">
+                                <DeviceDataMessage
+                                    deviceName={getDeviceNameFromMessage(message)}
+                                    deviceData={message.content || message.contentAsk || message.contentFile || ''}
+                                    timestamp={message.createdAt}
+                                />
+                            </div>
+                        </div>
+                    );
                 }
 
                 // Mensajes normales
