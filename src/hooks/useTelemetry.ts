@@ -578,16 +578,8 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
           lastUpdate: new Date().toISOString()
         });
 
-        // Seleccionar automáticamente el primer dispositivo
-        const firstDevice = state.devices[0];
-        selectDevice(firstDevice);
-        
-        // Cargar datos del primer dispositivo desde el caché
-        updateState({
-          realtimeData: precachedData.realtimeData[firstDevice.DeviceID] || null,
-          deviceInfo: precachedData.deviceInfo[firstDevice.DeviceID] || null,
-          deviceCharacteristics: precachedData.deviceCharacteristics[firstDevice.DeviceID] || null
-        });
+        // NO seleccionar automáticamente ningún dispositivo
+        // Los datos están precargados pero no hay selección automática
       }
 
       // 3. PRECARGAR DATOS DE TODOS LOS GRUPOS
@@ -680,17 +672,8 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
           precachedGroupData: precachedGroupData
         });
 
-        // Si no hay dispositivos pero sí grupos, seleccionar el primer grupo
-        if (state.devices.length === 0 && state.groups.length > 0) {
-          const firstGroup = state.groups[0];
-          selectGroup(firstGroup);
-          
-          // Cargar datos del primer grupo desde el caché
-          setGroupDevices(precachedGroupData.groupDevices[firstGroup.DeviceGroupID] || []);
-          setGroupDevicesInfo(precachedGroupData.groupDevicesInfo[firstGroup.DeviceGroupID] || {});
-          setGroupDevicesCharacteristics(precachedGroupData.groupDevicesCharacteristics[firstGroup.DeviceGroupID] || {});
-          setGroupRealtimeData(precachedGroupData.groupRealtimeData[firstGroup.DeviceGroupID] || {});
-        }
+        // NO seleccionar automáticamente ningún grupo
+        // Los datos están precargados pero no hay selección automática
       }
 
       setAutoLoadProgress(prev => ({ ...prev, initialData: true }));

@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTelemetry } from '@/hooks/useTelemetry';
+import { useTelemetryForReports } from '@/hooks/useTelemetryForReports';
 import { useReports } from '@/hooks/useReports';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/context/languageContext';
 import { DeviceInfo, Group } from '@/types/telemetry';
+import CreateReportSelector from '@/components/features/telemetry/CreateReportSelector';
 import { 
   DocumentChartBarIcon, 
   ChatBubbleLeftRightIcon,
@@ -37,7 +38,7 @@ const CreateReportPage: React.FC<CreateReportPageProps> = () => {
     error: telemetryError,
     fetchDevices,
     fetchGroups
-  } = useTelemetry({ autoPoll: false });
+  } = useTelemetryForReports();
 
   const {
     loading: reportLoading,
@@ -100,13 +101,14 @@ const CreateReportPage: React.FC<CreateReportPageProps> = () => {
     };
 
     try {
+      // Generar el reporte
       if (reportType === 'device') {
         await generateDeviceReport({ ...request, deviceId: selectedTarget });
       } else {
         await generateGroupReport({ ...request, groupId: selectedTarget });
       }
       
-      // Mostrar el modal de éxito
+      // Mostrar el modal de éxito inmediatamente después de generar el reporte
       setShowSuccess(true);
     } catch (error) {
       // El error ya se maneja en el hook
@@ -178,111 +180,19 @@ const CreateReportPage: React.FC<CreateReportPageProps> = () => {
   );
 
   const renderTargetSelector = () => {
-    const options = reportType === 'device' ? devices : groups;
-    
     return (
       <div className="mb-6">
         <label className="block text-sm font-medium text-white mb-3">
           {reportType === 'device' ? 'Seleccionar Dispositivo' : 'Seleccionar Grupo'}
         </label>
         
-        {options.length === 0 ? (
-          <div className="p-6 bg-white/5 rounded-xl border border-white/10 text-center">
-            <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-3">
-              {reportType === 'device' ? (
-                <svg className="w-6 h-6 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-              ) : (
-                <svg className="w-6 h-6 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              )}
-            </div>
-            <p className="text-white/60 text-sm">
-              No hay {reportType === 'device' ? 'dispositivos' : 'grupos'} disponibles
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto">
-            {reportType === 'device' 
-              ? devices.map((device) => (
-                  <button
-                    key={device.DeviceID}
-                    onClick={() => setSelectedTarget(device.DeviceID)}
-                    className={`w-full p-4 rounded-xl border transition-all duration-200 text-left ${
-                      selectedTarget === device.DeviceID
-                        ? 'bg-emerald-500/20 border-emerald-500/30 shadow-lg'
-                        : 'bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg transition-all ${
-                          selectedTarget === device.DeviceID
-                            ? 'bg-emerald-500/30'
-                            : 'bg-white/10'
-                        }`}>
-                          <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-white">{device.DeviceName}</h4>
-                          <p className="text-xs text-white/60">{device.DeviceType}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${device.status === 'active' ? 'bg-emerald-400' : 'bg-gray-400'}`}></div>
-                        {selectedTarget === device.DeviceID && (
-                          <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                ))
-              : groups.map((group) => (
-                  <button
-                    key={group.DeviceGroupID}
-                    onClick={() => setSelectedTarget(group.DeviceGroupID)}
-                    className={`w-full p-4 rounded-xl border transition-all duration-200 text-left ${
-                      selectedTarget === group.DeviceGroupID
-                        ? 'bg-emerald-500/20 border-emerald-500/30 shadow-lg'
-                        : 'bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg transition-all ${
-                          selectedTarget === group.DeviceGroupID
-                            ? 'bg-emerald-500/30'
-                            : 'bg-white/10'
-                        }`}>
-                          <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-white">{group.GroupName}</h4>
-                          <p className="text-xs text-white/60">{group.Description || 'Sin descripción'}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${group.status === 'active' ? 'bg-emerald-400' : 'bg-gray-400'}`}></div>
-                        {selectedTarget === group.DeviceGroupID && (
-                          <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                ))
-            }
-          </div>
-        )}
+        <CreateReportSelector
+          devices={devices}
+          groups={groups}
+          selectedTarget={selectedTarget}
+          onTargetChange={setSelectedTarget}
+          reportType={reportType}
+        />
       </div>
     );
   };
@@ -431,7 +341,7 @@ const CreateReportPage: React.FC<CreateReportPageProps> = () => {
                 Chat Automático
               </h4>
               <p className="text-xs text-white/70 leading-relaxed">
-                Se creará automáticamente un chat con el reporte adjunto para que puedas hacer consultas inteligentes sobre los datos generados.
+                Se creará automáticamente un chat llamado Analisis: Nombre del dispositivo y la fecha de generación, y se enviará el reporte generado para que puedas hacer consultas inteligentes sobre los datos.
               </p>
             </div>
           </div>
@@ -458,6 +368,13 @@ const CreateReportPage: React.FC<CreateReportPageProps> = () => {
               <p className="text-white/70 text-sm mb-6">
                 {reportSuccess}
               </p>
+              {generatedReport?.data?.format && (
+                <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
+                  <p className="text-xs text-emerald-400">
+                    Formato: <span className="font-medium">{generatedReport.data.format.toUpperCase()}</span>
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-3 text-lg">
@@ -539,7 +456,7 @@ const CreateReportPage: React.FC<CreateReportPageProps> = () => {
           )}
 
           {/* Form */}
-          <form onSubmit={(e) => { e.preventDefault(); handleGenerateReport(); }}>
+          <div>
             {renderReportTypeSelector()}
             {renderTargetSelector()}
             {renderHistoryOptions()}
@@ -548,7 +465,8 @@ const CreateReportPage: React.FC<CreateReportPageProps> = () => {
 
             {/* Generate Button */}
             <button
-              type="submit"
+              type="button"
+              onClick={handleGenerateReport}
               disabled={reportLoading || !selectedTarget}
               className="w-full text-lg bg-emerald-500 text-white py-4 px-6 rounded-lg font-medium hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
             >
@@ -567,7 +485,7 @@ const CreateReportPage: React.FC<CreateReportPageProps> = () => {
                 </>
               )}
             </button>
-          </form>
+          </div>
         </div>
       </div>
     </div>

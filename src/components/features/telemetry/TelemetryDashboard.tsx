@@ -14,7 +14,7 @@ import TelemetryAlerts from '../../../components/features/telemetry/TelemetryAle
 import DeviceInfo from '../../../components/features/telemetry/DeviceInfo';
 import DeviceComparison from '../../../components/features/telemetry/DeviceComparison';
 import DeviceGroupManager from '../../../components/features/telemetry/DeviceGroupManager';
-import TelemetryReports from '../../../components/features/telemetry/TelemetryReports';
+
 import GroupRealtimeDataDisplay from '../../../components/features/telemetry/GroupRealtimeDataDisplay';
 import SimpleWeatherDisplay from '../../../components/features/telemetry/SimpleWeatherDisplay';
 import { DeviceInfo as DeviceInfoType } from '../../../types/telemetry';
@@ -54,7 +54,6 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
   const [showDeviceInfo, setShowDeviceInfo] = useState(false);
   const [showDeviceComparison, setShowDeviceComparison] = useState(false);
   const [showGroupManager, setShowGroupManager] = useState(false);
-  const [showReports, setShowReports] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<null | 'info' | 'weather'>(null);
 
@@ -263,13 +262,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     setShowGroupManager(false);
   };
 
-  const handleShowReports = () => {
-    setShowReports(true);
-  };
 
-  const handleHideReports = () => {
-    setShowReports(false);
-  };
 
   const handleShowDeviceManager = () => {
     setShowDeviceManager(true);
@@ -396,7 +389,6 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
             onShowDeviceInfo={handleShowDeviceInfo}
             onShowDeviceComparison={handleShowDeviceComparison}
             onShowGroupManager={handleShowGroupManager}
-            onShowReports={handleShowReports}
             onShowDevices={handleShowDeviceManager}
             selectedDevice={selectedDevice}
                                 onShowInfoPanel={() => setActivePanelWithLog('info')}
@@ -722,16 +714,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
             />
           )}
 
-          {/* Telemetry Reports Modal */}
-          {showReports && (
-            <TelemetryReports
-              devices={devices}
-              groups={groups}
-              selectedDevice={selectedDevice}
-              selectedGroup={selectedGroup}
-              onClose={handleHideReports}
-            />
-          )}
+
           {showDeviceManager && (
             <DeviceManager
               onClose={handleHideDeviceManager}

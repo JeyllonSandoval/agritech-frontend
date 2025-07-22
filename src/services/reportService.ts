@@ -109,7 +109,10 @@ class ReportService {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || data.error || 'Error generating device report');
+        // Mejorar el manejo de errores para JSON
+        const errorMessage = data.message || data.error || `Error generating device report (${response.status})`;
+        console.error('Report generation error:', { status: response.status, data });
+        throw new Error(errorMessage);
       }
 
       return data;
@@ -141,7 +144,10 @@ class ReportService {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || data.error || 'Error generating group report');
+        // Mejorar el manejo de errores para JSON
+        const errorMessage = data.message || data.error || `Error generating group report (${response.status})`;
+        console.error('Report generation error:', { status: response.status, data });
+        throw new Error(errorMessage);
       }
 
       return data;

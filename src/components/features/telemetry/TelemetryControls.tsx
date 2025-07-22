@@ -8,7 +8,6 @@ import { DeviceInfo, Group } from '../../../types/telemetry';
 import { ArrowPathIcon, PlayCircleIcon, PauseCircleIcon, InformationCircleIcon, CloudIcon, PlusCircleIcon, UsersIcon, Squares2X2Icon, DocumentChartBarIcon, AdjustmentsHorizontalIcon, DevicePhoneMobileIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import DropdownControl from './DropdownControl';
 import DeviceComparison from './DeviceComparison';
-import TelemetryReports from './TelemetryReports';
 
 interface TelemetryControlsProps {
   polling: boolean;
@@ -18,7 +17,6 @@ interface TelemetryControlsProps {
   onShowDeviceInfo?: () => void;
   onShowDeviceComparison?: () => void;
   onShowGroupManager?: () => void;
-  onShowReports?: () => void;
   onShowDevices?: () => void;
   onShowRealtimeData?: () => void;
   onShowInfoPanel?: () => void;
@@ -40,7 +38,6 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
   onShowDeviceInfo,
   onShowDeviceComparison,
   onShowGroupManager,
-  onShowReports,
   onShowDevices,
   onShowRealtimeData,
   onShowInfoPanel,
@@ -52,7 +49,6 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
 }) => {
   const router = useRouter();
   const [showDeviceComparison, setShowDeviceComparison] = useState(false);
-  const [showReports, setShowReports] = useState(false);
 
   // Handlers mejorados con fallbacks apropiados
   const handleAddDevice = () => {
@@ -124,13 +120,7 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
     }
   };
 
-  const handleShowReports = () => {
-    if (onShowReports) {
-      onShowReports();
-    } else {
-      setShowReports(true);
-    }
-  };
+
 
   return (
     <>
@@ -183,8 +173,7 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
             color="indigo"
             options={[
               { label: 'Comparar dispositivos', onClick: handleShowDeviceComparison, icon: <DevicePhoneMobileIcon className="w-5 h-5" /> },
-              { label: 'Generar Reportes', onClick: handleShowReports, icon: <DocumentChartBarIcon className="w-5 h-5" /> },
-              { label: 'Crear Reporte Avanzado', onClick: () => router.push('/telemetry/create-report'), icon: <DocumentChartBarIcon className="w-5 h-5" /> },
+              { label: 'Generar Reporte', onClick: () => router.push('/telemetry/create-report'), icon: <DocumentChartBarIcon className="w-5 h-5" /> },
               { label: 'Gestionar dispositivos', onClick: handleShowDevices, icon: <DevicePhoneMobileIcon className="w-5 h-5" /> },
               { label: 'Gestionar grupos', onClick: handleShowGroupManager, icon: <UsersIcon className="w-5 h-5" /> },
             ].map(opt => ({ ...opt, className: 'text-base font-medium' }))}
@@ -217,30 +206,7 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
         </div>
       )}
       
-      {showReports && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white">Reportes de Telemetría</h2>
-                <button
-                  onClick={() => setShowReports(false)}
-                  className="text-white/60 hover:text-red-400 transition-colors p-2"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <TelemetryReports 
-                devices={devices}
-                groups={groups}
-                onClose={() => setShowReports(false)} 
-              />
-            </div>
-          </div>
-        </div>
-      )}
+
     </>
   );
 };

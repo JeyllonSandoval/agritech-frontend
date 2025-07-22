@@ -42,14 +42,28 @@ export const useReports = (): UseReportsReturn => {
     try {
       const response = await reportService.generateDeviceReport(request);
       setGeneratedReport(response);
-      setSuccess(response.message);
       
-      // Si se creó un chat automático, mostrar información adicional
-      if (response.data.chat) {
-        setSuccess(prev => prev + ' Se ha creado un chat automático para analizar el reporte.');
+      // Si se creó un chat automático, enviar el reporte automáticamente
+      if (request.createChat && response.data.chat) {
+        try {
+          // Importar el servicio de chat dinámicamente para evitar dependencias circulares
+          const { chatService } = await import('../services/chatService');
+          
+          // Enviar el reporte al chat automáticamente
+          await chatService.sendFileMessage(response.data.chat.chatID, response.data.fileID);
+          
+          console.log('✅ Reporte enviado automáticamente al chat:', response.data.chat.chatID);
+          // Mensaje de éxito con confirmación de envío
+          setSuccess(response.message + ' Se ha creado un chat automático llamado "REPORTE AI" y se ha enviado el reporte para análisis.');
+        } catch (chatError) {
+          console.error('❌ Error enviando reporte al chat:', chatError);
+          // Si falla el envío al chat, mostrar mensaje de éxito pero con advertencia
+          setSuccess(response.message + ' Se ha creado un chat automático llamado "REPORTE AI" pero hubo un problema al enviar el reporte.');
+        }
+      } else {
+        setSuccess(response.message);
       }
       
-      // Retornar el response para que el componente pueda manejar el éxito
       return response;
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al generar reporte de dispositivo');
@@ -68,14 +82,28 @@ export const useReports = (): UseReportsReturn => {
     try {
       const response = await reportService.generateGroupReport(request);
       setGeneratedReport(response);
-      setSuccess(response.message);
       
-      // Si se creó un chat automático, mostrar información adicional
-      if (response.data.chat) {
-        setSuccess(prev => prev + ' Se ha creado un chat automático para analizar el reporte.');
+      // Si se creó un chat automático, enviar el reporte automáticamente
+      if (request.createChat && response.data.chat) {
+        try {
+          // Importar el servicio de chat dinámicamente para evitar dependencias circulares
+          const { chatService } = await import('../services/chatService');
+          
+          // Enviar el reporte al chat automáticamente
+          await chatService.sendFileMessage(response.data.chat.chatID, response.data.fileID);
+          
+          console.log('✅ Reporte enviado automáticamente al chat:', response.data.chat.chatID);
+          // Mensaje de éxito con confirmación de envío
+          setSuccess(response.message + ' Se ha creado un chat automático llamado "REPORTE AI" y se ha enviado el reporte para análisis.');
+        } catch (chatError) {
+          console.error('❌ Error enviando reporte al chat:', chatError);
+          // Si falla el envío al chat, mostrar mensaje de éxito pero con advertencia
+          setSuccess(response.message + ' Se ha creado un chat automático llamado "REPORTE AI" pero hubo un problema al enviar el reporte.');
+        }
+      } else {
+        setSuccess(response.message);
       }
       
-      // Retornar el response para que el componente pueda manejar el éxito
       return response;
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al generar reporte de grupo');
@@ -131,6 +159,8 @@ export const useReports = (): UseReportsReturn => {
   const navigateToChat = useCallback((chatID: string) => {
     router.push(`/playground/chat/${chatID}`);
   }, [router]);
+
+
 
   return {
     loading,

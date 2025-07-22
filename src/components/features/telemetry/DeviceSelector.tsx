@@ -67,8 +67,12 @@ const DeviceSelector: React.FC<DeviceSelectorProps> = ({
 
   const handleDeviceClick = (device: DeviceInfo) => {
     console.log('🔍 [DEVICE_SELECTOR] Device clicked:', device.DeviceName);
-    // Solo llamar si el dispositivo no está ya seleccionado
-    if (selectedDevice?.DeviceID !== device.DeviceID) {
+    // Si el dispositivo ya está seleccionado, deseleccionarlo
+    if (selectedDevice?.DeviceID === device.DeviceID) {
+      onDeviceSelect(null);
+      onGroupSelect(null);
+    } else {
+      // Seleccionar el nuevo dispositivo
       onDeviceSelect(device);
       onGroupSelect(null);
     }
@@ -76,8 +80,12 @@ const DeviceSelector: React.FC<DeviceSelectorProps> = ({
 
   const handleGroupClick = (group: Group) => {
     console.log('🔍 [DEVICE_SELECTOR] Group clicked:', group.GroupName);
-    // Solo llamar si el grupo no está ya seleccionado
-    if (selectedGroup?.DeviceGroupID !== group.DeviceGroupID) {
+    // Si el grupo ya está seleccionado, deseleccionarlo
+    if (selectedGroup?.DeviceGroupID === group.DeviceGroupID) {
+      onGroupSelect(null);
+      onDeviceSelect(null);
+    } else {
+      // Seleccionar el nuevo grupo
       onGroupSelect(group);
       onDeviceSelect(null);
     }
@@ -261,32 +269,7 @@ const DeviceSelector: React.FC<DeviceSelectorProps> = ({
       {/* Device Type Filter - Solo para dispositivos */}
       {activeTab === 'devices' && devices.length > 0 && renderDeviceTypeFilter()}
 
-      {/* Clear Selection Button */}
-      {(selectedDevice || selectedGroup) && (
-        <button
-          onClick={handleClearSelection}
-          className="w-full py-2 px-4 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors text-sm border border-red-500/20"
-        >
-          ✕ Limpiar selección
-        </button>
-      )}
 
-      {/* Current Selection Indicator */}
-      {(selectedDevice || selectedGroup) && (
-        <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-              <span className="text-sm text-emerald-200 font-medium">
-                Seleccionado:
-              </span>
-              <span className="text-sm text-white">
-                {selectedDevice ? selectedDevice.DeviceName : selectedGroup?.GroupName}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Content */}
       <div className="space-y-2 max-h-[500px] min-w-[200px] overflow-y-auto scrollbar flex flex-col">
