@@ -54,17 +54,15 @@ export const useReports = (): UseReportsReturn => {
           
           console.log('✅ Reporte enviado automáticamente al chat:', response.data.chat.chatID);
           // Mensaje de éxito con confirmación de envío
-          setSuccess(response.message + ' Se ha creado un chat automático llamado "REPORTE AI" y se ha enviado el reporte para análisis.');
+          setSuccess(response.message + ' Se ha creado un chat automático y se ha enviado el reporte para análisis.');
         } catch (chatError) {
           console.error('❌ Error enviando reporte al chat:', chatError);
           // Si falla el envío al chat, mostrar mensaje de éxito pero con advertencia
-          setSuccess(response.message + ' Se ha creado un chat automático llamado "REPORTE AI" pero hubo un problema al enviar el reporte.');
+          setSuccess(response.message + ' Se ha creado un chat automático pero hubo un problema al enviar el reporte.');
         }
       } else {
         setSuccess(response.message);
       }
-      
-      return response;
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al generar reporte de dispositivo');
       throw error;
@@ -103,8 +101,6 @@ export const useReports = (): UseReportsReturn => {
       } else {
         setSuccess(response.message);
       }
-      
-      return response;
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al generar reporte de grupo');
       throw error;
