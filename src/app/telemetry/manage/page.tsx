@@ -275,44 +275,6 @@ const ManagePage: React.FC = () => {
 
             {/* Sidebar Stats */}
             <div className="space-y-6">
-              
-              {/* Quick Stats */}
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-                <h3 className="text-lg font-semibold text-white mb-4">Estadísticas</h3>
-                <div className="space-y-4">
-                  {activeTab === 'devices' ? (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">Total</span>
-                        <span className="text-2xl font-bold text-white">{devices.length}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">Activos</span>
-                        <span className="text-2xl font-bold text-emerald-400">{activeDevices}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">Inactivos</span>
-                        <span className="text-2xl font-bold text-orange-400">{inactiveDevices}</span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">Total</span>
-                        <span className="text-2xl font-bold text-white">{groups.length}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">Con dispositivos</span>
-                        <span className="text-2xl font-bold text-blue-400">{groupsWithDevices}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">Promedio</span>
-                        <span className="text-2xl font-bold text-purple-400">{avgDevicesPerGroup}</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
 
               {/* Quick Actions */}
               <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
