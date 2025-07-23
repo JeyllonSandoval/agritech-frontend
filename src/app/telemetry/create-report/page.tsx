@@ -418,32 +418,25 @@ const CreateReportPage: React.FC<CreateReportPageProps> = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
       
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleBackToTelemetry}
-                className="p-2 text-white/70 hover:text-white transition-colors"
-              >
-                <ArrowLeftIcon className="w-6 h-6" />
-              </button>
-              <div>
-                <h1 className="text-xl font-semibold text-white">
-                  Crear Reporte
-                </h1>
-                <p className="text-sm text-white/60">
-                  Genera reportes detallados de dispositivos y grupos
-                </p>
-              </div>
-            </div>
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ">
+        <div className="flex items-center gap-4 mb-8">
+          <button
+            onClick={handleBackToTelemetry}
+            className="p-2 text-white/70 hover:text-white transition-colors"
+          >
+            <ArrowLeftIcon className="w-6 h-6" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-semibold text-white">
+              Crear Reporte
+            </h1>
+            <p className="text-lg text-white/60">
+              Genera reportes detallados de dispositivos y grupos
+            </p>
           </div>
         </div>
-      
-
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-xl">
           {/* Error Display */}
           {reportError && (

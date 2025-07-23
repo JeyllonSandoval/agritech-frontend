@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { DeviceInfo, Group } from '../../../types/telemetry';
 import { ArrowPathIcon, PlayCircleIcon, PauseCircleIcon, InformationCircleIcon, CloudIcon, PlusCircleIcon, UsersIcon, Squares2X2Icon, DocumentChartBarIcon, AdjustmentsHorizontalIcon, DevicePhoneMobileIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import DropdownControl from './DropdownControl';
-import DeviceComparison from './DeviceComparison';
 
 interface TelemetryControlsProps {
   polling: boolean;
@@ -48,7 +47,6 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
   groups = [],
 }) => {
   const router = useRouter();
-  const [showDeviceComparison, setShowDeviceComparison] = useState(false);
 
   // Handlers mejorados con fallbacks apropiados
   const handleAddDevice = () => {
@@ -63,8 +61,8 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
     if (onShowDevices) {
       onShowDevices();
     } else {
-      // Usar el handler del dashboard
-      console.log('Mostrando gestión de dispositivos');
+      // Redirigir a la página de gestión
+      router.push('/telemetry/manage');
     }
   };
 
@@ -107,8 +105,8 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
     if (onShowGroupManager) {
       onShowGroupManager();
     } else {
-      // Usar el handler del dashboard
-      console.log('Mostrando gestión de grupos');
+      // Redirigir a la página de gestión
+      router.push('/telemetry/manage');
     }
   };
 
@@ -116,7 +114,8 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
     if (onShowDeviceComparison) {
       onShowDeviceComparison();
     } else {
-      setShowDeviceComparison(true);
+      // Redirigir a la página de comparación
+      router.push('/telemetry/compare');
     }
   };
 
@@ -174,37 +173,13 @@ const TelemetryControls: React.FC<TelemetryControlsProps> = ({
             options={[
               { label: 'Comparar dispositivos', onClick: handleShowDeviceComparison, icon: <DevicePhoneMobileIcon className="w-5 h-5" /> },
               { label: 'Generar Reporte', onClick: () => router.push('/telemetry/create-report'), icon: <DocumentChartBarIcon className="w-5 h-5" /> },
-              { label: 'Gestionar dispositivos', onClick: handleShowDevices, icon: <DevicePhoneMobileIcon className="w-5 h-5" /> },
-              { label: 'Gestionar grupos', onClick: handleShowGroupManager, icon: <UsersIcon className="w-5 h-5" /> },
+              { label: 'Gestionar dispositivos y grupos', onClick: () => router.push('/telemetry/manage'), icon: <UsersIcon className="w-5 h-5" /> },
             ].map(opt => ({ ...opt, className: 'text-base font-medium' }))}
           />
         </div>
       </div>
       
-      {/* Modales */}
-      {showDeviceComparison && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white">Comparación de Dispositivos</h2>
-                <button
-                  onClick={() => setShowDeviceComparison(false)}
-                  className="text-white/60 hover:text-red-400 transition-colors p-2"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <DeviceComparison 
-                devices={devices} 
-                onClose={() => setShowDeviceComparison(false)} 
-              />
-            </div>
-          </div>
-        </div>
-      )}
+
       
 
     </>

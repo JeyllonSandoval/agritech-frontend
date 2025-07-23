@@ -52,8 +52,6 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
   pollInterval = 30000
 }) => {
   const [showDeviceInfo, setShowDeviceInfo] = useState(false);
-  const [showDeviceComparison, setShowDeviceComparison] = useState(false);
-  const [showGroupManager, setShowGroupManager] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<null | 'info' | 'weather'>(null);
 
@@ -62,8 +60,6 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     console.log('🔍 [DASHBOARD] Panel changing from', activePanel, 'to', panel);
     setActivePanel(panel);
   };
-  // Removed unused weather panel state variables since we're using hooks now
-  const [showDeviceManager, setShowDeviceManager] = useState(false);
 
   // Elimina el estado local de deviceCharacteristics
 
@@ -246,31 +242,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     setShowDeviceInfo(false);
   };
 
-  const handleShowDeviceComparison = () => {
-    setShowDeviceComparison(true);
-  };
 
-  const handleHideDeviceComparison = () => {
-    setShowDeviceComparison(false);
-  };
-
-  const handleShowGroupManager = () => {
-    setShowGroupManager(true);
-  };
-
-  const handleHideGroupManager = () => {
-    setShowGroupManager(false);
-  };
-
-
-
-  const handleShowDeviceManager = () => {
-    setShowDeviceManager(true);
-  };
-
-  const handleHideDeviceManager = () => {
-    setShowDeviceManager(false);
-  };
 
   const handleShowHelp = () => {
     setIsHelpModalOpen(true);
@@ -387,12 +359,9 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
             onTogglePolling={handleTogglePolling}
             onRefresh={handleRefresh}
             onShowDeviceInfo={handleShowDeviceInfo}
-            onShowDeviceComparison={handleShowDeviceComparison}
-            onShowGroupManager={handleShowGroupManager}
-            onShowDevices={handleShowDeviceManager}
             selectedDevice={selectedDevice}
-                                onShowInfoPanel={() => setActivePanelWithLog('info')}
-                    onShowWeatherPanel={() => setActivePanelWithLog('weather')}
+            onShowInfoPanel={() => setActivePanelWithLog('info')}
+            onShowWeatherPanel={() => setActivePanelWithLog('weather')}
             devices={devices}
             groups={groups}
           />
@@ -685,44 +654,7 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
             />
           )}
 
-          {/* Device Comparison Modal */}
-          {showDeviceComparison && (
-            <DeviceComparison
-              devices={devices}
-              onClose={handleHideDeviceComparison}
-            />
-          )}
 
-          {/* Device Group Manager Modal */}
-          {showGroupManager && (
-            <DeviceGroupManager
-              devices={devices}
-              groups={groups}
-              onClose={handleHideGroupManager}
-              onGroupCreated={(group) => {
-                // Refresh groups after creation
-                fetchGroups();
-              }}
-              onGroupUpdated={(group) => {
-                // Refresh groups after update
-                fetchGroups();
-              }}
-              onGroupDeleted={(groupId) => {
-                // Refresh groups after deletion
-                fetchGroups();
-              }}
-            />
-          )}
-
-
-          {showDeviceManager && (
-            <DeviceManager
-              onClose={handleHideDeviceManager}
-              onDeviceCreated={fetchDevices}
-              onDeviceUpdated={fetchDevices}
-              onDeviceDeleted={fetchDevices}
-            />
-          )}
         </div>
       </div>
     </>
