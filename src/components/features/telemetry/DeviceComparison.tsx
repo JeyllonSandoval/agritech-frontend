@@ -1080,7 +1080,7 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
                   <HistoricalChart 
                     comparisonData={comparisonData}
                     metric="soilMoisture"
-                    label="Humedad del Suelo"
+                    label="Humedad del Suelo CH1"
                     unit="%"
                     path={['soil_ch1', 'soilmoisture']}
                   />

@@ -477,7 +477,7 @@ const CreateGroupPage: React.FC<CreateGroupPageProps> = () => {
                 </div>
 
                 {/* Lista de dispositivos */}
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+                <div className="flex flex-col md:flex-row gap-4 max-h-96 overflow-y-auto">
                   {filteredDevices.length > 0 ? (
                     filteredDevices.map((device) => (
                       <div
@@ -489,7 +489,7 @@ const CreateGroupPage: React.FC<CreateGroupPageProps> = () => {
                             : 'bg-white/10 border-white/20 hover:bg-white/20'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3">
                             <div className={`p-2 rounded-lg ${
                               selectedDevices.includes(device.DeviceID)

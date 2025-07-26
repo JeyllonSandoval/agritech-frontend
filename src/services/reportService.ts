@@ -50,6 +50,14 @@ export interface ReportResponse {
       successfulReports?: number;
       failedReports?: number;
       devicesWithHistoricalData?: number;
+      // Datos completos para el PDF
+      device?: any;
+      weather?: any;
+      deviceData?: any;
+      metadata?: any;
+      group?: any;
+      devices?: any[];
+      errors?: any[];
     };
     // Nueva información del chat automático
     chat?: {

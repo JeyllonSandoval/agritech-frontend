@@ -429,7 +429,7 @@ const DeviceGroupManager: React.FC<DeviceGroupManagerProps> = ({
           <div className="flex justify-center pt-4">
             <button
               onClick={handleNewGroup}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-all duration-200"
+              className="flex items-center gap-2 mb-6 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-all duration-200"
             >
               <PlusIcon className="w-5 h-5" />
               Crear Grupo
