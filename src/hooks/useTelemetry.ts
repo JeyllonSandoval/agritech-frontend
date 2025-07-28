@@ -506,7 +506,6 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   const performAutoLoad = useCallback(async () => {
     if (!userId || authLoading) return;
 
-    console.log('🚀 [HOOK] Iniciando carga automática de datos...');
     setAutoLoadProgress({
       devices: false,
       groups: false,
@@ -515,7 +514,6 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
 
     try {
       // 1. Cargar dispositivos y grupos en paralelo
-      console.log('📡 [HOOK] Cargando dispositivos y grupos...');
       await Promise.all([
         fetchDevices(),
         fetchGroups()
@@ -525,7 +523,6 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
 
       // 2. PRECARGAR DATOS DE TODOS LOS DISPOSITIVOS
       if (state.devices.length > 0) {
-        console.log('📡 [HOOK] Precargando datos de todos los dispositivos...');
         
         // Precargar datos de todos los dispositivos en paralelo
         const deviceDataPromises = state.devices.map(async (device) => {
@@ -578,13 +575,10 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
           lastUpdate: new Date().toISOString()
         });
 
-        // NO seleccionar automáticamente ningún dispositivo
-        // Los datos están precargados pero no hay selección automática
       }
 
       // 3. PRECARGAR DATOS DE TODOS LOS GRUPOS
       if (state.groups.length > 0) {
-        console.log('📡 [HOOK] Precargando datos de todos los grupos...');
         
         const groupDataPromises = state.groups.map(async (group) => {
           try {
@@ -678,7 +672,6 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
 
       setAutoLoadProgress(prev => ({ ...prev, initialData: true }));
       setAutoLoadComplete(true);
-      console.log('✅ [HOOK] Carga automática completada - Todos los datos precargados');
     } catch (error) {
       console.error('❌ [HOOK] Error en carga automática:', error);
       setError('Error al cargar datos automáticamente');
@@ -704,7 +697,6 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     // Usar datos precargados si están disponibles
     const precachedData = state.precachedData;
     if (precachedData && precachedData.realtimeData[device.DeviceID]) {
-      console.log('🚀 [HOOK] Usando datos precargados para dispositivo:', device.DeviceName);
       updateState({
         selectedDevice: device,
         realtimeData: precachedData.realtimeData[device.DeviceID],
@@ -713,7 +705,6 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
       });
     } else {
       // Fallback a carga tradicional si no hay datos precargados
-      console.log('📡 [HOOK] Cargando datos del dispositivo:', device.DeviceName);
       selectDevice(device);
     }
   }, [state.precachedData, updateState, selectDevice]);
@@ -732,7 +723,6 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     // Usar datos precargados si están disponibles
     const precachedGroupData = state.precachedGroupData;
     if (precachedGroupData && precachedGroupData.groupDevices[group.DeviceGroupID]) {
-      console.log('🚀 [HOOK] Usando datos precargados para grupo:', group.GroupName);
       updateState({ selectedGroup: group });
       
       // Cargar datos del grupo desde el caché
@@ -742,7 +732,6 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
       setGroupRealtimeData(precachedGroupData.groupRealtimeData[group.DeviceGroupID] || {});
     } else {
       // Fallback a carga tradicional si no hay datos precargados
-      console.log('📡 [HOOK] Cargando datos del grupo:', group.GroupName);
       updateState({ selectedGroup: group });
     }
   }, [state.precachedGroupData, updateState]);
@@ -782,7 +771,6 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
       
       // Si no hay datos precargados, cargar normalmente
       if (!precachedData || !precachedData.realtimeData[deviceId]) {
-        console.log('📡 [HOOK] Cargando datos del dispositivo (no precargados):', state.selectedDevice.DeviceName);
         setLoading(true);
         
         Promise.all([
