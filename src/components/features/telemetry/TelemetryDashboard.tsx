@@ -3,7 +3,7 @@
 // Main component for displaying telemetry data and controls
 // ============================================================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTelemetry } from '../../../hooks/useTelemetry';
 import TelemetryStats from '../../../components/features/telemetry/TelemetryStats';
 import DeviceSelector from '../../../components/features/telemetry/DeviceSelector';
@@ -136,51 +136,60 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
     groupDevicesCharacteristics
   });
 
-  const { t } = useTranslation();
-  const telemetryFeatures = [
+  const { t, loadTranslations } = useTranslation();
+  const [translationsLoaded, setTranslationsLoaded] = useState(false);
+  
+  // Cargar traducciones al inicializar
+  useEffect(() => {
+    loadTranslations('telemetry').then(() => {
+      setTranslationsLoaded(true);
+    });
+  }, []);
+
+  const telemetryFeatures = useMemo(() => [
     {
       icon: ChartBarIcon,
-      title: t('telemetry.realTimeData'),
-      description: t('telemetry.realTimeDataDesc'),
-      details: t('telemetry.realTimeDataDetails')
+      title: t('realTimeData'),
+      description: t('realTimeDataDesc'),
+      details: t('realTimeDataDetails')
     },
     {
       icon: SparklesIcon,
-      title: t('telemetry.analytics'),
-      description: t('telemetry.analyticsDesc'),
-      details: t('telemetry.analyticsDetails')
+      title: t('analytics'),
+      description: t('analyticsDesc'),
+      details: t('analyticsDetails')
     },
     {
       icon: DocumentChartBarIcon,
-      title: t('telemetry.reports'),
-      description: t('telemetry.reportsDesc'),
-      details: t('telemetry.reportsDetails')
+      title: t('reports'),
+      description: t('reportsDesc'),
+      details: t('reportsDetails')
     },
     {
       icon: Cog6ToothIcon,
-      title: t('telemetry.automation'),
-      description: t('telemetry.automationDesc'),
-      details: t('telemetry.automationDetails')
+      title: t('automation'),
+      description: t('automationDesc'),
+      details: t('automationDetails')
     },
     {
       icon: BellAlertIcon,
-      title: t('telemetry.monitoring'),
-      description: t('telemetry.monitoringDesc'),
-      details: t('telemetry.monitoringDetails')
+      title: t('monitoring'),
+      description: t('monitoringDesc'),
+      details: t('monitoringDetails')
     },
     {
       icon: CpuChipIcon,
-      title: t('telemetry.ai'),
-      description: t('telemetry.aiDesc'),
-      details: t('telemetry.aiDetails')
+      title: t('ai'),
+      description: t('aiDesc'),
+      details: t('aiDetails')
     },
     {
       icon: ScaleIcon,
-      title: t('telemetry.comparison'),
-      description: t('telemetry.comparisonDesc'),
-      details: t('telemetry.comparisonDetails')
+      title: t('comparison'),
+      description: t('comparisonDesc'),
+      details: t('comparisonDetails')
     }
-  ];
+  ], [translationsLoaded, t]);
 
   // ============================================================================
   // HANDLERS
@@ -313,6 +322,15 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
   // RENDER
   // ============================================================================
 
+  // No renderizar hasta que las traducciones estén cargadas
+  if (!translationsLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-white">Cargando...</div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className=" p-4">
@@ -340,8 +358,8 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
             onClose={() => setIsHelpModalOpen(false)}
             namespace="telemetry"
             features={telemetryFeatures}
-            title={t('telemetry.helpTitle')}
-            description={t('telemetry.helpDescription')}
+            title={t('helpTitle')}
+            description={t('helpDescription')}
           />
 
           {/* Stats Overview */}
