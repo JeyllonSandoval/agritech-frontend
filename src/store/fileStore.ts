@@ -9,6 +9,7 @@ error: string | null;
 fetchFiles: () => Promise<void>;
 addFile: (file: FileProps) => void;
 removeFile: (fileId: string) => void;
+updateFile: (fileId: string, updatedFile: Partial<FileProps>) => void;
 clearFiles: () => void;
 }
 
@@ -28,6 +29,13 @@ fetchFiles: async () => {
 addFile: (file) => set((state) => ({ files: [...state.files, file] })),
 removeFile: (fileId) => set((state) => ({ 
     files: state.files.filter(file => file.FileID !== fileId) 
+})),
+updateFile: (fileId, updatedFile) => set((state) => ({
+    files: state.files.map(file => 
+        file.FileID === fileId 
+            ? { ...file, ...updatedFile }
+            : file
+    )
 })),
 clearFiles: () => set({ files: [] })
 })); 

@@ -30,6 +30,7 @@ export default React.memo(function BarFiles({
 }: BarFilesProps) {
     const { openModal, setSelectedFile } = useModal();
     const removeFile = useFileStore(state => state.removeFile);
+    const updateFile = useFileStore(state => state.updateFile);
     const { t, loadTranslations } = useTranslation();
     const { language } = useLanguage();
     const [isLoaded, setIsLoaded] = useState(false);
@@ -74,6 +75,9 @@ export default React.memo(function BarFiles({
             });
 
             if (!response.ok) throw new Error('Error updating file');
+
+            // Actualizar el store
+            updateFile(file.FileID, { FileName: newName });
 
             // Notificar al componente padre si existe
             if (onEditFile) {
