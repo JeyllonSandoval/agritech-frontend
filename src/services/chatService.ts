@@ -27,9 +27,8 @@ export const chatService = {
         // Si hay un fileId, incluirlo en el body para que el backend procese el contenido
         if (fileId) {
             body.FileID = fileId;
-            // También incluir un indicador de que este mensaje está relacionado con un archivo
-            body.contentFile = 'file_attached';
             console.log(`ChatService - Enviando mensaje con archivo: FileID=${fileId}`);
+            // NO establecer contentFile aquí - solo FileID es suficiente para el procesamiento
         } else {
             console.log(`ChatService - Enviando mensaje sin archivo`);
         }
@@ -58,6 +57,7 @@ export const chatService = {
             sendertype: msg.senderType,
             contentAsk: msg.senderType === 'user' ? msg.content : undefined,
             contentResponse: msg.senderType === 'ai' ? msg.content : undefined,
+            // NO establecer contentFile aquí - debe venir del backend o ser null
             createdAt: msg.createdAt,
             status: msg.status
         };

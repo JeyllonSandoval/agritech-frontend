@@ -38,8 +38,12 @@ export const useChat = ({ ChatID }: UseChatProps) => {
 
     const loadChatHistory = async (chatId: string) => {
         try {
+            console.log(`🔍 [useChat] Cargando historial del chat: ${chatId}`);
             setIsLoading(true);
+            setError(null); // Limpiar errores previos
+            
             const allMessages = await chatService.getMessages(chatId);
+            console.log(`🔍 [useChat] Mensajes recibidos:`, allMessages.length, allMessages);
             
             // Asegurar que todos los mensajes tengan la hora del cliente
             const messagesWithClientTime = allMessages.map((message: Message) => {
@@ -59,10 +63,18 @@ export const useChat = ({ ChatID }: UseChatProps) => {
                 return transformed;
             });
 
+            console.log(`🔍 [useChat] Mensajes transformados:`, messagesWithClientTime.length);
             setMessages(messagesWithClientTime);
+            
+            // Si no hay mensajes, también es un estado válido
+            if (messagesWithClientTime.length === 0) {
+                console.log(`🔍 [useChat] Chat sin mensajes - estado limpio`);
+            }
         } catch (err) {
-            console.error('Error loading chat history:', err);
+            console.error('🔥 [useChat] Error loading chat history:', err);
             setError(err instanceof Error ? err.message : 'Error loading chat history');
+            // En caso de error, asegurar que el estado esté limpio
+            setMessages([]);
         } finally {
             setIsLoading(false);
         }
@@ -75,13 +87,24 @@ export const useChat = ({ ChatID }: UseChatProps) => {
             setIsLoading(true);
             setError(null);
 
-            // 1. Crear y mostrar mensaje del usuario
+            // Determinar si este mensaje debe usar un archivo
+            const isDeviceData = content.includes('Datos del Dispositivo:');
+            const shouldUseFile = !isDeviceData && selectedFile && content.trim() !== '';
+            const fileId = shouldUseFile ? selectedFile.FileID : undefined;
+            
+            // Limpiar archivo seleccionado INMEDIATAMENTE después de usarlo para este mensaje
+            if (!isDeviceData) {
+                setSelectedFile(null);
+            }
+
+            // 1. Crear y mostrar mensaje del usuario (SIN información de archivo local)
             const userMessage: Message = {
                 ChatID: currentChat.ChatID,
                 contentAsk: content,
                 sendertype: 'user',
                 status: 'active',
                 createdAt: new Date().toISOString()
+                // NO incluir FileID ni contentFile aquí - solo para mostrar el mensaje
             };
 
             // 2. Crear placeholder de IA con ID único
@@ -97,10 +120,9 @@ export const useChat = ({ ChatID }: UseChatProps) => {
 
             setMessages(prev => [...prev, userMessage, aiPlaceholder]);
 
-            // 3. Enviar al backend y obtener respuesta - Incluir FileID solo si NO son datos de dispositivo
-            const isDeviceData = content.includes('Datos del Dispositivo:');
-            const fileId = isDeviceData ? undefined : selectedFile?.FileID;
-            console.log(`Enviando mensaje con content: "${content}", fileId: ${fileId}, isDeviceData: ${isDeviceData}`);
+            // 3. Enviar al backend y obtener respuesta
+            
+            console.log(`Enviando mensaje con content: "${content}", fileId: ${fileId}, shouldUseFile: ${shouldUseFile}, selectedFile: ${selectedFile?.FileName}`);
             
             const backendResponse = await chatService.sendMessage(currentChat.ChatID, content, fileId);
             const backendMessage: Message = {

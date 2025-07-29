@@ -52,15 +52,16 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ChatID]);
 
-    // Load chat history when currentChat changes
+    // Load chat history when currentChat changes OR when ChatID is available
     useEffect(() => {
-        if (currentChat?.ChatID) {
-            loadChatHistory(currentChat.ChatID);
+        const chatIdToLoad = currentChat?.ChatID || ChatID;
+        if (chatIdToLoad) {
+            loadChatHistory(chatIdToLoad);
             // Cargar archivos cuando se carga un chat
             fetchFiles();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentChat]);
+    }, [currentChat, ChatID]);
 
     useEffect(() => {
         loadTranslations('chatPanel');

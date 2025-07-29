@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Message } from '@/types/message';
 import ItemMessage from '@/components/common/UI/items/itemMessages';
-import FileAnalysisResult from '@/components/common/UI/items/FileAnalysisResult';
 import DeviceDataMessage from '@/components/common/UI/items/DeviceDataMessage';
 import { FileProps } from '@/hooks/getFiles';
 import { useLanguage } from '@/context/languageContext';
@@ -125,29 +124,20 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
 
 
 
-    // Nuevo Set para evitar duplicados de mensajes de usuario por FileID
-    //
-    // Para evitar duplicados, primero identificamos los FileID que tienen mensajes de usuario o análisis
-    const fileIdsWithUserOrAnalysis = new Set<string>();
-    messages.forEach((msg) => {
-        if (
-            msg.FileID &&
-            (msg.sendertype === 'user' || (msg.contentAsk && msg.contentResponse))
-        ) {
-            fileIdsWithUserOrAnalysis.add(msg.FileID);
-        }
-    });
-    //
-    // Set para evitar renderizar más de un análisis por MessageID
-    const processedFileAnalysisIds = new Set<string>();
-    // Set para evitar renderizar más de un mensaje de archivo por FileID
+    // Simplificar - solo rastrear mensajes de archivo que ya fueron renderizados
     const renderedFileMsgIds = new Set<string>();
-    // Guardar el último FileID de mensaje de usuario para evitar duplicados consecutivos
-    let lastUserFileID: string | null = null;
+
+    // Debug logging
+    console.log(`🔍 [TableShowMessage] Renderizando ${messages.length} mensajes`);
 
     return (
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-1 sm:p-3 space-y-2 sm:space-y-3 md:p-4 scrollbar z-0">
-            {messages.map((message, index) => {
+            {messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full text-white/50">
+                    {isLoading ? 'Cargando mensajes...' : 'No hay mensajes en este chat'}
+                </div>
+            ) : (
+                messages.map((message, index) => {
                 // Debug logging para todos los mensajes de usuario
                 if (message.sendertype === 'user') {
                     const content = message.content || message.contentAsk || message.contentFile || message.question || '';
@@ -184,63 +174,44 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                     );
                 }
 
-                // Mostrar mensaje de archivo solo si NO hay mensajes de usuario o análisis para ese FileID
+                // SOLO mostrar mensaje de archivo para "New file selected" específicamente
                 if (
-                    message.FileID &&
-                    message.contentFile &&
-                    !fileIdsWithUserOrAnalysis.has(message.FileID) &&
-                    !renderedFileMsgIds.has(message.FileID)
+                    message.sendertype === 'user' &&
+                    message.contentFile === 'New file selected' &&
+                    !renderedFileMsgIds.has(message.MessageID || message.FileID || 'temp')
                 ) {
-                    renderedFileMsgIds.add(message.FileID);
+                    renderedFileMsgIds.add(message.MessageID || message.FileID || 'temp');
                     return (
                         <div key={`filemsg-${message.MessageID || 'temp'}-${index}`} className="w-full">
                             <ItemMessage
                                 content={message.contentFile}
-                                sendertype={'user'}
+                                sendertype={message.sendertype}
                                 createdAt={message.createdAt}
                                 isNew={false}
-                                fileInfo={(() => {
+                                fileInfo={message.FileID ? (() => {
                                     const name = getFileName(message.FileID);
                                     if (name) return { FileName: name };
-                                    // Si no hay archivos cargados, mostrar estado de carga
                                     if (!files || files.length === 0) return { FileName: translations.loadingFile };
                                     return { FileName: translations.fileNotFound };
-                                })()}
+                                })() : undefined}
                                 isLoading={!files || files.length === 0}
                             />
                         </div>
                     );
                 }
 
-                // Mostrar FileAnalysisResult para respuestas de análisis (solo una vez por MessageID)
-                if (
-                    message.FileID &&
-                    message.contentAsk &&
-                    message.contentResponse &&
-                    !processedFileAnalysisIds.has(message.MessageID || '')
-                ) {
-                    processedFileAnalysisIds.add(message.MessageID || '');
-                    
-                    return (
-                        <div key={`analysis-${message.MessageID || 'temp'}-${index}`} className="w-full">
-                            <FileAnalysisResult
-                                question={message.contentAsk}
-                                description=""
-                                answer={message.contentResponse}
-                                isLoading={message.isLoading || isLoading}
-                            />
-                        </div>
-                    );
-                }
+                // ELIMINADO: FileAnalysisResult - ahora todas las respuestas de AI son mensajes normales
 
-                // Mostrar mensajes de usuario, pero nunca dos seguidos con el mismo FileID
-                if (message.FileID && message.sendertype === 'user') {
-                    if (lastUserFileID === message.FileID) {
+                // Simplificar filtrado de mensajes de usuario - solo evitar duplicados exactos consecutivos
+                if (message.sendertype === 'user') {
+                    const currentContent = getMessageContent(message);
+                    const prevMessage = index > 0 ? messages[index - 1] : null;
+                    const prevContent = prevMessage ? getMessageContent(prevMessage) : '';
+                    
+                    // Solo ocultar si es exactamente el mismo contenido que el mensaje anterior
+                    if (prevMessage && prevMessage.sendertype === 'user' && currentContent === prevContent && currentContent.trim() !== '') {
                         return null;
                     }
-                    lastUserFileID = message.FileID;
-                } else if (message.sendertype === 'user') {
-                    lastUserFileID = null;
                 }
 
                 // Mensajes normales
@@ -251,18 +222,17 @@ export default function TableShowMessage({ messages, isLoading, files }: TableSh
                             sendertype={message.sendertype}
                             createdAt={message.createdAt}
                             isNew={false}
-                            fileInfo={message.FileID ? (() => {
-                                const name = getFileName(message.FileID);
-                                if (name) return { FileName: name };
-                                // Si no hay archivos cargados, mostrar estado de carga
-                                if (!files || files.length === 0) return { FileName: translations.loadingFile };
-                                return { FileName: translations.fileNotFound };
-                            })() : undefined}
-                            isLoading={message.isLoading || Boolean(message.FileID && (!files || files.length === 0))}
+                            fileInfo={
+                                // NO mostrar fileInfo automáticamente - solo para casos específicos como "New file selected"
+                                // Los mensajes con FileID para procesamiento no deben mostrar el indicador de archivo
+                                undefined
+                            }
+                            isLoading={message.isLoading || false}
                         />
                     </div>
                 );
-            })}
+                })
+            )}
             <div ref={messagesEndRef} />
         </div>
     );
