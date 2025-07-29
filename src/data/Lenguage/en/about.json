@@ -2,16 +2,34 @@
   "companyInfo": {
     "name": "AgriTech",
     "logo": "/icon/AgriTech-Logo-_transparent_.webp",
-    "slogan": "Innovating Agriculture for a Sustainable Future"
+    "slogan": "Intelligent System for Agricultural Optimization in Dominican Republic"
   },
   "sections": [
+    {
+      "id": "project-overview",
+      "title": "Project Vision",
+      "icon": "FaEye",
+      "content": {
+        "type": "description",
+        "description": "AgriTech represents an innovative solution that integrates artificial intelligence and real-time data analysis to transform Dominican agriculture. Our system addresses the structural and technological challenges that limit the efficiency, sustainability, and competitiveness of the national agricultural sector, offering accessible tools for small producers, students, and technology enthusiasts."
+      }
+    },
+    {
+      "id": "problem-context",
+      "title": "Problem Context",
+      "icon": "FaExclamationTriangle",
+      "content": {
+        "type": "description",
+        "description": "Agriculture in the Dominican Republic faces multiple challenges: insufficient use of traditional practices, limited incorporation of advanced technologies, and lack of access to data analysis tools. According to the FAO, digital technologies can increase agricultural productivity by 20-30%, but in the Dominican context these tools are applied in a limited way, especially among small producers."
+      }
+    },
     {
       "id": "general-objective",
       "title": "General Objective",
       "icon": "FaTrophy",
       "content": {
         "type": "description",
-        "description": "Develop and implement an artificial intelligence-based platform that optimizes agricultural production through real-time data analysis, enabling improved efficiency and sustainability in the agricultural sector."
+        "description": "Develop and implement an artificial intelligence-based platform that optimizes agricultural production through real-time data analysis, enabling improved efficiency and sustainability in the Dominican agricultural sector."
       }
     },
     {
@@ -22,88 +40,179 @@
         "type": "items",
         "items": [
           {
-            "title": "Integration of advanced technologies",
-            "icon": "FaTools",
-            "description": "Implement machine learning models and specialized sensors to collect and analyze data on soil, climate, and early pest detection."
+            "title": "Integration of Advanced Technologies",
+            "icon": "FaMicrochip",
+            "description": "Implement machine learning models and specialized sensors to collect and analyze data on soil, climate, and early detection of pests and diseases."
           },
           {
-            "title": "Optimization of agricultural resources",
-            "icon": "FaBolt",
-            "description": "Reduce excessive use of fertilizers, water, and pesticides through personalized recommendations based on accurate data."
+            "title": "Optimization of Agricultural Resource Use",
+            "icon": "FaTint",
+            "description": "Reduce excessive use of fertilizers, water, and pesticides through personalized recommendations based on accurate data and predictive analysis."
           },
           {
-            "title": "Prevention of pest and disease losses",
+            "title": "Prevention of Pest and Disease Losses",
             "icon": "FaShieldAlt",
-            "description": "Use artificial intelligence to identify and alert about potential threats to crops before they cause significant damage."
+            "description": "Use artificial intelligence to identify and alert about potential threats to crops before they cause significant damage to production."
           },
           {
-            "title": "Accessibility for different types of producers",
+            "title": "Accessibility for Different Types of Producers",
             "icon": "FaUsers",
-            "description": "Design an intuitive and adaptable system that can be used by both small farmers and medium-sized producers."
+            "description": "Design an intuitive and adaptable system that can be used by small farmers, students, and technology enthusiasts in rural and urban areas."
           },
           {
-            "title": "Promotion of agricultural sustainability",
+            "title": "Promotion of Agricultural Sustainability",
             "icon": "FaLeaf",
-            "description": "Foster more responsible farming practices that minimize environmental impact and improve global food security."
+            "description": "Foster more responsible farming practices that minimize environmental impact and improve food security at the national level."
           }
         ]
       }
     },
     {
-      "id": "mission-vision",
-      "title": "Mission & Vision",
-      "icon": "FaBullseye",
-      "content": {
-        "type": "mission-vision",
-        "mission": {
-          "title": "Mission",
-          "icon": "FaFlag",
-          "items": [
-            "Transform agriculture through the use of artificial intelligence and advanced technology, optimizing agricultural production and promoting efficient use of natural resources. We seek to provide innovative solutions that help farmers improve their productivity, reduce environmental impact, and ensure sustainability in the agri-food sector.",
-            "Create technological solutions that improve agriculture efficiency and sustainability."
-          ]
-        },
-        "vision": {
-          "title": "Vision",
-          "icon": "FaEye",
-          "items": [
-            "Be the leading platform in smart agriculture globally, recognized for its innovation, accessibility, and commitment to sustainable development. We aspire to revolutionize the agricultural sector through digitalization and artificial intelligence, improving farmers' quality of life and contributing to global food security.",
-            "Lead the digital transformation of agriculture to maximize yields and reduce environmental impact."
-          ]
-        }
-      }
-    },
-    {
-      "id": "values",
-      "title": "Values",
-      "icon": "FaHandshake",
+      "id": "methodology",
+      "title": "Project Methodology",
+      "icon": "FaCogs",
       "content": {
         "type": "items",
         "items": [
           {
-            "title": "Innovation",
-            "icon": "FaLightbulb",
-            "description": "We promote the development of advanced technologies to improve agriculture efficiency and sustainability."
+            "title": "Non-Experimental Quantitative Approach",
+            "icon": "FaChartBar",
+            "description": "Descriptive and correlational research that analyzes the implementation of AI in agriculture without manipulating variables, observing the phenomenon in its natural context."
           },
           {
-            "title": "Sustainability",
-            "icon": "FaLeaf",
-            "description": "We promote responsible agricultural practices that minimize environmental impact."
+            "title": "Real-Time Data Analysis",
+            "icon": "FaClock",
+            "description": "Continuous collection and processing of climate, soil, and crop information to generate immediate and accurate recommendations."
           },
           {
-            "title": "Commitment",
+            "title": "Validation with Real Users",
+            "icon": "FaCheckCircle",
+            "description": "Evaluation with a sample of 50-70 participants in the Cibao region, including farmers, agronomists, and institutional representatives."
+          },
+          {
+            "title": "Iterative Development",
+            "icon": "FaRecycle",
+            "description": "Continuous improvement process based on user feedback and results analysis to optimize the platform."
+          }
+        ]
+      }
+    },
+    {
+      "id": "theoretical-foundations",
+      "title": "Theoretical Foundations",
+      "icon": "FaGraduationCap",
+      "content": {
+        "type": "items",
+        "items": [
+          {
+            "title": "Precision Agriculture",
+            "icon": "FaMapMarkerAlt",
+            "description": "Use of GPS technologies, sensors, and data analysis to optimize variable management of agricultural plots according to their specific characteristics."
+          },
+          {
+            "title": "Agriculture 4.0",
+            "icon": "FaRobot",
+            "description": "Integration of Internet of Things (IoT), artificial intelligence, drones, and robotics for automated and precise management of production processes."
+          },
+          {
+            "title": "Complex Systems",
+            "icon": "FaProjectDiagram",
+            "description": "Interdisciplinary approach that considers agriculture as a system where multiple variables converge: climate, soil, crops, and human factors."
+          },
+          {
+            "title": "Machine Learning",
+            "icon": "FaBrain",
+            "description": "Application of algorithms that learn from historical data to predict weather conditions, identify pests, and recommend farming practices."
+          }
+        ]
+      }
+    },
+    {
+      "id": "expected-impact",
+      "title": "Expected Impact",
+      "icon": "FaRocket",
+      "content": {
+        "type": "items",
+        "items": [
+          {
+            "title": "Digital Transformation of the Sector",
+            "icon": "FaDigitalTachograph",
+            "description": "Reduce the technological gap in the Dominican agricultural field, especially among small producers and rural communities."
+          },
+          {
+            "title": "Productivity Improvement",
+            "icon": "FaArrowUp",
+            "description": "Expected 20-30% increase in agricultural productivity through resource optimization and data-driven decision making."
+          },
+          {
+            "title": "Environmental Sustainability",
+            "icon": "FaGlobeAmericas",
+            "description": "Reduction of environmental impact through efficient use of water, fertilizers, and pesticides, promoting responsible agricultural practices."
+          },
+          {
+            "title": "Social and Economic Development",
+            "icon": "FaHandsHelping",
+            "description": "Contribute to rural economic development, improve working conditions, and foster technological inclusion in agricultural areas."
+          }
+        ]
+      }
+    },
+    {
+      "id": "scope-limitations",
+      "title": "Scope and Delimitations",
+      "icon": "FaMapMarkedAlt",
+      "content": {
+        "type": "items",
+        "items": [
+          {
+            "title": "Spatial Delimitation",
+            "icon": "FaMap",
+            "description": "Focused on the Cibao region, especially provinces like Monseñor Nouel and La Vega, recognized for their crop diversity and small producer activity."
+          },
+          {
+            "title": "Temporal Delimitation",
+            "icon": "FaCalendarAlt",
+            "description": "Project development framed in the 2023-2025 period, allowing observation of substantial changes in productivity and decision-making processes."
+          },
+          {
+            "title": "Conceptual Delimitation",
+            "icon": "FaBookOpen",
+            "description": "Specifically focused on precision agriculture with artificial intelligence, excluding genetic engineering, biotechnology, and machinery design."
+          },
+          {
+            "title": "Technical Limitations",
+            "icon": "FaTools",
+            "description": "System without direct integration with other agricultural platforms, focused on soil, climate, and pest analysis, not including financial or machinery management."
+          }
+        ]
+      }
+    },
+    {
+      "id": "dedications-acknowledgments",
+      "title": "Dedications and Acknowledgments",
+      "icon": "FaHeart",
+      "content": {
+        "type": "items",
+        "items": [
+          {
+            "title": "Dedication - Juan Manuel Flores Hernández",
+            "icon": "FaUserTie",
+            "description": "I dedicate this project to my father, Cesar Flores, for being honest and perseverant, who has taught me to give my best effort and the value of work in every moment of my life. To my mother, Andrea Leticia, for giving me all possible support even in my difficult moments, who has always been there to offer me her great tenderness that has always guided me to move forward. To my brother, Cesar Andrés, for having traveled those obstacles before me, for having shared challenges and learning with me and for being a great example of dedication and independence. To all my family and friends, mainly to Jeyllon Sandoval, Ismanol Ramírez, Kendra Rodríguez, Arianny Reyes and Felix Josué L. for having given me their great support, company, friendship and encouragement since the beginning of this academic stage. This achievement also belongs to them, for walking with me towards this goal."
+          },
+          {
+            "title": "Dedication - Jeyllon Slon Sandoval Rosario",
+            "icon": "FaUserTie",
+            "description": "First, I dedicate this work to you, reader, for taking the time to read and analyze the work of my partner and me, who invested time and effort, and now you do the same. Thank you, Arcenio Sandoval, for being an exemplary father, the best of all, because you have taught me the difference between loving and wanting. Complicated decisions, uncertain future and wanting to be better, all are things that have crossed my mind, although I have always been clear about what I want to be and where to go. Thank you, María Rosario, for being a dedicated mother, because you have taught me why we should follow our objectives and goals. To my brother Arsenio Sandoval, who often teaches and prepares me, who never loses an argument, and to whom I wouldn't bring a glass of water, but I would give my heart if he needed it. Thank you for being my brother!"
+          },
+          {
+            "title": "Acknowledgments - Juan Manuel Flores Hernández",
             "icon": "FaHandshake",
-            "description": "We work passionately to provide accessible and effective technological solutions."
+            "description": "To all people, especially to my family for being present with me and for being my strength, to my friends for their company and for the great support they have given me when I needed it."
           },
           {
-            "title": "Precision",
-            "icon": "FaBullseye",
-            "description": "We use data and intelligent algorithms to provide reliable and useful information."
-          },
-          {
-            "title": "Integrity",
-            "icon": "FaBalanceScale",
-            "description": "We maintain high ethical standards and transparency in all our operations."
+            "title": "Acknowledgments - Jeyllon Slon Sandoval Rosario",
+            "icon": "FaHandshake",
+            "description": "I thank those who were, are, and will be; friends, family because I, Jeyllon Slon Sandoval Rosario am the sum of each encounter, of each shared experience, of each word, wound, hug and farewell. Carpe diem."
           }
         ]
       }
