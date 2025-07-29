@@ -17,7 +17,7 @@
         "deleteFiles": {
             "title": "Delete All Files",
             "description": "Remove all your uploaded files",
-            "confirm": "Are you sure you want to delete all your files? This action cannot be undone."
+            "confirm": "Are you sure you want to delete all your files? All messages and uploaded files will be deleted. This action cannot be undone."
         }
     }
 } 

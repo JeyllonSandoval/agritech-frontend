@@ -17,7 +17,7 @@
         "deleteFiles": {
             "title": "Eliminar Todos los Archivos",
             "description": "Eliminar todos tus archivos subidos",
-            "confirm": "¿Estás seguro de que quieres eliminar todos tus archivos? Esta acción no se puede deshacer."
+            "confirm": "¿Estás seguro de que quieres eliminar todos tus archivos? Todos los mensajes y archivos subidos serán eliminados. Esta acción no se puede deshacer."
         }
     }
 } 
