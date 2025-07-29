@@ -2,7 +2,7 @@ import AboutContent from "@/components/common/UI/about/AboutContent";
 
 export default function AboutPage() {
     return (
-        <div className="w-full min-h-screen">
+        <div className="absolute inset-0 overflow-y-auto scroll-smooth">
             <AboutContent />
         </div>
     );

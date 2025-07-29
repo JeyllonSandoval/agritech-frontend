@@ -87,24 +87,33 @@ export default function Home() {
     return (
         <main className="absolute inset-0 overflow-y-auto scroll-smooth text-lg">
             {/* Progress Bar */}
-            <div className="fixed top-0 left-0 w-full h-1 bg-emerald-950/20 z-50">
+            <div className="fixed top-0 left-0 w-full h-1 bg-emerald-950/30 z-[60]">
                 <div 
-                    className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-300 ease-out" 
+                    className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-300 ease-out shadow-sm shadow-emerald-400/20" 
                     style={{ width: `${scrollProgress}%` }}
                 />
             </div>
 
             {/* Background Pattern - Fixed */}
             <div className="fixed inset-0 opacity-20 pointer-events-none z-0">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(16,185,129,0.1)_1px,transparent_0)] bg-[size:40px_40px]"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(16,185,129,0.15)_1px,transparent_0)] bg-[size:20px_20px]"></div>
+                <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_48%,rgba(16,185,129,0.05)_49%,rgba(16,185,129,0.05)_51%,transparent_52%)] bg-[size:60px_60px]"></div>
             </div>
 
             {/* Hero Section */}
-            <section className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-emerald-950/20 via-black to-emerald-900/20">
-                {/* Subtle Background Effects */}
+            <section className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-gradient-to-b from-emerald-950/5 via-black to-black">
+                {/* Background Effects */}
                 <div className="absolute inset-0 z-0">
-                    <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-emerald-400/5 rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl"></div>
+                    <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/30 via-transparent to-emerald-900/30" />
+                    
+                    {/* Animated Floating Elements */}
+                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl animate-blob-1"></div>
+                    <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-cyan-400/10 rounded-full blur-3xl animate-blob-2"></div>
+                    <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-emerald-300/15 rounded-full blur-3xl animate-blob-3"></div>
+                    
+                    {/* Subtle geometric shapes */}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-emerald-400/5 rounded-full"></div>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-emerald-300/5 rounded-full"></div>
                 </div>
 
                 <div className="container mx-auto px-4 md:px-6 text-center relative z-1">
