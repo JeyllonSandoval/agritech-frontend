@@ -2,77 +2,318 @@
     "hero": {
         "image": "/icon/AgriTech-Logo-_transparent_.webp",
         "title": "AgriTech",
-        "subtitle": "Tu asistente inteligente para la agricultura moderna",
-        "description": "Combina el poder de la inteligencia artificial con conocimientos agrícolas expertos para optimizar tus cultivos, analizar documentos y tomar decisiones informadas.",
-        "buttonPlayground": "Comenzar ahora"
+        "subtitle": "Revolucionando la agricultura dominicana con inteligencia artificial",
+        "description": "La primera plataforma integral que combina inteligencia artificial, sensores IoT y análisis predictivo para optimizar la producción agrícola, reducir el impacto ambiental y empoderar a los agricultores con herramientas tecnológicas de última generación.",
+        "buttons": {
+            "playground": "Explorar Playground",
+            "telemetry": "Ver Telemetría"
+        }
+    },
+    "mission": {
+        "title": "Nuestra Misión",
+        "description": "Transformar la agricultura dominicana mediante la democratización del acceso a tecnologías inteligentes, reduciendo la brecha digital entre agricultores tradicionales y las soluciones tecnológicas avanzadas del siglo XXI.",
+        "stats": [
+            {
+                "number": "70%",
+                "label": "Pequeños productores representan el sistema productivo nacional"
+            },
+            {
+                "number": "20-30%",
+                "label": "Aumento en productividad con tecnologías digitales (FAO)"
+            },
+            {
+                "number": "100%",
+                "label": "Enfoque en sostenibilidad ambiental"
+            }
+        ]
     },
     "features": {
-        "title": "Características",
+        "title": "Características Principales",
+        "subtitle": "Soluciones inteligentes para la agricultura moderna",
         "items": [
-        {
-            "title": "Análisis Inteligente",
-            "description": "Sube documentos PDF y obtén resúmenes automáticos y análisis detallados de contenido agrícola",
-            "icon": "document"
-        },
-        {
-            "title": "Chat Especializado",
-            "description": "Conversa con IA experta en agricultura que entiende tu contexto y proporciona recomendaciones personalizadas",
-            "icon": "chat"
-        },
-        {
-            "title": "Monitoreo en Tiempo Real",
-            "description": "Conecta sensores IoT y obtén datos de temperatura, humedad y otros parámetros críticos",
-            "icon": "folder"
-        },
-        {
-            "title": "Decisiones Informadas",
-            "description": "Recibe insights basados en datos y recomendaciones para optimizar tus cultivos",
-            "icon": "learn"
-        }
+            {
+                "title": "Análisis con IA",
+                "description": "Procesamiento inteligente de documentos PDF agrícolas con resúmenes automáticos, extracción de datos clave y recomendaciones personalizadas basadas en el contenido analizado.",
+                "icon": "document"
+            },
+            {
+                "title": "Chat Especializado",
+                "description": "Asistente conversacional experto en agricultura dominicana que comprende el contexto local, variedades de cultivos nativos y condiciones climáticas específicas del país.",
+                "icon": "chat"
+            },
+            {
+                "title": "Monitoreo IoT",
+                "description": "Integración con sensores EcoWitt para monitoreo en tiempo real de temperatura, humedad, presión atmosférica, velocidad del viento, radiación UV y precipitaciones.",
+                "icon": "folder"
+            },
+            {
+                "title": "Predicción Inteligente",
+                "description": "Algoritmos de machine learning que analizan patrones climáticos, predicen plagas y enfermedades, y optimizan el uso de recursos como agua y fertilizantes.",
+                "icon": "learn"
+            },
+            {
+                "title": "Agricultura de Precisión",
+                "description": "Herramientas para mapeo de cultivos, análisis de variabilidad espacial del suelo y recomendaciones específicas por zona dentro de la parcela agrícola.",
+                "icon": "map"
+            },
+            {
+                "title": "Gestión Sostenible",
+                "description": "Optimización del uso de insumos agrícolas para reducir el impacto ambiental, minimizar residuos y promover prácticas de agricultura regenerativa.",
+                "icon": "leaf"
+            }
+        ]
+    },
+    "technology": {
+        "title": "Tecnología Avanzada",
+        "subtitle": "Integrando lo mejor de la IA y el IoT",
+        "description": "AgriTech utiliza algoritmos de aprendizaje automático, procesamiento de lenguaje natural y redes neuronales para analizar grandes volúmenes de datos agrícolas y convertirlos en insights accionables.",
+        "capabilities": [
+            {
+                "title": "Procesamiento de Lenguaje Natural",
+                "description": "Comprende y analiza documentos técnicos, estudios agronómicos y reportes científicos en español",
+                "icon": "brain"
+            },
+            {
+                "title": "Visión Artificial",
+                "description": "Detección temprana de plagas y enfermedades mediante análisis de imágenes de cultivos",
+                "icon": "eye"
+            },
+            {
+                "title": "Análisis Predictivo",
+                "description": "Modelos que predicen rendimientos, condiciones climáticas adversas y necesidades de riego",
+                "icon": "chart"
+            },
+            {
+                "title": "Integración IoT",
+                "description": "Conectividad con más de 50 tipos de sensores para monitoreo ambiental completo",
+                "icon": "wifi"
+            }
         ]
     },
     "audience": {
         "title": "¿Para quién está diseñada?",
+        "subtitle": "Democratizando el acceso a la tecnología agrícola",
         "groups": [
-        {
-            "title": "Agricultores pequeños",
-            "description": "Accede a conocimientos técnicos de manera simple y práctica para mejorar tus cultivos",
-            "icon": "farmer"
-        },
-        {
-            "title": "Estudiantes",
-            "description": "Complementa tu formación académica con herramientas prácticas y conocimientos actualizados",
-            "icon": "student"
-        },
-        {
-            "title": "Entusiastas",
-            "description": "Explora el mundo de la agricultura con una herramienta moderna y accesible",
-            "icon": "sprout"
-        }
+            {
+                "title": "Pequeños Agricultores",
+                "description": "Herramientas intuitivas y accesibles que no requieren conocimientos técnicos avanzados. Interfaz simplificada con recomendaciones claras y prácticas para mejorar la productividad sin grandes inversiones.",
+                "icon": "farmer",
+                "benefits": [
+                    "Acceso a tecnología sin costos prohibitivos",
+                    "Recomendaciones en lenguaje sencillo",
+                    "Mejora de rendimientos con recursos limitados"
+                ]
+            },
+            {
+                "title": "Estudiantes Agropecuarios",
+                "description": "Plataforma educativa que complementa la formación académica con herramientas prácticas, casos de estudio reales y acceso a las últimas innovaciones en agricultura inteligente.",
+                "icon": "student",
+                "benefits": [
+                    "Aprendizaje con tecnología de vanguardia",
+                    "Casos de estudio locales",
+                    "Preparación para la agricultura del futuro"
+                ]
+            },
+            {
+                "title": "Entusiastas Tecnológicos",
+                "description": "Acceso completo a APIs, datos en tiempo real y herramientas avanzadas para desarrolladores interesados en crear soluciones personalizadas para el sector agrícola.",
+                "icon": "sprout",
+                "benefits": [
+                    "APIs abiertas para desarrollo",
+                    "Datos históricos y en tiempo real",
+                    "Comunidad de innovadores agrícolas"
+                ]
+            }
+        ]
+    },
+    "impact": {
+        "title": "Impacto Esperado",
+        "subtitle": "Transformando la agricultura dominicana",
+        "description": "Basándose en estudios internacionales y proyectos similares como AgAID en Estados Unidos y Agro360 a nivel regional, AgriTech busca generar un impacto measurable en la productividad y sostenibilidad agrícola.",
+        "metrics": [
+            {
+                "title": "Incremento en Productividad",
+                "value": "20-30%",
+                "description": "Aumento esperado en rendimientos agrícolas según estudios de la FAO sobre tecnologías digitales",
+                "icon": "trending-up"
+            },
+            {
+                "title": "Reducción de Insumos",
+                "value": "15-25%",
+                "description": "Disminución en el uso de fertilizantes y pesticidas mediante optimización inteligente",
+                "icon": "leaf"
+            },
+            {
+                "title": "Ahorro de Agua",
+                "value": "30-40%",
+                "description": "Optimización del riego basada en datos de humedad del suelo y predicciones climáticas",
+                "icon": "droplet"
+            },
+            {
+                "title": "Detección Temprana",
+                "value": "85%+",
+                "description": "Precisión en la identificación temprana de plagas y enfermedades",
+                "icon": "shield"
+            }
+        ]
+    },
+    "ecowitt": {
+        "title": "Tecnología de Sensores EcoWitt",
+        "subtitle": "Líderes mundiales en estaciones meteorológicas IoT",
+        "description": "AgriTech integra los avanzados sensores y estaciones meteorológicas de EcoWitt, una empresa líder en tecnología de monitoreo ambiental. Utilizamos sus productos de alta precisión para obtener datos meteorológicos y ambientales en tiempo real.",
+        "disclaimer": "Nota importante: AgriTech utiliza productos EcoWitt para el monitoreo de datos ambientales, pero no mantenemos una colaboración comercial oficial con la empresa. Somos usuarios independientes de su tecnología.",
+        "features": [
+            {
+                "title": "Estaciones Meteorológicas Completas",
+                "description": "Sensores 7-en-1 que miden temperatura, humedad, presión, viento, lluvia, radiación UV y solar",
+                "icon": "cloud"
+            },
+            {
+                "title": "Conectividad Wi-Fi y RF",
+                "description": "Transmisión inalámbrica de datos hasta 100 metros de distancia con respaldo de batería solar",
+                "icon": "wifi"
+            },
+            {
+                "title": "Sensores Especializados",
+                "description": "Monitores de humedad del suelo, calidad del aire, detectores de fugas y sensores de tanques de agua",
+                "icon": "settings"
+            },
+            {
+                "title": "Precisión Profesional",
+                "description": "Instrumentos con precisión de laboratorio diseñados para agricultura, meteorología y investigación",
+                "icon": "target"
+            }
+        ],
+        "models": [
+            {
+                "name": "WS2910 Professional",
+                "description": "Estación meteorológica completa con pantalla LCD de 6.8\" y sensor solar 7-en-1",
+                "specs": "Rango temperatura: -40°F a 140°F, Transmisión: 100m, Precisión lluvia: 10%"
+            },
+            {
+                "name": "WH51 Soil Moisture",
+                "description": "Sensor de humedad del suelo con sonda de 1 metro para monitoreo profundo",
+                "specs": "Medición AD, Display LCD, Monitoreo en tiempo real para jardín y campo"
+            },
+            {
+                "name": "GW3000 Gateway",
+                "description": "Hub IoT Wi-Fi/Ethernet con sensores integrados y ranura para tarjeta SD",
+                "specs": "Conectividad dual, Almacenamiento local, Antena RF externa ajustable"
+            }
+        ]
+    },
+    "methodology": {
+        "title": "Metodología de Investigación",
+        "subtitle": "Enfoque científico riguroso",
+        "description": "AgriTech se fundamenta en una metodología de investigación cuantitativa, no experimental y correlacional, desarrollada específicamente para evaluar el impacto de la inteligencia artificial en la agricultura dominicana.",
+        "approach": [
+            {
+                "phase": "Diagnóstico",
+                "title": "Análisis del Estado Actual",
+                "description": "Evaluación de las prácticas agrícolas tradicionales y identificación de oportunidades de mejora tecnológica"
+            },
+            {
+                "phase": "Desarrollo",
+                "title": "Diseño de Soluciones",
+                "description": "Creación de algoritmos de IA adaptados a las condiciones locales y tipos de cultivos dominicanos"
+            },
+            {
+                "phase": "Validación",
+                "title": "Pruebas de Campo",
+                "description": "Implementación piloto en la región del Cibao con agricultores, estudiantes y entusiastas tecnológicos"
+            },
+            {
+                "phase": "Optimización",
+                "title": "Mejora Continua",
+                "description": "Análisis de datos de uso y retroalimentación para perfeccionar los algoritmos y la experiencia de usuario"
+            }
+        ]
+    },
+    "region": {
+        "title": "Enfoque Regional: El Cibao",
+        "subtitle": "Priorizando las zonas agrícolas más dinámicas",
+        "description": "La investigación se concentra en la región del Cibao, especialmente en provincias como La Vega, Monseñor Nouel, San Juan y Monte Plata, reconocidas por su diversidad de cultivos y potencial para la adopción tecnológica.",
+        "advantages": [
+            {
+                "title": "Diversidad de Cultivos",
+                "description": "Desde arroz y caña de azúcar hasta hortalizas y frutas tropicales, ofreciendo un laboratorio natural completo",
+                "icon": "grain"
+            },
+            {
+                "title": "Infraestructura Existente",
+                "description": "Mejor conectividad a internet y acceso a servicios tecnológicos comparado con otras regiones rurales",
+                "icon": "tower"
+            },
+            {
+                "title": "Agricultores Innovadores",
+                "description": "Productores con mayor apertura a la adopción de nuevas tecnologías y métodos de cultivo",
+                "icon": "lightbulb"
+            },
+            {
+                "title": "Proximidad Urbana",
+                "description": "Cercanía a centros urbanos que facilita el acceso a capacitación, mercados y servicios técnicos",
+                "icon": "map-pin"
+            }
+        ]
+    },
+    "sustainability": {
+        "title": "Compromiso con la Sostenibilidad",
+        "subtitle": "Agricultura responsable con el medio ambiente",
+        "description": "AgriTech se alinea con los Objetivos de Desarrollo Sostenible de la ONU y las políticas ambientales promovidas por la FAO y el Banco Mundial para una agricultura climáticamente inteligente.",
+        "goals": [
+            {
+                "title": "Reducción de Agroquímicos",
+                "description": "Optimización inteligente del uso de fertilizantes y pesticidas para minimizar la contaminación del suelo y agua",
+                "sdg": "ODS 6: Agua Limpia"
+            },
+            {
+                "title": "Conservación del Suelo",
+                "description": "Prácticas de agricultura regenerativa que mejoran la fertilidad natural y previenen la erosión",
+                "sdg": "ODS 15: Vida Terrestre"
+            },
+            {
+                "title": "Eficiencia Energética",
+                "description": "Sensores solares y algoritmos que optimizan el consumo energético en las operaciones agrícolas",
+                "sdg": "ODS 7: Energía Limpia"
+            },
+            {
+                "title": "Seguridad Alimentaria",
+                "description": "Aumento de la productividad para garantizar el acceso a alimentos nutritivos y de calidad",
+                "sdg": "ODS 2: Hambre Cero"
+            }
         ]
     },
     "contact": {
-        "title": "Contáctanos",
-        "description": "¿Tienes preguntas o sugerencias? Estamos aquí para ayudarte",
+        "title": "Únete a la Revolución Agrícola",
+        "description": "¿Listo para transformar tu manera de cultivar? Contáctanos para ser parte de la próxima generación de agricultura inteligente en República Dominicana.",
         "email": "agriJJtech@hotmail.com",
-        "social": {
-        "linkedin": {
-            "profileOne": {
-                "title": "Juan Flores",
-                "urlPlayerOne": "https://www.linkedin.com"
-            },
-            "profileTwo": {
-                "title": "Jeyllon Sandoval",
-                "urlPlayerTwo": "https://www.linkedin.com/in/jeyllon-slon-sandoval-rosario-bb2292320/"
-            }
+        "cta": "Comienza tu transformación digital hoy mismo",
+        "team": {
+            "title": "Equipo de Desarrollo",
+            "description": "Equipo de desarrollo e investigación de AgriTech"
         },
+        "social": {
+            "linkedin": {
+                "profileOne": {
+                    "title": "Juan Manuel Flores Hernández",
+                    "role": "Co-fundador & Especialista en IA",
+                    "urlPlayerOne": "https://www.linkedin.com"
+                },
+                "profileTwo": {
+                    "title": "Jeyllon Slon Sandoval Rosario",
+                    "role": "Co-fundador & Arquitecto de Software",
+                    "urlPlayerTwo": "https://www.linkedin.com/in/jeyllon-slon-sandoval-rosario-bb2292320/"
+                }
+            },
             "github": {
                 "optionOne": {
-                    "title": "Frontend",
+                    "title": "Frontend Repository",
+                    "description": "Interfaz de usuario y aplicación web",
                     "urlFrontEnd": "https://github.com/JeyllonSandoval/agritech-frontend"
                 },
                 "optionTwo": {
-                    "title": "Backend",
+                    "title": "Backend Repository",
+                    "description": "API, IA y procesamiento de datos",
                     "urlBackEnd": "https://github.com/JeyllonSandoval/agritech-backend"
                 }
             }
