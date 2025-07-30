@@ -11,6 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 export default function NavbarH() {
     const [scrolled, setScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isClient, setIsClient] = useState(false);
     const { isLateralOpen, onLateralToggle } = useContext(NavbarLateralContext);
     const pathname = usePathname();
     const isPlaygroundRoute = pathname.startsWith('/playground');
@@ -18,7 +19,14 @@ export default function NavbarH() {
     const { language } = useLanguage();
     const { t, loadTranslations } = useTranslation();
 
+    // Asegurar que el componente está montado en el cliente
     useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isClient || typeof window === 'undefined') return;
+
         const handleScroll = () => {
             let scrollY = 0;
             
@@ -59,7 +67,7 @@ export default function NavbarH() {
                 
                 if (scrollableMain) {
                     scrollableMain.addEventListener('scroll', handleScroll, { passive: true });
-                    cleanup = () => scrollableMain.removeEventListener('scroll', handleScroll);
+                    cleanup = () => scrollableMain && scrollableMain.removeEventListener('scroll', handleScroll);
                 } else {
                     // Retry después de un momento si no encontramos el elemento
                     setTimeout(setupScrollListener, 300);
@@ -77,7 +85,7 @@ export default function NavbarH() {
             clearTimeout(timer);
             cleanup();
         };
-    }, [scrolled, isHomeRoute]);
+    }, [scrolled, isHomeRoute, isClient]);
 
     useEffect(() => {
         loadTranslations('navbar');
@@ -86,6 +94,29 @@ export default function NavbarH() {
     const handleMenuClose = () => {
         setIsMenuOpen(false);
     };
+
+    // No renderizar nada hasta que esté montado en el cliente
+    if (!isClient) {
+        return (
+            <div className="fixed top-0 left-0 right-0 z-50">
+                <div className="w-full bg-black/20 backdrop-blur-sm">
+                    <nav className="w-full lg:w-[90%] mx-auto lg:px-0 flex flex-col relative">
+                        <div className="flex items-center justify-between h-16 lg:h-20 px-4 lg:px-0">
+                            <div className="w-[200px] lg:w-[250px] flex items-center">
+                                <div className="animate-pulse bg-gray-300 h-8 w-24 rounded"></div>
+                            </div>
+                            <div className="hidden lg:flex flex-1 justify-center">
+                                <div className="animate-pulse bg-gray-300 h-10 w-96 rounded-full"></div>
+                            </div>
+                            <div className="w-[200px] lg:w-[250px] flex justify-end">
+                                <div className="animate-pulse bg-gray-300 h-8 w-16 rounded"></div>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="fixed top-0 left-0 right-0 z-50">
@@ -127,13 +158,13 @@ export default function NavbarH() {
 
                     {/* Barra superior */}
                     <div 
-                        className="flex items-center justify-between h-16 lg:h-20 px-4 lg:px-0"
+                        className={`flex items-center justify-between px-4 lg:px-0 transition-all duration-500 ease-out ${
+                            scrolled ? 'h-14 lg:h-16' : 'h-16 lg:h-20'
+                        }`}
                         style={{
-                            height: scrolled ? (window.innerWidth >= 1024 ? '64px' : '56px') : (window.innerWidth >= 1024 ? '80px' : '64px'),
                             opacity: isMenuOpen ? 0.5 : 1,
                             filter: isMenuOpen ? 'blur(2px)' : 'blur(0px)',
                             transition: [
-                                'height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                                 'opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                                 'filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
                             ].join(', ')
