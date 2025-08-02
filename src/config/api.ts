@@ -17,7 +17,7 @@ const getBaseUrl = (): string => {
   
   // Prioridad 3: URL de producción por defecto
   if (process.env.NODE_ENV === 'production') {
-    return 'https://agritech-backend.vercel.app';
+    return 'https://agritech-backend-jj.vercel.app';
   }
   
   // Prioridad 4: URL de desarrollo por defecto
