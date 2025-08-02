@@ -2,6 +2,7 @@ import { Message } from '@/types/message';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/context/languageContext';
 import { useState, useEffect } from 'react';
+import MarkdownMessage from './MarkdownMessage';
 
 interface ItemMessageProps extends Pick<Message, 'sendertype' | 'createdAt'> {
     content?: string;
@@ -59,7 +60,7 @@ export default function ItemMessage({ content, contentAsk, contentResponse, cont
                 {/* Texto secundario arriba */}
                 {fileInfo && !isLoading && (
                     <div className="text-xs text-white/50 font-normal">
-                        {t('noMessages')}
+                        {t('fileSelected')}
                     </div>
                 )}
                 {isLoading ? (
@@ -70,7 +71,10 @@ export default function ItemMessage({ content, contentAsk, contentResponse, cont
                     </div>
                 ) : (
                     !fileInfo && displayContent && (
-                        <p className="text-sm sm:text-base">{displayContent}</p>
+                        <MarkdownMessage 
+                            content={displayContent} 
+                            className="text-sm sm:text-base"
+                        />
                     )
                 )}
                 

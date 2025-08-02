@@ -100,7 +100,10 @@
         "nameRequired": "El nombre del chat es obligatorio",
         "descriptionRequired": "La descripción es obligatoria",
         "noSpecialChars": "Solo letras, números, espacios, guiones y guiones bajos",
-        "maxLength": "Longitud máxima: {length} caracteres"
+        "maxLength": "Longitud máxima: {length} caracteres",
+        "personalizedMessage": "¡Hola {name}! Desde {country}, estás a punto de crear un nuevo chat inteligente.",
+        "welcomeMessage": "¡Hola! Estás a punto de crear un nuevo chat inteligente.",
+        "instructionMessage": "Puedes comenzar con un documento o crear un chat vacío para conversar directamente con la IA."
     },
     "fileCreated": {
         "title": "Subir Archivo",

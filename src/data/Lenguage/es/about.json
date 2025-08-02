@@ -2,16 +2,34 @@
   "companyInfo": {
     "name": "AgriTech",
     "logo": "/icon/AgriTech-Logo-_transparent_.webp",
-    "slogan": "Innovando Agricultura para un Futuro Sostenible"
+    "slogan": "Sistema Inteligente para la Optimización Agrícola en República Dominicana"
   },
   "sections": [
+    {
+      "id": "project-overview",
+      "title": "Visión del Proyecto",
+      "icon": "FaEye",
+      "content": {
+        "type": "description",
+        "description": "AgriTech representa una solución innovadora que integra inteligencia artificial y análisis de datos en tiempo real para transformar la agricultura dominicana. Nuestro sistema aborda los desafíos estructurales y tecnológicos que limitan la eficiencia, sostenibilidad y competitividad del sector agrícola nacional, ofreciendo herramientas accesibles para pequeños productores, estudiantes y entusiastas de la tecnología."
+      }
+    },
+    {
+      "id": "problem-context",
+      "title": "Contexto del Problema",
+      "icon": "FaExclamationTriangle",
+      "content": {
+        "type": "description",
+        "description": "La agricultura en República Dominicana enfrenta múltiples desafíos: uso de prácticas tradicionales insuficientes, limitada incorporación de tecnologías avanzadas, y falta de acceso a herramientas de análisis de datos. Según la FAO, las tecnologías digitales pueden aumentar la productividad agrícola entre 20-30%, pero en el contexto dominicano estas herramientas se aplican de manera limitada, especialmente entre pequeños productores."
+      }
+    },
     {
       "id": "general-objective",
       "title": "Objetivo General",
       "icon": "FaTrophy",
       "content": {
         "type": "description",
-        "description": "Desarrollar y poner en marcha una plataforma basada en la inteligencia artificial que optimiza la producción agrícola a través del análisis de datos en tiempo real, mejorando la eficiencia y la sostenibilidad en el sector agrícola."
+        "description": "Desarrollar e implementar una plataforma basada en inteligencia artificial que optimice la producción agrícola mediante el análisis de datos en tiempo real, permitiendo mejorar la eficiencia y sostenibilidad del sector agrícola dominicano."
       }
     },
     {
@@ -22,88 +40,179 @@
         "type": "items",
         "items": [
           {
-            "title": "Integración de tecnologías avanzadas",
-            "icon": "FaTools",
-            "description": "Implementar modelos de aprendizaje automático y sensores especializados para recopilar y analizar datos sobre suelo, clima y detección temprana de plagas."
+            "title": "Integración de Tecnologías Avanzadas",
+            "icon": "FaMicrochip",
+            "description": "Implementar modelos de aprendizaje automático y sensores especializados para recopilar y analizar datos sobre el suelo, clima y detección temprana de plagas y enfermedades."
           },
           {
-            "title": "Optimización de recursos agrícolas",
-            "icon": "FaBolt",
-            "description": "Reducir el uso excesivo de fertilizantes, agua y pesticidas a través de recomendaciones personalizadas basadas en datos precisos."
+            "title": "Optimización del Uso de Recursos Agrícolas",
+            "icon": "FaTint",
+            "description": "Reducir el uso excesivo de fertilizantes, agua y pesticidas mediante recomendaciones personalizadas basadas en datos precisos y análisis predictivo."
           },
           {
-            "title": "Prevención de pérdidas por plagas y enfermedades",
+            "title": "Prevención de Pérdidas por Plagas y Enfermedades",
             "icon": "FaShieldAlt",
-            "description": "Utilizar inteligencia artificial para identificar y alertar sobre potenciales amenazas a las cosechas antes de que causen daños significativos."
+            "description": "Utilizar inteligencia artificial para identificar y alertar sobre posibles amenazas a los cultivos antes de que causen daños significativos a la producción."
           },
           {
-            "title": "Accesibilidad para diferentes tipos de productores",
+            "title": "Accesibilidad para Distintos Tipos de Productores",
             "icon": "FaUsers",
-            "description": "Diseñar un sistema intuitivo y adaptable que pueda ser utilizado por agricultores pequeños y medianos."
+            "description": "Diseñar un sistema intuitivo y adaptable que pueda ser utilizado por pequeños agricultores, estudiantes y entusiastas tecnológicos en zonas rurales y urbanas."
           },
           {
-            "title": "Promoción de la sostenibilidad agrícola",
+            "title": "Promoción de la Sostenibilidad Agrícola",
             "icon": "FaLeaf",
-            "description": "Foster more responsible farming practices that minimize environmental impact and improve global food security."
+            "description": "Fomentar prácticas de cultivo más responsables que minimicen el impacto ambiental y mejoren la seguridad alimentaria a nivel nacional."
           }
         ]
       }
     },
     {
-      "id": "mission-vision",
-      "title": "Misión y Visión",
-      "icon": "FaBullseye",
-      "content": {
-        "type": "mission-vision",
-        "mission": {
-          "title": "Misión",
-          "icon": "FaFlag",
-          "items": [
-            "Transformar la agricultura mediante el uso de inteligencia artificial y tecnología avanzada, optimizando la producción agrícola y promoviendo un uso eficiente de los recursos naturales. Buscamos proporcionar soluciones innovadoras que ayuden a los agricultores a mejorar su productividad, reducir su impacto ambiental y garantizar la sostenibilidad en el sector agroalimentario.",
-            "Crear soluciones tecnológicas que mejoren la eficiencia agrícola y la sostenibilidad."
-          ]
-        },
-        "vision": {
-          "title": "Visión",
-          "icon": "FaEye",
-          "items": [
-            "Ser la plataforma líder en agricultura inteligente a nivel global, reconocida por su innovación, accesibilidad y compromiso con el desarrollo sostenible. Aspiramos a revolucionar el sector agrícola mediante la digitalización y la inteligencia artificial, mejorando la calidad de vida de los agricultores y contribuyendo a la seguridad alimentaria global.",
-            "Llevar la transformación digital de la agricultura al máximo rendimiento y reducir el impacto ambiental."
-          ]
-        }
-      }
-    },
-    {
-      "id": "values",
-      "title": "Valores",
-      "icon": "FaHandshake",
+      "id": "methodology",
+      "title": "Metodología del Proyecto",
+      "icon": "FaCogs",
       "content": {
         "type": "items",
         "items": [
           {
-            "title": "Innovación",
-            "icon": "FaLightbulb",
-            "description": "Promovemos el desarrollo de tecnologías avanzadas para mejorar la eficiencia agrícola y la sostenibilidad."
+            "title": "Enfoque Cuantitativo No Experimental",
+            "icon": "FaChartBar",
+            "description": "Investigación descriptiva y correlacional que analiza la implementación de IA en agricultura sin manipular variables, observando el fenómeno en su contexto natural."
           },
           {
-            "title": "Sostenibilidad",
-            "icon": "FaLeaf",
-            "description": "Promovemos prácticas agrícolas responsables que minimizan el impacto ambiental."
+            "title": "Análisis de Datos en Tiempo Real",
+            "icon": "FaClock",
+            "description": "Recopilación y procesamiento continuo de información climática, del suelo y de cultivos para generar recomendaciones inmediatas y precisas."
           },
           {
-            "title": "Compromiso",
+            "title": "Validación con Usuarios Reales",
+            "icon": "FaCheckCircle",
+            "description": "Evaluación con una muestra de 50-70 participantes en la región del Cibao, incluyendo agricultores, agrónomos y representantes institucionales."
+          },
+          {
+            "title": "Desarrollo Iterativo",
+            "icon": "FaRecycle",
+            "description": "Proceso de mejora continua basado en retroalimentación de usuarios y análisis de resultados para optimizar la plataforma."
+          }
+        ]
+      }
+    },
+    {
+      "id": "theoretical-foundations",
+      "title": "Fundamentos Teóricos",
+      "icon": "FaGraduationCap",
+      "content": {
+        "type": "items",
+        "items": [
+          {
+            "title": "Agricultura de Precisión",
+            "icon": "FaMapMarkerAlt",
+            "description": "Uso de tecnologías GPS, sensores y análisis de datos para optimizar el manejo variable de parcelas agrícolas según sus características específicas."
+          },
+          {
+            "title": "Agricultura 4.0",
+            "icon": "FaRobot",
+            "description": "Integración de Internet de las Cosas (IoT), inteligencia artificial, drones y robótica para la gestión automatizada y precisa de procesos productivos."
+          },
+          {
+            "title": "Sistemas Complejos",
+            "icon": "FaProjectDiagram",
+            "description": "Enfoque interdisciplinario que considera la agricultura como un sistema donde convergen múltiples variables: clima, suelo, cultivos y factores humanos."
+          },
+          {
+            "title": "Aprendizaje Automático",
+            "icon": "FaBrain",
+            "description": "Aplicación de algoritmos que aprenden de datos históricos para predecir condiciones meteorológicas, identificar plagas y recomendar prácticas de cultivo."
+          }
+        ]
+      }
+    },
+    {
+      "id": "expected-impact",
+      "title": "Impacto Esperado",
+      "icon": "FaRocket",
+      "content": {
+        "type": "items",
+        "items": [
+          {
+            "title": "Transformación Digital del Sector",
+            "icon": "FaDigitalTachograph",
+            "description": "Reducir la brecha tecnológica en el ámbito agrícola dominicano, especialmente entre pequeños productores y comunidades rurales."
+          },
+          {
+            "title": "Mejora en la Productividad",
+            "icon": "FaArrowUp",
+            "description": "Incremento esperado del 20-30% en productividad agrícola mediante optimización de recursos y toma de decisiones basada en datos."
+          },
+          {
+            "title": "Sostenibilidad Ambiental",
+            "icon": "FaGlobeAmericas",
+            "description": "Reducción del impacto ambiental a través del uso eficiente de agua, fertilizantes y pesticidas, promoviendo prácticas agrícolas responsables."
+          },
+          {
+            "title": "Desarrollo Social y Económico",
+            "icon": "FaHandsHelping",
+            "description": "Contribuir al desarrollo económico rural, mejorar las condiciones laborales y fomentar la inclusión tecnológica en zonas agrícolas."
+          }
+        ]
+      }
+    },
+    {
+      "id": "scope-limitations",
+      "title": "Alcance y Delimitaciones",
+      "icon": "FaMapMarkedAlt",
+      "content": {
+        "type": "items",
+        "items": [
+          {
+            "title": "Delimitación Espacial",
+            "icon": "FaMap",
+            "description": "Enfocado en la región del Cibao, especialmente provincias como Monseñor Nouel y La Vega, reconocidas por su diversidad de cultivos y actividad de pequeños productores."
+          },
+          {
+            "title": "Delimitación Temporal",
+            "icon": "FaCalendarAlt",
+            "description": "Desarrollo del proyecto enmarcado en el período 2023-2025, permitiendo observar cambios sustanciales en productividad y procesos de toma de decisiones."
+          },
+          {
+            "title": "Delimitación Conceptual",
+            "icon": "FaBookOpen",
+            "description": "Centrado específicamente en agricultura de precisión con inteligencia artificial, excluyendo ingeniería genética, biotecnología y diseño de maquinaria."
+          },
+          {
+            "title": "Limitaciones Técnicas",
+            "icon": "FaTools",
+            "description": "Sistema sin integración directa con otras plataformas agrícolas, enfocado en análisis de suelo, clima y plagas, sin incluir gestión financiera o de maquinaria."
+          }
+        ]
+      }
+    },
+    {
+      "id": "dedications-acknowledgments",
+      "title": "Dedicatorias y Agradecimientos",
+      "icon": "FaHeart",
+      "content": {
+        "type": "items",
+        "items": [
+          {
+            "title": "Dedicatoria - Juan Manuel Flores Hernández",
+            "icon": "FaUserTie",
+            "description": "Dedico este proyecto a mi padre, Cesar Flores, por ser honesto y perseverante, que me ha enseñado a dar mi mayor esfuerzo y el valor del trabajo en cada momento de mi vida. A mi madre, Andrea Leticia, por darme todo el apoyo posible hasta en mis momentos difíciles, que siempre ha estado para ofrecerme su gran ternura que siempre me ha guiado a seguir delante. A mi hermano, Cesar Andrés, por haber recorrido aquellos obstáculos antes que yo, por haberme compartido desafíos y aprendizaje y por ser un gran ejemplo de dedicación e independencia. A toda mi familia y amigos, principalmente a Jeyllon Sandoval, Ismanol Ramírez, Kendra Rodríguez, Arianny Reyes y Felix Josué L. por haberme dado sus grandes apoyos, compañía, amistad y ánimo desde el inicio de esta etapa académica. Este logro también les pertenece, por caminar junto a mi hacia esta meta."
+          },
+          {
+            "title": "Dedicatoria - Jeyllon Slon Sandoval Rosario",
+            "icon": "FaUserTie",
+            "description": "Primero, dedico este trabajo a ti lector, por tomarte el tiempo de leer y analizar el trabajo de mi compañero y yo, que invertimos tiempo y esfuerzo, y ahora tus haces lo mismo. Gracias, Arcenio Sandoval, por ser un padre ejemplar, el mejor de todos, porque tú me has enseñado la diferencia entre amar y querer. Decisiones complicadas, futuro incierto y el querer ser mejor, todas son cosas que me han pasado por la mente, aunque siempre he tenido claro que quiero ser y donde llegar. Gracias, María Rosario, por ser una madre dedicada, porque me has enseñado por que debemos seguir nuestros objetivos y metas. A mi hermano Arsenio Sandoval, quien muchas veces me enseña y me prepara, quien no pierde una discusión, y a quien no le llevaría un vaso de agua, pero le entregaría mi corazón si lo necesitara. ¡Gracias por ser mi hermano!"
+          },
+          {
+            "title": "Agradecimientos - Juan Manuel Flores Hernández",
             "icon": "FaHandshake",
-            "description": "Trabajamos con pasión para proporcionar soluciones tecnológicas accesibles y efectivas."
+            "description": "A todas las personas, especialmente a mi familia por ser estar presente conmigo y por ser mi fortaleza, a mis amigos por su compañía y por el gran apoyo que me han dado cuando lo necesitaba."
           },
           {
-            "title": "Precisión",
-            "icon": "FaBullseye",
-            "description": "Utilizamos datos y algoritmos inteligentes para proporcionar información confiable y útil."
-          },
-          {
-            "title": "Integridad",
-            "icon": "FaBalanceScale",
-            "description": "Mantenemos altos estándares éticos y transparencia en todas nuestras operaciones."
+            "title": "Agradecimientos - Jeyllon Slon Sandoval Rosario",
+            "icon": "FaHandshake",
+            "description": "Agradezco a quienes estuvieron, están, y estarán; amigos, familiares porque yo, Jeyllon Slon Sandoval Rosario soy la suma de cada encuentro, de cada experiencia compartida, de cada palabra, herida, abrazo y despedida. Carpe diem."
           }
         ]
       }

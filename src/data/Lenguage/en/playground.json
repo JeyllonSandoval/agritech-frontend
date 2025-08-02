@@ -1,49 +1,29 @@
 {
     "title": "Welcome to your Workspace",
     "sections": {
-        "quickGuide": {
-            "title": "Quick Guide",
-            "items": [
-                {
-                    "icon": "chart",
-                    "text": "View your agricultural data in real time"
-                },
-                {
-                    "icon": "leaf",
-                    "text": "Manage your crops and growth tracking"
-                },
-                {
-                    "icon": "mobile",
-                    "text": "Access important data and information"
-                },
-                {
-                    "icon": "pie",
-                    "text": "Analyze your crop performance"
-                }
-            ]
-        },
-        "nextSteps": {
-            "title": "Next Steps",
-            "items": [
-                {
-                    "icon": "check",
-                    "text": "Add your first crop or IoT device"
-                },
-                {
-                    "icon": "cog",
-                    "text": "Configure your workspace"
-                },
-                {
-                    "icon": "wrench",
-                    "text": "Explore available tools"
-                },
+        "welcome": {
+            "title": "Start exploring",
+            "description": "Your workspace is ready. Here you can create intelligent chats, upload documents for analysis and get personalized recommendations for your agriculture.",
+            "features": [
                 {
                     "icon": "chat",
-                    "text": "Create your first chat"
+                    "title": "Intelligent Chat",
+                    "description": "Converse with AI specialized in agriculture"
+                },
+                {
+                    "icon": "document",
+                    "title": "Document Analysis",
+                    "description": "Upload PDFs and get automatic summaries"
                 },
                 {
                     "icon": "sparkles",
-                    "text": "Enjoy the benefits of your workspace"
+                    "title": "Recommendations",
+                    "description": "Receive personalized advice for your crops"
+                },
+                {
+                    "icon": "chart",
+                    "title": "Real-time Data",
+                    "description": "Monitor sensors and IoT devices"
                 }
             ]
         }

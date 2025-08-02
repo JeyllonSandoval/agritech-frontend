@@ -43,9 +43,9 @@ export default function SectionContent({ content }: SectionContentProps) {
                 animate="animate"
                 exit="exit"
                 variants={fadeIn}
-                className="p-4 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:border-emerald-400/30 transition-colors duration-300"
+                className="space-y-4"
             >
-                <p className="text-base md:text-xl text-white/70 leading-relaxed">{content.description}</p>
+                <p className="text-base md:text-lg text-white/80 leading-relaxed tracking-wide">{content.description}</p>
             </motion.div>
         );
     }
@@ -72,7 +72,7 @@ export default function SectionContent({ content }: SectionContentProps) {
                             {getIcon(item.icon)}
                             <h3 className="text-lg md:text-xl font-semibold text-white group-hover:text-emerald-400 transition-colors">{item.title}</h3>
                         </div>
-                        <p className="text-base md:text-lg text-white/70 group-hover:text-white/90 transition-colors">{item.description}</p>
+                        <p className="text-base md:text-lg text-white/70 group-hover:text-white/90 transition-colors leading-relaxed">{item.description}</p>
                     </motion.div>
                 ))}
             </motion.div>

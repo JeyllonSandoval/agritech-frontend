@@ -9,35 +9,55 @@ const getToken = () => {
     return token;
 };
 
+const getUserLanguage = () => {
+    return localStorage.getItem('language') || 'en';
+};
+
 export const chatService = {
     async sendMessage(chatId: string, content: string, fileId?: string): Promise<Message> {
         const token = getToken();
+        const userLanguage = getUserLanguage();
         const body: any = {
             ChatID: chatId,
             contentAsk: content,
             sendertype: 'user',
             status: 'active'
         };
-        if (fileId) body.FileID = fileId;
+        
+        // Si hay un fileId, incluirlo en el body para que el backend procese el contenido
+        if (fileId) {
+            body.FileID = fileId;
+            console.log(`ChatService - Enviando mensaje con archivo: FileID=${fileId}`);
+            // NO establecer contentFile aquí - solo FileID es suficiente para el procesamiento
+        } else {
+            console.log(`ChatService - Enviando mensaje sin archivo`);
+        }
+
+        console.log(`ChatService - Body enviado:`, body);
 
         const response = await fetch(`${API_URL}/message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'user-language': userLanguage
             },
             body: JSON.stringify(body)
         });
 
         if (!response.ok) throw new Error('Failed to send message');
         const backendResponse = await response.json();
+        console.log(`ChatService - Respuesta del backend:`, backendResponse);
+        
         const msg = backendResponse.message;
         return {
             MessageID: msg.id,
             ChatID: msg.chatId,
             FileID: msg.fileId,
             sendertype: msg.senderType,
-            contentResponse: msg.content,
+            contentAsk: msg.senderType === 'user' ? msg.content : undefined,
+            contentResponse: msg.senderType === 'ai' ? msg.content : undefined,
+            // NO establecer contentFile aquí - debe venir del backend o ser null
             createdAt: msg.createdAt,
             status: msg.status
         };
@@ -61,11 +81,13 @@ export const chatService = {
 
     async sendFileMessage(chatId: string, fileId: string): Promise<Message> {
         const token = getToken();
+        const userLanguage = getUserLanguage();
         const response = await fetch(`${API_URL}/message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'user-language': userLanguage
             },
             body: JSON.stringify({
                 ChatID: chatId,

@@ -2,7 +2,7 @@ import AboutContent from "@/components/common/UI/about/AboutContent";
 
 export default function AboutPage() {
     return (
-        <div className="flex justify-center items-center w-full min-h-screen px-4 md:px-6 lg:py-0">
+        <div className="absolute inset-0 overflow-y-auto scroll-smooth">
             <AboutContent />
         </div>
     );

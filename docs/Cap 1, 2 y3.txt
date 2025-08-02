@@ -1,0 +1,1030 @@
+Dedicatoria  
+Dedico este proyecto a mi padre, Cesar Flores, por ser honesto y perseverante, que 
+me ha enseñado a dar mi mayor esfuerzo y el valor del trabajo en cada momento de mi 
+vida. 
+A mi madre, Andrea Leticia, por darme todo el apoyo posible hasta en mis 
+momentos difíciles, que siempre ha estado para ofrecerme su gran ternura que siempre 
+me ha guiado a seguir delante.   
+A mi hermano, Cesar Andrés, por haber recorrido aquellos obstáculos antes que 
+yo, por haberme compartido desafíos y aprendizaje y por ser un gran ejemplo de 
+dedicación e independencia.  
+A toda mi familia y amigos, principalmente a Jeyllon Sandoval, Ismanol Ramírez, 
+Kendra Rodríguez, Arianny Reyes y Felix Josué L. por haberme dado sus grandes 
+apoyos, compañía, amistad y ánimo desde el inicio de esta etapa académica. Este logro 
+también les pertenece, por caminar junto a mi hacia esta meta. - Juan Manuel Flores Hernández 
+
+Dedicatoria 
+Primero, dedico este trabajo a ti lector, por tomarte el tiempo de leer y 
+analizar el trabajo de mi compañero y yo, que invertimos tiempo y esfuerzo, y 
+ahora tus haces lo mismo. 
+¿Y sabes quienes más hicieron su mejor esfuerzo?, seguro no los conoces, 
+pero son dos personas, por quien me esfuerzo constantemente, por su apoyo nunca 
+ha decaído durante los años, aunque le he fallado, sigue dando su mano para 
+volver más fuerte, y aquí estoy presentando mi mejor esfuerzo, porque luego de 
+mi nombre va su apellido. 
+Gracias, Arcenio Sandoval, por ser un padre ejemplar, el mejor de todos, 
+porque tú me has enseñado la diferencia entre amar y querer. 
+Decisiones complicadas, futuro incierto y el querer ser mejor, todas son 
+cosas que me han pasado por la mente, aunque siempre he tenido claro que quiero 
+ser y donde llegar, el tomar el camino nunca es fácil, y ahí estas tú, como ejemplo 
+de que, aunque todo se vea complicado se puede seguir, que la redención y dejar 
+cosas atrás para seguir por un mejor futuro para todos aquellos que amas es difícil, 
+y por eso estoy orgulloso de llevar el nombre que me has dado, aunque tu apellido 
+no este de primero, el nombre que has elegido para que me represente, también te 
+representara a ti. 
+Gracias, María Rosario, por ser una madre dedicada, porque me has 
+enseñado por que debemos seguir nuestros objetivos y metas. 
+
+¿Pensabas que no te pondría?, mi compañero en la infancia, juventud, adultes y 
+vejez, quien muchas veces me enseña y me prepara, quien no pierde una discusión, y a 
+quien no le llevaría un vaso de agua, pero le entregaría mi corazón si lo necesitara, mi 
+hermano Arsenio Sandoval. ¡Gracias por ser mi hermano! - Jeyllon Slon Sandoval Rosario 
+
+Agradecimientos 
+A todas las personas, especialmente a mi familia por ser estar presente 
+conmigo y por ser mi fortaleza, a mis amigos por su compañía y por el gran apoyo 
+que me han dado cuando lo necesitaba. - Juan Manuel Flores Hernández  
+
+Agradecimientos 
+Agradezco a quienes estuvieron, están, y estarán; amigos, familiares porque yo, 
+Jeyllon Slon Sandoval Rosario soy la suma de cada encuentro, de cada experiencia 
+compartida, de cada palabra, herida, abrazo y despedida. carpe diem - Jeyllon Slon Sandoval Rosario
+
+
+
+
+Introducción 
+La transformación digital en el sector agrícola ha ido ganando cada vez 
+más relevancia en los tiempos recientes debido al interés global en garantizar una 
+producción de alimentos sustentable y en reducir el impacto ambiental mientras 
+nos adaptamos a los desafíos del cambio climático. En este contexto, la 
+inteligencia artificial se perfila como una herramienta clave para optimizar los 
+procesos de producción, mejorar la toma de decisiones y aumentar la rentabilidad 
+de las actividades agrícolas. Aunque varios países han progresado en la 
+implementación de estas tecnologías; en República Dominicana todavía hay 
+desafíos relevantes a nivel estructural y tecnológico, especialmente entre los 
+pequeños productores y las comunidades rurales y urbanas que tienen limitada 
+conectividad y acceso a la innovación.  
+La motivación para desarrollar esta investigación surge de la urgente 
+necesidad de disminuir la brecha tecnológica existente en el ámbito dominicano, 
+tomando en cuenta el potencial transformador de la inteligencia artificial al 
+adecuarse a las condiciones locales y a los usuarios que poseen variados niveles 
+de experiencia digital. Como señalan Hernández Sampieri et al. (2014), la 
+investigación abordar un problema real ofreciendo soluciones factibles y 
+adaptadas al contexto. Este estudio se centra en el diseño, la validación y la 
+propuesta de uso del sistema Agritech, una plataforma que integra tecnologías 
+inteligentes dirigida a estudiantes, pequeños agricultores y entusiastas de la 
+tecnología en zonas rurales y urbanas del país. 
+xiv 
+El entorno nacional ofrece un escenario propicio para este tipo de investigación. 
+La Estrategia Nacional de Inteligencia Artificial reconoce a la agricultura como un sector 
+estratégico para la implementación de la IA, mientras que programas como PATCA II 
+han demostrado la eficiencia de las soluciones tecnológicas para aumentar la 
+productividad rural. A nivel internacional se descatan proyectos como Agro360 y 
+AgAID. En Estados Unidos han demostrado que el uso de la IA permite el monitoreo del 
+suelo, la optimización de los recursos agrícolas y la prevención de plagas, lo cual es 
+fundamental para mejorar la sostenibilidad y eficiencia de los sistemas agrícolas. 
+Este estudio establece los siguientes objetivos: en términos generales evaluar 
+cómo la inteligencia artificial puede optimizar la producción agrícola en la República 
+Dominicana mediante el uso de la plataforma Agritech y en aspectos más específicos 
+identificar las variables que pueden ser monitoreadas eficientemente mediante 
+herramientas de IA, determinar las percepciones de los usuarios sobre su implementación 
+y proponer un modelo funcional de adopción de tecnología. 
+La idea principal sugiere que la utilización de un sistema inteligente como 
+Agritech resultaría en mejoras sustanciales en la toma de decisiones relacionadas al sector 
+agrícola, la sostenibilidad ambiental y la eficiencia productiva en ámbitos locales. La 
+hipótesis nula plantea que no existen mejoras significativas una vez que esta plataforma 
+se ha implementado. 
+La metodología utilizada es cuantitativa, no experimental, transversal, descriptiva 
+y correlacional, que incluye la recopilación de datos mediante encuestas estructuradas 
+dirigidas a una muestra específica compuesta por estudiantes, pequeños productores y 
+entusiastas de la tecnología ubicados en la región del Cibao. Esta metodología permite 
+xv 
+explorar tendencias, percepciones y niveles de adopción tecnológica respaldados 
+por datos estadísticos sólidos. 
+Este trabajo se estructura en tres capítulos principales. El capítulo 1 aborda 
+los aspectos introductorios, incluyendo el planteamiento del problema, la 
+justificación, las hipótesis, los objetivos y la delimitación. El capítulo 2 desarrolla 
+el marco teórico, explorando la evolución histórica del tema, los paradigmas 
+teóricos, los fundamentos disciplinarios e interdisciplinarios, y los modelos 
+actuales relacionados con la agricultura inteligente. El capítulo tres presenta la 
+metodología utilizada, el diseño del estudio, la población y la muestra, los 
+instrumentos de recolección de datos y la operacionalización de las variables. Esta 
+visión general sienta las bases para validar la propuesta tecnológica presentada y 
+sus posibles impactos en la transformación digital de la agricultura dominicana. 
+xvi 
+Capítulo 1: Aspectos Introductorios 
+Introducción al Capítulo 1 
+El presente capítulo tiene como propósito establecer las bases fundamentales de 
+la investigación orientada al diseño de un sistema inteligente para la administración de 
+datos agrícolas mediante inteligencia artificial, enfocado en comunidades rurales y 
+urbanas de la República Dominicana. Esta propuesta surge ante la necesidad de cambiar 
+el sector agrícola del país, el cual enfrenta múltiples desafíos con  el acceso a la 
+tecnología, la toma de decisiones de datos y la eficiencia en la producción. En un mundo 
+lleno de cambios climaticos , aumento de la población y  falta de recursos se necesita 
+utilizar he rramientas técnicas q ue mejoren l a gestión de agricultura, promuevan un 
+mundo sostenible y fortalezcan la competitividad d el sector. 
+Este capítulo introductorio consta de ocho partes principales: los antecedentes del 
+problema, que describen el estado actual del problema y las experiencias relacionadas; la 
+formulación del problema, que detalla la situación específica que se desea resolver; la 
+justificación, que explica la relevancia e impacto del estudio; la hipótesis o hipótesis 
+inicial, que guía la investigación; los objetivos general y específicos, que definen 
+claramente las metas del proyecto; la delimitación del estudio, que especifica el alcance 
+temporal, geográfico y temático; y finalmente, la estructura del documento, que dirige al 
+lector al contenido que se desarrollará en capítulos posteriores. 
+1 
+Antecedentes 
+El uso de la inteligencia artificial en la agricultura ha ido en aumento en 
+los últimos años debido a la necesidad de optimizar la producción y reducir el 
+impacto ambiental. Diversos estudios han demostrado que la integración de 
+sensores, imágenes satelitales y algoritmos de aprendizaje automático permite 
+mejorar el monitoreo del suelo, prever plagas y administrar los recursos de 
+manera más eficiente. 
+Antecedentes Internacionales 
+Desde hace más de una década, naciones como Estados Unidos, Japón y la 
+mayoría de los países europeos han destinado recursos a la automatización 
+agrícola a través de la implementación de tecnologías digitales. El proyecto 
+AgAID (IA Agrícola para la Toma de Decisiones), fundado en Estados Unidos, 
+tiene como objetivo desarrollar soluciones concretas a los desafíos del cambio 
+climático. Se enfoca en aspectos como la administración eficaz del agua, la falta 
+de trabajo y la resistencia al clima, empleando Inteligencia Artificial para 
+examinar información en tiempo real y tomar decisiones fundamentadas en datos 
+en las zonas agrícolas. (AgAID, 2024) 
+Según investigaciones realizadas por la Food and Agriculture 
+Organization (FAO), el uso de tecnologías digitales en la agricultura ha 
+contribuido a aumentar la productividad en un 20-30%, reduciendo el uso de 
+insumos innecesarios y mejorando la toma de decisiones de los agricultores.  
+2 
+A nivel comercial, empresas como John Deere han implementado sistemas 
+avanzados de IA en tractores autónomos para mejorar la eficiencia del campo, 
+demostrando la viabilidad de la automatización agrícola. Esta tecnología, aunque 
+costosa, ha demostrado ser viable y escalable, abriendo la puerta a soluciones adaptadas a 
+pequeños productores en países en vías de desarrollo. 
+Eventos como el Congreso Latinoamericano de Agricultura de Precisión se 
+vistieron como plataformas inmejorables para visibilizar avances tecnológicos y fomentar 
+la colaboración entre investigadores, técnicos y agricultores, indicando bien una 
+tendencia positiva hacia el desarrollo de redes de innovación agrícola en la región. 
+Antecedentes Nacionales 
+En el caso específico de la República Dominicana, la Estrategia Nacional de 
+Inteligencia Artificial (ENIA) establece un marco para la adopción de tecnologías de IA 
+en sectores estratégicos, siendo la agricultura uno de los más relevantes. Esta estrategia 
+reconoce que la implementación de soluciones inteligentes en el campo podría no solo 
+optimizar los procesos de producción, sino también contribuir a la sostenibilidad 
+ambiental y al desarrollo económico del país. (ENIA, 2023) 
+Esta estrategia reconoce el valor que las tecnologías emergentes pueden tener en 
+la transformación del campo, no solo desde el punto de vista productivo, sino también en 
+términos de sostenibilidad ambiental y equidad social. Se contempla, por ejemplo, la 
+mejora en los sistemas de monitoreo del suelo, la predicción de fenómenos naturales y la 
+optimización en el uso del agua y los fertilizantes. 
+3 
+Proyectos como PATCA II promovido por el Banco Interamericano de 
+Desarrollo, han probado que la incorporación de tecnologías agrícolas innovadoras puede 
+tener impactos positivos significativos en los ingresos de los pequeños productores, lo 
+cual reafirma la importancia de seguir promoviendo el uso de la IA en zonas 
+rurales. Por otro lado, eventos como el Congreso Latinoamericano de Agricultura 
+de Precisión han servido como plataformas para divulgar avances tecnológicos y 
+facilitar el intercambio de conocimientos entre expertos, agricultores y 
+desarrolladores de soluciones agrotecnológicas. (Julián, 2019) 
+Agro360 es una propuesta tecnológica cuya intención es ayudar a 
+revolucionar la agricultura mediante el uso de inteligencia artificial. Su objetivo 
+principal es mejorar la productividad agrícola y promover prácticas sostenibles 
+que contribuyan a la seguridad alimentaria y al desarrollo económico.  
+Características Principales: 
+Monitoreo de Cultivos: Las condiciones del suelo y el crecimiento de los 
+cultivos se evalúan mediante sensores y análisis de datos que facilitan un 
+monitoreo exhaustivo del desarrollo agrícola. 
+Detección Preventiva de Enfermedades: Agro360 ejecuta algoritmos 
+anticipatorios para predecir la posible aparición de enfermedades que afectan a los 
+cultivos. Esto permite a los agricultores actuar a tiempo para reducir los daños. 
+4 
+Optimización del Uso de Recursos: La plataforma ofrece a los productores la 
+posibilidad de gestionar mejores recursos importantes como el agua y los fertilizantes, 
+minimizando así el desperdicio y la degradación ambiental. 
+5 
+Antecedentes Locales 
+En el ámbito local, diversas instituciones educativas y centros de 
+investigación han iniciado el desarrollo de investigaciones que relacionan la 
+inteligencia artificial con el estudio de terrenos agrícolas.  Pese a la limitada 
+bibliografía científica, hay casos de tesis universitarias e investigaciones piloto 
+que han tratado este asunto desde una perspectiva multidisciplinaria, fusionando 
+la ingeniería, la informática y la agronomía. 
+Un caso ilustrativo es la labor realizada por alumnos e investigadores de 
+universidades de República Dominicana, que han sugerido prototipos de sistemas 
+inteligentes para medir el grado de humedad, pH y fertilidad del suelo a través de 
+sensores y plataformas de datos en la nube.  Estas acciones han evidenciado que 
+se pueden ajustar tecnologías asequibles para proporcionar soluciones 
+beneficiosas a comunidades rurales, frecuentemente excluidas por la ausencia de 
+acceso a servicios técnicos. 
+Organizaciones internacionales como la UNESCO también han evaluado 
+la preparación del país para adoptar IA, mostrando buenas opciones y problemas 
+en  cosas como  infraestructura, reglas del  gobierno y habilidades técni cas. A nivel 
+mundia l,  planes co mo e l p r oy ect o AgA ID en lo s Estados Unidos han 
+mostr ado  que IA puede ayudar muc ho con prob lemas espe cífic os de l camb o 
+climático en el campo, como  usar bien  el agua, tener poco trabajo, y ajustarse al 
+clima c ambiante. 
+6 
+La inteligencia artificial está transformando la agricultura al introducir nuevas 
+soluciones a antiguos problemas. (Guridi, 2024) 
+Beneficios Clave: 
+Mejor toma de decisiones: La IA analiza grandes volúmenes de datos para 
+ofrecer recomendaciones razonablemente precisas para la siembra, el riego y la cosecha. 
+Automatización de tareas: Máquinas como robots y vehículos controlados por 
+plasma permiten realizar procesos agrícolas de manera más eficiente que nunca y reducen 
+la necesidad de niveles intensos de mano de obra.  
+Gestión de recursos: La IA busca optimizar el uso de insumos agrícolas como 
+agua y fertilizantes, minimizando los residuos y creando prácticas más respetuosas con el 
+medio ambiente. 
+Adaptación al cambio climático: Los sistemas de IA pueden predecir el rápido 
+deterioro de las condiciones climáticas y sugerir políticas de mitigación para reducir los 
+impactos adversos en los cultivos. 
+7 
+Planteamiento del problema 
+La agricultura en la República Dominicana enfrenta múltiples desafíos 
+estructurales y tecnológicos que limitan su eficiencia, sostenibilidad y 
+competitividad frente a los estándares globales. Aunque la agricultura es muy 
+prioritaria y crítica para el país, muchos agricultores siguen utilizando prácticas 
+tradicionales que son insuficientes en condiciones cambiantes, escasez de recursos 
+naturales y demanda del mercado. Esta situación se agrava por la limitada 
+incorporación de tecnologías avanzadas, particularmente aquellas relacionadas 
+con la inteligencia artificial y el análisis de datos, herramientas que ya han 
+demostrado su efectividad en otras latitudes para mejorar la productividad y 
+reducir riesgos operativos.  
+Los aspectos más importantes en los que se centran los estudios se 
+relacionan con el uso de tecnologías emergentes como la inteligencia artificial, el 
+análisis de datos y la automatización. La FAO postula que el uso de tecnologías 
+digitales puede ayudar a aumentar la productividad agrícola entre un 20 % y un 30 
+%, gracias a un mejor uso de los insumos y una mejor toma de decisiones en 
+tiempo real. Desafortunadamente, en el contexto dominicano, estas herramientas 
+se aplican solo en grado extremo, especialmente entre los pequeños productores, 
+quienes carecen del acceso, la capacitación y el apoyo institucional necesarios 
+para adoptar soluciones tecnológicas avanzadas. (FAO, TECNOLOGÍAS 
+DIGITALES EN LA AGRICULTURA Y LAS ZONAS RURALES, 2019) 
+8 
+Desde esta perspectiva, la pregunta de investigación se centra en la limitada 
+integración de sistemas inteligentes basados en IA en el sector agrícola dominicano, a 
+pesar de los beneficios demostrados en otros países.  
+Esta situación no solo limita la competitividad del sector agrícola nacional, sino 
+que también perpetúa una brecha tecnológica que afecta directamente la productividad, la 
+comercialización, la sostenibilidad ambiental y la calidad de vida de los trabajadores 
+agrícolas. 
+El objeto de estudio de esta investigación radica en la aplicación de soluciones 
+basadas en inteligencia artificial en el ámbito agrícola, con el fin de optimizar la toma de 
+decisiones, monitorear en tiempo real los cultivos y fortalecer los procesos de 
+comercialización, logística y sostenibilidad.  A pesar del creciente desarrollo de 
+plataformas digitales y sensores inteligentes, su implementación local sigue siendo 
+escasa, fragmentada y poco accesible para pequeños productores. Factores como la baja 
+inversión en tecnología, la falta de políticas de innovación agrícola y el desconocimiento 
+sobre el uso de herramientas digitales, profundizan la brecha tecnológica existente en el 
+campo dominicano.  
+En este contexto, se vuelve vital investigar cómo un sistema inteligente puede 
+cumplir con las demandas de nuestro sector agrícola nacional, lo que no solo permitirá 
+alinearse con las prácticas más modernas, sino que también hará posible mantener un 
+medio ambiente seguro, respetar las leyes establecidas y mejorar las condiciones de 
+trabajo para los trabajadores. Además, a largo plazo, el desarrollo de plataformas 
+integradas que faciliten el proceso de recolección y unificación de datos, plantación y 
+comunicación con los proveedores y clientes, sería una estrategia adecuada. 
+9 
+Desde esta perspectiva, surgen las siguientes preguntas: 
+¿Cómo puede un sistema inteligente, apoyado en inteligencia artificial, 
+optimizar la gestión agrícola y responder a los desafíos productivos, logísticos y 
+ambientales del sector agrícola en la República Dominicana? 
+• ¿Qué variables productivas pueden ser monitoreadas eficazmente mediante 
+herramientas de inteligencia artificial en cultivos dominicanos? 
+• ¿De qué manera puede una plataforma tecnológica optimizar los procesos de 
+producción agrícola para mejorar la disponibilidad y oportunidad de 
+comercialización de los productos en el mercado? 
+• ¿Cuáles son los estándares legales, ambientales y de sostenibilidad que deben 
+cumplirse en el desarrollo de sistemas inteligentes aplicados al agro? 
+• ¿Cómo perciben los productores agrícolas la incorporación de tecnologías 
+inteligentes en sus procesos? 
+10 
+Justificación de la Investigación 
+Naturaleza y Urgencia del Problema 
+La agricultura enfrenta desafíos significativos debido a la degradación del suelo, 
+el impacto del cambio climático y la proliferación de plagas, lo que reduce la 
+productividad y pone en riesgo la seguridad alimentaria. En la actualidad, muchos 
+agricultores toman decisiones basadas en métodos tradicionales que no siempre 
+consideran datos precisos sobre las condiciones climáticas y la fertilidad del suelo, lo que 
+provoca ineficiencias en el uso de insumos como fertilizantes y agua. 
+Además, la detección tardía de plagas y enfermedades genera pérdidas 
+económicas considerables y afecta la sostenibilidad de los cultivos. La falta de 
+herramientas tecnológicas accesibles impide que los agricultores tengan acceso a 
+información en tiempo real para optimizar sus prácticas agrícolas. La urgencia de 
+solucionar estos problemas es alta, ya que la demanda global de alimentos sigue en 
+aumento, mientras que los recursos naturales son limitados. 
+Relevancia Social y Aporte al Desarrollo Sostenible 
+Esta investigación tiene gran relevancia social, ya que busca brindar soluciones a 
+un problema que afecta directamente a miles de productores agrícolas, especialmente a 
+los pequeños agricultores, quienes representan el 70 % del sistema productivo del país. 
+La posibilidad de integrar plataformas digitales como Agro360 (Una solución local que 
+ha demostrado el potencial de la IA en los cultivos dominicanos) representa una 
+oportunidad transformadora para empoderar a estos actores mediante el acceso a 
+tecnología asequible y adaptada a sus necesidades. 
+11 
+Además, la incorporación de la inteligencia artificial a la agricultura 
+contribuirá a mejorar las condiciones laborales en el campo, promoviendo una 
+agricultura más digna y menos extenuante, con mayor seguridad y rentabilidad. 
+También fomentará la inclusión tecnológica en las zonas rurales, reduciendo las 
+brechas de desigualdad digital y abriendo nuevas oportunidades para jóvenes 
+emprendedores del sector agrícola. 
+Prioridad de la Solución del Problema 
+La solución a estos desafíos requiere la implementación de un sistema 
+basado en inteligencia artificial que permita un análisis preciso del suelo, el clima 
+y la detección de plagas. Agritech responde a esta necesidad al proporcionar una 
+plataforma que recopila datos en tiempo real y genera recomendaciones 
+personalizadas para mejorar la productividad agrícola. 
+La prioridad del proyecto se fundamenta en la necesidad de una 
+producción agrícola más eficiente y sostenible. Al reducir el uso excesivo de 
+fertilizantes y pesticidas, se minimiza el impacto ambiental y se optimiza el uso 
+de recursos. Además, la detección temprana de plagas y enfermedades permitirá a 
+los agricultores tomar medidas preventivas antes de que los cultivos sufran daños 
+irreparables. 
+Alineación con Políticas Ambientales y de Innovación 
+El proyecto Agritech se alinea con las iniciativas globales de 
+sostenibilidad agrícola promovidas por organizaciones como la FAO (Food and 
+Agriculture Organization) y el Banco Mundial. La digitalización y el uso de 
+12 
+inteligencia artificial en la agricultura están contemplados en diversos planes 
+gubernamentales como una estrategia clave para enfrentar el cambio climático y 
+mejorar la seguridad alimentaria. 
+Desde una perspectiva técnica, la implementación de herramientas de monitoreo 
+basadas en IA responde a la necesidad de modernizar la agricultura y preparar a los 
+productores para los desafíos del futuro. Agritech también se ajusta a políticas de 
+innovación tecnológica, promoviendo la adopción de sistemas inteligentes que mejoran la 
+eficiencia en la producción de alimentos. 
+Utilidad Metodológica y Contribución al Conocimiento 
+Metodológicamente, esta investigación servirá de referencia para el diseño, 
+desarrollo e implementación de sistemas basados en inteligencia artificial aplicados a 
+sectores agrícolas con características similares. El estudio propondrá un modelo 
+replicable y adaptable a diferentes zonas agroecológicas del país, considerando variables 
+locales como los tipos de cultivo, el clima, el suelo y el perfil del productor. 
+También contribuirá al desarrollo del conocimiento científico en áreas como la 
+agricultura de precisión, el agro informática y la sostenibilidad tecnológica, integrando 
+enfoques cuantitativos para evaluar el impacto de las soluciones digitales en la vida de los 
+productores. Los resultados obtenidos sentarán bases sólidas para futuras investigaciones, 
+así como para el diseño de políticas públicas orientadas a la transformación digital de la 
+agricultura. 
+13 
+Hipótesis 
+Con base en el análisis del problema y la información de antecedentes revisada, es 
+posible identificar ciertas suposiciones que guían esta investigación. En este caso, 
+las hipótesis permiten anticipar los efectos que la incorporación de nuevas 
+tecnologías, como la inteligencia artificial y el análisis de datos, podría tener en el 
+sector agrícola de la República Dominicana. 
+Hipótesis de investigación (H1): 
+Si se implementa un sistema inteligente que utiliza inteligencia artificial en 
+la agricultura dominicana, se lograrán mejoras significativas en áreas como la 
+gestión de cultivos, la comercialización de productos agrícolas y el cumplimiento 
+de prácticas sostenibles, en comparación con los métodos tradicionales. 
+Hipótesis nula (H0): 
+La incorporación de un sistema inteligente basado en inteligencia artificial 
+no generará mejoras significativas en la gestión de cultivos, la comercialización ni 
+la sostenibilidad en el sector agrícola dominicano. 
+Estas hipótesis buscan establecer una conexión entre el uso de 
+herramientas tecnológicas avanzadas y su impacto en la productividad agrícola, la 
+eficiencia operativa y el respeto al medio ambiente. A lo largo de la investigación, 
+se analizarán estas relaciones para confirmar si estas tecnologías realmente 
+aportan beneficios concretos a la realidad agrícola del país, especialmente en 
+zonas donde aún predominan los métodos convencionales. 
+14 
+Objetivo General 
+Desarrollar e implementar una plataforma basada en inteligencia artificial 
+que optimice la producción agrícola mediante el análisis de datos en tiempo real, 
+permitiendo mejorar la eficiencia y sostenibilidad del sector agrícola. 
+Objetivos Específicos 
+Integración de tecnologías avanzadas: Implementar modelos de aprendizaje 
+automático y sensores especializados para recopilar y analizar datos sobre el suelo, el 
+clima y la detección temprana de plagas. 
+Optimización del uso de recursos agrícolas: Reducir el uso excesivo de 
+fertilizantes, agua y pesticidas mediante recomendaciones personalizadas basadas en 
+datos precisos. 
+Prevención de pérdidas por plagas y enfermedades: Utilizar inteligencia 
+artificial para identificar y alertar sobre posibles amenazas a los cultivos antes de que 
+causen daños significativos. 
+Accesibilidad para distintos tipos de productores: Diseñar un sistema intuitivo 
+y adaptable que pueda ser utilizado por pequeños agricultores. 
+Promoción de la sostenibilidad agrícola: Fomentar prácticas de cultivo más 
+responsables que minimicen el impacto ambiental y mejoren la seguridad alimentaria a 
+nivel global.  
+15 
+Delimitación y alcance del estudio 
+La investigación está formada en tres dimensiones fundamentales: 
+conceptual, espacial y temporal, a fin de contextualizar y enfocar con adecuada 
+especificación el objeto de estudio que finalmente auxiliaría en la técnica de 
+análisis y métodos relacionados. 
+Delimitación Conceptual 
+Este estudio se centrará específicamente en la implementación de 
+herramientas tecnológicas basadas en inteligencia artificial aplicadas al sector 
+agrícola, especialmente en la monitorización de cultivos, el análisis de las 
+condiciones climáticas y la detección temprana de plagas. Al mismo tiempo, sigue 
+estando fuera del ámbito de la presente investigación cualquier otra área de 
+tecnología agrícola, como la ingeniería genética, la biotecnología o el diseño de 
+maquinaria. Por tanto, el término clave de la presente investigación es la 
+agricultura de precisión con inteligencia artificial, siendo clave también la palabra 
+con y distinguirse del modelo clásico.  
+Delimitación Espacial 
+La investigación se lleva a cabo dentro del marco de la República 
+Dominicana, poniendo énfasis en la región del Cibao, donde se encuentran 
+importantes zonas agrícolas  como las provincias de Monseñor Nouel y La Vega, 
+reconocida por su diversidad de cultivos y por la actividad de pequeños 
+productores agrícolas. Estas áreas fueron seleccionadas por su relevancia 
+productiva y su potencial para beneficiarse del uso de tecnologías inteligentes. 
+16 
+Este enfoque geográfico permite un análisis más profundo de la aplicabilidad y 
+adaptabilidad de los sistemas inteligentes en entornos rurales dominicanos, considerando 
+variables como el acceso a internet, el nivel de alfabetización digital de los agricultores y 
+las condiciones agroecológicas específicas de la región. 
+Delimitación Temporal 
+La investigación se enmarca en un período de enero de 2023 a diciembre de 2025, 
+considerando tanto la recopilación de datos como la evaluación inicial del impacto de la 
+implementación de soluciones digitales en la gestión agrícola. Este período permite 
+observar cambios sustanciales en la productividad y los procesos de toma de decisiones 
+basados en la adopción de tecnología, así como validar hipótesis mediante la recopilación 
+continua de datos. 
+Limitaciones 
+El sistema no contará con integración directa con otras plataformas de gestión 
+agrícola. Aunque proporciona análisis avanzados sobre las condiciones del suelo, el clima 
+y la presencia de plagas, no incluirá herramientas específicas para la gestión de 
+maquinaria agrícola ni monitoreo financiero. Tampoco incorporará análisis predictivos 
+avanzados para prever tendencias a largo plazo mediante inteligencia de negocio, ni 
+contemplará la integración de bases de datos históricas, por lo que la información 
+disponible se generará a partir del momento de su implementación. 
+17 
+Capítulo 2: Marco Teórico 
+Introducción al Capítulo 2  
+Esta investigación se desarrolla en el contexto de la transformación digital 
+del sector agrícola, con énfasis en la aplicación de tecnologías basadas en 
+inteligencia artificial para optimizar los procesos de producción, monitoreo y 
+sostenibilidad en la República Dominicana. Este capítulo busca construir el marco 
+teórico que sustenta científicamente el estudio, ofreciendo una visión general de 
+los principales conceptos, modelos, teorías y enfoques disciplinarios que sustentan 
+la aplicación de soluciones tecnológicas en el sector agrícola. 
+En primer lugar, analiza toda la evolución histórica de las relaciones entre 
+la agricultura y la tecnología, a partir de señales que marcaron el tránsito hacia 
+prácticas tradicionales en entornos operativos muy tecnológicos. A continuación, 
+se presentan los marcos conceptuales y paradigmas que definen la agricultura de 
+precisión, la inteligencia artificial y la sostenibilidad agrícola. Construye una base 
+disciplinaria e interdisciplinaria, teniendo en cuenta contribuciones de la 
+agronomía, la informática, la ingeniería y las ciencias ambientales. Por último, se 
+está conversando sobre las tendencias, teorías y modelos que configuran la 
+implementación de sistemas inteligentes en la agricultura, la importancia en su 
+aplicabilidad en pequeños productores. 
+Este capítulo resulta fundamental para comprender el marco teórico que 
+sustenta el diseño de la propuesta tecnológica del estudio, justificando su 
+18 
+relevancia para el contexto local e internacional. Además, sentará las bases para la 
+interpretación de los hallazgos empíricos en los capítulos posteriores. 
+Evolución histórica del tema 
+Agricultura Tradicional y Revolución Verde (hasta 1980) 
+Durante la mayor parte de la historia de la humanidad, la agricultura fue una 
+práctica basada en el conocimiento empírico transmitido de generación en generación. 
+Los agricultores eran indecisos respecto al clima, las estaciones y las observaciones de 
+los cultivos. Las prácticas eran rudimentarias, las herramientas manuales, y la 
+productividad dependía de la naturaleza. 
+Desde la Revolución Verde, un movimiento surgido principalmente de las 
+actividades de la FAO y financiado por fundaciones como la Fundación Rockefeller a 
+mediados del siglo XX, se han introducido tecnologías modernas: fertilización química, 
+pesticidas, riego mecanizado y semillas mejoradas. La producción de alimentos creció 
+enormemente gracias a estas tecnologías en los países en desarrollo, pero también 
+trajeron consigo efectos adversos como la degradación de los suelos locales y la 
+dependencia de los agroquímicos. 
+Aunque la Revolución Verde transformó el panorama agrícola mundial, no 
+implicó el uso de tecnologías digitales ni inteligencia artificial. En la República 
+Dominicana, esta etapa se tradujo en un crecimiento de la productividad, especialmente 
+en arroz, caña de azúcar y banano, pero aún bajo modelos tradicionales de cultivo. (FAO, 
+Enseñanzas de la revolución verde: hacia una nueva revolución verde, 1996) 
+19 
+Surgimiento de la Agricultura de Precisión (1980–2000) 
+Con la llegada de la computación y los primeros pasos en geolocalización 
+surgió la idea de la agricultura de precisión un concepto revolucionario para 
+administrar parcelas agrícolas, esta fase involucró el empleo de tecnologías GPS, 
+sensores en el campo, y software especializado para examinar la variabilidad 
+espacial del suelo y el desempeño de los cultivos. 
+Los agricultores ahora podían aplicar fertilizantes de manera más 
+controlada, justo donde hacía falta, esto posibilitó la reducción de costos, la 
+disminución del impacto ambiental y mejorar la eficiencia total. Las universidades 
+en los Estados Unidos fueron vanguardistas en el avance de esta técnica. 
+En Estados Unidos, la AP (Prensa Asociada) se consolidó con el uso de 
+mapas de rendimiento y sistemas de información geográfica (SIG), facilitando 
+decisiones basadas en datos. En América Latina, iniciativas como el Programa 
+Cooperativo para el Desarrollo Tecnológico Agroalimentario y Agroindustrial del 
+Cono Sur (PROCISUR), establecido en 1980 con el apoyo del Banco 
+Interamericano de Desarrollo, promovieron la adopción de tecnologías de 
+precisión en países como Argentina, Brasil y Chile.  
+A nivel internacional, este período representó el primer intento de 
+digitalizar la agricultura. En la República Dominicana, sin embargo, la agricultura 
+de precisión fue introducida lentamente, en parte por la falta de infraestructura 
+tecnológica, conectividad rural limitada y bajo nivel de digitalización del sector 
+agrícola.  
+20 
+Avances en Inteligencia Artificial y su Aplicación Agrícola (2000–2015) 
+El progreso de algoritmos de aprendizaje automático redes neuronales y Big Data 
+desbloqueó nuevas chances para la agricultura. Se implementó la IA para pronosticar 
+cosechas examinar datos climáticos detectar afecciones en plantas gracias a imágenes y 
+automatizar la maquinaria agrícola. 
+Compañías como IBM, Microsoft y John Deere iniciaron a invertir en soluciones 
+para el agro originando plataformas que unían información meteorológica análisis del 
+suelo y bienestar de los cultivos. También emergieron startups centradas en IA agrícola 
+tipo Prospera y CropX. 
+La investigación de aquel tiempo fue crucial. Pongamos por caso un artículo en 
+Computers and Electronics in Agriculture (2013) mostraba cómo algoritmos 
+clasificadores lograban detectar plagas en cultivos con altos niveles de precisión, 
+sentando precedentes importantes en el uso de técnicas computacionales para la gestión 
+agrícola inteligente. (Phadikar, 2013) 
+En República Dominicana, instituciones tales como el Ministerio de Agricultura y 
+el IIBI Instituto de Innovación en Biotecnología e Industria iniciaron a indagar el uso de 
+data para hacer mejor la producción, aunque enfrentaron serias restricciones en su 
+aplicación real. 
+21 
+Transformación Digital y Agricultura Inteligente (2015–2025) 
+A partir de 2015, se consolidó la agricultura inteligente (Smart Farming), 
+juntando IA con sensores IoT, drones, fotos satelitales y robótica. Esto permite 
+una vigilancia al momento, automatiza procesos y ayuda a tomar decisiones 
+basándose en datos. 
+Por ejemplo, los sistemas de visión computacional pueden notar problemas 
+foliares antes de que se vean, y modelos predictivos que usan redes neuronales 
+anticipan cuando el cultivo necesita agua. Además, se crearon tractores que se 
+conducen solos, robots recolectores y plataformas digitales donde el granjero 
+maneja todo el proceso desde una aplicación. 
+Aplicaciones de IA, como el análisis predictivo y la visión por 
+computadora, se utilizan para detectar enfermedades en cultivos, optimizar el 
+riego y predecir rendimientos. Por ejemplo, empresas como John Deere han 
+desarrollado tractores autónomos, y startups como SpectralGeo utilizan imágenes 
+satelitales e IA para monitorear vastas extensiones de terreno. 
+Organizaciones como el Banco Mundial y la FAO promueven estas 
+tecnologías en países en desarrollo. En Latinoamérica, Brasil, México y Colombia 
+han emprendido acciones significativas, aplicando la IA en el agro. 
+En República Dominicana, el Plan Nacional de Soberanía y Seguridad 
+Alimentaria apunta modernizar el agro, incluso han aparecido algunas iniciativas 
+piloto de agricultura digital. Pero la implementación de IA aún es muy limitada y 
+solicita políticas públicas, financiamiento, y también la formación técnica. 
+22 
+Estado Actual y Perspectivas Futuras  
+Hoy día, la IA se conoce como una herramienta prometedora para afrontar 
+desafíos mundiales del agro: El cambio climático, la escasez de agua, la seguridad 
+alimentaria, y la sostenibilidad ambiental. La agricultura 5.0 proyecta una integración 
+total entre la inteligencia artificial, automatización robótica, y la agricultura regenerativa. 
+Actualmente, la IA en la agricultura se centra en mejorar la sostenibilidad y la 
+resiliencia frente al cambio climático. Modelos predictivos ayudan a anticipar 
+condiciones climáticas adversas y a tomar decisiones informadas sobre siembra y 
+cosecha. Se espera que el mercado global de tecnología agrícola digital alcance los $22 
+mil millones para 2025, reflejando una creciente inversión en este sector. 
+Las tendencias apuntan hacia al uso de gemelos digitales de cultivos, modelos 
+climáticos potenciados con IA y el blockchain para trazabilidad, y plataformas agrícolas 
+colaborativas, que, en tiempo real, unen productores, distribuidores, y también 
+consumidores. 
+En la República Dominicana, el futuro de la agricultura inteligente dependerá de 
+políticas públicas que empujen la adopción de tecnología, mejorando la infraestructura 
+digital, y asimismo en programas de formación para los agricultores. La colaboración 
+entre el gobierno, las instituciones académicas, y también, el sector privado será, 
+absolutamente crucial, para integrar la IA en la agricultura del país y así garantizar la 
+seguridad alimentaria frente al cambio climático.  
+23 
+Marcos conceptuales o paradigmas 
+Paradigmas Fundamentales en la Agricultura Moderna 
+Paradigma de la Agricultura Sostenible 
+El paradigma de la agricultura sostenible impulsa un enfoque completo 
+que busca cubrir las necesidades agrícolas presentes sin comprometer la capacidad 
+de las próximas generaciones. Este se centra en tres grandes bases: la 
+sostenibilidad ambiental, la equidad social, y también la viabilidad económica. 
+La inteligencia artificial se está integrando a este marco conceptual, 
+facilitando así un empleo más eficaz de los recursos naturales como el agua y 
+fertilizantes, disminuyendo el impacto ambiental en la agricultura. 
+Paradigma de la Agricultura 4.0 
+La Agricultura 4.0 es la transformación digital de la agricultura, integrando 
+tecnologías como el Internet de las Cosas, la IA, drones, sensores y robótica. Un 
+modelo qué permite hacer la gestión de procesos de producción, en tiempo real y 
+con mucha precisión, esto eleva la eficiencia y baja los residuos. La IA aporta 
+mucho analizando muchas cantidades de datos y ayuda con la toma de decisiones 
+informadas sobre la siembra, fertilización y la cosecha. (Santiago, 2021) 
+24 
+Teorías Relevantes Aplicadas a la Agricultura con IA 
+Teoría de Sistemas Complejos 
+La teoría de sistemas complejos visualiza la agricultura como un sistema 
+interdependiente, un sistema donde convergen múltiples variables tales como el clima, el 
+suelo, los cultivos y, los seres humanos. Entender esta teoría nos ayuda a visualizar cómo 
+las modificaciones en un elemento específico del sistema repercuten en otros. La IA nos 
+ofrece la capacidad de modelar estos sistemas, permitiéndonos detectar patrones y 
+anticipar comportamientos, contribuyendo así a una toma de decisiones más informada y 
+sostenible. 
+Teoría de la Inteligencia Artificial 
+La teoría de la IA se centra en el desarrollo de sistemas informáticos capaces de 
+realizar tareas que requieren inteligencia humana, como el aprendizaje, el razonamiento y 
+la percepción. En la agricultura, la IA se aplica en tareas como el análisis de imágenes 
+satelitales, la detección de enfermedades de las plantas y la predicción del rendimiento de 
+los cultivos. 
+25 
+Conceptos Clave en la Intersección de IA y Agricultura 
+Agricultura de Precisión 
+La agricultura de precisión implica el uso de tecnologías para observar, 
+medir y responder a la variabilidad existente en el campo agrícola. Este enfoque, 
+optimiza el uso de insumos, reduce costos, y encima aumenta la productividad. La 
+IA, esa misma, impulsa la agricultura de precisión; a través de análisis 
+predictivos, la visión artificial, y la automatización de tareas. 
+Aprendizaje Automático (Machine Learning) 
+El aprendizaje automático es una rama de la IA que permite a los sistemas 
+aprender de los datos y mejorar su rendimiento con el tiempo. En el contexto 
+agrícola, se utiliza para predecir las condiciones meteorológicas, identificar plagas 
+y enfermedades, y recomendar prácticas de cultivo adecuadas basadas en datos 
+históricos. 
+Agricultura Inteligente 
+La agricultura inteligente combina diversas tecnologías, incluyendo la IA, 
+para optimizar la producción y mejorar la sostenibilidad del sistema agrícola. 
+Mediante la monitorización en tiempo real y el análisis de datos, este concepto 
+busca maximizar el rendimiento y minimizar el uso de recursos naturales, 
+adaptándose a las condiciones ambientales cambiantes. 
+26 
+Fundamentación disciplinar e interdisciplinar 
+La agricultura ha tenido una enorme evolución científico desde su principio, 
+usándose métodos y técnicas empíricas, transmitidas de generación en generación, con 
+una visión ahora moderna y tecnológica se integran áreas del conocimiento. Este cambio 
+grande está basado en tecnologías como la inteligencia artificial, el Internet de las Cosas, 
+la ciencia de datos, y la automatización de procesos, resultando en nuevas disciplinas, 
+como la Agricultura Inteligente o Smart Farming. 
+Fundamentos desde la Disciplina Agronómica 
+La digitalización y los sistemas inteligentes en agronomía buscan aumentar la 
+eficiencia productiva, optimizar la gestión de recursos y garantizar la sostenibilidad 
+ambiental. La agricultura de precisión se basa en principios agronómicos como el análisis 
+del suelo, la variabilidad espacial, las condiciones climáticas cambiantes y el 
+comportamiento fisiológico de los cultivos. Por lo tanto, este campo se beneficia 
+directamente de los datos, obtenidos a través de redes de sensores y sistemas de 
+monitoreo en tiempo real, para tomar decisiones informadas y precisas. 
+La agronomía también ha incorporado modelos predictivos para pronosticar el 
+crecimiento de los cultivos, la progresión de enfermedades y las necesidades de riego y 
+fertilización. Estas decisiones, que antes se basaban en la experiencia pura, ahora se ven 
+reforzadas por algoritmos capaces de analizar grandes volúmenes de datos en segundos. 
+Aportes desde la Ciencia de Datos e Inteligencia Artificial 
+La IA se representa como una de las disciplinas que impacta con mayor incidencia 
+en la modernización de la agricultura. Entre sus múltiples ramificaciones como el 
+27 
+aprendizaje automático, el procesamiento del lenguaje natural, y la visión 
+artificial, la IA asiste en desarrollar modelos predictivos y prescriptivos con datos 
+agronómicos, ofreciendo conocimiento útil. 
+De esa forma, los algoritmos del aprendizaje automático están 
+programados a identificar patrones en la llegada de plagas y enfermedades, 
+mientras que las redes de aprendizaje profundo se usan para la detección 
+automática de hojas infectadas con imágenes o para encontrar anomalías en el 
+crecimiento de los cultivos. Así es como la ciencia de datos sirve una disciplina 
+que cruza varias áreas, colocada entre recoger el saber agrícola y su 
+procesamiento para empleo en el terreno. 
+Relación con la Ingeniería y la Tecnología de la Información 
+Otra disciplina clave en la fundamentación interdisciplinar es la ingeniería, 
+en particular la informática, la electrónica y la mecatrónica. Comprende todos los 
+sistemas desarrollados y mantenidos por sistemas tecnológicos que respaldan la 
+agricultura inteligente: sensores, drones, estaciones meteorológicas 
+automatizadas, robots agrícolas e incluso plataformas en la nube. 
+La ingeniería de software también desarrolla plataformas como Agro360, 
+que combina monitorización, análisis y visualización de datos. A su vez, la 
+ingeniería de datos organiza la información recopilada en bases de datos, como las 
+que pueden interpretar los modelos de IA. 
+28 
+Vinculación con las Ciencias Ambientales 
+La agricultura moderna conecta la sostenibilidad con las disciplinas ambientales. 
+Estas proporcionan los marcos teóricos y prácticos para examinar el impacto de la 
+labranza en el mundo natural. Es menester que los modelos de IA se adapten a los 
+criterios de sostenibilidad ambiental, optimizando el uso del agua, reduciendo las 
+emisiones de carbono, y ofreciendo múltiples formas de amparo a la biodiversidad. 
+Mediante sistemas inteligentes se podría, estimar la huella hídrica de un cultivo o 
+incluso, simular escenarios del cambio climático para así predecir como afectaría a la 
+producción. De este enfoque multidisciplinario emergerá una fusión entre el progreso 
+técnico y formas de hacer responsable y equilibradas con el medio ambiente. 
+29 
+Teorías, modelos y tendencias actuales del tema 
+Teorías 
+Aprendizaje Automático Causal para Agroecosistemas 
+El aprendizaje causal representa una postura avanzada que se aleja del 
+aprendizaje automático tradicional, que se centra en identificar relaciones entre 
+insumos y productos. Esto resulta útil en la agricultura sostenible, que, por 
+definición, consiste en los procesos de toma de decisiones sobre intervenciones 
+basados en una comprensión profunda de los efectos de estas en un sistema 
+agrícola en su totalidad. Por ejemplo, se podría utilizar el aprendizaje causal para 
+determinar cómo una práctica de riego específica influye en el rendimiento de los 
+cultivos con la variabilidad climática. 
+Integración de Aprendizaje por Refuerzo y Modelos de Lenguaje 
+La combinación del Aprendizaje por Refuerzo (AR) con Modelos de 
+Lenguaje Grandes (MLG) ha abierto el camino a nuevas vías para la gestión de 
+procesos agrícolas. De hecho, el AR proporciona al sistema la capacidad de 
+aprender estrategias óptimas a través de sus interacciones con el entorno, mientras 
+que los MLG aplican una mejor comprensión al conocimiento existente sobre 
+agricultura. Esta integración facilita la toma de decisiones adaptativa y contextual 
+en la producción agrícola. 
+30 
+Modelos 
+Agricultura Vertical Inteligente 
+Fusionada con la IA, la agricultura vertical crea un ambiente controlado para 
+cosechar alimentos, maximizando espacio y recursos. Los sistemas inteligentes 
+monitorean aspectos como la luz, temperatura, humedad, mejorando muchísimo la 
+eficiencia y la sostenibilidad de la producción. 
+Detección Automatizada de Enfermedades 
+En las tierras tropicales, el aprendizaje profundo realmente ha avanzado en la 
+detección y clasificación de enfermedades en las hojas de los cultivos. Estos modelos son 
+capaces de identificar la enfermedad de manera rápido y preciso, permitiendo que se 
+actúe temprano para disminuir las pérdidas agrícolas. 
+Tendencias 
+Sistemas de Gestión Basados en IA 
+Herramientas como Aicrop integran datos de diversas fuentes para proporcionar 
+recomendaciones personalizadas a los agricultores. Estas plataformas ayudan en la toma 
+de decisiones informadas, optimizando procesos y mejorando la eficiencia en la 
+producción hortícola. 
+31 
+Proyectos de Agricultura Sostenible sin Químicos 
+Iniciativas como las desarrolladas en Canarias buscan eliminar el uso de 
+productos químicos en la agricultura mediante la aplicación de tecnologías 
+avanzadas, como la IA y la robótica. Estos proyectos están más orientados a 
+prácticas agrícolas sostenibles y medioambientales. 
+32 
+Capítulo 3: Metodología 
+Introducción del Capítulo 3 
+Este capítulo relata sobre la metodología de la investigación, "Aplicación de la 
+Inteligencia Artificial para la Optimización Agrícola en la República Dominicana a través 
+del Sistema Agrotecnológico". La metodología, que es importante en la investigación, 
+guía los pasos para alcanzar los objetivos y contestar bien las preguntas planteadas. 
+Se describe, claramente, el tipo de estudio, el diseño metodológico usado, las 
+unidades analizadas, el universo y la muestra. También, define métodos, el plan general 
+de implementación, las técnicas y herramientas para conseguir datos, y validar los 
+instrumentos. También metemos la operacionalización de las variables para conectar 
+datos y teorías. 
+El enfoque de la investigación se concibió, pensando en la integración de métodos 
+cuantitativos para un análisis profundo del asunto. Elegimos una metodología que daría 
+objetividad, fiabilidad y validez a los hallazgos; el proceso de recolección, análisis e 
+interpretación de datos sería riguroso y acorde con el contexto agrícola y tecnológico 
+dominicano. 
+De ahí, este capítulo es como el corazón técnico de la investigación, presentando 
+las herramientas y metodologías que se necesitan, para entender con más profundidad el 
+fenómeno en estudio, y validar las hipótesis iniciales. 
+33 
+Tipo de estudio  
+Este estudio es no experimental, descriptivo y correlacional, ya que analiza la 
+influencia de la inteligencia artificial en la optimización de las prácticas agrícolas 
+en la República Dominicana mediante el sistema Agritech. 
+Un experimento se considera no experimental cuando no se manipulan las 
+variables independientes, sino que el objeto se observa en su contexto natural, 
+como en el caso de las prácticas agrícolas actuales y la implementación de 
+tecnologías basadas en inteligencia artificial, que se estudiarán sin alteración 
+ambiental, y cuyos cambios y resultados se registrarán objetivamente según 
+Hernández Sampieri et al. (Hernández Sampieri, 2014). 
+Con un enfoque descriptivo, se pretende caracterizar y representar los 
+principales atributos, rasgos y características de un fenómeno, según Mario 
+Tamayo y Tamayo (2003). Por lo tanto, conocer la cercanía de los participantes a 
+las herramientas inteligentes de los agrónomos y a la práctica agrícola real 
+explicaría de forma genérica su percepción del uso de la tecnología Agritech por 
+parte de los agricultores. La descripción reflejará la situación actual del sector 
+agrícola con respecto a la introducción de diversas tecnologías emergentes. 
+(Tamayo, 2003) 
+En cuanto a la naturaleza de los datos, la investigación se centrará en la 
+recopilación de información cuantitativa a través de encuestas estructuradas y 
+análisis estadístico. 
+34 
+Diseño del estudio  
+El diseño investigativo es no experimental, transversal y adopta un enfoque 
+cuantitativo. Este diseño pretende observar, analizar y entender la implementación de la 
+inteligencia artificial a través de sistemas agro-tecnológicos, además, como estos 
+optimizarían las prácticas agrícolas en la República Dominicana sin tocar las variables 
+estudiadas. 
+La investigación, se desarrollará en cuatro fases principales: 
+Fase de Diagnóstico y Revisión Documental: Se va a recolectar información 
+teórica y antecedentes empíricos sobre el uso de la inteligencia artificial en la agricultura, 
+tanto en ámbito nacional como internacional para armar el contexto y el marco teórico. 
+Fase de Diseño Metodológico y Desarrollo de Instrumentos: Diseñaremos 
+cuestionarios estructurados, para datos cuantitativos, centrando en la medición de cosas 
+como la adopción tecnológica, la eficiencia que tanto valoran, la percepción de los 
+agricultores, su sostenibilidad y la productividad. 
+Fase de Recolección de Datos: Las herramientas se aplicarán presencial y 
+virtualmente a una muestra que representa, a productores agrícolas y otros que tienen que 
+ver con el uso de la tecnología digital. 
+Fase de Análisis e Interpretación: Los datos recolectados serán codificados y 
+procesarán mediante software estadístico (como SPSS o Excel). Se aplicarán técnicas de 
+estadística descriptiva y correlacional para detectar patrones, asociaciones y tendencias 
+existentes entre las variables del estudio. Esta fase será muy útil para comprobar 
+empíricamente las hipótesis planteadas. 
+35 
+Unidad de Análisis, Universo y Muestra  
+La unidad de análisis de esta investigación estará compuesta por personas 
+relacionados al ámbito agrícola en República Dominicana que se ajustan a tres 
+perfiles específicos: estudiantes de carreras agrícolas u afines; pequeños 
+agricultores en activo; y entusiastas tecnológicos interesados en soluciones 
+digitales para la agricultura. Se incluyen actores urbanos y rurales de la región del 
+Cibao debido a ser una de las áreas más dinámicas en términos agrícolas y 
+tecnológicos dentro del país. 
+El universo está compuesto por agricultores en la región del cibao, 
+incluyendo los estudiantes de carreras agropecuarias, pequeños agricultores y 
+entusiastas tecnológicos que cumplen con los criterios principales: 
+• Es necesario enfocarse en las zonas agrícolas más dinámicas del país como 
+La Vega, San Juan, Monte Plata, Monseñor Nouel, Azua y otros territorios 
+cibaeños. 
+• Participan en proyectos o programas de capacitación o interactúan de 
+alguna forma con tecnologías digitales aplicadas a la agricultura (como el 
+uso de sensores, plataformas de monitoreo, etc.). 
+Dado que el objetivo del estudio es evaluar la viabilidad y la percepción 
+del sistema Agritech, se prioriza a los agricultores dispuestos a aceptar nuevas 
+herramientas tecnológicas o que forman parte de programas de innovación. 
+36 
+La muestra será intencional, según criterios de accesibilidad, conocimiento del 
+fenómeno y disposición a participar. Se seleccionarán entre 50 y 70 participantes según 
+las siguientes proporciones: 
+• Agricultores y ganaderos representan el 70% de la producción. 
+• Agrónomos e ingenieros (20%) 
+• Representantes de asociaciones e instituciones públicas (10%) 
+La selección intencional se fundamenta por la naturaleza investigativa y aplicada 
+de este estudio, que busca extraer información cuantitativa de las personas directamente 
+involucrados en la utilización o fomentación de tecnologías basadas en IA en la 
+agricultura. Este tipo de muestreo es más adecuado cuando se requiere acceso a 
+información muy específica y especializada, como propone Hernández Sampieri. 
+La muestra se basó en los objetivos de la investigación y la viabilidad del estudio 
+en el terreno para garantizar que reflejaran adecuadamente la diversidad geográfica y 
+tecnológica de la agricultura en República Dominicana. 
+37 
+Métodos utilizados en la investigación  
+Método Cuantitativo 
+El método cuantitativo se debe a su capacidad para proporcionar datos 
+objetivos y medible que pueda ser generalizada y utilizada para evaluar la 
+viabilidad y recepción del sistema Agritech en la región del Cibao en República 
+Dominicana por parte de estudiantes interesados en tecnología y pequeños 
+agricultores. 
+Este enfoque metodológico se ajusta a la naturaleza no experimental y 
+descriptiva del estudio al buscar identificar relaciones entre variables como el 
+conocimiento sobre inteligencia artificial, la disposición para usar tecnologías 
+digitales y la percepción del impacto en la productividad agrícola. Según 
+Hernández Sampieri, Fernández y Baptista (2014), el método cuantitativo permite 
+analizar fenómenos mediante la recolección sistemática de datos, lo que facilita la 
+comprobación de hipótesis y la generación de inferencias sólidas. (Hernández 
+Sampieri, 2014) 
+La técnica de recolección de datos seleccionada será la encuesta 
+estructurada, aplicada mediante formularios digitales. Esta modalidad permitirá 
+obtener información directamente de los participantes de forma eficiente y 
+estandarizada para facilitar su posterior análisis estadístico. Las preguntas serán 
+elaboradas para evaluar variables clave utilizando escalas tipo Likert, con el 
+propósito de identificar tendencias, niveles de aceptación tecnológica y posibles 
+obstáculos en el proceso de adopción. 
+38 
+El uso exclusivo del método cuantitativo se justifica además por la necesidad de 
+mantener una estrategia de investigación viable y ejecutable dentro de los recursos 
+disponibles. Al centrarse en datos numéricos obtenidos directamente de la muestra 
+seleccionada, esta metodología proporcionará resultados precisos y tangibles que 
+respaldarán las conclusiones del estudio y contribuirán a validar empíricamente la 
+hipótesis formulada. 
+Procedimiento 
+Fase 1: Planificación del estudio 
+Se establecieron los objetivos generales y específicos junto a las variables 
+principales de la investigación. Se ha seleccionado el método cuantitativo como método 
+principal, dado su carácter descriptivo y correlacional; se diseñó un cuestionario 
+estructurado para recopilar la información principal. 
+Fase 2: Diseño y comprobación del instrumento 
+El cuestionario se creó considerando los objetivos de la investigación y se validó 
+mediante la evaluación de expertos en tecnología agrícola y metodología de investigación 
+para garantizar su relevancia y comprensión adecuada de las preguntas; además se realizó 
+una prueba piloto a un pequeño grupo de participantes para identificar cualquier posible 
+problema de interpretación. 
+Fase 3: Selección y contacto con la muestra 
+Se identificaron y se contactaron posibles participantes que cumplían los 
+requisitos del grupo especificado: estudiantes de tecnología agrícola, pequeños 
+agricultores y entusiastas de la tecnología en la región del Cibao. La muestra se 
+39 
+seleccionó de manera intencional, dando prioridad a la facilidad de acceso y 
+disposición para participar. 
+Fase 4: Recolección de datos 
+El formulario fue enviado por medios digitales (formularios en línea), 
+facilitando la participación sin verse limitada. Se implementaron mecanismos de 
+seguimiento para aclarar cualquier duda y asegurar una respuesta adecuada por 
+parte de los participantes. 
+Fase 5: Interpretación de resultados 
+Los resultados serán analizados considerando los objetivos de la 
+investigación y comparando los hallazgos tanto a nivel teórico como empírico 
+existente. Se enfatizarán las implicaciones prácticas de los datos recolectados 
+junto a sus limitaciones y sugerencias para investigaciones futuras. 
+Fase 6: Elaboración del informe final 
+Se integrarán todos los componentes de la investigación en el documento 
+tesis; esto abarcará la exposición de los resultados a través de gráficos y tablas 
+detalladas; asimismo se llevará a cabo un análisis de los hallazgos y se 
+presentarán conclusiones que apunten a mejorar la implementación tecnológica en 
+el ámbito agrícola de República Dominicana. 
+40 
+Técnicas e instrumentación de recolección de datos 
+La técnica principal utilizada para recopilar información en este estudio fue la 
+encuesta, seleccionada por su capacidad de obtener datos precisos y cuantificables de una 
+muestra representativa de participantes de forma estandarizada y fiablemente 
+comprobada en investigaciones descriptivas y correlacionales enfocadas 
+cuantitativamente como la presente investigación. 
+El instrumento utilizado consistió en un cuestionario estructurado, diseñado 
+específicamente para evaluar el nivel de conocimiento y disposición hacia el uso de 
+tecnologías basadas en inteligencia artificial en la agricultura entre los estudiantes de 
+tecnología agrícola e interesados digitales junto a los pequeños agricultores del Cibao. Se 
+emplearon preguntas cerradas y escalas tipo Likert de cinco niveles para poder medir de 
+forma precisa las actitudes y opiniones relacionadas a la adopción del sistema Agritech. 
+El cuestionario abarcó los siguientes apartados: 
+• Información sociodemográfica: edad de las personas o su nivel educativo, 
+ocupación, acceso a la tecnología y otros aspectos relevantes. 
+• Conocimientos en inteligencia artificial utilizada en la agricultura. 
+• El uso actual de tecnologías digitales en labores agrícolas. 
+• Percepción de los beneficios de un sistema inteligente como Agritech. 
+• Barreras percibidas para la adopción de tecnología. 
+41 
+Para garantizar que el instrumentó sea válido, se realizó una validación de 
+contenido mediante la revisión de expertos en tecnología agrícola, investigación 
+científica y metodologías cuantitativas. Se evaluaron aspectos como la pertinencia, 
+claridad, coherencia y relevancia de cada objeto. 
+La realización del cuestionario se llevó a cabo de forma digital mediante el 
+uso de formularios en línea para facilitar el acceso y ampliar el alcance 
+geográfica; así como para mejorar la recolección de información en áreas urbanas 
+y rurales del Cibao. 
+Este instrumento facilitó la obtención de información precisa y comparable 
+de manera que se facilitara el análisis estadístico posterior y la formulación de 
+conclusiones sólida sobre la viabilidad de implementación el sistema Agritech. 
+42 
+Operacionalización de las variables 
+Operacionalización de las variables 
+en Agritech 
+Objetivo Específico 
+Variable 
+Definición de la Variable 
+Dimensiones 
+Indicadores 
+Escala 
+Analizar el nivel de 
+conocimiento sobre IA 
+aplicada a la agricultura. 
+Conocimiento 
+de la IA en la 
+agricultura 
+Nivel de familiaridad que 
+tiene el usuario sobre el 
+uso de la IA aplicada a la 
+agricultura. 
+Conocimiento / 
+Experiencia 
+Conocimiento sobre IA / 
+Conocimiento de sus 
+aplicaciones en agricultura, 
+uso de herramientas 
+digitales. 
+Ordinal 
+Evaluar el uso de la 
+tecnología agrícola a 
+estudiantes, entusiastas y 
+pequeños agricultores. 
+Uso de la 
+tecnología 
+agrícola 
+Nivel en que los individuos 
+utilizan herramientas 
+digitales en actividades con 
+la producción agrícola. 
+Herramientas 
+digitales  
+Uso de sensores, estaciones 
+climáticas. 
+Ordinal 
+43 
+Identificar barreras 
+percibidas en la adopción 
+de tecnologías IA en la 
+agricultura. 
+Barreras de 
+adopción 
+Variables que dificultan la 
+implementación de 
+tecnologías de IA. 
+Nivel de 
+conocimiento / 
+Conectividad 
+Dificultad para usar 
+plataformas tecnológicas 
+debido al bajo dominio en la 
+tecnología / Acceso estable 
+al internet. 
+Ordinal, 
+Nominal 
+Estimar el impacto 
+percibido de Agritech en 
+la productividad y 
+sostenibilidad. 
+Percepción de 
+impacto 
+Opinión del usuario 
+respecto a los beneficios 
+que tendría la tecnología 
+sobre su trabajo agrícola. 
+Productividad / 
+Sostenibilidad 
+Aumento esperado en la 
+producción, ahorro de 
+recursos, reducción de 
+desperdicios. 
+Ordinal 
+Describir el perfil 
+sociodemográfico de los 
+usuarios potenciales. 
+Características 
+demográficas 
+Atributos que permiten 
+clasificar a los encuestados 
+según aspectos personales 
+al análisis del estudio. 
+Edad / 
+Ocupación 
+Rango de edad del 
+participante / Actividad 
+principal del encuestado. 
+Razón / 
+Nominal 
+Created by Juan Flores – Jeyllon Sandoval 

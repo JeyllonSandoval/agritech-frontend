@@ -95,7 +95,10 @@
         "error": "Failed to create chat",
         "nameRequired": "Chat name is required",
         "descriptionRequired": "Description is required",
-        "maxLength": "Maximum length is {length} characters"
+        "maxLength": "Maximum length is {length} characters",
+        "personalizedMessage": "Hello {name}! From {country}, you're about to create a new intelligent chat.",
+        "welcomeMessage": "Hello! You're about to create a new intelligent chat.",
+        "instructionMessage": "You can start with a document or create an empty chat to converse directly with the AI."
     },
     "fileCreated": {
         "title": "Upload File",

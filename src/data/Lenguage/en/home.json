@@ -2,77 +2,210 @@
     "hero": {
         "image": "/icon/AgriTech-Logo-_transparent_.webp",
         "title": "AgriTech",
-        "subtitle": "Innovating Agriculture for a Sustainable Future",
-        "description": "An innovative platform that combines artificial intelligence with agricultural knowledge to enhance your field development",
-        "buttonPlayground": "Go to Playground"
+        "subtitle": "Revolutionizing Dominican agriculture with artificial intelligence",
+        "description": "The first comprehensive platform that combines artificial intelligence, IoT sensors and predictive analytics to optimize agricultural production, reduce environmental impact and empower farmers with cutting-edge technological tools.",
+        "buttons": {
+            "playground": "Explore Playground",
+            "telemetry": "View Telemetry"
+        }
+    },
+    "mission": {
+        "title": "Our Mission",
+        "description": "Transform Dominican agriculture by democratizing access to intelligent technologies, reducing the digital gap between traditional farmers and advanced technological solutions of the 21st century.",
+        "stats": [
+            {
+                "number": "70%",
+                "label": "Small producers represent the national productive system"
+            },
+            {
+                "number": "20-30%",
+                "label": "Increase in productivity with digital technologies (FAO)"
+            },
+            {
+                "number": "100%",
+                "label": "Focus on environmental sustainability"
+            }
+        ]
     },
     "features": {
-        "title": "Features",
+        "title": "Main Features",
+        "subtitle": "Smart solutions for modern agriculture",
         "items": [
-        {
-            "title": "Document Analysis",
-            "description": "Process and analyze agricultural technical documents to obtain relevant information quickly",
-            "icon": "document"
-        },
-        {
-            "title": "Smart Chat",
-            "description": "Interact with an AI specialized in agriculture that answers your questions and provides recommendations",
-            "icon": "chat"
-        },
-        {
-            "title": "File Management",
-            "description": "Organize and access your technical documents efficiently",
-            "icon": "folder"
-        },
-        {
-            "title": "Continuous Learning",
-            "description": "The platform learns and improves constantly with each interaction",
-            "icon": "learn"
-        }
+            {
+                "title": "AI Analysis",
+                "description": "Intelligent processing of agricultural PDF documents with automatic summaries, key data extraction and personalized recommendations based on analyzed content.",
+                "icon": "document"
+            },
+            {
+                "title": "Specialized Chat",
+                "description": "Conversational assistant expert in Dominican agriculture that understands local context, native crop varieties and specific climatic conditions of the country.",
+                "icon": "chat"
+            },
+            {
+                "title": "IoT Monitoring",
+                "description": "Integration with EcoWitt sensors for real-time monitoring of temperature, humidity, atmospheric pressure, wind speed, UV radiation and precipitation.",
+                "icon": "folder"
+            },
+            {
+                "title": "Intelligent Prediction",
+                "description": "Machine learning algorithms that analyze climatic patterns, predict pests and diseases, and optimize the use of resources like water and fertilizers.",
+                "icon": "learn"
+            },
+            {
+                "title": "Precision Agriculture",
+                "description": "Tools for crop mapping, soil spatial variability analysis and specific recommendations by zone within the agricultural plot.",
+                "icon": "map"
+            },
+            {
+                "title": "Sustainable Management",
+                "description": "Optimization of agricultural input use to reduce environmental impact, minimize waste and promote regenerative agriculture practices.",
+                "icon": "leaf"
+            }
         ]
     },
     "audience": {
         "title": "Who is it designed for?",
+        "subtitle": "Democratizing access to agricultural technology",
         "groups": [
-        {
-            "title": "Small Farmers",
-            "description": "Access technical knowledge in a simple and practical way to improve your crops",
-            "icon": "farmer"
-        },
-        {
-            "title": "Students",
-            "description": "Complement your academic training with practical tools and updated knowledge",
-            "icon": "student"
-        },
-        {
-            "title": "Enthusiasts",
-            "description": "Explore the world of agriculture with a modern and accessible tool",
-            "icon": "sprout"
-        }
+            {
+                "title": "Small Farmers",
+                "description": "Intuitive and accessible tools that don't require advanced technical knowledge. Simplified interface with clear and practical recommendations to improve productivity without large investments.",
+                "icon": "farmer",
+                "benefits": [
+                    "Access to technology without prohibitive costs",
+                    "Recommendations in simple language",
+                    "Improved yields with limited resources"
+                ]
+            },
+            {
+                "title": "Agricultural Students",
+                "description": "Educational platform that complements academic training with practical tools, real case studies and access to the latest innovations in smart agriculture.",
+                "icon": "student",
+                "benefits": [
+                    "Learning with cutting-edge technology",
+                    "Local case studies",
+                    "Preparation for the agriculture of the future"
+                ]
+            },
+            {
+                "title": "Technology Enthusiasts",
+                "description": "Full access to APIs, real-time data and advanced tools for developers interested in creating custom solutions for the agricultural sector.",
+                "icon": "sprout",
+                "benefits": [
+                    "Open APIs for development",
+                    "Historical and real-time data",
+                    "Agricultural innovators community"
+                ]
+            }
+        ]
+    },
+    "impact": {
+        "title": "Expected Impact",
+        "subtitle": "Transforming Dominican agriculture",
+        "description": "Based on international studies and similar projects like AgAID in the United States and Agro360 at regional level, AgriTech seeks to generate measurable impact on agricultural productivity and sustainability.",
+        "metrics": [
+            {
+                "title": "Productivity Increase",
+                "value": "20-30%",
+                "description": "Expected increase in agricultural yields according to FAO studies on digital technologies",
+                "icon": "trending-up"
+            },
+            {
+                "title": "Input Reduction",
+                "value": "15-25%",
+                "description": "Decrease in fertilizer and pesticide use through intelligent optimization",
+                "icon": "leaf"
+            },
+            {
+                "title": "Water Savings",
+                "value": "30-40%",
+                "description": "Irrigation optimization based on soil moisture data and climate predictions",
+                "icon": "droplet"
+            },
+            {
+                "title": "Early Detection",
+                "value": "85%+",
+                "description": "Precision in early identification of pests and diseases",
+                "icon": "shield"
+            }
+        ]
+    },
+    "ecowitt": {
+        "title": "EcoWitt Sensor Technology",
+        "subtitle": "World leaders in IoT weather stations",
+        "description": "AgriTech integrates advanced sensors and weather stations from EcoWitt, a leading company in environmental monitoring technology. We use their high-precision products to obtain real-time weather and environmental data.",
+        "disclaimer": "Important note: AgriTech uses EcoWitt products for environmental data monitoring, but we do not maintain an official commercial collaboration with the company. We are independent users of their technology.",
+        "features": [
+            {
+                "title": "Complete Weather Stations",
+                "description": "7-in-1 sensors that measure temperature, humidity, pressure, wind, rain, UV and solar radiation",
+                "icon": "cloud"
+            },
+            {
+                "title": "Wi-Fi and RF Connectivity",
+                "description": "Wireless data transmission up to 100 meters distance with solar battery backup",
+                "icon": "wifi"
+            },
+            {
+                "title": "Specialized Sensors",
+                "description": "Soil moisture monitors, air quality, leak detectors and water tank sensors",
+                "icon": "settings"
+            },
+            {
+                "title": "Professional Precision",
+                "description": "Laboratory precision instruments designed for agriculture, meteorology and research",
+                "icon": "target"
+            }
+        ],
+        "models": [
+            {
+                "name": "WS2910 Professional",
+                "description": "Complete weather station with 6.8\" LCD display and 7-in-1 solar sensor",
+                "specs": "Temperature range: -40°F to 140°F, Transmission: 100m, Rain accuracy: 10%"
+            },
+            {
+                "name": "WH51 Soil Moisture",
+                "description": "Soil moisture sensor with 1 meter probe for deep monitoring",
+                "specs": "AD measurement, LCD display, Real-time monitoring for garden and field"
+            },
+            {
+                "name": "GW3000 Gateway",
+                "description": "Wi-Fi/Ethernet IoT hub with integrated sensors and SD card slot",
+                "specs": "Dual connectivity, Local storage, Adjustable external RF antenna"
+            }
         ]
     },
     "contact": {
-        "title": "Contact Us",
-        "description": "Have questions or suggestions? We're here to help",
+        "title": "Join the Agricultural Revolution",
+        "description": "Ready to transform your way of farming? Contact us to be part of the next generation of smart agriculture in the Dominican Republic.",
         "email": "agriJJtech@hotmail.com",
-        "social": {
-        "linkedin": {
-            "profileOne": {
-                "title": "Juan Flores",
-                "urlPlayerOne": "https://www.linkedin.com"
-            },
-            "profileTwo": {
-                "title": "Jeyllon Sandoval",
-                "urlPlayerTwo": "https://www.linkedin.com/in/jeyllon-slon-sandoval-rosario-bb2292320/"
-            }
+        "cta": "Start your digital transformation today",
+        "team": {
+            "title": "Development Team",
+            "description": "AgriTech development and research team"
         },
+        "social": {
+            "linkedin": {
+                "profileOne": {
+                    "title": "Juan Manuel Flores Hernández",
+                    "role": "Co-founder & AI Specialist",
+                    "urlPlayerOne": "https://www.linkedin.com"
+                },
+                "profileTwo": {
+                    "title": "Jeyllon Slon Sandoval Rosario",
+                    "role": "Co-founder & Software Architect",
+                    "urlPlayerTwo": "https://www.linkedin.com/in/jeyllon-slon-sandoval-rosario-bb2292320/"
+                }
+            },
             "github": {
                 "optionOne": {
-                    "title": "Frontend",
+                    "title": "Frontend Repository",
+                    "description": "User interface and web application",
                     "urlFrontEnd": "https://github.com/JeyllonSandoval/agritech-frontend"
                 },
                 "optionTwo": {
-                    "title": "Backend",
+                    "title": "Backend Repository",
+                    "description": "API, AI and data processing",
                     "urlBackEnd": "https://github.com/JeyllonSandoval/agritech-backend"
                 }
             }

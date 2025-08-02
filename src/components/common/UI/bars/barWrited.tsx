@@ -1,5 +1,6 @@
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, useRef } from 'react';
 import ButtonAdjunt from '@/components/common/UI/CompleButtons/ButtonAdjunt';
+import ButtonDevice from '@/components/common/UI/CompleButtons/ButtonDevice';
 import ButtonSend from '@/components/common/UI/CompleButtons/ButtonSend';
 import { FileProps } from '@/hooks/getFiles';
 import { useModal } from '@/context/modalContext';
@@ -11,30 +12,50 @@ interface BarWritedProps {
     isLoading?: boolean;
     onFileSelect?: (file: FileProps) => void;
     selectedFile?: FileProps | null;
+    onDeviceSelect?: () => void;
+    isDeviceSelectorActive?: boolean;
 }
 
 export default function BarWrited({ 
     onSendMessage, 
     isLoading = false, 
     onFileSelect,
-    selectedFile 
+    selectedFile,
+    onDeviceSelect,
+    isDeviceSelectorActive = false
 }: BarWritedProps) {
     const [message, setMessage] = useState('');
     const { openModal } = useModal();
     const { t, loadTranslations } = useTranslation();
     const { language } = useLanguage();
     const [isLoaded, setIsLoaded] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         setIsLoaded(false);
         loadTranslations('bars').then(() => setIsLoaded(true));
     }, [language]);
 
+    // Enfocar el input cuando se carga el componente
+    useEffect(() => {
+        if (isLoaded && !isLoading) {
+            const timeoutId = setTimeout(() => {
+                inputRef.current?.focus();
+            }, 200);
+            
+            return () => clearTimeout(timeoutId);
+        }
+    }, [isLoaded, isLoading]);
+
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         if (message.trim() && !isLoading) {
             onSendMessage(message.trim());
             setMessage('');
+            // Enfocar el input después de enviar el mensaje
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 100);
         }
     };
 
@@ -45,7 +66,9 @@ export default function BarWrited({
     };
 
     const handleOpenFileSelect = () => {
-        openModal('createdFile', 'select', '', undefined, undefined, handleFileSelect);
+        if (!isLoading) {
+            openModal('createdFile', 'select', '', undefined, undefined, handleFileSelect);
+        }
     };
 
     if (!isLoaded) return null;
@@ -65,6 +88,7 @@ export default function BarWrited({
                 )}
                 <div className="relative w-full">
                     <input
+                        ref={inputRef}
                         type="text"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
@@ -80,6 +104,13 @@ export default function BarWrited({
                     />
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 sm:gap-2">
                         <ButtonAdjunt onClick={handleOpenFileSelect} disabled={isLoading} />
+                        {onDeviceSelect && (
+                            <ButtonDevice 
+                                onClick={onDeviceSelect} 
+                                disabled={isLoading} 
+                                isActive={isDeviceSelectorActive}
+                            />
+                        )}
                         <ButtonSend 
                             isLoading={isLoading}
                             disabled={!message.trim() || isLoading}

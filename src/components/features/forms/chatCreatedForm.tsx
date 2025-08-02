@@ -5,6 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 import { useChatStore } from '@/store/chatStore';
 import { useLanguage } from '@/context/languageContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useProfile } from '@/hooks/useProfile';
 
 interface TokenPayload {
     UserID: string;
@@ -17,6 +18,7 @@ interface ChatCreatedFormProps {
 export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
     const { language } = useLanguage();
     const { t, loadTranslations } = useTranslation();
+    const { userData, countryName } = useProfile();
     const [chatName, setChatName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');

@@ -3,6 +3,7 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/context/languageContext';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 interface HelpFeature {
@@ -19,7 +20,7 @@ interface HelpModalProps {
     features: HelpFeature[];
     title: string;
     description: string;
-    footer: string;
+    footer?: string;
 }
 
 export default function HelpModal({ 
@@ -40,18 +41,32 @@ export default function HelpModal({
         loadTranslations(namespace).then(() => setIsLoaded(true));
     }, [language, namespace]);
 
+    // Prevenir scroll del fondo cuando el modal está abierto
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
+
     if (!isOpen || !isLoaded) return null;
 
-    return (
+    if (typeof window === 'undefined' || !document.body) return null;
+
+    return createPortal(
         <div 
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[100] p-4"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[9999] p-4"
             onClick={onClose}
         >
             <div 
                 className="bg-gray-100/10 backdrop-blur-md rounded-2xl 
                     border border-white/20 shadow-lg
                     p-6 md:p-8 relative w-full max-w-4xl max-h-[90vh] scrollbar
-                    flex flex-col"
+                    flex flex-col z-[9999]"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -115,15 +130,18 @@ export default function HelpModal({
                     ))}
                 </div>
 
-                {/* Footer */}
-                <div className="mt-8 pt-6 border-t border-white/10">
-                    <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-lg p-4">
-                        <p className="text-emerald-300 text-sm text-center">
-                            {footer}
-                        </p>
-                    </div>
-                </div>
+                {/* Footer opcional */}
+                {footer && (
+                  <div className="mt-8 pt-6 border-t border-white/10">
+                      <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-lg p-4">
+                          <p className="text-emerald-300 text-sm text-center">
+                              {footer}
+                          </p>
+                      </div>
+                  </div>
+                )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 } 

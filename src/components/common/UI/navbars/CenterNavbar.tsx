@@ -13,8 +13,9 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     const [activeBackground, setActiveBackground] = useState({ width: 4, left: 0 });
     const linksRef = useRef<(HTMLAnchorElement | null)[]>([]);
     const { t, loadTranslations } = useTranslation();
-    const { language } = useLanguage();
+    const { language, isInitialized: isLanguageInitialized } = useLanguage();
     const [isLoaded, setIsLoaded] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     // Verificar si estamos en rutas específicas donde no queremos mostrar el background
     const isSignInRoute = pathname === '/signin';
@@ -24,13 +25,24 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
     const isResetPasswordRoute = pathname === '/reset-password';
     const isPlaygroundRoute = pathname.startsWith('/playground');
 
+    // Asegurar hidratación correcta
     useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isMounted || !isLanguageInitialized) return;
+        
         setIsLoaded(false);
-        loadTranslations('navbar').then(() => setIsLoaded(true));
-    }, [language]);
+        loadTranslations('navbar').then(() => {
+            setIsLoaded(true);
+        });
+    }, [language, isMounted, isLanguageInitialized]);
 
     useLayoutEffect(() => {
-        // recalcula el background solo cuando isLoaded es true
+        // recalcula el background solo cuando está montado y el idioma inicializado
+        if (!isMounted || !isLanguageInitialized) return;
+        
         const activeLink = linksRef.current.find(
             (link) => link?.getAttribute('href') === pathname ||
             (link?.getAttribute('href') === '/playground' && isPlaygroundRoute)
@@ -45,7 +57,7 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
                 });
             }
         }
-    }, [pathname, isSignInRoute, isProfileRoute, isForgotPasswordRoute, isVerifyEmailRoute, isResetPasswordRoute, isPlaygroundRoute, isLoaded, language]);
+    }, [pathname, isSignInRoute, isProfileRoute, isForgotPasswordRoute, isVerifyEmailRoute, isResetPasswordRoute, isPlaygroundRoute, isMounted, isLanguageInitialized, language]);
 
     const handleLinkClick = () => {
         if (onSelect) {
@@ -53,13 +65,33 @@ export default function CenterNavbar({ onSelect }: CenterNavbarProps) {
         }
     };
 
-    if (!isLoaded) return null;
+    // No renderizar hasta que esté montado y el idioma inicializado para evitar problemas de hidratación
+    if (!isMounted || !isLanguageInitialized) {
+        return (
+            <div className="flex justify-center items-center bg-white/10 backdrop-blur-2xl py-2 px-2 m-2 rounded-xl lg:w-[600px] lg:h-[44px] lg:rounded-full lg:backdrop-blur-none">
+                <div className="flex flex-col lg:flex-row gap-3 lg:gap-8 text-base lg:text-lg relative justify-center items-center">
+                    <div className="animate-pulse flex space-x-4">
+                        <div className="h-6 bg-gray-300 rounded w-16"></div>
+                        <div className="h-6 bg-gray-300 rounded w-20"></div>
+                        <div className="h-6 bg-gray-300 rounded w-20"></div>
+                        <div className="h-6 bg-gray-300 rounded w-16"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Función para obtener traducción con fallback
+    const getTranslation = (key: string, fallback: string) => {
+        const translation = t(key);
+        return translation === key ? fallback : translation;
+    };
 
     const links = [
-        { href: "/", label: t('navbar.home') },
-        { href: "/playground", label: t('navbar.playground') },
-        { href: "/telemetry", label: t('navbar.telemetry') },
-        { href: "/about", label: t('navbar.about') },
+        { href: "/", label: getTranslation('navbar.home', 'Inicio') },
+        { href: "/playground", label: getTranslation('navbar.playground', 'Playground') },
+        { href: "/telemetry", label: getTranslation('navbar.telemetry', 'Telemetría') },
+        { href: "/about", label: getTranslation('navbar.about', 'Nosotros') },
     ];
 
     return (

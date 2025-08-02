@@ -1,49 +1,29 @@
 {
     "title": "Bienvenido a tu Espacio de Trabajo",
     "sections": {
-        "quickGuide": {
-            "title": "Guía rápida",
-            "items": [
-                {
-                    "icon": "chart",
-                    "text": "Ver tus datos agrícolas en tiempo real"
-                },
-                {
-                    "icon": "leaf",
-                    "text": "Gestiona tus cultivos y rastreo de crecimiento"
-                },
-                {
-                    "icon": "mobile",
-                    "text": "Accede a datos importantes y información"
-                },
-                {
-                    "icon": "pie",
-                    "text": "Analiza el rendimiento de tus cultivos"
-                }
-            ]
-        },
-        "nextSteps": {
-            "title": "Pasos siguientes",
-            "items": [
-                {
-                    "icon": "check",
-                    "text": "Agrega tu primer cultivo o dispositivo IoT"
-                },
-                {
-                    "icon": "cog",
-                    "text": "Configura tu espacio de trabajo"
-                },
-                {
-                    "icon": "wrench",
-                    "text": "Explora las herramientas disponibles"
-                },
+        "welcome": {
+            "title": "Comienza a explorar",
+            "description": "Tu espacio de trabajo está listo. Aquí puedes crear chats inteligentes, subir documentos para análisis y obtener recomendaciones personalizadas para tu agricultura.",
+            "features": [
                 {
                     "icon": "chat",
-                    "text": "Crea tu primer chat"
+                    "title": "Chat Inteligente",
+                    "description": "Conversa con IA especializada en agricultura"
+                },
+                {
+                    "icon": "document",
+                    "title": "Análisis de Documentos",
+                    "description": "Sube PDFs y obtén resúmenes automáticos"
                 },
                 {
                     "icon": "sparkles",
-                    "text": "Disfruta los beneficios de tu espacio de trabajo"
+                    "title": "Recomendaciones",
+                    "description": "Recibe consejos personalizados para tus cultivos"
+                },
+                {
+                    "icon": "chart",
+                    "title": "Datos en Tiempo Real",
+                    "description": "Monitorea sensores y dispositivos IoT"
                 }
             ]
         }

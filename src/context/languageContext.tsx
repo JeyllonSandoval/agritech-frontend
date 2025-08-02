@@ -7,28 +7,35 @@ type Language = 'en' | 'es';
 interface LanguageContextType {
     language: Language;
     setLanguage: (lang: Language) => void;
+    isInitialized: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-    const [language, setLanguage] = useState<Language>('en');
+    const [language, setLanguage] = useState<Language>('es');
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
         // Load saved language preference from localStorage
-        const savedLanguage = localStorage.getItem('language') as Language;
-        if (savedLanguage) {
-            setLanguage(savedLanguage);
+        if (typeof window !== 'undefined') {
+            const savedLanguage = localStorage.getItem('language') as Language;
+            if (savedLanguage && (savedLanguage === 'es' || savedLanguage === 'en')) {
+                setLanguage(savedLanguage);
+            }
         }
+        setIsInitialized(true);
     }, []);
 
     const handleSetLanguage = (lang: Language) => {
         setLanguage(lang);
-        localStorage.setItem('language', lang);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('language', lang);
+        }
     };
 
     return (
-        <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage }}>
+        <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, isInitialized }}>
             {children}
         </LanguageContext.Provider>
     );
