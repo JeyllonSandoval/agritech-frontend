@@ -230,6 +230,21 @@ export interface HistoricalResponse {
     solarRadiation?: HistoricalData;
     [key: string]: HistoricalData | undefined;
   };
+  // Datos de humedad del suelo procesados
+  soilMoisture?: HistoricalData;
+  // Estructura legacy de canales de suelo
+  soil_ch1?: {
+    list?: {
+      soilmoisture?: HistoricalData;
+    };
+    soilmoisture?: HistoricalData;
+  };
+  soil_ch2?: {
+    list?: {
+      soilmoisture?: HistoricalData;
+    };
+    soilmoisture?: HistoricalData;
+  };
   [key: string]: any;
 }
 

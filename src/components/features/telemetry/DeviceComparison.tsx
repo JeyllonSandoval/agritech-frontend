@@ -254,19 +254,46 @@ const getComparisonIndicator = (deviceName: string, metric: string, comparisonSt
 };
 
 // Componente de gráfica histórica mejorado
-const HistoricalChart = ({ comparisonData, metric, label, unit, path }: {
+const HistoricalChart = ({ comparisonData, metric, label, unit, path, alternatePaths }: {
   comparisonData: ComparisonData[];
   metric: string;
   label: string;
   unit: string;
   path: string[];
+  alternatePaths?: string[][];
 }) => {
   const allTimestamps = new Set<string>();
   const datasets = comparisonData.map(device => {
     let list = device.historicalData?.data;
-    for (const p of path) list = list?.[p];
-    list = list?.list;
-    if (!list) return null;
+    let foundPath = false;
+    
+    // Intentar path principal
+    let tempList = list;
+    for (const p of path) tempList = tempList?.[p];
+    if (tempList?.list) {
+      list = tempList.list;
+      foundPath = true;
+    }
+    
+    // Si no se encontró, intentar paths alternativos
+    if (!foundPath && alternatePaths) {
+      for (const altPath of alternatePaths) {
+        tempList = device.historicalData?.data;
+        for (const p of altPath) tempList = tempList?.[p];
+        if (tempList?.list) {
+          list = tempList.list;
+          foundPath = true;
+          break;
+        } else if (tempList && typeof tempList === 'object' && Object.keys(tempList).length > 0) {
+          // Si no tiene .list pero sí datos directos (estructura procesada)
+          list = tempList;
+          foundPath = true;
+          break;
+        }
+      }
+    }
+    
+    if (!foundPath || !list) return null;
     Object.keys(list).forEach(ts => allTimestamps.add(ts));
     return {
       label: device.deviceName,
@@ -366,9 +393,34 @@ const HistoricalChart = ({ comparisonData, metric, label, unit, path }: {
       <div className="mt-4 grid grid-cols-3 gap-4 text-center">
         {comparisonData.map((device, i) => {
           let list = device.historicalData?.data;
-          for (const p of path) list = list?.[p];
-          list = list?.list;
-          const stats = calcStats(list);
+          let foundPath = false;
+          
+          // Intentar path principal
+          let tempList = list;
+          for (const p of path) tempList = tempList?.[p];
+          if (tempList?.list) {
+            list = tempList.list;
+            foundPath = true;
+          }
+          
+          // Si no se encontró, intentar paths alternativos
+          if (!foundPath && alternatePaths) {
+            for (const altPath of alternatePaths) {
+              tempList = device.historicalData?.data;
+              for (const p of altPath) tempList = tempList?.[p];
+              if (tempList?.list) {
+                list = tempList.list;
+                foundPath = true;
+                break;
+              } else if (tempList && typeof tempList === 'object' && Object.keys(tempList).length > 0) {
+                list = tempList;
+                foundPath = true;
+                break;
+              }
+            }
+          }
+          
+          const stats = calcStats(foundPath ? list : undefined);
           return (
             <div key={device.deviceId} className="p-3 bg-white/5 rounded-xl">
               <h4 className="text-sm font-medium text-white mb-2">{device.deviceName}</h4>
@@ -1055,36 +1107,175 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
                   );
                 })()
               ) : (
-                <div className="space-y-6">
-                  <HistoricalChart 
-                    comparisonData={comparisonData}
-                    metric="temperature"
-                    label="Temperatura"
-                    unit="°F"
-                    path={['indoor', 'temperature']}
-                  />
-                  <HistoricalChart 
-                    comparisonData={comparisonData}
-                    metric="humidity"
-                    label="Humedad"
-                    unit="%"
-                    path={['indoor', 'humidity']}
-                  />
-                  <HistoricalChart 
-                    comparisonData={comparisonData}
-                    metric="pressure"
-                    label="Presión"
-                    unit="inHg"
-                    path={['pressure', 'relative']}
-                  />
-                  <HistoricalChart 
-                    comparisonData={comparisonData}
-                    metric="soilMoisture"
-                    label="Humedad del Suelo CH1"
-                    unit="%"
-                    path={['soil_ch1', 'soilmoisture']}
-                  />
-                </div>
+                (() => {
+                  // Detectar qué datos están disponibles
+                  const availableMetrics = {
+                    temperature: false,
+                    humidity: false,
+                    pressure: false,
+                    soilMoisture: false
+                  };
+
+                  // Verificar datos disponibles en los dispositivos
+                  comparisonData.forEach(device => {
+                    const data = device.historicalData?.data;
+                    console.log('🔧 [FRONTEND] Checking device data for', device.deviceName, ':', data);
+                    if (!data) return;
+
+                    // Temperatura - Verificar múltiples estructuras
+                    if (data.indoor?.temperature?.list || 
+                        data.indoor?.indoor?.temperature?.list ||
+                        data.outdoor?.temperature?.list || 
+                        data.temperature?.list) {
+                      availableMetrics.temperature = true;
+                    }
+
+                    // Humedad - Verificar múltiples estructuras
+                    if (data.indoor?.humidity?.list || 
+                        data.indoor?.indoor?.humidity?.list ||
+                        data.outdoor?.humidity?.list || 
+                        data.humidity?.list) {
+                      availableMetrics.humidity = true;
+                    }
+
+                    // Presión - Verificar múltiples estructuras
+                    if (data.indoor?.pressure?.list || 
+                        data.outdoor?.pressure?.list || 
+                        data.pressure?.list || 
+                        data.pressure?.relative?.list || 
+                        data.pressure?.absolute?.list ||
+                        data.pressure?.pressure?.relative?.list ||
+                        data.pressure?.pressure?.absolute?.list) {
+                      availableMetrics.pressure = true;
+                    }
+
+                    // Humedad del suelo - Verificar múltiples estructuras
+                    if (data.soilMoisture?.list || 
+                        data.soil_ch1?.soilmoisture?.list || 
+                        data.soil_ch1?.soil_ch1?.soilmoisture?.list ||
+                        data.soil_ch1?.list?.soilmoisture?.list || 
+                        data.soil_ch2?.soilmoisture?.list ||
+                        data.soil_ch2?.soil_ch2?.soilmoisture?.list ||
+                        data.soil_ch2?.list?.soilmoisture?.list) {
+                      availableMetrics.soilMoisture = true;
+                    }
+                  });
+
+                  const availableCount = Object.values(availableMetrics).filter(Boolean).length;
+
+                  console.log('🔧 [FRONTEND] Available metrics detected:', availableMetrics);
+                  console.log('🔧 [FRONTEND] Available count:', availableCount);
+
+                  return (
+                    <div className="space-y-6">
+                      {availableCount === 0 && (
+                        <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-6 backdrop-blur-sm text-center">
+                          <div className="flex items-center justify-center gap-2 mb-2">
+                            <ExclamationTriangleIcon className="w-6 h-6 text-orange-400" />
+                            <h3 className="text-lg font-semibold text-orange-300">No hay datos históricos disponibles</h3>
+                          </div>
+                          <p className="text-orange-200/80">
+                            Los dispositivos seleccionados no tienen datos históricos para mostrar.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Temperatura */}
+                      {availableMetrics.temperature && (
+                        <HistoricalChart 
+                          comparisonData={comparisonData}
+                          metric="temperature"
+                          label="Temperatura"
+                          unit="°F"
+                          path={['indoor', 'indoor', 'temperature']}
+                          alternatePaths={[
+                            ['indoor', 'temperature'],
+                            ['outdoor', 'temperature'],
+                            ['temperature']
+                          ]}
+                        />
+                      )}
+
+                      {/* Humedad */}
+                      {availableMetrics.humidity && (
+                        <HistoricalChart 
+                          comparisonData={comparisonData}
+                          metric="humidity"
+                          label="Humedad"
+                          unit="%"
+                          path={['indoor', 'indoor', 'humidity']}
+                          alternatePaths={[
+                            ['indoor', 'humidity'],
+                            ['outdoor', 'humidity'],
+                            ['humidity']
+                          ]}
+                        />
+                      )}
+
+                      {/* Presión */}
+                      {availableMetrics.pressure && (
+                        <HistoricalChart 
+                          comparisonData={comparisonData}
+                          metric="pressure"
+                          label="Presión"
+                          unit="inHg"
+                          path={['pressure', 'pressure', 'relative']}
+                          alternatePaths={[
+                            ['pressure', 'pressure', 'absolute'],
+                            ['pressure', 'relative'],
+                            ['pressure', 'absolute'],
+                            ['indoor', 'pressure'],
+                            ['outdoor', 'pressure']
+                          ]}
+                        />
+                      )}
+
+                      {/* Humedad del Suelo */}
+                      {availableMetrics.soilMoisture && (
+                        <HistoricalChart 
+                          comparisonData={comparisonData}
+                          metric="soilMoisture"
+                          label="Humedad del Suelo CH1"
+                          unit="%"
+                          path={['soil_ch1', 'soil_ch1', 'soilmoisture']}
+                          alternatePaths={[
+                            ['soil_ch1', 'soilmoisture'],
+                            ['soil_ch1', 'list', 'soilmoisture'],
+                            ['soil_ch2', 'soil_ch2', 'soilmoisture'],
+                            ['soil_ch2', 'soilmoisture'],
+                            ['soil_ch2', 'list', 'soilmoisture'],
+                            ['soilMoisture']
+                          ]}
+                        />
+                      )}
+
+                      {/* Mensaje informativo sobre sensores faltantes */}
+                      {availableCount > 0 && (
+                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 backdrop-blur-sm">
+                          <div className="flex items-start gap-3">
+                            <div className="p-1 rounded-lg bg-blue-500/20">
+                              <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-sm font-medium text-blue-300 mb-1">Información sobre sensores</h4>
+                              <div className="text-xs text-blue-200/80 space-y-1">
+                                {!availableMetrics.pressure && (
+                                  <p>• Los dispositivos no tienen sensores de presión configurados</p>
+                                )}
+                                {!availableMetrics.soilMoisture && (
+                                  <p>• Los dispositivos no tienen sensores de humedad del suelo</p>
+                                )}
+                                <p>• Solo se muestran los datos disponibles para comparación</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()
               )}
             </div>
           )}
