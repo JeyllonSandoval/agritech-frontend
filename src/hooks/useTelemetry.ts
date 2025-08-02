@@ -9,12 +9,12 @@ import { useTelemetryAuth } from './useTelemetryAuth';
 import {
   TelemetryState,
   DeviceInfo,
+  Group,
   RealtimeData,
   HistoricalResponse,
   WeatherData,
   DeviceInfoData,
   DeviceCharacteristicsData,
-  Group,
   TelemetryStats,
   TelemetryAlert,
   TimeRange,
@@ -157,6 +157,8 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   const selectDevice = useCallback((device: DeviceInfo | null) => {
     updateState({ selectedDevice: device });
   }, [updateState]);
+
+
 
   const fetchDeviceInfo = useCallback(async (deviceId: string) => {
     try {
@@ -944,6 +946,121 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   // RETURN VALUES
   // ============================================================================
 
+
+
+  // ============================================================================
+  // UPDATE FUNCTIONS (defined after all other functions)
+  // ============================================================================
+
+  const updateDevice = useCallback((updatedDevice: DeviceInfo) => {
+    console.log('🔄 [HOOK] Actualizando dispositivo en estado global:', updatedDevice.DeviceName);
+    
+    // Verificar si es el dispositivo actualmente seleccionado
+    const isSelectedDevice = state.selectedDevice?.DeviceID === updatedDevice.DeviceID;
+    
+    // Actualizar en la lista de dispositivos
+    setState(prevState => ({
+      ...prevState,
+      devices: prevState.devices.map(device => 
+        device.DeviceID === updatedDevice.DeviceID ? updatedDevice : device
+      ),
+      // Si es el dispositivo seleccionado, también actualizarlo
+      selectedDevice: prevState.selectedDevice?.DeviceID === updatedDevice.DeviceID 
+        ? updatedDevice 
+        : prevState.selectedDevice,
+      // IMPORTANTE: Limpiar datos precargados para este dispositivo para forzar recarga
+      precachedData: prevState.precachedData ? {
+        ...prevState.precachedData,
+        realtimeData: Object.fromEntries(
+          Object.entries(prevState.precachedData.realtimeData).filter(([key]) => key !== updatedDevice.DeviceID)
+        ),
+        deviceInfo: Object.fromEntries(
+          Object.entries(prevState.precachedData.deviceInfo).filter(([key]) => key !== updatedDevice.DeviceID)
+        ),
+        deviceCharacteristics: Object.fromEntries(
+          Object.entries(prevState.precachedData.deviceCharacteristics).filter(([key]) => key !== updatedDevice.DeviceID)
+        )
+      } : prevState.precachedData
+    }));
+    
+    // Si es el dispositivo seleccionado, forzar recarga de datos
+    if (isSelectedDevice) {
+      console.log('🔄 [HOOK] Forzando recarga de datos para dispositivo actualizado:', updatedDevice.DeviceName);
+      setLoading(true);
+      
+      Promise.all([
+        fetchRealtimeData(updatedDevice.DeviceID),
+        fetchDeviceInfo(updatedDevice.DeviceID),
+        fetchDeviceCharacteristics(updatedDevice.DeviceID)
+      ]).finally(() => {
+        setLoading(false);
+        console.log('✅ [HOOK] Datos recargados para dispositivo actualizado');
+      });
+    }
+    
+    console.log('✅ [HOOK] Dispositivo actualizado exitosamente');
+  }, [state.selectedDevice, setLoading, fetchRealtimeData, fetchDeviceInfo, fetchDeviceCharacteristics]);
+
+  const updateGroup = useCallback((updatedGroup: Group) => {
+    console.log('🔄 [HOOK] Actualizando grupo en estado global:', updatedGroup.GroupName);
+    
+    // Verificar si es el grupo actualmente seleccionado
+    const isSelectedGroup = state.selectedGroup?.DeviceGroupID === updatedGroup.DeviceGroupID;
+    
+    // Actualizar en la lista de grupos
+    setState(prevState => ({
+      ...prevState,
+      groups: prevState.groups.map(group => 
+        group.DeviceGroupID === updatedGroup.DeviceGroupID ? updatedGroup : group
+      ),
+      // Si es el grupo seleccionado, también actualizarlo
+      selectedGroup: prevState.selectedGroup?.DeviceGroupID === updatedGroup.DeviceGroupID 
+        ? updatedGroup 
+        : prevState.selectedGroup,
+      // IMPORTANTE: Limpiar datos precargados para este grupo para forzar recarga
+      precachedGroupData: prevState.precachedGroupData ? {
+        ...prevState.precachedGroupData,
+        groupDevices: Object.fromEntries(
+          Object.entries(prevState.precachedGroupData.groupDevices).filter(([key]) => key !== updatedGroup.DeviceGroupID)
+        ),
+        groupDevicesInfo: Object.fromEntries(
+          Object.entries(prevState.precachedGroupData.groupDevicesInfo).filter(([key]) => key !== updatedGroup.DeviceGroupID)
+        ),
+        groupDevicesCharacteristics: Object.fromEntries(
+          Object.entries(prevState.precachedGroupData.groupDevicesCharacteristics).filter(([key]) => key !== updatedGroup.DeviceGroupID)
+        ),
+        groupRealtimeData: Object.fromEntries(
+          Object.entries(prevState.precachedGroupData.groupRealtimeData).filter(([key]) => key !== updatedGroup.DeviceGroupID)
+        )
+      } : prevState.precachedGroupData
+    }));
+    
+    // Si es el grupo seleccionado, forzar recarga de datos
+    if (isSelectedGroup) {
+      console.log('🔄 [HOOK] Forzando recarga de datos para grupo actualizado:', updatedGroup.GroupName);
+      setLoading(true);
+      
+      const groupId = updatedGroup.DeviceGroupID;
+      Promise.all([
+        fetchGroupDevices(groupId),
+        fetchGroupRealtimeData(groupId)
+      ]).then(async ([deviceIds]) => {
+        if (deviceIds && deviceIds.length > 0) {
+          await Promise.all([
+            fetchGroupDevicesInfo(deviceIds),
+            fetchGroupDevicesCharacteristics(deviceIds)
+          ]);
+        }
+      }).finally(() => {
+        setLoading(false);
+        console.log('✅ [HOOK] Datos recargados para grupo actualizado');
+      });
+    }
+    
+    console.log('✅ [HOOK] Grupo actualizado exitosamente');
+  }, [state.selectedGroup, setLoading, fetchGroupDevices, fetchGroupRealtimeData, fetchGroupDevicesInfo, fetchGroupDevicesCharacteristics]);
+
+  // Return the functions with the updated ones
   return {
     // State
     ...state,
@@ -960,6 +1077,8 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     // Actions
     fetchDevices,
     selectDevice: selectDeviceOptimized, // Usar versión optimizada
+    updateDevice, // NUEVO: función para actualizar dispositivos
+    updateGroup, // NUEVO: función para actualizar grupos
     fetchDeviceInfo,
     fetchDeviceCharacteristics,
     fetchRealtimeData,

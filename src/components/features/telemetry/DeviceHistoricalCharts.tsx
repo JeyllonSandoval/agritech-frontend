@@ -111,14 +111,14 @@ const SingleDeviceChart = ({
 }) => {
   if (!historicalData || !historicalData.data) return null;
 
-  let list = historicalData.data;
+  let dataList: Record<string, string> | null = null;
   let foundPath = false;
   
   // Intentar path principal
-  let tempList = list;
+  let tempList: any = historicalData.data;
   for (const p of path) tempList = tempList?.[p];
   if (tempList?.list) {
-    list = tempList.list;
+    dataList = tempList.list;
     foundPath = true;
   }
   
@@ -128,25 +128,25 @@ const SingleDeviceChart = ({
       tempList = historicalData.data;
       for (const p of altPath) tempList = tempList?.[p];
       if (tempList?.list) {
-        list = tempList.list;
+        dataList = tempList.list;
         foundPath = true;
         break;
-      } else if (tempList && typeof tempList === 'object' && Object.keys(tempList).length > 0) {
-        list = tempList;
+      } else if (tempList && typeof tempList === 'object' && Object.keys(tempList).length > 0 && !tempList.list) {
+        dataList = tempList as Record<string, string>;
         foundPath = true;
         break;
       }
     }
   }
   
-  if (!foundPath || !list) return null;
+  if (!foundPath || !dataList) return null;
 
-  const timestamps = Object.keys(list).sort();
+  const timestamps = Object.keys(dataList).sort();
   const chartData = {
     labels: timestamps.map(ts => formatDateTime(new Date(Number(ts) * 1000).toISOString())),
     datasets: [{
       label: label,
-      data: timestamps.map(ts => list[ts] ? Number(list[ts]) : null),
+      data: timestamps.map(ts => dataList![ts] ? Number(dataList![ts]) : null),
       borderColor: '#10b981',
       backgroundColor: 'rgba(16, 185, 129, 0.1)',
       borderWidth: 2,
@@ -211,7 +211,7 @@ const SingleDeviceChart = ({
     }
   };
 
-  const stats = calcStats(foundPath ? list : undefined);
+  const stats = calcStats(foundPath ? dataList : undefined);
 
   return (
     <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
@@ -396,7 +396,7 @@ const DeviceHistoricalCharts: React.FC<DeviceHistoricalChartsProps> = ({
             <ExclamationTriangleIcon className="w-6 h-6 text-orange-400" />
             <h3 className="text-lg font-semibold text-orange-300">No hay datos históricos disponibles</h3>
           </div>
-          <p className="text-orange-200/80">
+          <p className="text-orange-200/80 text-sm">
             El dispositivo no tiene datos históricos para el período seleccionado.
           </p>
         </div>
