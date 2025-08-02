@@ -97,7 +97,7 @@ export const useTelemetryForReports = (options: UseTelemetryForReportsOptions = 
 
     try {
       setLoadingState(true);
-      const response = await telemetryService.getUserGroups(userId);
+              const response = await telemetryService.getUserGroups();
       
       if (response.success && response.data) {
         // Obtener la cantidad real de dispositivos y el array para cada grupo

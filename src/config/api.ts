@@ -45,6 +45,7 @@ export const API_CONFIG = {
     
     // Device Groups endpoints
     DEVICE_GROUPS: '/device-groups',
+    GROUPS: '/groups',
     GROUP_INFO: (groupId: string) => `/groups/${groupId}`,
     USER_GROUPS: (userId: string) => `/users/${userId}/groups`,
     GROUP_DEVICES: (groupId: string) => `/groups/${groupId}/devices`,

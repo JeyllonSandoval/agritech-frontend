@@ -157,7 +157,7 @@ const ManagePage: React.FC = () => {
                   className="flex items-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
                   <PlusIcon className="w-5 h-5" />
-                  {activeTab === 'devices' ? 'Gestionar' : 'Crear Grupo'}
+                  {activeTab === 'devices' ? 'Gestionar' : 'Gestionar'}
                 </button>
               </div>
 
