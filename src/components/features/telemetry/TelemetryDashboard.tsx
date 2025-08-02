@@ -524,6 +524,100 @@ const TelemetryDashboard: React.FC<TelemetryDashboardProps> = ({
                 <p className="text-white/60 text-sm mb-4">
                   Selecciona "Panel informativo" o "Panel Climático" desde los controles para comenzar
                 </p>
+                
+                {/* Mensaje de carga completada */}
+                {autoLoadComplete && !selectedDevice && !selectedGroup && (
+                  <div className="mb-6 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-green-300 text-sm font-semibold">¡Datos optimizados listos!</span>
+                    </div>
+                    <p className="text-green-200/80 text-xs mt-2">
+                      Respuesta instantánea • Gráficos precargados • Experiencia fluida
+                    </p>
+                  </div>
+                )}
+
+                {/* Indicador de progreso de carga OPTIMIZADO */}
+                {!autoLoadComplete && (
+                  <div className="mb-6 p-4 bg-gradient-to-r from-blue-500/10 to-emerald-500/10 border border-blue-500/20 rounded-xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-emerald-400"></div>
+                      <span className="text-emerald-300 text-sm font-semibold">Optimizando carga de datos...</span>
+                    </div>
+                    
+                    <div className="space-y-3 text-xs">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {autoLoadProgress.devices ? (
+                            <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <div className="w-4 h-4 border-2 border-emerald-400/50 border-t-emerald-400 rounded-full animate-spin"></div>
+                          )}
+                          <span className={autoLoadProgress.devices ? 'text-green-300 font-medium' : 'text-emerald-200/90'}>
+                            Dispositivos y grupos
+                          </span>
+                        </div>
+                        {autoLoadProgress.devices && <span className="text-green-400 text-xs">✓ Completado</span>}
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {autoLoadProgress.initialData ? (
+                            <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <div className="w-4 h-4 border-2 border-blue-400/50 border-t-blue-400 rounded-full animate-spin"></div>
+                          )}
+                          <span className={autoLoadProgress.initialData ? 'text-green-300 font-medium' : 'text-blue-200/90'}>
+                            Info básica (instantánea)
+                          </span>
+                        </div>
+                        {autoLoadProgress.initialData && <span className="text-green-400 text-xs">✓ Completado</span>}
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {autoLoadProgress.historicalData ? (
+                            <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <div className="w-4 h-4 border-2 border-purple-400/50 border-t-purple-400 rounded-full animate-spin"></div>
+                          )}
+                          <span className={autoLoadProgress.historicalData ? 'text-green-300 font-medium' : 'text-purple-200/90'}>
+                            Gráficos históricos (primer dispositivo)
+                          </span>
+                        </div>
+                        {autoLoadProgress.historicalData && <span className="text-green-400 text-xs">✓ Completado</span>}
+                      </div>
+                    </div>
+                    
+                    {/* Barra de progreso */}
+                    <div className="mt-4">
+                      <div className="w-full bg-white/10 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-emerald-400 to-blue-400 h-2 rounded-full transition-all duration-300"
+                          style={{
+                            width: `${
+                              (Number(autoLoadProgress.devices) + 
+                               Number(autoLoadProgress.initialData) + 
+                               Number(autoLoadProgress.historicalData)) / 3 * 100
+                            }%`
+                          }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-white/60 mt-2 text-center">
+                        Carga optimizada • Solo lo esencial • Resto bajo demanda
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <div className="flex justify-center gap-4 flex-col md:flex-row">
                   <button 
                     onClick={() => setActivePanelWithLog('info')}

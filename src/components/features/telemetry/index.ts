@@ -15,4 +15,5 @@ export { default as DeviceComparison } from './DeviceComparison';
 export { default as DeviceGroupManager } from './DeviceGroupManager';
 export { default as TelemetryReports } from './TelemetryReports';
 export { default as ControlButton } from './ControlButton';
-export { default as DropdownControl } from './DropdownControl'; 
+export { default as DropdownControl } from './DropdownControl';
+export { default as DeviceHistoricalCharts } from './DeviceHistoricalCharts'; 

@@ -84,7 +84,8 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
   const [autoLoadProgress, setAutoLoadProgress] = useState({
     devices: false,
     groups: false,
-    initialData: false
+    initialData: false,
+    historicalData: false
   });
 
   // ============================================================================
@@ -509,7 +510,8 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     setAutoLoadProgress({
       devices: false,
       groups: false,
-      initialData: false
+      initialData: false,
+      historicalData: false
     });
 
     try {
@@ -524,56 +526,120 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
       // 2. PRECARGAR DATOS DE TODOS LOS DISPOSITIVOS
       if (state.devices.length > 0) {
         
-        // Precargar datos de todos los dispositivos en paralelo
-        const deviceDataPromises = state.devices.map(async (device) => {
+        // ESTRATEGIA OPTIMIZADA: Cargar solo lo esencial primero
+        console.log('🚀 [PRELOAD] Iniciando precarga optimizada...');
+        
+        // 1. CARGAR SOLO INFO BÁSICA DE TODOS LOS DISPOSITIVOS (rápido)
+        const basicInfoPromises = state.devices.map(async (device) => {
           try {
-            const [realtimeData, deviceInfo, deviceCharacteristics] = await Promise.all([
-              telemetryService.getRealtimeData(device.DeviceID),
+            const [deviceInfo, deviceCharacteristics] = await Promise.all([
               telemetryService.getDeviceInfo(device.DeviceID),
               telemetryService.getDeviceCharacteristics(device.DeviceID)
             ]);
 
+            console.log(`✅ [PRELOAD] Info básica cargada para ${device.DeviceName}`);
             return {
               deviceId: device.DeviceID,
-              realtimeData: realtimeData.success ? realtimeData.data : null,
               deviceInfo: deviceInfo.success ? deviceInfo.data : null,
               deviceCharacteristics: deviceCharacteristics.success ? deviceCharacteristics.data : null
             };
           } catch (error) {
-            console.error(`Error precargando datos del dispositivo ${device.DeviceID}:`, error);
+            console.error(`❌ [PRELOAD] Error info básica ${device.DeviceID}:`, error);
             return {
               deviceId: device.DeviceID,
-              realtimeData: null,
               deviceInfo: null,
               deviceCharacteristics: null
             };
           }
         });
 
-        const deviceDataResults = await Promise.all(deviceDataPromises);
+        const basicInfoResults = await Promise.all(basicInfoPromises);
         
-        // Almacenar datos precargados en el estado
-        const precachedData: {
+        // Guardar info básica inmediatamente
+        const basicPrecachedData: {
           realtimeData: Record<string, RealtimeData>;
           deviceInfo: Record<string, DeviceInfoData>;
           deviceCharacteristics: Record<string, DeviceCharacteristicsData>;
+          historicalData: Record<string, any>;
         } = {
           realtimeData: {},
           deviceInfo: {},
-          deviceCharacteristics: {}
+          deviceCharacteristics: {},
+          historicalData: {}
         };
 
-        deviceDataResults.forEach(result => {
-          if (result.realtimeData) precachedData.realtimeData[result.deviceId] = result.realtimeData;
-          if (result.deviceInfo) precachedData.deviceInfo[result.deviceId] = result.deviceInfo;
-          if (result.deviceCharacteristics) precachedData.deviceCharacteristics[result.deviceId] = result.deviceCharacteristics;
+        basicInfoResults.forEach(result => {
+          if (result.deviceInfo) basicPrecachedData.deviceInfo[result.deviceId] = result.deviceInfo;
+          if (result.deviceCharacteristics) basicPrecachedData.deviceCharacteristics[result.deviceId] = result.deviceCharacteristics;
         });
 
-        // Guardar datos precargados en el estado
+        // Actualizar estado con info básica
         updateState({
-          precachedData,
+          precachedData: basicPrecachedData,
           lastUpdate: new Date().toISOString()
         });
+
+        console.log('✅ [PRELOAD] Info básica guardada, iniciando datos en tiempo real...');
+
+        // 2. CARGAR DATOS EN TIEMPO REAL (paralelo, pero menos crítico)
+        const realtimePromises = state.devices.slice(0, 5).map(async (device) => { // Solo primeros 5 dispositivos
+          try {
+            const realtimeData = await telemetryService.getRealtimeData(device.DeviceID);
+            console.log(`✅ [PRELOAD] Datos en tiempo real para ${device.DeviceName}`);
+            return {
+              deviceId: device.DeviceID,
+              realtimeData: realtimeData.success ? realtimeData.data : null
+            };
+          } catch (error) {
+            console.error(`❌ [PRELOAD] Error tiempo real ${device.DeviceID}:`, error);
+            return {
+              deviceId: device.DeviceID,
+              realtimeData: null
+            };
+          }
+        });
+
+        const realtimeResults = await Promise.all(realtimePromises);
+        
+        // Actualizar con datos en tiempo real
+        realtimeResults.forEach(result => {
+          if (result.realtimeData) basicPrecachedData.realtimeData[result.deviceId] = result.realtimeData;
+        });
+
+        updateState({
+          precachedData: basicPrecachedData,
+          lastUpdate: new Date().toISOString()
+        });
+
+        console.log('✅ [PRELOAD] Datos en tiempo real guardados');
+
+        // 3. CARGAR DATOS HISTÓRICOS SOLO DEL PRIMER DISPOSITIVO (bajo demanda el resto)
+        if (state.devices.length > 0) {
+          console.log('🔄 [PRELOAD] Cargando datos históricos del primer dispositivo...');
+          try {
+            const historicalData = await telemetryService.compareDevicesHistory([state.devices[0].DeviceID], 'one_day');
+            if (historicalData && (historicalData as any).devices?.[0]?.data) {
+              basicPrecachedData.historicalData[state.devices[0].DeviceID] = (historicalData as any).devices[0].data;
+              console.log(`✅ [PRELOAD] Datos históricos para ${state.devices[0].DeviceName}`);
+            }
+          } catch (error) {
+            console.error('❌ [PRELOAD] Error datos históricos:', error);
+          }
+
+          // Actualizar estado final
+          updateState({
+            precachedData: basicPrecachedData,
+            lastUpdate: new Date().toISOString()
+          });
+        }
+
+        setAutoLoadProgress(prev => ({ ...prev, historicalData: true }));
+        console.log('🎉 [PRELOAD] Precarga optimizada completada');
+        
+        // Pequeño delay para mostrar la completación antes de ocultar el progreso
+        setTimeout(() => {
+          setAutoLoadComplete(true);
+        }, 1000);
 
       }
 
@@ -697,17 +763,47 @@ export const useTelemetry = (options: UseTelemetryOptions = {}) => {
     // Usar datos precargados si están disponibles
     const precachedData = state.precachedData;
     if (precachedData && precachedData.realtimeData[device.DeviceID]) {
+      console.log(`✅ [SELECT] Usando datos precargados para ${device.DeviceName}`);
+      
       updateState({
         selectedDevice: device,
         realtimeData: precachedData.realtimeData[device.DeviceID],
         deviceInfo: precachedData.deviceInfo[device.DeviceID] || null,
         deviceCharacteristics: precachedData.deviceCharacteristics[device.DeviceID] || null
       });
+
+      // PRECARGA HISTÓRICA BAJO DEMANDA si no está disponible
+      if (!precachedData.historicalData[device.DeviceID]) {
+        console.log(`🔄 [SELECT] Precargando datos históricos para ${device.DeviceName}`);
+        
+        // Cargar datos históricos en background sin bloquear la UI
+        telemetryService.compareDevicesHistory([device.DeviceID], 'one_day')
+          .then(historicalData => {
+            if (historicalData && (historicalData as any).devices?.[0]?.data) {
+              // Actualizar precachedData con los nuevos datos históricos
+              const currentPrecached = { ...precachedData };
+              currentPrecached.historicalData[device.DeviceID] = (historicalData as any).devices[0].data;
+              
+              updateState({
+                precachedData: currentPrecached,
+                lastUpdate: new Date().toISOString()
+              });
+              
+              console.log(`✅ [SELECT] Datos históricos precargados para ${device.DeviceName}`);
+            }
+          })
+          .catch(error => {
+            console.error('❌ [SELECT] Error precargando históricos:', error);
+          });
+      } else {
+        console.log(`✅ [SELECT] Datos históricos ya disponibles para ${device.DeviceName}`);
+      }
     } else {
+      console.log(`🔄 [SELECT] Cargando datos para ${device.DeviceName}`);
       // Fallback a carga tradicional si no hay datos precargados
       selectDevice(device);
     }
-  }, [state.precachedData, updateState, selectDevice]);
+  }, [state.precachedData, updateState, selectDevice, telemetryService]);
 
   // Función optimizada para seleccionar grupo usando datos precargados
   const selectGroupOptimized = useCallback((group: Group | null) => {

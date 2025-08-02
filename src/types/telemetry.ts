@@ -415,6 +415,7 @@ export interface TelemetryState {
     realtimeData: Record<string, RealtimeData>;
     deviceInfo: Record<string, DeviceInfoData>;
     deviceCharacteristics: Record<string, DeviceCharacteristicsData>;
+    historicalData: Record<string, any>;
   };
   // NUEVO: Datos precargados de grupos
   precachedGroupData?: {

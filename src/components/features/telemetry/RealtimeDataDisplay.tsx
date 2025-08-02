@@ -3,10 +3,11 @@
 // Component to display realtime sensor data with new structure
 // ============================================================================
 
-import React from 'react';
+import React, { useState } from 'react';
 import { RealtimeData, SensorValue, WeatherData, DeviceInfo, DeviceInfoData, DeviceCharacteristicsData } from '../../../types/telemetry';
 import { useDeviceWeather } from '../../../hooks/useDeviceWeather';
 import SimpleWeatherDisplay from './SimpleWeatherDisplay';
+import DeviceHistoricalCharts from './DeviceHistoricalCharts';
 import { 
   WiThermometer, 
   WiHumidity, 
@@ -15,6 +16,7 @@ import {
   WiStrongWind,
 } from 'react-icons/wi';
 import { CiBatteryCharging } from "react-icons/ci";
+import { ChartBarIcon } from '@heroicons/react/24/outline';
 
 
 interface RealtimeDataDisplayProps {
@@ -39,6 +41,7 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
   deviceInfo = null,
   deviceCharacteristics = null
 }) => {
+  const [showHistoricalCharts, setShowHistoricalCharts] = useState(false);
   const { weatherData, loading: weatherLoading, error: weatherError } = useDeviceWeather({ device, deviceInfo, deviceCharacteristics });
 
   const formatValue = (sensorValue: SensorValue | number) => {
@@ -147,28 +150,70 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
           <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
-          Datos en Tiempo Real
+          {showHistoricalCharts ? 'Gráficos Históricos' : 'Datos en Tiempo Real'}
         </h3>
         {deviceName && (
-          <span className="text-lg text-white/60 flex items-center gap-2">
-            {deviceName}
-            {onShowDeviceInfo && (
-              <button
-                onClick={onShowDeviceInfo}
-                className="ml-2 p-1 rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                title="Ver información del dispositivo"
-                type="button"
-              >
-                <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </button>
-            )}
-          </span>
+          <div className="flex items-center gap-4">
+            <span className="text-lg text-white/60">{deviceName}</span>
+            <div className="flex items-center gap-3">
+              {/* Toggle de vista - similar a los botones de la imagen */}
+              <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1">
+                <button
+                  onClick={() => setShowHistoricalCharts(false)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                    !showHistoricalCharts
+                      ? 'bg-emerald-500 text-white shadow-lg'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                  type="button"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <span className="text-sm font-medium">Tiempo Real</span>
+                </button>
+                <button
+                  onClick={() => setShowHistoricalCharts(true)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                    showHistoricalCharts
+                      ? 'bg-emerald-500 text-white shadow-lg'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                  type="button"
+                >
+                  <ChartBarIcon className="w-4 h-4" />
+                  <span className="text-sm font-medium">Histórico</span>
+                </button>
+              </div>
+              
+              {/* Botón de información del dispositivo */}
+              {onShowDeviceInfo && (
+                <button
+                  onClick={onShowDeviceInfo}
+                  className="p-2 rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-colors"
+                  title="Ver información del dispositivo"
+                  type="button"
+                >
+                  <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Contenido condicional: gráficos históricos o datos en tiempo real */}
+      {showHistoricalCharts ? (
+        <DeviceHistoricalCharts 
+          device={device}
+          deviceName={deviceName}
+          deviceInfo={deviceInfo}
+          deviceCharacteristics={deviceCharacteristics}
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Indoor Sensors */}
         {data.indoor && (
           <>
@@ -366,6 +411,7 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
         )}
         
       </div>
+      )}
       
       {/* Tarjeta de clima básico usando SimpleWeatherDisplay */}
       {weatherData && weatherData.current && (
