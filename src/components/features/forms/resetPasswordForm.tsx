@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from '@/context/languageContext';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function ResetPasswordForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { language } = useLanguage();
     const { t, loadTranslations } = useTranslation();
     const [password, setPassword] = useState("");
@@ -16,6 +17,8 @@ export default function ResetPasswordForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [touched, setTouched] = useState<Record<string, boolean>>({});
+    const [token, setToken] = useState<string>("");
+    const [isTokenValid, setIsTokenValid] = useState<boolean | null>(null);
     const firstInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -23,8 +26,41 @@ export default function ResetPasswordForm() {
     }, [language]);
 
     useEffect(() => {
-        firstInputRef.current?.focus();
-    }, []);
+        // Extraer token de la URL
+        const tokenFromUrl = searchParams.get('token');
+        if (tokenFromUrl) {
+            setToken(tokenFromUrl);
+            validateToken(tokenFromUrl);
+        } else {
+            setMessage("Token de reset de contraseña no encontrado. Por favor, solicita un nuevo enlace.");
+            setIsTokenValid(false);
+        }
+    }, [searchParams]);
+
+    const validateToken = async (tokenToValidate: string) => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_AGRITECH_API_URL}/validate-reset-token/${tokenToValidate}`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                setIsTokenValid(true);
+                setMessage("");
+            } else {
+                setIsTokenValid(false);
+                setMessage(data.error || "El enlace de reset de contraseña es inválido o ha expirado.");
+            }
+        } catch (error) {
+            console.error("Error validating token:", error);
+            setIsTokenValid(false);
+            setMessage("Error al validar el enlace. Por favor, solicita un nuevo enlace.");
+        }
+    };
+
+    useEffect(() => {
+        if (isTokenValid) {
+            firstInputRef.current?.focus();
+        }
+    }, [isTokenValid]);
 
     const validateField = (name: string, value: string): string | undefined => {
         let error: string | undefined;
@@ -84,6 +120,12 @@ export default function ResetPasswordForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!isTokenValid) {
+            setMessage("El enlace de reset de contraseña es inválido. Por favor, solicita un nuevo enlace.");
+            return;
+        }
+
         setIsSubmitting(true);
         setMessage("");
 
@@ -114,20 +156,20 @@ export default function ResetPasswordForm() {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    token,
                     password,
-                    confirmPassword,
                 }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                setMessage(t('resetPassword.success'));
+                setMessage(t('resetPassword.resetSuccess'));
                 setTimeout(() => {
-                    router.push("/login");
+                    router.push("/signin");
                 }, 3000);
             } else {
-                setMessage(data.message || data.error || t('common.error'));
+                setMessage(data.error || t('common.error'));
             }
         } catch (error) {
             console.error("Error resetting password:", error);
@@ -137,12 +179,51 @@ export default function ResetPasswordForm() {
         }
     };
 
+    // Si el token no es válido, mostrar mensaje de error
+    if (isTokenValid === false) {
+        return (
+            <div className="flex flex-col gap-4 text-lg w-full max-w-md">
+                <div className="text-red-400 bg-red-400/10 p-4 rounded-xl">
+                    {message}
+                </div>
+                <button
+                    onClick={() => router.push("/forgot-password")}
+                    className="w-full px-4 py-2 text-lg rounded-xl bg-emerald-400/90 hover:bg-emerald-400
+                        text-black font-medium
+                        focus:ring-2 focus:ring-emerald-400/20 focus:outline-none
+                        transition-all duration-300
+                        flex items-center justify-center gap-2"
+                >
+                    <span>Solicitar nuevo enlace</span>
+                    <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </button>
+            </div>
+        );
+    }
+
+    // Si aún se está validando el token, mostrar loading
+    if (isTokenValid === null) {
+        return (
+            <div className="flex flex-col gap-4 text-lg w-full max-w-md">
+                <div className="flex items-center justify-center p-8">
+                    <svg className="animate-spin h-8 w-8 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <p className="text-center text-white/70">Validando enlace...</p>
+            </div>
+        );
+    }
+
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-lg w-full max-w-md">
+            <div className="flex flex-col gap-4">
                 <div>
                     <label className="block text-sm font-medium text-white/70">{t('resetPassword.newPassword')}</label>
-                    <div className="relative">
+                    <div className="relative text-lg">
                         <input
                             ref={firstInputRef}
                             type={showPassword ? "text" : "password"}
@@ -203,7 +284,7 @@ export default function ResetPasswordForm() {
 
             {message && (
                 <div className={`text-sm p-3 rounded-xl ${
-                    message === t('resetPassword.success')
+                    message === t('resetPassword.resetSuccess')
                         ? 'text-emerald-400 bg-emerald-400/10'
                         : 'text-red-400 bg-red-400/10'
                 }`}>
@@ -214,7 +295,7 @@ export default function ResetPasswordForm() {
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full px-4 py-2 rounded-xl bg-emerald-400/90 hover:bg-emerald-400
+                className="w-full px-4 py-2 text-lg rounded-xl bg-emerald-400/90 hover:bg-emerald-400
                     text-black font-medium
                     focus:ring-2 focus:ring-emerald-400/20 focus:outline-none
                     transition-all duration-300
@@ -231,7 +312,7 @@ export default function ResetPasswordForm() {
                     </>
                 ) : (
                     <>
-                        <span>{t('resetPassword.reset')}</span>
+                        <span>{t('resetPassword.resetButton')}</span>
                         <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
