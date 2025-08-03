@@ -24,8 +24,11 @@
     "chat": "Chat",
     "createChat": "Crear chat",
     "createFile": "Crear archivo",
-    "recentChats": "Chats recientes",
-    "recentFiles": "Archivos recientes"
+    "recentChats": "Chats",
+    "recentFiles": "Archivos",
+    "expand": "Expandir",
+    "collapse": "Colapsar",
+    "close": "Cerrar"
   }
 }
 
