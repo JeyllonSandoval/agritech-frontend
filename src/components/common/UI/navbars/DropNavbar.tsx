@@ -1,5 +1,5 @@
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/hooks/useAuth';
@@ -27,6 +27,7 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
     const { t, loadTranslations } = useTranslation();
     const { language } = useLanguage();
     const [isLoaded, setIsLoaded] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     const updateUserInfo = () => {
         try {
@@ -61,6 +62,28 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
         };
     }, []);
 
+    // Función para cerrar el dropdown cuando se hace click fuera
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as Node;
+            const dropdownElement = dropdownRef.current;
+            const profileButton = document.querySelector('[data-profile-button]');
+            
+            // Si el click no fue en el dropdown ni en el botón del perfil, cerrar
+            if (dropdownElement && !dropdownElement.contains(target) && 
+                profileButton && !profileButton.contains(target)) {
+                onClose();
+            }
+        };
+
+        // Usar capture: true para detectar clicks en cualquier parte del documento
+        document.addEventListener('mousedown', handleClickOutside, { capture: true });
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside, { capture: true });
+        };
+    }, [onClose]);
+
     if (!isLoaded) return null;
 
     const handleLogout = () => {
@@ -80,12 +103,14 @@ export default function DropNavbar({ onLogout, onClose }: DropNavbarProps) {
 
     return (
         <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className="fixed inset-0 z-[9999]"
             onClick={onClose}
         >
-            <div className="absolute right-8 top-14 w-48 py-2 mt-6 
-                bg-white/15 backdrop-blur-3xl rounded-2xl 
-                border border-white/20 shadow-lg overflow-hidden"
+            <div 
+                ref={dropdownRef}
+                className="absolute right-8 top-14 w-48 py-2 mt-6 
+                    bg-black/90 rounded-2xl 
+                    border border-white/20"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="px-4 py-2 border-b border-white/20">
