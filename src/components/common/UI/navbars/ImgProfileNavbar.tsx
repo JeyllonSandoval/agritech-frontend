@@ -30,6 +30,7 @@ export default function ImgProfileNavbar({ onLogout }: ImgProfileNavbarProps) {
     return (
         <>
             <button 
+                data-profile-button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="group relative w-10 h-10 rounded-full overflow-hidden 
                     bg-emerald-400/90 backdrop-blur-md shadow-sm shadow-emerald-300/90

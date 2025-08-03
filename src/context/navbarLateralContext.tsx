@@ -10,15 +10,15 @@ interface NavbarLateralContextType {
 }
 
 export const NavbarLateralContext = createContext<NavbarLateralContextType>({
-    isLateralOpen: false,
+    isLateralOpen: true,
     isCollapsed: false,
-    navbarWidth: 100, // w-25 = 25 * 4px = 100px
+    navbarWidth: 300, // w-[300px] - Modo desplegado por defecto
     onLateralToggle: () => {},
     onCollapseToggle: () => {},
 });
 
 export function NavbarLateralProvider({ children }: { children: ReactNode }) {
-    const [isLateralOpen, setIsLateralOpen] = useState(false);
+    const [isLateralOpen, setIsLateralOpen] = useState(true);
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     const onLateralToggle = useCallback(() => {

@@ -2,7 +2,7 @@
 import LeftNavbar from '@/components/common/UI/navbars/LeftNavbar';
 import CenterNavbar from '@/components/common/UI/navbars/CenterNavbar';
 import RightNavbar from '@/components/common/UI/navbars/RightNavbar';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useRef } from 'react';
 import { NavbarLateralContext } from '@/context/navbarLateralContext';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/languageContext';
@@ -18,11 +18,37 @@ export default function NavbarH() {
     const isHomeRoute = pathname === '/';
     const { language } = useLanguage();
     const { t, loadTranslations } = useTranslation();
+    const menuRef = useRef<HTMLDivElement>(null);
 
     // Asegurar que el componente está montado en el cliente
     useEffect(() => {
         setIsClient(true);
     }, []);
+
+    // Función para cerrar el menú cuando se hace click fuera
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            // Verificar si el click fue fuera del menú y del botón del menú
+            const target = event.target as Node;
+            const menuElement = menuRef.current;
+            const menuButton = document.querySelector('[data-menu-button]');
+            
+            // Si el click no fue en el menú ni en el botón del menú, cerrar
+            if (menuElement && !menuElement.contains(target) && 
+                menuButton && !menuButton.contains(target)) {
+                setIsMenuOpen(false);
+            }
+        };
+
+        if (isMenuOpen) {
+            // Usar capture: true para detectar clicks en cualquier parte del documento
+            document.addEventListener('mousedown', handleClickOutside, { capture: true });
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside, { capture: true });
+        };
+    }, [isMenuOpen]);
 
     useEffect(() => {
         if (!isClient || typeof window === 'undefined') return;
@@ -144,31 +170,12 @@ export default function NavbarH() {
                     opacity: 1
                 }}
             >
-                <nav className="w-full lg:w-[90%] mx-auto lg:px-0 flex flex-col relative">
-                    {/* Overlay de difuminado */}
-                    <div 
-                        className="fixed inset-0 bg-black/20 backdrop-blur-sm lg:hidden"
-                        style={{
-                            opacity: isMenuOpen ? 1 : 0,
-                            visibility: isMenuOpen ? 'visible' : 'hidden',
-                            transition: 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-                        }}
-                        onClick={handleMenuClose}
-                    />
-
+                <nav className="w-full lg:w-[90%] mx-auto lg:px-0 flex flex-col relative" ref={menuRef}>
                     {/* Barra superior */}
                     <div 
                         className={`flex items-center justify-between px-4 lg:px-0 transition-all duration-500 ease-out ${
                             scrolled ? 'h-14 lg:h-16' : 'h-16 lg:h-20'
                         }`}
-                        style={{
-                            opacity: isMenuOpen ? 0.5 : 1,
-                            filter: isMenuOpen ? 'blur(2px)' : 'blur(0px)',
-                            transition: [
-                                'opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                                'filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-                            ].join(', ')
-                        }}
                     >
                         <div className="w-[200px] lg:w-[250px] flex items-center ">
                             <div className={`${isPlaygroundRoute ? 'hidden lg:block' : 'block'}`}>
@@ -200,6 +207,7 @@ export default function NavbarH() {
                         {/* Botón de menú en móvil/tablet */}
                         <div className="lg:hidden flex justify-center relative z-50">
                             <button 
+                                data-menu-button
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                                 className="p-2 rounded-full border"
                                 style={{
