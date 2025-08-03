@@ -38,22 +38,22 @@ export default function ForgotPasswordForm() {
 
             const data = await response.json();
 
-            if (!response.ok) {
+            if (response.ok) {
+                setMessage(t('forgotPassword.resetEmailSent'));
+                setTimeout(() => {
+                    router.push("/signin");
+                }, 3000);
+            } else {
                 if (response.status === 404) {
-                    throw new Error(t('forgotPassword.userNotFound'));
+                    setMessage(t('forgotPassword.userNotFound'));
                 } else if (response.status === 400) {
-                    throw new Error(data.error || t('common.invalidEmail'));
+                    setMessage(data.error || t('common.invalidEmail'));
                 } else if (response.status === 429) {
-                    throw new Error(t('forgotPassword.tooManyRequests'));
+                    setMessage(t('forgotPassword.tooManyRequests'));
                 } else {
-                    throw new Error(data.error || t('forgotPassword.failed'));
+                    setMessage(data.error || t('forgotPassword.failed'));
                 }
             }
-
-            setMessage(t('forgotPassword.success'));
-            setTimeout(() => {
-                router.push("/signin");
-            }, 3000);
         } catch (error) {
             setMessage(error instanceof Error ? error.message : t('forgotPassword.error'));
         } finally {
@@ -137,13 +137,13 @@ export default function ForgotPasswordForm() {
                         {message && (
                             <div className={`text-sm px-4 py-3 rounded-xl 
                                 flex items-center gap-2 ${
-                                    message === t('forgotPassword.resetEmailSent')
+                                    message.includes(t('forgotPassword.resetEmailSent'))
                                         ? "bg-emerald-400/10 border border-emerald-400/20 text-emerald-400"
                                         : "bg-red-400/10 border border-red-400/20 text-red-400"
                                 }`}
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    {message === t('forgotPassword.success') ? (
+                                    {message.includes(t('forgotPassword.resetEmailSent')) ? (
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                     ) : (
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

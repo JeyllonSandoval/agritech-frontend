@@ -10,9 +10,10 @@ interface ItemsChatsProps {
     onPanelChange: (panel: 'welcome' | 'files' | 'chat', chatId?: string) => void;
     selectedChatId: string | null;
     onChatSelect: (chatId: string, chat: any) => void;
+    collapsed?: boolean;
 }
 
-export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect }: ItemsChatsProps) {
+export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect, collapsed = false }: ItemsChatsProps) {
     const chats = useChatStore(state => state.chats);
     const setChats = useChatStore(state => state.setChats);
     const { openModal } = useModal();
@@ -114,33 +115,88 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
             );
         }
 
+        if (collapsed) {
+            return (
+                <div key="chats-list-collapsed" className="flex flex-col gap-2 p-2 h-full overflow-y-auto
+                    scrollbar scrollbar-w-1.5 
+                    scrollbar-track-gray-800/20
+                    scrollbar-thumb-emerald-500/50 
+                    hover:scrollbar-thumb-emerald-400/70
+                    scrollbar-track-rounded-full
+                    scrollbar-thumb-rounded-full">
+                    {chats.map((chat, index) => (
+                        <div 
+                            key={chat.ChatID}
+                            className="relative group flex-shrink-0"
+                            style={{ animationDelay: `${index * 50}ms` }}
+                        >
+                            <button 
+                                className={`w-16 h-12 backdrop-blur-sm text-gray-300 rounded-xl 
+                                    shadow-lg shadow-black/10 transition-all duration-300 ease-out
+                                    flex items-center justify-center
+                                    relative overflow-hidden
+                                    hover:bg-emerald-500/20 hover:text-emerald-300
+                                    transform hover:scale-105 active:scale-95
+                                    focus:outline-none focus:ring-2 focus:ring-emerald-500/50
+                                    ${selectedChatId === chat.ChatID 
+                                        ? 'bg-emerald-400/30 border border-emerald-500/50 shadow-emerald-500/20' 
+                                        : 'bg-gray-800/50 border border-gray-700/30 hover:border-emerald-500/40'}`}
+                                onClick={() => {
+                                    onChatSelect(chat.ChatID, chat);
+                                    onPanelChange('chat', chat.ChatID);
+                                    router.push(`/playground/chat/${chat.ChatID}`);
+                                }}
+                                title={chat.chatname || 'Unnamed Chat'}
+                            >
+                                <svg className="w-5 h-5 transition-all duration-300 ease-out
+                                    group-hover:scale-110 group-hover:rotate-3" 
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
         return (
-            <div key="chats-list" className="space-y-2 flex flex-col text-2xl">
-                {chats.map((chat) => (
+            <div key="chats-list" className="flex flex-col gap-2 p-2 h-full overflow-y-auto
+                scrollbar scrollbar-w-1.5 
+                scrollbar-track-gray-800/20
+                scrollbar-thumb-emerald-500/50 
+                hover:scrollbar-thumb-emerald-400/70
+                scrollbar-track-rounded-full
+                scrollbar-thumb-rounded-full">
+                {chats.map((chat, index) => (
                     <div 
                         key={chat.ChatID}
-                        className="relative group"
+                        className="relative group flex-shrink-0"
+                        style={{ animationDelay: `${index * 50}ms` }}
                     >
                         <button 
-                            className={`w-full px-4 py-3 backdrop-blur-sm text-white/90 rounded-lg 
-                                shadow-lg shadow-black/20 transition-all duration-300
+                            className={`w-full px-4 py-3 backdrop-blur-sm text-white rounded-lg 
+                                shadow-lg shadow-black/10 transition-all duration-300 ease-out
                                 flex items-center justify-between gap-2 text-sm font-medium
                                 relative overflow-hidden
-                                hover:bg-emerald-500/20 hover:border-emerald-400/30
+                                hover:bg-emerald-500/20 hover:text-emerald-300
+                                transform hover:scale-[1.02] active:scale-[0.98]
+                                focus:outline-none focus:ring-2 focus:ring-emerald-500/50
                                 ${selectedChatId === chat.ChatID 
-                                    ? 'bg-emerald-500/30 border border-emerald-400/40' 
-                                    : 'bg-gray-800/20 border border-transparent'}`}
+                                    ? 'bg-emerald-400/30 border border-emerald-500/50 shadow-emerald-500/20' 
+                                    : 'bg-gray-800/50 border border-gray-700/30 hover:border-emerald-500/40'}`}
                             onClick={() => {
                                 onChatSelect(chat.ChatID, chat);
                                 onPanelChange('chat', chat.ChatID);
                                 router.push(`/playground/chat/${chat.ChatID}`);
                             }}
                         >
-                            <span className="relative z-10 text-white group-hover:translate-x-1 transition-transform duration-300">
+                            <span className="relative z-10 group-hover:translate-x-1 transition-transform duration-300 ease-out">
                                 {chat.chatname || 'Unnamed Chat'}
                             </span>
                         </button>
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out">
                             <ButtonItemEdit 
                                 initialValue={chat.chatname}
                                 onEdit={(newName) => handleEditChat(chat.ChatID, newName)}
@@ -153,7 +209,7 @@ export default function ItemsChats({ onPanelChange, selectedChatId, onChatSelect
                 ))}
             </div>
         );
-    }, [chats, onPanelChange, selectedChatId, onChatSelect, setChats, router, t]);
+    }, [chats, onPanelChange, selectedChatId, onChatSelect, setChats, router, t, collapsed]);
 
     if (!isLoaded) return null;
 

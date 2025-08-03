@@ -17,7 +17,7 @@ export default function PlaygroundLayout({ children }: PlaygroundLayoutProps) {
     const { openModal, closeModal, setSelectedFile } = useModal();
     const router = useRouter();
     const pathname = usePathname();
-    const { isLateralOpen } = useContext(NavbarLateralContext);
+    const { isLateralOpen, isCollapsed, navbarWidth } = useContext(NavbarLateralContext);
 
     const handlePanelChange = (panel: 'welcome' | 'files' | 'chat', chatId?: string) => {
         if (panel === 'files' && pathname !== '/playground/files') {
@@ -47,9 +47,10 @@ export default function PlaygroundLayout({ children }: PlaygroundLayoutProps) {
                 }}
             />
             
-            <div className={`fixed top-[80px] right-0 bottom-0 transition-all duration-300 ${
-                isLateralOpen ? 'left-[300px]' : 'left-0'
-            }`}>
+            <div 
+                className="fixed top-0 right-0 bottom-0 transition-all duration-300"
+                style={{ left: `${navbarWidth + 16}px` }} // 16px es el margen left-4
+            >
                 <div className="flex-1 h-full">
                     {isChatRoute ? (
                         <div className="w-full h-full">

@@ -812,9 +812,9 @@ class TelemetryService {
   /**
    * Get all groups for a user
    */
-  async getUserGroups(userId: string): Promise<ApiResponse<Group[]>> {
+  async getUserGroups(): Promise<ApiResponse<Group[]>> {
     try {
-      const url = buildApiUrl(API_CONFIG.ENDPOINTS.USER_GROUPS(userId));
+      const url = buildApiUrl(API_CONFIG.ENDPOINTS.GROUPS);
       const config = getRequestConfig('GET');
 
       const response = await fetch(url, config);

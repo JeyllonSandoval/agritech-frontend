@@ -24,7 +24,9 @@
     "files": "Documents",
     "chat": "Chat",
     "createChat": "Create Chat",
-    "createFile": "Create File"
-
+    "createFile": "Create File",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "close": "Close"
   }
 } 

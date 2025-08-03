@@ -742,11 +742,11 @@ const ChatDeviceSelector: React.FC<ChatDeviceSelectorProps> = ({
   // ============================================================================
 
   return (
-    <div className="w-[320px] min-h-[88vh] backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
+    <div className="w-[320px] min-h-[88vh] backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-2 border-b border-white/10 bg-white/5">
+      <div className="flex items-center justify-between p-2 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-emerald-500/20">
+          <div className="p-2 rounded-xl">
             <SparklesIcon className="w-5 h-5 text-emerald-400" />
           </div>
           <div>

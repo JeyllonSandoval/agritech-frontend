@@ -3,9 +3,30 @@
 // Centralized configuration for API endpoints and environment variables
 // ============================================================================
 
+// Función para determinar la URL base de la API
+const getBaseUrl = (): string => {
+  // Prioridad 1: Variable de entorno específica
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  
+  // Prioridad 2: Variable de entorno alternativa
+  if (process.env.NEXT_PUBLIC_BACKEND_URL) {
+    return process.env.NEXT_PUBLIC_BACKEND_URL;
+  }
+  
+  // Prioridad 3: URL de producción por defecto
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://agritech-backend-jj.vercel.app';
+  }
+  
+  // Prioridad 4: URL de desarrollo por defecto
+  return 'http://127.0.0.1:5000';
+};
+
 export const API_CONFIG = {
   // Base URL for the backend API
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000',
+  BASE_URL: getBaseUrl(),
   
   // API Endpoints
   ENDPOINTS: {
@@ -24,6 +45,7 @@ export const API_CONFIG = {
     
     // Device Groups endpoints
     DEVICE_GROUPS: '/device-groups',
+    GROUPS: '/groups',
     GROUP_INFO: (groupId: string) => `/groups/${groupId}`,
     USER_GROUPS: (userId: string) => `/users/${userId}/groups`,
     GROUP_DEVICES: (groupId: string) => `/groups/${groupId}/devices`,
@@ -109,5 +131,7 @@ if (isDevelopment) {
   console.log('🔧 API Configuration:', {
     BASE_URL: API_CONFIG.BASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
   });
 } 
