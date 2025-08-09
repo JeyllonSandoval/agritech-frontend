@@ -85,6 +85,7 @@ const calculateComparisonStats = (comparisonData: ComparisonData[]) => {
   const stats = {
     temperature: { max: -Infinity, min: Infinity, maxDevice: '', minDevice: '' },
     humidity: { max: -Infinity, min: Infinity, maxDevice: '', minDevice: '' },
+      soilHumidity: { max: -Infinity, min: Infinity, maxDevice: '', minDevice: '' },
     pressure: { max: -Infinity, min: Infinity, maxDevice: '', minDevice: '' },
     windSpeed: { max: -Infinity, min: Infinity, maxDevice: '', minDevice: '' },
     windDirection: { max: -Infinity, min: Infinity, maxDevice: '', minDevice: '' },
@@ -108,6 +109,22 @@ const calculateComparisonStats = (comparisonData: ComparisonData[]) => {
         if (tempValue < stats.temperature.min) {
           stats.temperature.min = tempValue;
           stats.temperature.minDevice = data.deviceName;
+        }
+      }
+
+      // Humedad del suelo (CH1, CH2)
+      const soil = (data.realtimeData as any)?.soil_ch1?.soilmoisture?.value
+        ?? (data.realtimeData as any)?.soil_ch2?.soilmoisture?.value
+        ?? (data.realtimeData as any)?.soilMoisture;
+      if (soil !== undefined && !isNaN(Number(soil))) {
+        const soilValue = Number(soil);
+        if (soilValue > stats.soilHumidity.max) {
+          stats.soilHumidity.max = soilValue;
+          stats.soilHumidity.maxDevice = data.deviceName;
+        }
+        if (soilValue < stats.soilHumidity.min) {
+          stats.soilHumidity.min = soilValue;
+          stats.soilHumidity.minDevice = data.deviceName;
         }
       }
 
@@ -253,47 +270,79 @@ const getComparisonIndicator = (deviceName: string, metric: string, comparisonSt
   return { type: 'normal', color: 'text-white/60', bgColor: 'bg-white/5', icon: null };
 };
 
+// Helpers para localizar series en estructuras variables
+const isTimestampMap = (obj: any): boolean => {
+  if (!obj || typeof obj !== 'object') return false;
+  const keys = Object.keys(obj);
+  if (keys.length < 2) return false;
+  let numeric = 0;
+  for (const k of keys) {
+    if (/^\d{9,}$/.test(k)) {
+      numeric++;
+      if (numeric >= 2) return true;
+    }
+  }
+  return false;
+};
+
+const tryPath = (root: any, path: string[]): any => {
+  let cur = root;
+  for (const p of path) {
+    if (!cur) return null;
+    cur = cur[p];
+  }
+  if (!cur) return null;
+  if (cur.list) return cur.list;
+  if (isTimestampMap(cur)) return cur;
+  return null;
+};
+
+const findSeries = (root: any, primary: string[], alternates?: string[][], aliases?: string[]): any => {
+  if (!root) return null;
+  // 1) Path principal
+  const main = tryPath(root, primary);
+  if (main) return main;
+  // 2) Paths alternativos
+  if (alternates) {
+    for (const alt of alternates) {
+      const found = tryPath(root, alt);
+      if (found) return found;
+    }
+  }
+  // 3) Búsqueda por alias en todo el árbol (BFS)
+  if (aliases && aliases.length > 0) {
+    const queue: any[] = [root];
+    while (queue.length) {
+      const cur = queue.shift();
+      if (cur && typeof cur === 'object') {
+        for (const [k, v] of Object.entries(cur)) {
+          if (aliases.includes(k)) {
+            if ((v as any)?.list) return (v as any).list;
+            if (isTimestampMap(v)) return v;
+          }
+          if (v && typeof v === 'object') queue.push(v);
+        }
+      }
+    }
+  }
+  return null;
+};
+
 // Componente de gráfica histórica mejorado
-const HistoricalChart = ({ comparisonData, metric, label, unit, path, alternatePaths }: {
+const HistoricalChart = ({ comparisonData, metric, label, unit, path, alternatePaths, aliases }: {
   comparisonData: ComparisonData[];
   metric: string;
   label: string;
   unit: string;
   path: string[];
   alternatePaths?: string[][];
+  aliases?: string[];
 }) => {
   const allTimestamps = new Set<string>();
   const datasets = comparisonData.map(device => {
-    let list = device.historicalData?.data;
-    let foundPath = false;
-    
-    // Intentar path principal
-    let tempList = list;
-    for (const p of path) tempList = tempList?.[p];
-    if (tempList?.list) {
-      list = tempList.list;
-      foundPath = true;
-    }
-    
-    // Si no se encontró, intentar paths alternativos
-    if (!foundPath && alternatePaths) {
-      for (const altPath of alternatePaths) {
-        tempList = device.historicalData?.data;
-        for (const p of altPath) tempList = tempList?.[p];
-        if (tempList?.list) {
-          list = tempList.list;
-          foundPath = true;
-          break;
-        } else if (tempList && typeof tempList === 'object' && Object.keys(tempList).length > 0) {
-          // Si no tiene .list pero sí datos directos (estructura procesada)
-          list = tempList;
-          foundPath = true;
-          break;
-        }
-      }
-    }
-    
-    if (!foundPath || !list) return null;
+    const root = device.historicalData?.data;
+    const list = findSeries(root, path, alternatePaths, aliases);
+    if (!list) return null;
     Object.keys(list).forEach(ts => allTimestamps.add(ts));
     return {
       label: device.deviceName,
@@ -392,35 +441,9 @@ const HistoricalChart = ({ comparisonData, metric, label, unit, path, alternateP
       </div>
       <div className="mt-4 grid grid-cols-3 gap-4 text-center">
         {comparisonData.map((device, i) => {
-          let list = device.historicalData?.data;
-          let foundPath = false;
-          
-          // Intentar path principal
-          let tempList = list;
-          for (const p of path) tempList = tempList?.[p];
-          if (tempList?.list) {
-            list = tempList.list;
-            foundPath = true;
-          }
-          
-          // Si no se encontró, intentar paths alternativos
-          if (!foundPath && alternatePaths) {
-            for (const altPath of alternatePaths) {
-              tempList = device.historicalData?.data;
-              for (const p of altPath) tempList = tempList?.[p];
-              if (tempList?.list) {
-                list = tempList.list;
-                foundPath = true;
-                break;
-              } else if (tempList && typeof tempList === 'object' && Object.keys(tempList).length > 0) {
-                list = tempList;
-                foundPath = true;
-                break;
-              }
-            }
-          }
-          
-          const stats = calcStats(foundPath ? list : undefined);
+          const root = device.historicalData?.data;
+          const list = findSeries(root, path, alternatePaths, aliases);
+          const stats = calcStats(list || undefined);
           return (
             <div key={device.deviceId} className="p-3 bg-white/5 rounded-xl">
               <h4 className="text-sm font-medium text-white mb-2">{device.deviceName}</h4>
@@ -531,31 +554,75 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
 
     try {
       const deviceIds = selectedDevices.map(d => d.DeviceID);
-      const response = await telemetryService.compareDevicesRealtime(deviceIds);
-      
-      if (response && (response as any).devices) {
-        const responseData = response as any;
-        console.log('🔧 ResponseData completo:', responseData);
-        console.log('🔧 Dispositivos en response:', responseData.devices);
-        
-        const data: ComparisonData[] = selectedDevices.map(device => {
-          const deviceData = responseData.devices.find((d: any) => d.id === device.DeviceID);
-          console.log('🔧 DeviceData encontrado para', device.DeviceName, ':', deviceData);
-          console.log('🔧 Datos reales del dispositivo:', deviceData?.data);
-          
-          return {
-            deviceId: device.DeviceID,
-            deviceName: device.DeviceName,
-            realtimeData: deviceData?.data?.data || deviceData?.data || null,
-            error: deviceData ? undefined : 'No se encontraron datos para este dispositivo'
-          };
+
+      // Función de completitud para evitar render parcial
+      const isComplete = (arr: any[]): boolean => {
+        if (!Array.isArray(arr) || arr.length === 0) return false;
+        return deviceIds.every(id => {
+          const found = arr.find((x: any) => x?.id === id);
+          if (!found) return false;
+          const raw = found?.data?.data || found?.data || {};
+          const tempOk = !!(raw?.indoor?.temperature || raw?.temperature || raw?.tempf);
+          const humOk = !!(raw?.indoor?.humidity || raw?.humidity || raw?.humidity1);
+          const pressOk = !!(raw?.pressure?.relative || raw?.pressure || raw?.baromrelin);
+          const soilOk = !!(raw?.soil_ch1?.soilmoisture || raw?.soil_ch2?.soilmoisture || raw?.soilMoisture);
+          return tempOk && humOk && pressOk && soilOk;
         });
-        
-        console.log('🔧 ComparisonData final:', data);
-        setComparisonData(data);
-      } else {
-        setError('Error al obtener datos de comparación');
+      };
+
+      const maxAttempts = 6;
+      const baseDelay = 700;
+      let finalDevices: any[] | null = null;
+
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const response = await telemetryService.compareDevicesRealtime(deviceIds);
+        const devices = (response as any)?.devices || [];
+        if (isComplete(devices)) {
+          finalDevices = devices;
+          break;
+        }
+        if (attempt < maxAttempts) {
+          const jitter = Math.floor(Math.random() * 300);
+          await new Promise(res => setTimeout(res, baseDelay * attempt + jitter));
+        } else {
+          finalDevices = devices; // último intento: usamos lo disponible
+        }
       }
+
+      if (!finalDevices) {
+        setError('Error al obtener datos de comparación');
+        return;
+      }
+
+      // Normalización final y setState
+      const completeDevices = finalDevices.map((d: any) => {
+        const raw = d?.data?.data || d?.data || {};
+        const hydrated: any = { ...raw };
+        if (!hydrated.temperature && typeof hydrated.tempf !== 'undefined') hydrated.temperature = hydrated.tempf;
+        if (!hydrated.humidity && typeof hydrated.humidity1 !== 'undefined') hydrated.humidity = hydrated.humidity1;
+        if (!hydrated.pressure && typeof hydrated.baromrelin !== 'undefined') hydrated.pressure = hydrated.baromrelin;
+        if (hydrated.indoor) {
+          if (!hydrated.indoor.temperature && typeof hydrated.temperature !== 'undefined') {
+            hydrated.indoor.temperature = { value: hydrated.temperature, unit: '°F' } as any;
+          }
+          if (!hydrated.indoor.humidity && typeof hydrated.humidity !== 'undefined') {
+            hydrated.indoor.humidity = { value: hydrated.humidity, unit: '%' } as any;
+          }
+        }
+        return { id: d.id, data: hydrated };
+      });
+
+      const data: ComparisonData[] = selectedDevices.map(device => {
+        const deviceData = completeDevices.find((d: any) => d.id === device.DeviceID);
+        return {
+          deviceId: device.DeviceID,
+          deviceName: device.DeviceName,
+          realtimeData: deviceData?.data || null,
+          error: deviceData ? undefined : 'No se encontraron datos para este dispositivo'
+        };
+      });
+
+      setComparisonData(data);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error desconocido');
     } finally {
@@ -575,28 +642,47 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
     try {
       const deviceIds = selectedDevices.map(d => d.DeviceID);
       console.log('🔧 Comparando dispositivos históricos:', deviceIds, 'timeRange:', timeRange);
-      
-      const response = await telemetryService.compareDevicesHistory(deviceIds, timeRange);
-      console.log('🔧 Respuesta completa del backend:', response);
-      
-      if (response && (response as any).devices) {
-        const responseData = response as any;
-        console.log('🔧 ResponseData completo:', responseData);
-        console.log('🔧 Dispositivos en response:', responseData.devices);
-        
+
+      const isCompleteHistory = (payload: any): boolean => {
+        const arr = Array.isArray(payload?.devices) ? payload.devices : [];
+        return deviceIds.every(id => {
+          const d = arr.find((x: any) => x?.id === id);
+          if (!d) return false;
+          const root = d?.data?.data || d?.data;
+          if (!root) return false;
+          const temp = findSeries(root, ['indoor','indoor','temperature'], [["indoor","temperature"],["outdoor","temperature"],["temperature"]]);
+          const hum = findSeries(root, ['indoor','indoor','humidity'], [["indoor","humidity"],["outdoor","humidity"],["humidity"]]);
+          return !!(temp || hum);
+        });
+      };
+
+      const maxAttempts = 5;
+      const baseDelay = 900;
+      let responseData: any = null;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const response = await telemetryService.compareDevicesHistory(deviceIds, timeRange);
+        if (isCompleteHistory(response)) {
+          responseData = response;
+          break;
+        }
+        if (attempt < maxAttempts) {
+          const jitter = Math.floor(Math.random() * 300);
+          await new Promise(res => setTimeout(res, baseDelay * attempt + jitter));
+          continue;
+        }
+        responseData = response; // usar lo disponible en el último intento
+      }
+
+      if (responseData && (responseData as any).devices) {
         setTimeRangeInfo(responseData.timeRange);
         const data: ComparisonData[] = selectedDevices.map(device => {
-          const deviceData = responseData.devices.find((d: any) => d.id === device.DeviceID);
-          console.log('🔧 DeviceData encontrado para', device.DeviceName, ':', deviceData);
-          console.log('🔧 Datos históricos del dispositivo:', deviceData?.data);
-          
+          const deviceData = (responseData as any).devices.find((d: any) => d.id === device.DeviceID);
           let error: string | undefined = undefined;
           if (deviceData?.data?.code === -1 && deviceData?.data?.msg === 'Operation too frequent') {
             error = 'API limitado - Intenta en unos minutos';
           } else if (!deviceData) {
             error = 'No se encontraron datos para este dispositivo';
           }
-          
           return {
             deviceId: device.DeviceID,
             deviceName: device.DeviceName,
@@ -604,7 +690,6 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
             error
           };
         });
-        console.log('🔧 ComparisonData final:', data);
         setComparisonData(data);
       }
     } catch (error) {
@@ -957,6 +1042,29 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
                                     </div>
                                   );
                                 })()}
+                                {/* Humedad del Suelo */}
+                                {(((data.realtimeData as any)?.soil_ch1?.soilmoisture?.value) ||
+                                  ((data.realtimeData as any)?.soil_ch2?.soilmoisture?.value) ||
+                                  ((data.realtimeData as any)?.soilMoisture)) && (() => {
+                                  const indicator = getComparisonIndicator(data.deviceName, 'soilHumidity', comparisonStats);
+                                  const IconComponent = indicator.icon;
+                                  const soilValue = (data.realtimeData as any)?.soil_ch1?.soilmoisture?.value
+                                    ?? (data.realtimeData as any)?.soil_ch2?.soilmoisture?.value
+                                    ?? (data.realtimeData as any)?.soilMoisture;
+                                  return (
+                                    <div className={`flex items-center justify-between p-3 ${indicator.bgColor} rounded-xl border border-white/10`}>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-white/70 text-sm">Humedad del suelo</span>
+                                        {IconComponent && (
+                                          <IconComponent className={`w-4 h-4 ${indicator.color}`} />
+                                        )}
+                                      </div>
+                                      <span className={`font-medium ${indicator.color}`}>
+                                        {soilValue}%
+                                      </span>
+                                    </div>
+                                  );
+                                })()}
                                 {/* Velocidad del viento */}
                                 {(data.realtimeData?.wind?.wind_speed || data.realtimeData?.windSpeed || data.realtimeData?.windspeedmph) && (() => {
                                   const indicator = getComparisonIndicator(data.deviceName, 'windSpeed', comparisonStats);
@@ -1227,6 +1335,7 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
                             ['indoor', 'pressure'],
                             ['outdoor', 'pressure']
                           ]}
+                          aliases={['baromrelin','baromabsin']}
                         />
                       )}
 
@@ -1246,6 +1355,7 @@ const DeviceComparison: React.FC<DeviceComparisonProps> = ({ devices, onClose })
                             ['soil_ch2', 'list', 'soilmoisture'],
                             ['soilMoisture']
                           ]}
+                          aliases={['soilmoisture']}
                         />
                       )}
 

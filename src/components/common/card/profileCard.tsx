@@ -66,13 +66,13 @@ export default function ProfileCard() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || "Failed to send verification email");
+                throw new Error(errorData.error || t('profile.verificationEmailError'));
             }
 
-            setResendMessage("Verification email sent successfully!");
+            setResendMessage(t('profile.verificationEmailSent'));
         } catch (error) {
             console.error("Error resending verification email:", error);
-            setResendMessage(error instanceof Error ? error.message : "Error sending verification email");
+            setResendMessage(error instanceof Error ? error.message : t('profile.verificationEmailError'));
         } finally {
             setIsResending(false);
         }
@@ -175,7 +175,7 @@ export default function ProfileCard() {
                                             <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                             </svg>
-                                            <span>{t('verified')}</span>
+                                            <span>{t('profile.verified')}</span>
                                         </div>
                                     ) : (
                                         <button
@@ -197,7 +197,7 @@ export default function ProfileCard() {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
                                             )}
-                                            <span>{t('resend')}</span>
+                                            <span>{t('profile.resend')}</span>
                                         </button>
                                     )}
                                 </div>
@@ -205,7 +205,7 @@ export default function ProfileCard() {
                             
                             {resendMessage && (
                                 <div className={`text-[10px] sm:text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl
-                                    ${resendMessage.includes("successfully") 
+                                    ${resendMessage === t('profile.verificationEmailSent') 
                                         ? "bg-emerald-400/20 text-emerald-400" 
                                         : "bg-red-400/20 text-red-400"}`}
                                 >

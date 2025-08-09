@@ -1095,16 +1095,81 @@ class TelemetryService {
   async compareDevicesRealtime(deviceIds: string[]): Promise<ApiResponse<any>> {
     try {
       const url = buildApiUrl('/compare/realtime');
-      const config = getRequestConfig('POST', { deviceIds });
+      const maxAttempts = 5;
+      const baseDelayMs = 600; // backoff progresivo
 
-      const response = await fetch(url, config);
-      const data = await response.json();
+      let lastData: any = null;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const config = getRequestConfig('POST', { deviceIds });
+        const response = await fetch(url, config);
+        const data = await response.json();
+        lastData = data;
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to compare devices');
+        if (!response.ok) {
+          // Si el backend responde error, cortar con detalle
+          throw new Error(data.error || 'Failed to compare devices');
+        }
+
+        // Verificación de integridad: ¿tenemos todos los dispositivos y con datos?
+        try {
+          const devicesArr = Array.isArray(data?.devices) ? data.devices : [];
+          const allPresent = deviceIds.every(id => devicesArr.some((d: any) => d?.id === id));
+          const allHaveFull = allPresent && devicesArr.every((d: any) => {
+            const dd = d?.data?.data || d?.data;
+            if (!dd) return false;
+            const tempOk = !!(dd?.indoor?.temperature || dd?.temperature || dd?.tempf);
+            const humOk = !!(dd?.indoor?.humidity || dd?.humidity || dd?.humidity1);
+            const pressOk = !!(dd?.pressure?.relative || dd?.pressure || dd?.baromrelin);
+            const soilOk = !!(dd?.soil_ch1?.soilmoisture || dd?.soil_ch2?.soilmoisture || dd?.soilMoisture);
+            return tempOk && humOk && pressOk && soilOk;
+          });
+
+          if (allHaveFull) {
+            return data;
+          }
+        } catch {
+          // Si el formato no es el esperado, continuar con reintento
+        }
+
+        // Esperar antes del siguiente intento (backoff)
+        if (attempt < maxAttempts) {
+          await new Promise(res => setTimeout(res, baseDelayMs * attempt));
+        }
       }
 
-      return data;
+      // Si llegamos aquí, intentar completar por dispositivo con llamadas espaciadas
+      if (lastData && Array.isArray(lastData.devices)) {
+        const filled = { ...lastData, devices: [...lastData.devices] };
+        for (let i = 0; i < filled.devices.length; i++) {
+          const d = filled.devices[i];
+          const raw = d?.data?.data || d?.data || {};
+          const hasTemp = !!(raw?.indoor?.temperature || raw?.temperature || raw?.tempf);
+          const hasHum = !!(raw?.indoor?.humidity || raw?.humidity || raw?.humidity1);
+          const hasSoil = !!(raw?.soil_ch1?.soilmoisture || raw?.soil_ch2?.soilmoisture || raw?.soilMoisture);
+
+          if (!(hasTemp && hasHum && hasSoil)) {
+            // Delay con backoff y jitter para evitar bloqueos
+            await new Promise(res => setTimeout(res, 700 + Math.floor(Math.random() * 400)));
+            const single = await this.getRealtimeData(d.id);
+            if (single.success && single.data) {
+              const hydrated = single.data as any;
+              // Normalizaciones
+              if (!hydrated.temperature && typeof hydrated.tempf !== 'undefined') hydrated.temperature = hydrated.tempf;
+              if (!hydrated.humidity && typeof hydrated.humidity1 !== 'undefined') hydrated.humidity = hydrated.humidity1;
+              if (!hydrated.pressure && typeof hydrated.baromrelin !== 'undefined') hydrated.pressure = hydrated.baromrelin;
+              if (hydrated.indoor) {
+                if (!hydrated.indoor.temperature && typeof hydrated.temperature !== 'undefined') hydrated.indoor.temperature = { value: hydrated.temperature, unit: '°F' };
+                if (!hydrated.indoor.humidity && typeof hydrated.humidity !== 'undefined') hydrated.indoor.humidity = { value: hydrated.humidity, unit: '%' };
+              }
+              filled.devices[i] = { ...d, data: hydrated };
+            }
+          }
+        }
+        return filled;
+      }
+
+      // Devolver lo mejor que se tenga del último intento
+      return lastData ?? { success: false, error: 'Realtime comparison returned no data' };
     } catch (error) {
       throw new Error(`Error comparing devices: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -1117,24 +1182,82 @@ class TelemetryService {
     try {
       // Convertir timeRange a startTime y endTime como espera el backend
       const { startTime, endTime } = this.convertTimeRangeToDates(timeRange);
-      
       const url = buildApiUrl('/compare/history');
-      const requestBody = { 
-        deviceIds,
-        startTime,
-        endTime,
-        timeRange 
-      };
-      const config = getRequestConfig('POST', requestBody);
-      
-      const response = await fetch(url, config);
-      const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to compare historical data');
+      const hasMetricList = (root: any, keys: string[]): boolean => {
+        if (!root || typeof root !== 'object') return false;
+        const stack = [root];
+        while (stack.length) {
+          const cur = stack.pop();
+          if (!cur || typeof cur !== 'object') continue;
+          for (const k of Object.keys(cur)) {
+            const v = (cur as any)[k];
+            if (keys.includes(k) && v && (typeof v.list === 'object' || isTimestampMap(v))) {
+              return true;
+            }
+            if (v && typeof v === 'object') stack.push(v);
+          }
+        }
+        return false;
+      };
+
+      const isTimestampMap = (obj: any): boolean => {
+        if (!obj || typeof obj !== 'object') return false;
+        const keys = Object.keys(obj);
+        if (keys.length < 3) return false;
+        let numericCount = 0;
+        for (const k of keys) {
+          if (/^\d{9,}$/.test(k)) {
+            numericCount++;
+            if (numericCount >= 3) return true;
+          }
+        }
+        return false;
+      };
+
+      const maxAttempts = 4;
+      const baseDelayMs = 800;
+      let lastData: any = null;
+
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const requestBody = { deviceIds, startTime, endTime, timeRange };
+        const config = getRequestConfig('POST', requestBody);
+        const response = await fetch(url, config);
+        const data = await response.json();
+        lastData = data;
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to compare historical data');
+        }
+
+        // Validar que para cada dispositivo existan al menos temperatura u humedad
+        try {
+          const devicesArr = Array.isArray(data?.devices) ? data.devices : [];
+          const allPresent = deviceIds.every(id => devicesArr.some((d: any) => d?.id === id));
+          const allHaveFull = allPresent && devicesArr.every((d: any) => {
+            const dd = d?.data?.data || d?.data;
+            if (!dd) return false;
+            const hasTemp = hasMetricList(dd, ['temperature','tempc','tempf']);
+            const hasHum = hasMetricList(dd, ['humidity']);
+            const hasPress = hasMetricList(dd, ['pressure','relative','absolute','baromrelin','baromabsin']);
+            const hasSoil = hasMetricList(dd, ['soilMoisture','soilmoisture']);
+            return hasTemp && hasHum && hasPress && hasSoil;
+          });
+          if (allHaveFull) {
+            return data;
+          }
+        } catch {
+          // continuar intentando
+        }
+
+        if (attempt < maxAttempts) {
+          // Espera con jitter para evitar rate-limit
+          const jitter = Math.floor(Math.random() * 300);
+          await new Promise(res => setTimeout(res, baseDelayMs * attempt + jitter));
+        }
       }
 
-      return data;
+      return lastData ?? { success: false, error: 'Historical comparison returned no data' };
     } catch (error) {
       throw new Error(`Error comparing historical data: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

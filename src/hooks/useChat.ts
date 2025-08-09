@@ -63,8 +63,21 @@ export const useChat = ({ ChatID }: UseChatProps) => {
                 return transformed;
             });
 
-            console.log(`🔍 [useChat] Mensajes transformados:`, messagesWithClientTime.length);
-            setMessages(messagesWithClientTime);
+            // Orden cronológico ascendente. En caso de empate, priorizar
+            // el mensaje de usuario de selección de archivo y luego usuario vs IA
+            const sortedMessages = [...messagesWithClientTime].sort((a, b) => {
+                const ta = new Date(a.createdAt || 0).getTime();
+                const tb = new Date(b.createdAt || 0).getTime();
+                if (ta !== tb) return ta - tb;
+                const aIsFileSelect = a.sendertype === 'user' && a.contentFile === 'New file selected';
+                const bIsFileSelect = b.sendertype === 'user' && b.contentFile === 'New file selected';
+                if (aIsFileSelect !== bIsFileSelect) return aIsFileSelect ? -1 : 1;
+                if (a.sendertype !== b.sendertype) return a.sendertype === 'user' ? -1 : 1;
+                return 0;
+            });
+
+            console.log(`🔍 [useChat] Mensajes transformados:`, sortedMessages.length);
+            setMessages(sortedMessages);
             
             // Si no hay mensajes, también es un estado válido
             if (messagesWithClientTime.length === 0) {
@@ -81,7 +94,8 @@ export const useChat = ({ ChatID }: UseChatProps) => {
     };
 
     const sendMessage = async (content: string) => {
-        if (!currentChat?.ChatID) return;
+        const targetChatId = currentChat?.ChatID || ChatID || null;
+        if (!targetChatId) return;
 
         try {
             setIsLoading(true);
@@ -99,7 +113,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
 
             // 1. Crear y mostrar mensaje del usuario (SIN información de archivo local)
             const userMessage: Message = {
-                ChatID: currentChat.ChatID,
+                ChatID: targetChatId,
                 contentAsk: content,
                 sendertype: 'user',
                 status: 'active',
@@ -110,7 +124,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
             // 2. Crear placeholder de IA con ID único
             const placeholderId = `loading-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             const aiPlaceholder: Message = {
-                ChatID: currentChat.ChatID,
+                ChatID: targetChatId,
                 sendertype: 'ai',
                 status: 'loading',
                 createdAt: new Date().toISOString(),
@@ -124,7 +138,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
             
             console.log(`Enviando mensaje con content: "${content}", fileId: ${fileId}, shouldUseFile: ${shouldUseFile}, selectedFile: ${selectedFile?.FileName}`);
             
-            const backendResponse = await chatService.sendMessage(currentChat.ChatID, content, fileId);
+            const backendResponse = await chatService.sendMessage(targetChatId, content, fileId);
             const backendMessage: Message = {
                 ...backendResponse,
                 createdAt: new Date().toISOString(),
@@ -148,14 +162,15 @@ export const useChat = ({ ChatID }: UseChatProps) => {
     };
 
     const handleFileSelect = async (file: FileProps) => {
-        if (!currentChat) return;
+        const targetChatId = currentChat?.ChatID || ChatID || null;
+        if (!targetChatId) return;
         setSelectedFile(file);
         try {
             setIsLoading(true);
             setError(null);
 
             // 1. Enviar mensaje de archivo
-            const fileMessage = await chatService.sendFileMessage(currentChat.ChatID, file.FileID);
+            const fileMessage = await chatService.sendFileMessage(targetChatId, file.FileID);
             setMessages(prev => {
                 const updated = [...prev, fileMessage];
         
@@ -165,7 +180,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
             // 2. Generar resumen automático del PDF con el FileID incluido
             const summaryPlaceholderId = `loading-summary-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             const summaryPlaceholder: Message = {
-                ChatID: currentChat.ChatID,
+                ChatID: targetChatId,
                 FileID: file.FileID,
                 sendertype: 'ai',
                 status: 'loading',
@@ -182,7 +197,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
 
             // 3. Espera respuesta real del resumen - Asegurar que se pase el FileID
             const summaryResponse = await chatService.sendMessage(
-                currentChat.ChatID,
+                targetChatId,
                 language === 'es' ? 'Genera un resumen ejecutivo del documento' : 'Generate an executive summary of the document',
                 file.FileID // Pasar el FileID para que el backend procese el contenido
             );
