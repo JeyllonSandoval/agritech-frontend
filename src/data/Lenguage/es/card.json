@@ -10,7 +10,9 @@
         "verified": "Verificado",
         "resend": "Reenviar",
         "active": "Activo",
-        "inactive": "Inactivo"
+        "inactive": "Inactivo",
+        "verificationEmailSent": "¡Correo de verificación enviado correctamente!",
+        "verificationEmailError": "Error al enviar el correo de verificación"
     },
     "chat": {
         "title": "Chat",

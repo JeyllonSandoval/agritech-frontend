@@ -1,10 +1,19 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoginForm from "@/components/features/forms/loginForm";
 import RegisterForm from "@/components/features/forms/registerForm";
+import { useLanguage } from "@/context/languageContext";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Signin() {
     const [isLogin, setIsLogin] = useState(true);
+    const { language } = useLanguage();
+    const { t, loadTranslations } = useTranslation();
+    const [ready, setReady] = useState(false);
+
+    useEffect(() => {
+        loadTranslations('forms').then(() => setReady(true));
+    }, [language]);
 
     return (
         <section className="w-full max-h-screen flex flex-col items-center justify-center overflow-hidden px-4 md:px-6 py-12 md:py-20">
@@ -16,12 +25,20 @@ export default function Signin() {
                 >
                     <div className="flex items-center gap-4">
                         <div className="flex flex-col text-right">
-                            <h2 className="text-white/70 text-xs md:text-sm">
-                                Already have an account?
-                            </h2>
-                            <p className="text-emerald-400 text-xs md:text-sm font-medium">
-                                Sign in here
-                            </p>
+                            {ready && (
+                                <>
+                                    <h2 className="text-white/70 text-xs md:text-sm">
+                                        {t('register.haveAccount')}
+                                    </h2>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsLogin(true)}
+                                        className="text-left text-emerald-400 text-xs md:text-sm font-medium hover:underline underline-offset-2"
+                                    >
+                                        {t('register.signIn')}
+                                    </button>
+                                </>
+                            )}
                         </div>
                         <button
                             onClick={() => setIsLogin(true)}
@@ -43,7 +60,7 @@ export default function Signin() {
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                                 </svg>
-                                Sign In
+                                {ready ? t('login.signIn') : 'Sign In'}
                             </span>
                             <div className="absolute inset-0 rounded-xl overflow-hidden">
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-700/20 to-transparent animate-border-flow"></div>
@@ -73,7 +90,7 @@ export default function Signin() {
                                 hover:shadow-lg hover:shadow-emerald-500/20"
                         >
                             <span className="relative z-10 flex items-center gap-2">
-                                Register
+                                {ready ? t('register.signUp') : 'Register'}
                                 <svg className="w-3 h-3 md:w-4 md:h-4 transition-transform duration-300 group-hover:translate-x-1" 
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -84,12 +101,20 @@ export default function Signin() {
                             </div>
                         </button>
                         <div className="flex flex-col">
-                            <h2 className="text-white/70 text-xs md:text-sm">
-                                Need an account?
-                            </h2>
-                            <p className="text-emerald-400 text-xs md:text-sm font-medium">
-                                Register here
-                            </p>
+                            {ready && (
+                                <>
+                                    <h2 className="text-white/70 text-xs md:text-sm">
+                                        {t('login.noAccount')}
+                                    </h2>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsLogin(false)}
+                                        className="text-left text-emerald-400 text-xs md:text-sm font-medium hover:underline underline-offset-2"
+                                    >
+                                        {t('login.signUp')}
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

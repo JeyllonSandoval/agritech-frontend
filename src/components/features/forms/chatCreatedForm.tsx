@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 import { useChatStore } from '@/store/chatStore';
 import { useLanguage } from '@/context/languageContext';
@@ -27,7 +28,9 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
         noSpecialChars: false
     });
     const addChat = useChatStore(state => state.addChat);
+    const setCurrentChat = useChatStore(state => state.setCurrentChat);
     const firstInputRef = useRef<HTMLInputElement>(null);
+    const router = useRouter();
 
     const isFormValid = validations.length && validations.noSpecialChars;
 
@@ -91,6 +94,9 @@ export default function ChatCreatedForm({ onClose }: ChatCreatedFormProps) {
                 chatname: chatName
             };
             addChat(chatToAdd);
+            setCurrentChat(chatToAdd);
+            // Redirigir automáticamente al nuevo chat
+            router.push(`/playground/chat/${chatToAdd.ChatID}`);
             onClose();
         } catch (err) {
             setError(err instanceof Error ? err.message : t('chatCreated.error'));

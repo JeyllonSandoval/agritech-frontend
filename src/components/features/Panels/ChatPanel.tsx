@@ -68,27 +68,21 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
     }, [language]);
 
     const handleSendMessage = async (content: string) => {
-        if (!currentChat) return;
+        // Permitir enviar aunque aún no se haya cargado currentChat usando fallback en useChat
         await sendMessage(content);
     };
 
     const handleOpenFileSelect = () => {
-        if (!currentChat) {
-            console.error('No chat selected');
-            return;
-        }
         openModal('createdFile', 'select', '', undefined, undefined, (file) => {
             handleFileSelect(file);
         });
     };
 
     const handleDeviceDataSend = (deviceData: string) => {
-        if (!currentChat) return;
-        
         console.log('🔍 [ChatPanel] handleDeviceDataSend llamado con:', {
             deviceDataLength: deviceData.length,
             containsDeviceData: deviceData.includes('Datos del Dispositivo:'),
-            currentChatId: currentChat.ChatID
+            currentChatId: currentChat?.ChatID || ChatID
         });
         
         // Enviar como mensaje normal de usuario SIN FileID para que se guarde en la DB
@@ -104,24 +98,14 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
         setShowDeviceSelector(false);
     };
 
-    if (!currentChat) {
-        return (
-            <div className="fixed left-0 right-0 top-[80px] h-[calc(100vh-80px)] flex flex-col items-center justify-center">
-                <div className="text-center space-y-4">
-                    <p className="text-white/70 text-base sm:text-lg">
-                        {t('selectChat')}
-                    </p>
-                </div>
-            </div>
-        );
-    }
+    // Mostrar el panel siempre, incluso si currentChat aún no está listo
 
     const welcomeContent = (
         <div className="w-full max-w-2xl space-y-6 sm:space-y-8 px-4 sm:px-6 md:px-8">
             <div className="text-center space-y-3 sm:space-y-4">
                 <div className="flex flex-col items-center gap-2">
                     <h1 className="text-2xl sm:text-3xl font-semibold text-white/90">
-                        {currentChat.chatname}
+                        {currentChat?.chatname || 'Chat'}
                     </h1>
                 </div>
                 
@@ -204,7 +188,7 @@ export default function ChatPanel({ onPanelChange, ChatID }: ChatPanelProps) {
                     onClick={() => {
                         // Crear mensaje de bienvenida de la IA directamente
                         const welcomeMessage: Message = {
-                            ChatID: currentChat.ChatID,
+                            ChatID: currentChat?.ChatID || ChatID || '',
                             sendertype: 'ai',
                             status: 'active',
                             createdAt: new Date().toISOString(),
