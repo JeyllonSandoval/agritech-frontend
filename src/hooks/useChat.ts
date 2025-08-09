@@ -180,7 +180,7 @@ export const useChat = ({ ChatID }: UseChatProps) => {
             // 2. Generar resumen automático del PDF con el FileID incluido
             const summaryPlaceholderId = `loading-summary-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             const summaryPlaceholder: Message = {
-                ChatID: currentChat.ChatID,
+                ChatID: targetChatId,
                 FileID: file.FileID,
                 sendertype: 'ai',
                 status: 'loading',
