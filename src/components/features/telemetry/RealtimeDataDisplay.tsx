@@ -271,8 +271,8 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
     
     switch (sensorType) {
       case 'temperature':
-        if (numValue > 30) return 'text-red-400';
-        if (numValue > 25) return 'text-yellow-400';
+        if (numValue > 88) return 'text-red-400';
+        if (numValue > 80) return 'text-yellow-400';
         return 'text-green-400';
       case 'humidity':
         if (numValue < 30) return 'text-red-400';
@@ -283,8 +283,8 @@ const RealtimeDataDisplay: React.FC<RealtimeDataDisplayProps> = ({
         if (numValue < 50) return 'text-yellow-400';
         return 'text-green-400';
       case 'battery':
-        if (numValue < 2.5) return 'text-red-400';
-        if (numValue < 3.0) return 'text-yellow-400';
+        if (numValue < 1.1) return 'text-red-400';
+        if (numValue < 1.4) return 'text-yellow-400';
         return 'text-green-400';
       default:
         return 'text-white';
