@@ -29,7 +29,7 @@ export default function DropNavbar() {
                     border border-emerald-300/50
                     overflow-hidden`}
             >
-                <span className="relative z-10">{t('register')}</span>
+                <span className="relative z-10">{t('navbar.register')}</span>
                 {!isSignInRoute && (
                     <div className="absolute inset-0 rounded-xl overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-700/20 to-transparent animate-border-flow"></div>
