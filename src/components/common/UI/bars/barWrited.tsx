@@ -94,7 +94,7 @@ export default function BarWrited({
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder={t('writeQuestion')}
                         disabled={isLoading}
-                        className="w-full text-sm px-3 sm:px-4 pr-16 sm:pr-24 py-1 sm:py-2 
+                        className="w-full text-sm px-3 sm:px-4 pr-36 sm:pr-44 py-1 sm:py-2 
                             bg-white/5 rounded-xl
                             text-white placeholder-white/50
                             border border-white/10 focus:border-emerald-500/50
